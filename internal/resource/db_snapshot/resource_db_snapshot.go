@@ -15,6 +15,7 @@ func ResourceDBSnapshot() *schema.Resource {
 
 		CreateContext: resourceDBSnapshotCreate,
 		ReadContext:   resourceDBSnapshotRead,
+		UpdateContext: resourceDBSnapshotUpdate,
 		DeleteContext: resourceDBSnapshotDelete,
 
 		Schema: map[string]*schema.Schema{
@@ -170,7 +171,7 @@ func resourceDBSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta 
 	client := meta.(*apiClient.Client)
 
 	var diags diag.Diagnostics
-	var resourceId string
+	var id string
 
 	availabilityMachineId := d.Get("availability_machine_id").(string)
 
@@ -180,13 +181,13 @@ func resourceDBSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	resourceId = *response.ResourceId
+	id = *response.ResourceId
 
-	d.SetId(resourceId)
+	d.SetId(id)
 
 	if d.Get("block_until_complete").(bool) {
 		//if err := client.WaitTillReady(resourceId, d.Get("timeout").(int)); err != nil {
-		if err := client.DBSnapshotPollForStatus(resourceId, "READY", d.Get("timeout").(int), 60); err != nil {
+		if err := client.DBSnapshotPollForStatus(availabilityMachineId, id, "READY", d.Get("timeout").(int), 60); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -240,7 +241,7 @@ func resourceDBSnapshotDelete(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	//err = client.WaitTillDeleted(databaseDeletionResponse.TaskId, d.Get("timeout").(int), "Database Deletion")
-	err = client.DBSnapshotPollForStatusCode(id, 404, d.Get("timeout").(int), 30)
+	err = client.DBSnapshotPollForStatusCode(availabilityMachineId, id, 404, d.Get("timeout").(int), 30)
 	if err != nil {
 		return diag.FromErr(err)
 	}

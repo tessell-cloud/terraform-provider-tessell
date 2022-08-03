@@ -20,9 +20,6 @@ func (c *Client) CloneTessellService(availabilityMachineId string, payload model
 	if err != nil {
 		return nil, 0, err
 	}
-	q := req.URL.Query()
-	q.Add("availability-machine-id", fmt.Sprintf("%v", availabilityMachineId))
-	req.URL.RawQuery = q.Encode()
 
 	defer req.Body.Close()
 
@@ -50,9 +47,6 @@ func (c *Client) DeleteTessellService(id string, payload model.DeleteTessellServ
 	if err != nil {
 		return nil, 0, err
 	}
-	q := req.URL.Query()
-	q.Add("id", fmt.Sprintf("%v", id))
-	req.URL.RawQuery = q.Encode()
 
 	defer req.Body.Close()
 
@@ -75,9 +69,6 @@ func (c *Client) GetTessellService(id string) (*model.TessellServiceDTO, int, er
 	if err != nil {
 		return nil, 0, err
 	}
-	q := req.URL.Query()
-	q.Add("id", fmt.Sprintf("%v", id))
-	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)
 	if err != nil {
@@ -156,9 +147,6 @@ func (c *Client) StartTessellService(id string) (*model.TaskSummary, int, error)
 	if err != nil {
 		return nil, 0, err
 	}
-	q := req.URL.Query()
-	q.Add("id", fmt.Sprintf("%v", id))
-	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)
 	if err != nil {
@@ -179,9 +167,6 @@ func (c *Client) StopTessellService(id string) (*model.TaskSummary, int, error) 
 	if err != nil {
 		return nil, 0, err
 	}
-	q := req.URL.Query()
-	q.Add("id", fmt.Sprintf("%v", id))
-	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)
 	if err != nil {

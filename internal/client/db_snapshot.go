@@ -10,19 +10,16 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func (c *Client) CreateTessellServiceBackupRequest(id string, payload model.CreateBackupTaskPayload) (*model.TaskSummary, int, error) {
+func (c *Client) CreateTessellServiceBackupRequest(availabilityMachineId string, payload model.CreateBackupTaskPayload) (*model.TaskSummary, int, error) {
 	rb, err := json.Marshal(payload)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/availability-machines/%s/backups", c.APIAddress, id), strings.NewReader(string(rb)))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/availability-machines/%s/backups", c.APIAddress, availabilityMachineId), strings.NewReader(string(rb)))
 	if err != nil {
 		return nil, 0, err
 	}
-	q := req.URL.Query()
-	q.Add("id", fmt.Sprintf("%v", id))
-	req.URL.RawQuery = q.Encode()
 
 	defer req.Body.Close()
 
@@ -45,10 +42,6 @@ func (c *Client) DeleteBackupRequest(availabilityMachineId string, id string) (*
 	if err != nil {
 		return nil, 0, err
 	}
-	q := req.URL.Query()
-	q.Add("availabilityMachineId", fmt.Sprintf("%v", availabilityMachineId))
-	q.Add("id", fmt.Sprintf("%v", id))
-	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)
 	if err != nil {
@@ -69,10 +62,6 @@ func (c *Client) GetBackup(availabilityMachineId string, id string) (*model.Tess
 	if err != nil {
 		return nil, 0, err
 	}
-	q := req.URL.Query()
-	q.Add("availabilityMachineId", fmt.Sprintf("%v", availabilityMachineId))
-	q.Add("id", fmt.Sprintf("%v", id))
-	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)
 	if err != nil {
@@ -88,7 +77,7 @@ func (c *Client) GetBackup(availabilityMachineId string, id string) (*model.Tess
 	return &tessellDmmDataflixBackupDTO, statusCode, nil
 }
 
-func (c *Client) DBSnapshotPollForStatus(id string, status string, timeout int, interval int) error {
+func (c *Client) DBSnapshotPollForStatus(availabilityMachineId string, id string, status string, timeout int, interval int) error {
 	//loopCount := -5
 	loopCount := 0
 	sleepCycleDurationSmall, err := time.ParseDuration("10s")
@@ -104,7 +93,7 @@ func (c *Client) DBSnapshotPollForStatus(id string, status string, timeout int, 
 	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
 
 	for {
-		response, _, err := c.GetTessellService(id)
+		response, _, err := c.GetBackup(availabilityMachineId, id)
 		if err != nil {
 			return err
 		}
@@ -128,7 +117,7 @@ func (c *Client) DBSnapshotPollForStatus(id string, status string, timeout int, 
 	}
 }
 
-func (c *Client) DBSnapshotPollForStatusCode(id string, statusCodeRequired int, timeout int, interval int) error {
+func (c *Client) DBSnapshotPollForStatusCode(availabilityMachineId string, id string, statusCodeRequired int, timeout int, interval int) error {
 	loopCount := -5
 	sleepCycleDurationSmall, err := time.ParseDuration("10s")
 	if err != nil {
@@ -142,7 +131,7 @@ func (c *Client) DBSnapshotPollForStatusCode(id string, statusCodeRequired int, 
 	loops := timeout / int(sleepCycleDuration.Seconds())
 
 	for {
-		_, statusCode, err := c.GetTessellService(id)
+		_, statusCode, err := c.GetBackup(availabilityMachineId, id)
 		if err != nil {
 			if statusCode == statusCodeRequired {
 				return nil

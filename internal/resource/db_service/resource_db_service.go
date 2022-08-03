@@ -1073,7 +1073,7 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 	client := meta.(*apiClient.Client)
 
 	var diags diag.Diagnostics
-	var resourceId string
+	var id string
 
 	availabilityMachineId := d.Get("availability_machine_id").(string)
 	snapshotId := d.Get("snapshot_id").(string)
@@ -1086,7 +1086,7 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		resourceId = *response.ResourceId
+		id = *response.ResourceId
 	} else {
 		payload := formPayloadForProvisionTessellService(d)
 
@@ -1094,14 +1094,14 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		resourceId = *response.ResourceId
+		id = *response.ResourceId
 	}
 
-	d.SetId(resourceId)
+	d.SetId(id)
 
 	if d.Get("block_until_complete").(bool) {
 		//if err := client.WaitTillReady(resourceId, d.Get("timeout").(int)); err != nil {
-		if err := client.DBServicePollForStatus(resourceId, "READY", d.Get("timeout").(int), 60); err != nil {
+		if err := client.DBServicePollForStatus(id, "READY", d.Get("timeout").(int), 60); err != nil {
 			return diag.FromErr(err)
 		}
 	}
