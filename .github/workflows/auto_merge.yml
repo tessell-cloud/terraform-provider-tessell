@@ -38,6 +38,7 @@ jobs:
           pull-request-number: "${{ github.event.number }}"
           merge-method: squash
 
+     
       - name: Slack Notification
         uses: act10ns/slack@v1.5.0
         with:
@@ -45,3 +46,4 @@ jobs:
            steps: ${{ toJson(steps) }}
            channel: ${{ secrets.SLACK_DEVOPS_CHANNEL  }}
         if: failure()
+

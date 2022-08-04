@@ -50,6 +50,13 @@ jobs:
               console.log("This branch " + prSrcBranch + " is itself a double commit branch")
               process.exit(0);
             }
+
+            // check if NODC is set
+            if ("${{ github.event.pull_request.title }}".endsWith('::NODC::')) {
+              console.log("NODC set, aborting..")
+              process.exit(0);
+            }
+
             // create rel branches array
             const branches = "${{ env.BRANCHES }}".split(' ')
             // add 'main' branch to the list
@@ -70,6 +77,12 @@ jobs:
               if (dstBranch != "main") {
                 // remove the 'origin' from the remote branch name
                 dstBranch = dstBranch.split('/')[1]
+
+                // No need to create PR for branches not starting with 'rel-'
+                if (!dstBranch.startsWith('rel-')) {
+                   continue
+                }
+
                 // dst branch minor version
                 dstBranchMinVer = dstBranch.split('.')[1]
                 // if minor version is more than the current branch, its a latest release and
@@ -92,6 +105,7 @@ jobs:
               } catch (error) {
                 console.log(error);
               }
+
               command = 'git cherry-pick ' + "${{ github.sha }}"
               try {
                 // wait for exec to complete
@@ -127,9 +141,8 @@ jobs:
                   base: dstBranch
               });
               console.log(pullCreateResponse)
-              // set pull number
-              core.setOutput('pull_number', pullCreateResponse.data.number)
             }
+
 
       - name: Slack Notification
         uses: act10ns/slack@v1.5.0
