@@ -1,9 +1,0 @@
-image_tag: 
-instance_type: ''
-limits_cpu: 1500m
-limits_memory: 786Mi
-namespace: ''
-replicas: 1
-requests_cpu: 600m
-requests_memory: 512Mi
-tessell_iam_config: tessell-iam-config

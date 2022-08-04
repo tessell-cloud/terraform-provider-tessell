@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{.Values.tessell_iam_config}}
-  namespace: {{ .Values.global.namespace | default .Values.namespace  }}
-data:
-  JAVA_OPTS: -Xms{{ .Values.global.tessell_iam.requests_memory | default .Values.requests_memory | trimSuffix "Mi"  }}m -Xmx{{ .Values.global.tessell_iam.limits_memory | default .Values.limits_memory | trimSuffix "Mi"  }}m
