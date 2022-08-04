@@ -187,7 +187,7 @@ func resourceDBSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	if d.Get("block_until_complete").(bool) {
 		//if err := client.WaitTillReady(resourceId, d.Get("timeout").(int)); err != nil {
-		if err := client.DBSnapshotPollForStatus(availabilityMachineId, id, "READY", d.Get("timeout").(int), 60); err != nil {
+		if err := client.DBSnapshotPollForStatus(availabilityMachineId, id, "AVAILABLE", d.Get("timeout").(int), 60); err != nil {
 			return diag.FromErr(err)
 		}
 	}
