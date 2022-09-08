@@ -31,6 +31,7 @@ jobs:
           branches+=("$(git branch -r | sed 's/^ *//g'| grep 'rel-')")
           for branch in $branches; do br_arr+=($branch); done
           echo "BRANCHES=${br_arr[@]}" >> $GITHUB_ENV
+          echo "MAILID=$(git log -1 --pretty=format:'%ae')" >> $GITHUB_ENV
         id: all_branches
 
       - name: Pull Create
@@ -119,7 +120,7 @@ jobs:
                   const result = await execPromise(command);
                   console.log("stdout: " + result.stdout);
                   console.log("stderr: " + result.stderr);
-                  command = "git add . ; git -c core.editor=true cherry-pick --continue"
+                  command = "git add . ; git -c core.editor=true commit --amend --author=${{ env.MAILID }}"
                   result = await execPromise(command);
                   console.log("stdout: " + result.stdout);
                   console.log("stderr: " + result.stderr);
@@ -142,7 +143,6 @@ jobs:
               });
               console.log(pullCreateResponse)
             }
-
 
       - name: Slack Notification
         uses: act10ns/slack@v1.5.0
