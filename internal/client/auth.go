@@ -16,9 +16,8 @@ type AuthStruct struct {
 type AuthResponse struct {
 	EmailId     string `json:"emailId"`
 	AccessToken string `json:"accessToken"`
-	IdToken     string `json:"idToken"`
 	Tenant      []struct {
-		TenantId string `json:"tenant"`
+		TenantId string `json:"tenantId"`
 	} `json:"tenantUserAttributes"`
 }
 
