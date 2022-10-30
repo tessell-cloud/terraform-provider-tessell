@@ -32,7 +32,6 @@ func NewClient(apiAddress *string, emailId *string, password *string) (*Client, 
 	}
 
 	c.AuthorizationToken = ar.AccessToken
-	c.AuthenticationToken = ar.IdToken
 	c.TenantId = ar.Tenant[0].TenantId
 
 	return &c, nil
@@ -41,9 +40,6 @@ func NewClient(apiAddress *string, emailId *string, password *string) (*Client, 
 func (c *Client) doRequest(req *http.Request) ([]byte, int, error) {
 	if c.AuthorizationToken != "" {
 		req.Header.Set("Authorization", c.AuthorizationToken)
-	}
-	if c.AuthenticationToken != "" {
-		req.Header.Set("Authentication", c.AuthenticationToken)
 	}
 	if c.TenantId != "" {
 		req.Header.Set("tenant-id", c.TenantId)
