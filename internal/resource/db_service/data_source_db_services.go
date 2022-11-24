@@ -24,22 +24,22 @@ func DataSourceDBServices() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
-							Description: "Tessell generated UUID for the Tessell Service",
+							Description: "Tessell generated UUID for the DB Service. This is the unique identifier for the DB Service.",
 							Computed:    true,
 						},
 						"availability_machine_id": {
 							Type:        schema.TypeString,
-							Description: "Associated Availability Machine Id",
+							Description: "Unique id of the associated Availability Machine",
 							Computed:    true,
 						},
 						"name": {
 							Type:        schema.TypeString,
-							Description: "Name of the Tessell Service",
+							Description: "Name of the DB Service",
 							Computed:    true,
 						},
 						"description": {
 							Type:        schema.TypeString,
-							Description: "Tessell Service description",
+							Description: "User specified description for the DB Service",
 							Computed:    true,
 						},
 						"engine_type": {
@@ -54,7 +54,7 @@ func DataSourceDBServices() *schema.Resource {
 						},
 						"num_of_instances": {
 							Type:        schema.TypeInt,
-							Description: "",
+							Description: "This specifies the number of instances (nodes) that are created for the DB Service",
 							Computed:    true,
 						},
 						"status": {
@@ -69,93 +69,93 @@ func DataSourceDBServices() *schema.Resource {
 						},
 						"auto_minor_version_update": {
 							Type:        schema.TypeBool,
-							Description: "Specifies whether to automatically update minor version for Tessell Service",
+							Description: "This field specifies whether to automatically update minor version for the DB Service",
 							Computed:    true,
 						},
 						"enable_deletion_protection": {
 							Type:        schema.TypeBool,
-							Description: "Specifies whether to enable deletion protection for the Tessell Service",
+							Description: "This field specifies whether to enable deletion protection for the DB Service. If this is enabled, the deletion for the DB Service would be disallowed until this setting is disabled.",
 							Computed:    true,
 						},
 						"software_image": {
 							Type:        schema.TypeString,
-							Description: "The Software Image that is used to create the Tessell Service",
+							Description: "The software image that has been used to create the DB Service",
 							Computed:    true,
 						},
 						"software_image_version": {
 							Type:        schema.TypeString,
-							Description: "The Software Image version that is used to create the Tessell Service",
+							Description: "The software image version that is used to create the DB Service",
 							Computed:    true,
 						},
 						"tenant_id": {
 							Type:        schema.TypeString,
-							Description: "The tenant-id for the Tessell Service",
+							Description: "The tenant identifier under which the DB Service is created",
 							Computed:    true,
 						},
 						"subscription": {
 							Type:        schema.TypeString,
-							Description: "The subscription-name in which this Tessell Service is created",
+							Description: "The Tessell Subscription under which this DB Service is created",
 							Computed:    true,
 						},
 						"owner": {
 							Type:        schema.TypeString,
-							Description: "Tessell Service owner email address",
+							Description: "This field specifies who is the owner for the DB Service",
 							Computed:    true,
 						},
 						"logged_in_user_role": {
 							Type:        schema.TypeString,
-							Description: "Access role for the currently logged in user",
+							Description: "This field specifies access role on the DB Service for the currently logged in user",
 							Computed:    true,
 						},
 						"date_created": {
 							Type:        schema.TypeString,
-							Description: "Timestamp when the Tessell Service was created at",
+							Description: "This field specifies the timestamp when the DB Service was created at",
 							Computed:    true,
 						},
 						"started_at": {
 							Type:        schema.TypeString,
-							Description: "Timestamp when the Tessell Service was last started at",
+							Description: "This field specifies the timestamp when the DB Service was last started at",
 							Computed:    true,
 						},
 						"stopped_at": {
 							Type:        schema.TypeString,
-							Description: "Timestamp when the Tessell Service was last stopped at",
+							Description: "This field specifies the timestamp when the DB Service was last stopped at",
 							Computed:    true,
 						},
 						"cloned_from_info": {
 							Type:        schema.TypeList,
-							Description: "If the Tessell Service is created as a clone from some other Tessell Service, this section describes the parent Tessell Service and cloning details",
+							Description: "If the DB Service is created as a clone from some other DB Service, this section describes the parent DB Service and cloning details",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"tessell_service_id": {
 										Type:        schema.TypeString,
-										Description: "The Tessell Service Id using which this Tessell Service clone is created",
+										Description: "The DB Service Id using which this DB Service clone is created",
 										Computed:    true,
 									},
 									"availability_machine_id": {
 										Type:        schema.TypeString,
-										Description: "The Availability Machine Id using which this Tessell Service clone is created",
+										Description: "The Availability Machine Id using which this DB Service clone is created",
 										Computed:    true,
 									},
 									"tessell_service": {
 										Type:        schema.TypeString,
-										Description: "The Tessell Service name using which this Tessell Service clone is created",
+										Description: "The DB Service name using which this DB Service clone is created",
 										Computed:    true,
 									},
 									"availability_machine": {
 										Type:        schema.TypeString,
-										Description: "The Availaility Machine name using which this Tessell Service clone is created",
+										Description: "The Availaility Machine name using which this DB Service clone is created",
 										Computed:    true,
 									},
 									"snapshot_name": {
 										Type:        schema.TypeString,
-										Description: "The snapshot using which this Tessell Service clone is created",
+										Description: "The snapshot using which this DB Service clone is created",
 										Computed:    true,
 									},
 									"snapshot_id": {
 										Type:        schema.TypeString,
-										Description: "The snapshot Id using which this Tessell Service clone is created",
+										Description: "The snapshot Id using which this DB Service clone is created",
 										Computed:    true,
 									},
 									"pitr_time": {
@@ -163,12 +163,17 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "If the database was created using a Point-In-Time mechanism, it specifies the timestamp in UTC",
 										Computed:    true,
 									},
+									"maximum_recoverability": {
+										Type:        schema.TypeBool,
+										Description: "If the service was created using a maximum recoverablity from the parent service",
+										Computed:    true,
+									},
 								},
 							},
 						},
 						"service_connectivity": {
 							Type:        schema.TypeList,
-							Description: "Tessell Service's connectivity information",
+							Description: "DB Service's connectivity information",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -179,17 +184,17 @@ func DataSourceDBServices() *schema.Resource {
 									},
 									"service_port": {
 										Type:        schema.TypeInt,
-										Description: "The connection port for the Tessell Service",
+										Description: "The connection port for the DB Service",
 										Computed:    true,
 									},
 									"enable_public_access": {
 										Type:        schema.TypeBool,
-										Description: "Specify whether to enable public access to the Tessell Service, default false",
+										Description: "Specify whether to enable public access to the DB Service, default false",
 										Computed:    true,
 									},
 									"allowed_ip_addresses": {
 										Type:        schema.TypeList,
-										Description: "The list of allowed ipv4 addresses that can connect to the Tessell Service",
+										Description: "The list of allowed ipv4 addresses that can connect to the DB Service",
 										Computed:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -197,11 +202,16 @@ func DataSourceDBServices() *schema.Resource {
 									},
 									"connect_strings": {
 										Type:        schema.TypeList,
-										Description: "The list of connect strings for the Tessell Service",
+										Description: "The list of connect strings for the DB Service",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"type": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"usage_type": {
 													Type:        schema.TypeString,
 													Description: "",
 													Computed:    true,
@@ -223,7 +233,29 @@ func DataSourceDBServices() *schema.Resource {
 												},
 												"service_port": {
 													Type:        schema.TypeInt,
-													Description: "The connection port for the Tessell Service",
+													Description: "The connection port for the DB Service",
+													Computed:    true,
+												},
+											},
+										},
+									},
+									"private_link": {
+										Type:        schema.TypeList,
+										Description: "The interface endpoint or Gateway Load Balancer endpoint to connect to your DB service.",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"service_principals": {
+													Type:        schema.TypeList,
+													Description: "The list of AWS account principals that are currently enabled",
+													Computed:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"endpoint_service_name": {
+													Type:        schema.TypeString,
+													Description: "The configured endpoint as a result of configuring the service-pricipals",
 													Computed:    true,
 												},
 											},
@@ -231,7 +263,7 @@ func DataSourceDBServices() *schema.Resource {
 									},
 									"update_in_progress_info": {
 										Type:        schema.TypeList,
-										Description: "Tessell Service connectivity update-in-progress details",
+										Description: "DB Service connectivity update-in-progress details",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -242,15 +274,32 @@ func DataSourceDBServices() *schema.Resource {
 												},
 												"enable_public_access": {
 													Type:        schema.TypeBool,
-													Description: "Specify whether to enable public access to the Tessell Service, default false",
+													Description: "Specify whether to enable public access to the DB Service, default false",
 													Computed:    true,
 												},
 												"allowed_ip_addresses": {
 													Type:        schema.TypeList,
-													Description: "The list of allowed ipv4 addresses that can connect to the Tessell Service",
+													Description: "The list of allowed ipv4 addresses that can connect to the DB Service",
 													Computed:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
+													},
+												},
+												"private_link": {
+													Type:        schema.TypeList,
+													Description: "The interface endpoint or Gateway Load Balancer endpoint to connect to your DB service.",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"service_principals": {
+																Type:        schema.TypeList,
+																Description: "The list of AWS account principals that are currently enabled",
+																Computed:    true,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
 													},
 												},
 											},
@@ -259,25 +308,30 @@ func DataSourceDBServices() *schema.Resource {
 								},
 							},
 						},
+						"tessell_genie_status": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
 						"infrastructure": {
 							Type:        schema.TypeList,
-							Description: "The infra details where the Tessell Service is present",
+							Description: "This field contains DB Service's infrastructure related information, like, where the service is hosted - cloud, region; what compute shape, or network is is configured with.",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"cloud": {
 										Type:        schema.TypeString,
-										Description: "The cloud-type in which the Tessell Service is provisioned (ex. aws, azure)",
+										Description: "The cloud-type in which the DB Service is provisioned (ex. aws, azure)",
 										Computed:    true,
 									},
 									"region": {
 										Type:        schema.TypeString,
-										Description: "The region in which the Tessell Service provisioned",
+										Description: "The region in which the DB Service provisioned",
 										Computed:    true,
 									},
 									"availability_zone": {
 										Type:        schema.TypeString,
-										Description: "The availability-zone in which the Tessell Service is provisioned",
+										Description: "The availability-zone in which the DB Service is provisioned",
 										Computed:    true,
 									},
 									"cloud_availability": {
@@ -318,17 +372,32 @@ func DataSourceDBServices() *schema.Resource {
 									},
 									"vpc": {
 										Type:        schema.TypeString,
-										Description: "The VPC to be used for provisioning the Tessell Service",
+										Description: "The VPC to be used for provisioning the DB Service",
+										Computed:    true,
+									},
+									"enable_encryption": {
+										Type:        schema.TypeBool,
+										Description: "",
+										Computed:    true,
+									},
+									"encryption_key": {
+										Type:        schema.TypeString,
+										Description: "The encryption key name which is used to encrypt the data at rest",
 										Computed:    true,
 									},
 									"compute_type": {
 										Type:        schema.TypeString,
-										Description: "The compute-type to be used for provisioning the Tessell Service",
+										Description: "The compute-type to be used for provisioning the DB Service",
+										Computed:    true,
+									},
+									"storage": {
+										Type:        schema.TypeInt,
+										Description: "The storage (in bytes) that has been provisioned for the DB Service",
 										Computed:    true,
 									},
 									"additional_storage": {
 										Type:        schema.TypeInt,
-										Description: "The additional storage (in GBs) to be provisioned for the Tessell Service. This is in addition to what is specified in the compute type.",
+										Description: "Size in GB. This is maintained for backward compatibility and would be deprecated soon.",
 										Computed:    true,
 									},
 								},
@@ -336,7 +405,7 @@ func DataSourceDBServices() *schema.Resource {
 						},
 						"maintenance_window": {
 							Type:        schema.TypeList,
-							Description: "Tessell Service's maintenance window details",
+							Description: "This field details the DB Service maintenance related details.",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -347,7 +416,7 @@ func DataSourceDBServices() *schema.Resource {
 									},
 									"time": {
 										Type:        schema.TypeString,
-										Description: "Time value in (hh:mm) format. ex. \"02:00\"",
+										Description: "Time value in (hh:mm) format. ex. '02:00'",
 										Computed:    true,
 									},
 									"duration": {
@@ -360,7 +429,7 @@ func DataSourceDBServices() *schema.Resource {
 						},
 						"engine_configuration": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "This field details the DB Service engine configuration details like - parameter profile, or options profile (if applicable) are used to configure the DB Service.",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -372,7 +441,7 @@ func DataSourceDBServices() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"multi_tenant": {
 													Type:        schema.TypeBool,
-													Description: "Specify whether the Tessell Service is multi-tenant.",
+													Description: "Specify whether the DB Service is multi-tenant.",
 													Computed:    true,
 												},
 												"parameter_profile": {
@@ -497,7 +566,7 @@ func DataSourceDBServices() *schema.Resource {
 						},
 						"integrations_config": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "Tessell provides support to integrate third party softwares with DB Services. This fields details the information about what third-party integrations are configured with the DB Service.",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -514,13 +583,13 @@ func DataSourceDBServices() *schema.Resource {
 						},
 						"deletion_config": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"retain_availability_machine": {
 										Type:        schema.TypeBool,
-										Description: "If 'retainAvailabilityMachine' is true then set value of field takeFinalBackup and dapsToRetain. By default retainAvailabilityMachine is false, that means delete all details like Availability Machine, Backups, DAPs etc.",
+										Description: "If specified as true, the associated Availability Machine (snapshots, sanitized-snapshots, logs) would be retained",
 										Computed:    true,
 									},
 								},
@@ -528,7 +597,7 @@ func DataSourceDBServices() *schema.Resource {
 						},
 						"tags": {
 							Type:        schema.TypeList,
-							Description: "The tags associated with the Tessell Service",
+							Description: "The tags associated with the DB Service",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -545,25 +614,54 @@ func DataSourceDBServices() *schema.Resource {
 								},
 							},
 						},
+						"updates_in_progress": {
+							Type:        schema.TypeList,
+							Description: "The updates that are in progress for this resource",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"update_type": {
+										Type:        schema.TypeString,
+										Description: "Type of the update",
+										Computed:    true,
+									},
+									"reference_id": {
+										Type:        schema.TypeString,
+										Description: "The reference-id of the update request",
+										Computed:    true,
+									},
+									"submitted_at": {
+										Type:        schema.TypeString,
+										Description: "Timestamp when the resource update was requested",
+										Computed:    true,
+									},
+									"update_info": {
+										Type:        schema.TypeMap,
+										Description: "The specific details for a Tessell resource that are being updated",
+										Computed:    true,
+									},
+								},
+							},
+						},
 						"instances": {
 							Type:        schema.TypeList,
-							Description: "Instances associated with this Tessell Service",
+							Description: "The instances (nodes) associated with this DB Service",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
 										Type:        schema.TypeString,
-										Description: "Tessell generated UUID for the Tessell Service Instance",
+										Description: "Tessell generated UUID for the DB Service Instance",
 										Computed:    true,
 									},
 									"name": {
 										Type:        schema.TypeString,
-										Description: "Name of the Tessell Service Instance",
+										Description: "Name of the DB Service Instance",
 										Computed:    true,
 									},
 									"role": {
 										Type:        schema.TypeString,
-										Description: "Tessell Service Topology",
+										Description: "DB Service Topology",
 										Computed:    true,
 									},
 									"status": {
@@ -573,27 +671,32 @@ func DataSourceDBServices() *schema.Resource {
 									},
 									"tessell_service_id": {
 										Type:        schema.TypeString,
-										Description: "Tessell Service Instance's associated Tessell Service id",
+										Description: "DB Service Instance's associated DB Service id",
+										Computed:    true,
+									},
+									"encryption_key": {
+										Type:        schema.TypeString,
+										Description: "The encryption key name which is used to encrypt the data at rest",
 										Computed:    true,
 									},
 									"compute_type": {
 										Type:        schema.TypeString,
-										Description: "The compute used for creation of the Tessell Service Instance",
+										Description: "The compute used for creation of the DB Service Instance",
 										Computed:    true,
 									},
 									"cloud": {
 										Type:        schema.TypeString,
-										Description: "Tessell Service Instance's cloud type",
+										Description: "DB Service Instance's cloud type",
 										Computed:    true,
 									},
 									"region": {
 										Type:        schema.TypeString,
-										Description: "Tessell Service Instance's cloud region",
+										Description: "DB Service Instance's cloud region",
 										Computed:    true,
 									},
 									"availability_zone": {
 										Type:        schema.TypeString,
-										Description: "Tessell Service Instance's cloud availability zone",
+										Description: "DB Service Instance's cloud availability zone",
 										Computed:    true,
 									},
 									"date_created": {
@@ -659,12 +762,22 @@ func DataSourceDBServices() *schema.Resource {
 											},
 										},
 									},
+									"last_started_at": {
+										Type:        schema.TypeString,
+										Description: "Timestamp when the service instance was last started at",
+										Computed:    true,
+									},
+									"last_stopped_at": {
+										Type:        schema.TypeString,
+										Description: "Timestamp when the Service Instance was last stopped at",
+										Computed:    true,
+									},
 								},
 							},
 						},
 						"databases": {
 							Type:        schema.TypeList,
-							Description: "Databases that are part of this Tessell Service",
+							Description: "This field details about the databases that are created under this DB Service",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -685,12 +798,12 @@ func DataSourceDBServices() *schema.Resource {
 									},
 									"tessell_service_id": {
 										Type:        schema.TypeString,
-										Description: "Associated Tessell Service Id",
+										Description: "Associated DB Service Id",
 										Computed:    true,
 									},
 									"engine_type": {
 										Type:        schema.TypeString,
-										Description: "Database engine type",
+										Description: "Database Engine Type",
 										Computed:    true,
 									},
 									"status": {
@@ -705,7 +818,7 @@ func DataSourceDBServices() *schema.Resource {
 									},
 									"cloned_from_info": {
 										Type:        schema.TypeList,
-										Description: "",
+										Description: "If a database is created as a clone from some other DB Service's database, this section describes the original database details",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -756,7 +869,7 @@ func DataSourceDBServices() *schema.Resource {
 														},
 													},
 												},
-												"my_sql_config": {
+												"mysql_config": {
 													Type:        schema.TypeList,
 													Description: "",
 													Computed:    true,
@@ -818,12 +931,82 @@ func DataSourceDBServices() *schema.Resource {
 								},
 							},
 						},
+						"deletion_schedule": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"delete_at": {
+										Type:        schema.TypeString,
+										Description: "DB Service deletion Time",
+										Computed:    true,
+									},
+									"deletion_config": {
+										Type:        schema.TypeList,
+										Description: "If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"retain_availability_machine": {
+													Type:        schema.TypeBool,
+													Description: "If specified as true, the associated Availability Machine (snapshots, sanitized-snapshots, logs) would be retained",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"upcoming_scheduled_actions": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_stop": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"action": {
+													Type:        schema.TypeString,
+													Description: "Action which can be either start/stop",
+													Computed:    true,
+												},
+												"at": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
+									"delete": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"at": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "Name of the Tessell Service",
+				Description: "Name of the DB Service",
 				Optional:    true,
 			},
 			"statuses": {
@@ -836,7 +1019,7 @@ func DataSourceDBServices() *schema.Resource {
 			},
 			"engine_types": {
 				Type:        schema.TypeList,
-				Description: "Tessell Service's engine-types",
+				Description: "DB Service's engine-types",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -844,7 +1027,7 @@ func DataSourceDBServices() *schema.Resource {
 			},
 			"cloned_from_service_id": {
 				Type:        schema.TypeString,
-				Description: "The id of the Tessell Service from which the services are cloned",
+				Description: "The id of the DB Service from which the services are cloned",
 				Optional:    true,
 			},
 			"cloned_from_availability_machine_id": {
@@ -854,13 +1037,13 @@ func DataSourceDBServices() *schema.Resource {
 			},
 			"load_instances": {
 				Type:        schema.TypeBool,
-				Description: "Load the instances that are part of the Tessell Service",
+				Description: "Load the instances that are part of the DB Service",
 				Optional:    true,
 				Default:     true,
 			},
 			"load_databases": {
 				Type:        schema.TypeBool,
-				Description: "Load the databases that are part of the Tessell Service",
+				Description: "Load the databases that are part of the DB Service",
 				Optional:    true,
 				Default:     true,
 			},
@@ -940,15 +1123,19 @@ func setDataSourceValues(d *schema.ResourceData, DBServiceList *[]model.TessellS
 				"stopped_at":                 DBService.StoppedAt,
 				"cloned_from_info":           []interface{}{parseTessellServiceClonedFromInfo(DBService.ClonedFromInfo)},
 				"service_connectivity":       []interface{}{parseTessellServiceConnectivityInfo(DBService.ServiceConnectivity)},
+				"tessell_genie_status":       DBService.TessellGenieStatus,
 				"infrastructure":             []interface{}{parseTessellServiceInfrastructureInfo(DBService.Infrastructure)},
 				"maintenance_window":         []interface{}{parseTessellServiceMaintenanceWindow(DBService.MaintenanceWindow)},
 				"engine_configuration":       []interface{}{parseTessellServiceEngineInfo(DBService.EngineConfiguration)},
 				"integrations_config":        []interface{}{parseTessellServiceIntegrationsInfo(DBService.IntegrationsConfig)},
 				"deletion_config":            []interface{}{parseTessellServiceDeletionConfig(DBService.DeletionConfig)},
 				"tags":                       parseTessellTagList(DBService.Tags),
+				"updates_in_progress":        parseTessellResourceUpdateInfoList(DBService.UpdatesInProgress),
 				"instances":                  parseTessellServiceInstanceDTOList(DBService.Instances),
 				"databases":                  parseTessellDatabaseDTOList(DBService.Databases),
 				"shared_with":                []interface{}{parseEntityAclSharingInfo(DBService.SharedWith)},
+				"deletion_schedule":          []interface{}{parseDeletionScheduleDTO(DBService.DeletionSchedule)},
+				"upcoming_scheduled_actions": []interface{}{parseServiceUpcomingScheduledActions(DBService.UpcomingScheduledActions)},
 			}
 		}
 	}

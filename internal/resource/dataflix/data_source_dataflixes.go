@@ -11,13 +11,13 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func DataSourceDataflixs() *schema.Resource {
+func DataSourceDataflixes() *schema.Resource {
 	return &schema.Resource{
 
-		ReadContext: dataSourceDataflixsRead,
+		ReadContext: dataSourceDataflixesRead,
 
 		Schema: map[string]*schema.Schema{
-			"dataflixs": {
+			"dataflixes": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -126,7 +126,7 @@ func DataSourceDataflixs() *schema.Resource {
 	}
 }
 
-func dataSourceDataflixsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceDataflixesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*apiClient.Client)
 
 	var diags diag.Diagnostics
@@ -160,14 +160,14 @@ func setDataSourceValues(d *schema.ResourceData, DataflixList *[]model.TessellAm
 				"tessell_service_id":      Dataflix.TessellServiceId,
 				"service_name":            Dataflix.ServiceName,
 				"engine_type":             Dataflix.EngineType,
-				"cloud_availability":      parseCloudRegionInfo1List(Dataflix.CloudAvailability),
+				"cloud_availability":      parseCloudRegionInfoList(Dataflix.CloudAvailability),
 				"owner":                   Dataflix.Owner,
 				"shared_with":             []interface{}{parseEntityAclSharingSummaryInfo(Dataflix.SharedWith)},
 			}
 		}
 	}
 
-	if err := d.Set("dataflixs", parsedDataflixList); err != nil {
+	if err := d.Set("dataflixes", parsedDataflixList); err != nil {
 		return err
 	}
 	return nil

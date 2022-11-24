@@ -37,7 +37,7 @@ func DataSourceDBSnapshot() *schema.Resource {
 			},
 			"status": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "Database Backup Status",
 				Computed:    true,
 			},
 			"size": {
@@ -78,6 +78,58 @@ func DataSourceDBSnapshot() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"availability_config": {
+				Type:        schema.TypeList,
+				Description: "",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"availability_configured_manually": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Computed:    true,
+						},
+						"dap_id": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+						"cloud_availability_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"cloud": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"regions": {
+										Type:        schema.TypeList,
+										Description: "The list of regions and respective avaoilability status",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"region": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "Database Backup Status",
+													Computed:    true,
+												},
+											},
 										},
 									},
 								},

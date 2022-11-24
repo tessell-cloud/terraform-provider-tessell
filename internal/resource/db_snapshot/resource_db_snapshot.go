@@ -43,9 +43,8 @@ func ResourceDBSnapshot() *schema.Resource {
 			},
 			"status": {
 				Type:        schema.TypeString,
-				Description: "",
-				Optional:    true,
-				ForceNew:    true,
+				Description: "Database Backup Status",
+				Computed:    true,
 			},
 			"size": {
 				Type:        schema.TypeInt,
@@ -89,6 +88,63 @@ func ResourceDBSnapshot() *schema.Resource {
 										ForceNew:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"availability_config": {
+				Type:        schema.TypeList,
+				Description: "",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"availability_configured_manually": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+							Default:     false,
+						},
+						"dap_id": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+						"cloud_availability_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"cloud": {
+										Type:        schema.TypeString,
+										Description: "",
+										Required:    true,
+										ForceNew:    true,
+									},
+									"regions": {
+										Type:        schema.TypeList,
+										Description: "The list of regions and respective avaoilability status",
+										Optional:    true,
+										ForceNew:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"region": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "Database Backup Status",
+													Computed:    true,
+												},
+											},
 										},
 									},
 								},

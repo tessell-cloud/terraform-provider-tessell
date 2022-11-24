@@ -99,6 +99,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("tessell_genie_status", tessellServiceDTO.TessellGenieStatus); err != nil {
+		return err
+	}
+
 	if err := d.Set("infrastructure", parseTessellServiceInfrastructureInfoWithResData(tessellServiceDTO.Infrastructure, d)); err != nil {
 		return err
 	}
@@ -123,6 +127,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("updates_in_progress", parseTessellResourceUpdateInfoListWithResData(tessellServiceDTO.UpdatesInProgress, d)); err != nil {
+		return err
+	}
+
 	if err := d.Set("instances", parseTessellServiceInstanceDTOListWithResData(tessellServiceDTO.Instances, d)); err != nil {
 		return err
 	}
@@ -132,6 +140,14 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 	}
 
 	if err := d.Set("shared_with", parseEntityAclSharingInfoWithResData(tessellServiceDTO.SharedWith, d)); err != nil {
+		return err
+	}
+
+	if err := d.Set("deletion_schedule", parseDeletionScheduleDTOWithResData(tessellServiceDTO.DeletionSchedule, d)); err != nil {
+		return err
+	}
+
+	if err := d.Set("upcoming_scheduled_actions", parseServiceUpcomingScheduledActionsWithResData(tessellServiceDTO.UpcomingScheduledActions, d)); err != nil {
 		return err
 	}
 
@@ -156,6 +172,7 @@ func parseTessellServiceClonedFromInfoWithResData(clonedFromInfo *model.TessellS
 	parsedClonedFromInfo["snapshot_name"] = clonedFromInfo.SnapshotName
 	parsedClonedFromInfo["snapshot_id"] = clonedFromInfo.SnapshotId
 	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PitrTime
+	parsedClonedFromInfo["maximum_recoverability"] = clonedFromInfo.MaximumRecoverability
 
 	return []interface{}{parsedClonedFromInfo}
 }
@@ -172,6 +189,7 @@ func parseTessellServiceClonedFromInfo(clonedFromInfo *model.TessellServiceClone
 	parsedClonedFromInfo["snapshot_name"] = clonedFromInfo.SnapshotName
 	parsedClonedFromInfo["snapshot_id"] = clonedFromInfo.SnapshotId
 	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PitrTime
+	parsedClonedFromInfo["maximum_recoverability"] = clonedFromInfo.MaximumRecoverability
 
 	return parsedClonedFromInfo
 }
@@ -197,6 +215,11 @@ func parseTessellServiceConnectivityInfoWithResData(serviceConnectivity *model.T
 		parsedServiceConnectivity["connect_strings"] = parseTessellServiceConnectStringList(serviceConnectivity.ConnectStrings)
 	}
 
+	var privateLink *model.ServiceConnectivityPrivateLink
+	if serviceConnectivity.PrivateLink != privateLink {
+		parsedServiceConnectivity["private_link"] = []interface{}{parseServiceConnectivityPrivateLink(serviceConnectivity.PrivateLink)}
+	}
+
 	var updateInProgressInfo *model.TessellServiceConnectivityUpdateInProgressInfo
 	if serviceConnectivity.UpdateInProgressInfo != updateInProgressInfo {
 		parsedServiceConnectivity["update_in_progress_info"] = []interface{}{parseTessellServiceConnectivityUpdateInProgressInfo(serviceConnectivity.UpdateInProgressInfo)}
@@ -218,6 +241,11 @@ func parseTessellServiceConnectivityInfo(serviceConnectivity *model.TessellServi
 	var connectStrings *[]model.TessellServiceConnectString
 	if serviceConnectivity.ConnectStrings != connectStrings {
 		parsedServiceConnectivity["connect_strings"] = parseTessellServiceConnectStringList(serviceConnectivity.ConnectStrings)
+	}
+
+	var privateLink *model.ServiceConnectivityPrivateLink
+	if serviceConnectivity.PrivateLink != privateLink {
+		parsedServiceConnectivity["private_link"] = []interface{}{parseServiceConnectivityPrivateLink(serviceConnectivity.PrivateLink)}
 	}
 
 	var updateInProgressInfo *model.TessellServiceConnectivityUpdateInProgressInfo
@@ -250,12 +278,24 @@ func parseTessellServiceConnectString(tessellServiceConnectString *model.Tessell
 	}
 	parsedTessellServiceConnectString := make(map[string]interface{})
 	parsedTessellServiceConnectString["type"] = tessellServiceConnectString.Type
+	parsedTessellServiceConnectString["usage_type"] = tessellServiceConnectString.UsageType
 	parsedTessellServiceConnectString["connect_descriptor"] = tessellServiceConnectString.ConnectDescriptor
 	parsedTessellServiceConnectString["endpoint"] = tessellServiceConnectString.Endpoint
 	parsedTessellServiceConnectString["master_user"] = tessellServiceConnectString.MasterUser
 	parsedTessellServiceConnectString["service_port"] = tessellServiceConnectString.ServicePort
 
 	return parsedTessellServiceConnectString
+}
+
+func parseServiceConnectivityPrivateLink(serviceConnectivityPrivateLink *model.ServiceConnectivityPrivateLink) interface{} {
+	if serviceConnectivityPrivateLink == nil {
+		return nil
+	}
+	parsedServiceConnectivityPrivateLink := make(map[string]interface{})
+	parsedServiceConnectivityPrivateLink["service_principals"] = serviceConnectivityPrivateLink.ServicePrincipals
+	parsedServiceConnectivityPrivateLink["endpoint_service_name"] = serviceConnectivityPrivateLink.EndpointServiceName
+
+	return parsedServiceConnectivityPrivateLink
 }
 
 func parseTessellServiceConnectivityUpdateInProgressInfo(tessellServiceConnectivityUpdateInProgressInfo *model.TessellServiceConnectivityUpdateInProgressInfo) interface{} {
@@ -267,7 +307,22 @@ func parseTessellServiceConnectivityUpdateInProgressInfo(tessellServiceConnectiv
 	parsedTessellServiceConnectivityUpdateInProgressInfo["enable_public_access"] = tessellServiceConnectivityUpdateInProgressInfo.EnablePublicAccess
 	parsedTessellServiceConnectivityUpdateInProgressInfo["allowed_ip_addresses"] = tessellServiceConnectivityUpdateInProgressInfo.AllowedIpAddresses
 
+	var privateLink *model.ServiceConnectivityUpdateInProgressInfo
+	if tessellServiceConnectivityUpdateInProgressInfo.PrivateLink != privateLink {
+		parsedTessellServiceConnectivityUpdateInProgressInfo["private_link"] = []interface{}{parseServiceConnectivityUpdateInProgressInfo(tessellServiceConnectivityUpdateInProgressInfo.PrivateLink)}
+	}
+
 	return parsedTessellServiceConnectivityUpdateInProgressInfo
+}
+
+func parseServiceConnectivityUpdateInProgressInfo(serviceConnectivityUpdateInProgressInfo *model.ServiceConnectivityUpdateInProgressInfo) interface{} {
+	if serviceConnectivityUpdateInProgressInfo == nil {
+		return nil
+	}
+	parsedServiceConnectivityUpdateInProgressInfo := make(map[string]interface{})
+	parsedServiceConnectivityUpdateInProgressInfo["service_principals"] = serviceConnectivityUpdateInProgressInfo.ServicePrincipals
+
+	return parsedServiceConnectivityUpdateInProgressInfo
 }
 
 func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.TessellServiceInfrastructureInfo, d *schema.ResourceData) []interface{} {
@@ -286,12 +341,15 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 	parsedInfrastructure["availability_zone"] = infrastructure.AvailabilityZone
 
 	parsedInfrastructure["vpc"] = infrastructure.Vpc
+	parsedInfrastructure["enable_encryption"] = infrastructure.EnableEncryption
+	parsedInfrastructure["encryption_key"] = infrastructure.EncryptionKey
 	parsedInfrastructure["compute_type"] = infrastructure.ComputeType
+	parsedInfrastructure["storage"] = infrastructure.Storage
 	parsedInfrastructure["additional_storage"] = infrastructure.AdditionalStorage
 
-	var cloudAvailability *[]model.CloudRegionInfo1
+	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
-		parsedInfrastructure["cloud_availability"] = parseCloudRegionInfo1List(infrastructure.CloudAvailability)
+		parsedInfrastructure["cloud_availability"] = parseCloudRegionInfoList(infrastructure.CloudAvailability)
 	}
 
 	return []interface{}{parsedInfrastructure}
@@ -307,46 +365,49 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	parsedInfrastructure["availability_zone"] = infrastructure.AvailabilityZone
 
 	parsedInfrastructure["vpc"] = infrastructure.Vpc
+	parsedInfrastructure["enable_encryption"] = infrastructure.EnableEncryption
+	parsedInfrastructure["encryption_key"] = infrastructure.EncryptionKey
 	parsedInfrastructure["compute_type"] = infrastructure.ComputeType
+	parsedInfrastructure["storage"] = infrastructure.Storage
 	parsedInfrastructure["additional_storage"] = infrastructure.AdditionalStorage
 
-	var cloudAvailability *[]model.CloudRegionInfo1
+	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
-		parsedInfrastructure["cloud_availability"] = parseCloudRegionInfo1List(infrastructure.CloudAvailability)
+		parsedInfrastructure["cloud_availability"] = parseCloudRegionInfoList(infrastructure.CloudAvailability)
 	}
 
 	return parsedInfrastructure
 }
 
-func parseCloudRegionInfo1List(cloudRegionInfo_1 *[]model.CloudRegionInfo1) []interface{} {
-	if cloudRegionInfo_1 == nil {
+func parseCloudRegionInfoList(cloudRegionInfo *[]model.CloudRegionInfo) []interface{} {
+	if cloudRegionInfo == nil {
 		return nil
 	}
-	cloudRegionInfo1List := make([]interface{}, 0)
+	cloudRegionInfoList := make([]interface{}, 0)
 
-	if cloudRegionInfo_1 != nil {
-		cloudRegionInfo1List = make([]interface{}, len(*cloudRegionInfo_1))
-		for i, cloudRegionInfo1Item := range *cloudRegionInfo_1 {
-			cloudRegionInfo1List[i] = parseCloudRegionInfo1(&cloudRegionInfo1Item)
+	if cloudRegionInfo != nil {
+		cloudRegionInfoList = make([]interface{}, len(*cloudRegionInfo))
+		for i, cloudRegionInfoItem := range *cloudRegionInfo {
+			cloudRegionInfoList[i] = parseCloudRegionInfo(&cloudRegionInfoItem)
 		}
 	}
 
-	return cloudRegionInfo1List
+	return cloudRegionInfoList
 }
 
-func parseCloudRegionInfo1(cloudRegionInfo_1 *model.CloudRegionInfo1) interface{} {
-	if cloudRegionInfo_1 == nil {
+func parseCloudRegionInfo(cloudRegionInfo *model.CloudRegionInfo) interface{} {
+	if cloudRegionInfo == nil {
 		return nil
 	}
-	parsedCloudRegionInfo_1 := make(map[string]interface{})
-	parsedCloudRegionInfo_1["cloud"] = cloudRegionInfo_1.Cloud
+	parsedCloudRegionInfo := make(map[string]interface{})
+	parsedCloudRegionInfo["cloud"] = cloudRegionInfo.Cloud
 
 	var regions *[]model.RegionInfo
-	if cloudRegionInfo_1.Regions != regions {
-		parsedCloudRegionInfo_1["regions"] = parseRegionInfoList(cloudRegionInfo_1.Regions)
+	if cloudRegionInfo.Regions != regions {
+		parsedCloudRegionInfo["regions"] = parseRegionInfoList(cloudRegionInfo.Regions)
 	}
 
-	return parsedCloudRegionInfo_1
+	return parsedCloudRegionInfo
 }
 
 func parseRegionInfoList(regionInfo *[]model.RegionInfo) []interface{} {
@@ -660,6 +721,51 @@ func parseTessellTag(tags *model.TessellTag) interface{} {
 	return parsedTags
 }
 
+func parseTessellResourceUpdateInfoListWithResData(updatesInProgress *[]model.TessellResourceUpdateInfo, d *schema.ResourceData) []interface{} {
+	if updatesInProgress == nil {
+		return nil
+	}
+	tessellResourceUpdateInfoList := make([]interface{}, 0)
+
+	if updatesInProgress != nil {
+		tessellResourceUpdateInfoList = make([]interface{}, len(*updatesInProgress))
+		for i, tessellResourceUpdateInfoItem := range *updatesInProgress {
+			tessellResourceUpdateInfoList[i] = parseTessellResourceUpdateInfo(&tessellResourceUpdateInfoItem)
+		}
+	}
+
+	return tessellResourceUpdateInfoList
+}
+
+func parseTessellResourceUpdateInfoList(updatesInProgress *[]model.TessellResourceUpdateInfo) []interface{} {
+	if updatesInProgress == nil {
+		return nil
+	}
+	tessellResourceUpdateInfoList := make([]interface{}, 0)
+
+	if updatesInProgress != nil {
+		tessellResourceUpdateInfoList = make([]interface{}, len(*updatesInProgress))
+		for i, tessellResourceUpdateInfoItem := range *updatesInProgress {
+			tessellResourceUpdateInfoList[i] = parseTessellResourceUpdateInfo(&tessellResourceUpdateInfoItem)
+		}
+	}
+
+	return tessellResourceUpdateInfoList
+}
+
+func parseTessellResourceUpdateInfo(updatesInProgress *model.TessellResourceUpdateInfo) interface{} {
+	if updatesInProgress == nil {
+		return nil
+	}
+	parsedUpdatesInProgress := make(map[string]interface{})
+	parsedUpdatesInProgress["update_type"] = updatesInProgress.UpdateType
+	parsedUpdatesInProgress["reference_id"] = updatesInProgress.ReferenceId
+	parsedUpdatesInProgress["submitted_at"] = updatesInProgress.SubmittedAt
+	parsedUpdatesInProgress["update_info"] = updatesInProgress.UpdateInfo
+
+	return parsedUpdatesInProgress
+}
+
 func parseTessellServiceInstanceDTOListWithResData(instances *[]model.TessellServiceInstanceDTO, d *schema.ResourceData) []interface{} {
 	if instances == nil {
 		return nil
@@ -702,11 +808,15 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	parsedInstances["role"] = instances.Role
 	parsedInstances["status"] = instances.Status
 	parsedInstances["tessell_service_id"] = instances.TessellServiceId
+	parsedInstances["encryption_key"] = instances.EncryptionKey
 	parsedInstances["compute_type"] = instances.ComputeType
 	parsedInstances["cloud"] = instances.Cloud
 	parsedInstances["region"] = instances.Region
 	parsedInstances["availability_zone"] = instances.AvailabilityZone
 	parsedInstances["date_created"] = instances.DateCreated
+
+	parsedInstances["last_started_at"] = instances.LastStartedAt
+	parsedInstances["last_stopped_at"] = instances.LastStoppedAt
 
 	var connectString *model.TessellServiceInstanceConnectString
 	if instances.ConnectString != connectString {
@@ -732,35 +842,6 @@ func parseTessellServiceInstanceConnectString(tessellServiceInstanceConnectStrin
 	parsedTessellServiceInstanceConnectString["service_port"] = tessellServiceInstanceConnectString.ServicePort
 
 	return parsedTessellServiceInstanceConnectString
-}
-
-func parseTessellResourceUpdateInfoList(tessellResourceUpdateInfo *[]model.TessellResourceUpdateInfo) []interface{} {
-	if tessellResourceUpdateInfo == nil {
-		return nil
-	}
-	tessellResourceUpdateInfoList := make([]interface{}, 0)
-
-	if tessellResourceUpdateInfo != nil {
-		tessellResourceUpdateInfoList = make([]interface{}, len(*tessellResourceUpdateInfo))
-		for i, tessellResourceUpdateInfoItem := range *tessellResourceUpdateInfo {
-			tessellResourceUpdateInfoList[i] = parseTessellResourceUpdateInfo(&tessellResourceUpdateInfoItem)
-		}
-	}
-
-	return tessellResourceUpdateInfoList
-}
-
-func parseTessellResourceUpdateInfo(tessellResourceUpdateInfo *model.TessellResourceUpdateInfo) interface{} {
-	if tessellResourceUpdateInfo == nil {
-		return nil
-	}
-	parsedTessellResourceUpdateInfo := make(map[string]interface{})
-	parsedTessellResourceUpdateInfo["update_type"] = tessellResourceUpdateInfo.UpdateType
-	parsedTessellResourceUpdateInfo["reference_id"] = tessellResourceUpdateInfo.ReferenceId
-	parsedTessellResourceUpdateInfo["submitted_at"] = tessellResourceUpdateInfo.SubmittedAt
-	parsedTessellResourceUpdateInfo["update_info"] = tessellResourceUpdateInfo.UpdateInfo
-
-	return parsedTessellResourceUpdateInfo
 }
 
 func parseTessellDatabaseDTOListWithResData(databases *[]model.TessellDatabaseDTO, d *schema.ResourceData) []interface{} {
@@ -847,9 +928,9 @@ func parseDatabaseConfiguration(databaseConfiguration *model.DatabaseConfigurati
 		parsedDatabaseConfiguration["postgresql_config"] = []interface{}{parsePostgresqlDatabaseConfig(databaseConfiguration.PostgresqlConfig)}
 	}
 
-	var mySqlConfig *model.MySqlDatabaseConfig
-	if databaseConfiguration.MySqlConfig != mySqlConfig {
-		parsedDatabaseConfiguration["my_sql_config"] = []interface{}{parseMySqlDatabaseConfig(databaseConfiguration.MySqlConfig)}
+	var mysqlConfig *model.MySqlDatabaseConfig
+	if databaseConfiguration.MysqlConfig != mysqlConfig {
+		parsedDatabaseConfiguration["mysql_config"] = []interface{}{parseMySqlDatabaseConfig(databaseConfiguration.MysqlConfig)}
 	}
 
 	var sqlServerConfig *model.SqlServerDatabaseConfig
@@ -962,6 +1043,107 @@ func parseEntityUserAclSharingInfo(entityUserAclSharingInfo *model.EntityUserAcl
 	return parsedEntityUserAclSharingInfo
 }
 
+func parseDeletionScheduleDTOWithResData(deletionSchedule *model.DeletionScheduleDTO, d *schema.ResourceData) []interface{} {
+	if deletionSchedule == nil {
+		return nil
+	}
+	parsedDeletionSchedule := make(map[string]interface{})
+	if d.Get("deletion_schedule") != nil {
+		deletionScheduleResourceData := d.Get("deletion_schedule").([]interface{})
+		if len(deletionScheduleResourceData) > 0 {
+			parsedDeletionSchedule = (deletionScheduleResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedDeletionSchedule["delete_at"] = deletionSchedule.DeleteAt
+
+	var deletionConfig *model.TessellServiceDeletionConfig
+	if deletionSchedule.DeletionConfig != deletionConfig {
+		parsedDeletionSchedule["deletion_config"] = []interface{}{parseTessellServiceDeletionConfig(deletionSchedule.DeletionConfig)}
+	}
+
+	return []interface{}{parsedDeletionSchedule}
+}
+
+func parseDeletionScheduleDTO(deletionSchedule *model.DeletionScheduleDTO) interface{} {
+	if deletionSchedule == nil {
+		return nil
+	}
+	parsedDeletionSchedule := make(map[string]interface{})
+	parsedDeletionSchedule["delete_at"] = deletionSchedule.DeleteAt
+
+	var deletionConfig *model.TessellServiceDeletionConfig
+	if deletionSchedule.DeletionConfig != deletionConfig {
+		parsedDeletionSchedule["deletion_config"] = []interface{}{parseTessellServiceDeletionConfig(deletionSchedule.DeletionConfig)}
+	}
+
+	return parsedDeletionSchedule
+}
+
+func parseServiceUpcomingScheduledActionsWithResData(upcomingScheduledActions *model.ServiceUpcomingScheduledActions, d *schema.ResourceData) []interface{} {
+	if upcomingScheduledActions == nil {
+		return nil
+	}
+	parsedUpcomingScheduledActions := make(map[string]interface{})
+	if d.Get("upcoming_scheduled_actions") != nil {
+		upcomingScheduledActionsResourceData := d.Get("upcoming_scheduled_actions").([]interface{})
+		if len(upcomingScheduledActionsResourceData) > 0 {
+			parsedUpcomingScheduledActions = (upcomingScheduledActionsResourceData[0]).(map[string]interface{})
+		}
+	}
+
+	var startStop *model.ServiceUpcomingScheduledActionsStartStop
+	if upcomingScheduledActions.StartStop != startStop {
+		parsedUpcomingScheduledActions["start_stop"] = []interface{}{parseServiceUpcomingScheduledActionsStartStop(upcomingScheduledActions.StartStop)}
+	}
+
+	var delete *model.ServiceUpcomingScheduledActionsDelete
+	if upcomingScheduledActions.Delete != delete {
+		parsedUpcomingScheduledActions["delete"] = []interface{}{parseServiceUpcomingScheduledActionsDelete(upcomingScheduledActions.Delete)}
+	}
+
+	return []interface{}{parsedUpcomingScheduledActions}
+}
+
+func parseServiceUpcomingScheduledActions(upcomingScheduledActions *model.ServiceUpcomingScheduledActions) interface{} {
+	if upcomingScheduledActions == nil {
+		return nil
+	}
+	parsedUpcomingScheduledActions := make(map[string]interface{})
+
+	var startStop *model.ServiceUpcomingScheduledActionsStartStop
+	if upcomingScheduledActions.StartStop != startStop {
+		parsedUpcomingScheduledActions["start_stop"] = []interface{}{parseServiceUpcomingScheduledActionsStartStop(upcomingScheduledActions.StartStop)}
+	}
+
+	var delete *model.ServiceUpcomingScheduledActionsDelete
+	if upcomingScheduledActions.Delete != delete {
+		parsedUpcomingScheduledActions["delete"] = []interface{}{parseServiceUpcomingScheduledActionsDelete(upcomingScheduledActions.Delete)}
+	}
+
+	return parsedUpcomingScheduledActions
+}
+
+func parseServiceUpcomingScheduledActionsStartStop(serviceUpcomingScheduledActions_startStop *model.ServiceUpcomingScheduledActionsStartStop) interface{} {
+	if serviceUpcomingScheduledActions_startStop == nil {
+		return nil
+	}
+	parsedServiceUpcomingScheduledActions_startStop := make(map[string]interface{})
+	parsedServiceUpcomingScheduledActions_startStop["action"] = serviceUpcomingScheduledActions_startStop.Action
+	parsedServiceUpcomingScheduledActions_startStop["at"] = serviceUpcomingScheduledActions_startStop.At
+
+	return parsedServiceUpcomingScheduledActions_startStop
+}
+
+func parseServiceUpcomingScheduledActionsDelete(serviceUpcomingScheduledActions_delete *model.ServiceUpcomingScheduledActionsDelete) interface{} {
+	if serviceUpcomingScheduledActions_delete == nil {
+		return nil
+	}
+	parsedServiceUpcomingScheduledActions_delete := make(map[string]interface{})
+	parsedServiceUpcomingScheduledActions_delete["at"] = serviceUpcomingScheduledActions_delete.At
+
+	return parsedServiceUpcomingScheduledActions_delete
+}
+
 func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessellServicePayload {
 	cloneTessellServicePayloadFormed := model.CloneTessellServicePayload{
 		SnapshotId:               helper.GetStringPointer(d.Get("snapshot_id")),
@@ -980,9 +1162,10 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
+		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
 		SnapshotConfiguration:    formTessellServiceBackupConfigurationPayload(d.Get("snapshot_configuration")),
-		EngineConfiguration:      formTessellServiceEngineConfigurationPayload1(d.Get("engine_configuration")),
-		Databases:                formCreateDatabasePayload1List(d.Get("databases")),
+		EngineConfiguration:      formTessellServiceEngineConfigurationPayload(d.Get("engine_configuration")),
+		Databases:                formCreateDatabasePayloadList(d.Get("databases")),
 		IntegrationsConfig:       formTessellServiceIntegrationsPayload(d.Get("integrations_config")),
 		Tags:                     formTessellTagList(d.Get("tags")),
 	}
@@ -1014,6 +1197,7 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
+		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
 		SnapshotConfiguration:    formTessellServiceBackupConfigurationPayload(d.Get("snapshot_configuration")),
 		EngineConfiguration:      formTessellServiceEngineConfigurationPayload(d.Get("engine_configuration")),
 		Databases:                formCreateDatabasePayloadList(d.Get("databases")),
@@ -1036,6 +1220,8 @@ func formTessellServiceInfrastructurePayload(tessellServiceInfrastructurePayload
 		Region:            helper.GetStringPointer(tessellServiceInfrastructurePayloadData["region"]),
 		AvailabilityZone:  helper.GetStringPointer(tessellServiceInfrastructurePayloadData["availability_zone"]),
 		Vpc:               helper.GetStringPointer(tessellServiceInfrastructurePayloadData["vpc"]),
+		EnableEncryption:  helper.GetBoolPointer(tessellServiceInfrastructurePayloadData["enable_encryption"]),
+		EncryptionKey:     helper.GetStringPointer(tessellServiceInfrastructurePayloadData["encryption_key"]),
 		ComputeType:       helper.GetStringPointer(tessellServiceInfrastructurePayloadData["compute_type"]),
 		AdditionalStorage: helper.GetIntPointer(tessellServiceInfrastructurePayloadData["additional_storage"]),
 	}
@@ -1091,6 +1277,20 @@ func formTessellServiceMaintenanceWindow(tessellServiceMaintenanceWindowRaw inte
 	return &tessellServiceMaintenanceWindowFormed
 }
 
+func formTessellServiceDeletionConfig(tessellServiceDeletionConfigRaw interface{}) *model.TessellServiceDeletionConfig {
+	if tessellServiceDeletionConfigRaw == nil || len(tessellServiceDeletionConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	tessellServiceDeletionConfigData := tessellServiceDeletionConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	tessellServiceDeletionConfigFormed := model.TessellServiceDeletionConfig{
+		RetainAvailabilityMachine: helper.GetBoolPointer(tessellServiceDeletionConfigData["retain_availability_machine"]),
+	}
+
+	return &tessellServiceDeletionConfigFormed
+}
+
 func formTessellServiceBackupConfigurationPayload(tessellServiceBackupConfigurationPayloadRaw interface{}) *model.TessellServiceBackupConfigurationPayload {
 	if tessellServiceBackupConfigurationPayloadRaw == nil || len(tessellServiceBackupConfigurationPayloadRaw.([]interface{})) == 0 {
 		return nil
@@ -1122,24 +1322,24 @@ func formTessellServiceBackupConfigurationPayloadSnapshotWindow(tessellServiceBa
 	return &tessellServiceBackupConfigurationPayloadSnapshotWindowFormed
 }
 
-func formTessellServiceEngineConfigurationPayload1(engineConfigurationRaw interface{}) *model.TessellServiceEngineConfigurationPayload1 {
-	if engineConfigurationRaw == nil || len(engineConfigurationRaw.([]interface{})) == 0 {
+func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurationPayloadRaw interface{}) *model.TessellServiceEngineConfigurationPayload {
+	if tessellServiceEngineConfigurationPayloadRaw == nil || len(tessellServiceEngineConfigurationPayloadRaw.([]interface{})) == 0 {
 		return nil
 	}
 
-	engineConfigurationData := engineConfigurationRaw.([]interface{})[0].(map[string]interface{})
+	tessellServiceEngineConfigurationPayloadData := tessellServiceEngineConfigurationPayloadRaw.([]interface{})[0].(map[string]interface{})
 
-	tessellServiceEngineConfigurationPayload1Formed := model.TessellServiceEngineConfigurationPayload1{
-		PreScriptInfo:     formScriptInfo(engineConfigurationData["pre_script_info"]),
-		PostScriptInfo:    formScriptInfo(engineConfigurationData["post_script_info"]),
-		OracleConfig:      formOracleEngineConfigPayload(engineConfigurationData["oracle_config"]),
-		PostgresqlConfig:  formPostgresqlEngineConfigPayload(engineConfigurationData["postgresql_config"]),
-		MysqlConfig:       formMySqlEngineConfigPayload(engineConfigurationData["mysql_config"]),
-		SqlServerConfig:   formSqlServerEngineConfigPayload(engineConfigurationData["sql_server_config"]),
-		ApacheKafkaConfig: formApacheKafkaEngineConfigPayload(engineConfigurationData["apache_kafka_config"]),
+	tessellServiceEngineConfigurationPayloadFormed := model.TessellServiceEngineConfigurationPayload{
+		PreScriptInfo:     formScriptInfo(tessellServiceEngineConfigurationPayloadData["pre_script_info"]),
+		PostScriptInfo:    formScriptInfo(tessellServiceEngineConfigurationPayloadData["post_script_info"]),
+		OracleConfig:      formOracleEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["oracle_config"]),
+		PostgresqlConfig:  formPostgresqlEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["postgresql_config"]),
+		MysqlConfig:       formMySqlEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mysql_config"]),
+		SqlServerConfig:   formSqlServerEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["sql_server_config"]),
+		ApacheKafkaConfig: formApacheKafkaEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["apache_kafka_config"]),
 	}
 
-	return &tessellServiceEngineConfigurationPayload1Formed
+	return &tessellServiceEngineConfigurationPayloadFormed
 }
 
 func formScriptInfo(scriptInfoRaw interface{}) *model.ScriptInfo {
@@ -1231,33 +1431,33 @@ func formApacheKafkaEngineConfigPayload(apacheKafkaEngineConfigPayloadRaw interf
 	return &apacheKafkaEngineConfigPayloadFormed
 }
 
-func formCreateDatabasePayload1(databasesRaw interface{}) *model.CreateDatabasePayload1 {
-	if databasesRaw == nil {
+func formCreateDatabasePayload(createDatabasePayloadRaw interface{}) *model.CreateDatabasePayload {
+	if createDatabasePayloadRaw == nil {
 		return nil
 	}
 
-	databasesData := databasesRaw.(map[string]interface{})
+	createDatabasePayloadData := createDatabasePayloadRaw.(map[string]interface{})
 
-	createDatabasePayload1Formed := model.CreateDatabasePayload1{
-		DatabaseName:          helper.GetStringPointer(databasesData["database_name"]),
-		SourceDatabaseId:      helper.GetStringPointer(databasesData["source_database_id"]),
-		DatabaseConfiguration: formCreateDatabasePayloadDatabaseConfiguration(databasesData["database_configuration"]),
+	createDatabasePayloadFormed := model.CreateDatabasePayload{
+		DatabaseName:          helper.GetStringPointer(createDatabasePayloadData["database_name"]),
+		SourceDatabaseId:      helper.GetStringPointer(createDatabasePayloadData["source_database_id"]),
+		DatabaseConfiguration: formCreateDatabasePayloadDatabaseConfiguration(createDatabasePayloadData["database_configuration"]),
 	}
 
-	return &createDatabasePayload1Formed
+	return &createDatabasePayloadFormed
 }
-func formCreateDatabasePayload1List(databasesListRaw interface{}) *[]model.CreateDatabasePayload1 {
-	if databasesListRaw == nil || len(databasesListRaw.([]interface{})) == 0 {
+func formCreateDatabasePayloadList(createDatabasePayloadListRaw interface{}) *[]model.CreateDatabasePayload {
+	if createDatabasePayloadListRaw == nil || len(createDatabasePayloadListRaw.([]interface{})) == 0 {
 		return nil
 	}
 
-	DatabasesListFormed := make([]model.CreateDatabasePayload1, len(databasesListRaw.([]interface{})))
+	CreateDatabasePayloadListFormed := make([]model.CreateDatabasePayload, len(createDatabasePayloadListRaw.([]interface{})))
 
-	for i, databases := range databasesListRaw.([]interface{}) {
-		DatabasesListFormed[i] = *formCreateDatabasePayload1(databases)
+	for i, createDatabasePayload := range createDatabasePayloadListRaw.([]interface{}) {
+		CreateDatabasePayloadListFormed[i] = *formCreateDatabasePayload(createDatabasePayload)
 	}
 
-	return &DatabasesListFormed
+	return &CreateDatabasePayloadListFormed
 }
 func formCreateDatabasePayloadDatabaseConfiguration(createDatabasePayloadDatabaseConfigurationRaw interface{}) *model.CreateDatabasePayloadDatabaseConfiguration {
 	if createDatabasePayloadDatabaseConfigurationRaw == nil || len(createDatabasePayloadDatabaseConfigurationRaw.([]interface{})) == 0 {
@@ -1373,66 +1573,4 @@ func formTessellTagList(tessellTagListRaw interface{}) *[]model.TessellTag {
 	}
 
 	return &TessellTagListFormed
-}
-func formTessellServiceDeletionConfig(deletionConfigRaw interface{}) *model.TessellServiceDeletionConfig {
-	if deletionConfigRaw == nil || len(deletionConfigRaw.([]interface{})) == 0 {
-		return nil
-	}
-
-	deletionConfigData := deletionConfigRaw.([]interface{})[0].(map[string]interface{})
-
-	tessellServiceDeletionConfigFormed := model.TessellServiceDeletionConfig{
-		RetainAvailabilityMachine: helper.GetBoolPointer(deletionConfigData["retain_availability_machine"]),
-	}
-
-	return &tessellServiceDeletionConfigFormed
-}
-
-func formTessellServiceEngineConfigurationPayload(engineConfigurationRaw interface{}) *model.TessellServiceEngineConfigurationPayload {
-	if engineConfigurationRaw == nil || len(engineConfigurationRaw.([]interface{})) == 0 {
-		return nil
-	}
-
-	engineConfigurationData := engineConfigurationRaw.([]interface{})[0].(map[string]interface{})
-
-	tessellServiceEngineConfigurationPayloadFormed := model.TessellServiceEngineConfigurationPayload{
-		PreScriptInfo:     formScriptInfo(engineConfigurationData["pre_script_info"]),
-		PostScriptInfo:    formScriptInfo(engineConfigurationData["post_script_info"]),
-		OracleConfig:      formOracleEngineConfigPayload(engineConfigurationData["oracle_config"]),
-		PostgresqlConfig:  formPostgresqlEngineConfigPayload(engineConfigurationData["postgresql_config"]),
-		MysqlConfig:       formMySqlEngineConfigPayload(engineConfigurationData["mysql_config"]),
-		SqlServerConfig:   formSqlServerEngineConfigPayload(engineConfigurationData["sql_server_config"]),
-		ApacheKafkaConfig: formApacheKafkaEngineConfigPayload(engineConfigurationData["apache_kafka_config"]),
-	}
-
-	return &tessellServiceEngineConfigurationPayloadFormed
-}
-
-func formCreateDatabasePayload(databasesRaw interface{}) *model.CreateDatabasePayload {
-	if databasesRaw == nil {
-		return nil
-	}
-
-	databasesData := databasesRaw.(map[string]interface{})
-
-	createDatabasePayloadFormed := model.CreateDatabasePayload{
-		DatabaseName:          helper.GetStringPointer(databasesData["database_name"]),
-		SourceDatabaseId:      helper.GetStringPointer(databasesData["source_database_id"]),
-		DatabaseConfiguration: formCreateDatabasePayloadDatabaseConfiguration(databasesData["database_configuration"]),
-	}
-
-	return &createDatabasePayloadFormed
-}
-func formCreateDatabasePayloadList(databasesListRaw interface{}) *[]model.CreateDatabasePayload {
-	if databasesListRaw == nil || len(databasesListRaw.([]interface{})) == 0 {
-		return nil
-	}
-
-	DatabasesListFormed := make([]model.CreateDatabasePayload, len(databasesListRaw.([]interface{})))
-
-	for i, databases := range databasesListRaw.([]interface{}) {
-		DatabasesListFormed[i] = *formCreateDatabasePayload(databases)
-	}
-
-	return &DatabasesListFormed
 }

@@ -32,7 +32,7 @@ func DataSourceDataflixCatalog() *schema.Resource {
 			},
 			"engine_type": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "Database Engine Type",
 				Computed:    true,
 			},
 			"time_zone": {
@@ -137,7 +137,7 @@ func DataSourceDataflixCatalog() *schema.Resource {
 						},
 						"status": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Database Backup Status",
 							Computed:    true,
 						},
 						"size": {

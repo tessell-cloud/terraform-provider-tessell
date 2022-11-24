@@ -10,67 +10,71 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func setResourceData(d *schema.ResourceData, tessellDmmDataflixBackupDTO *model.TessellDmmDataflixBackupDTO) error {
-	if err := d.Set("id", tessellDmmDataflixBackupDTO.Id); err != nil {
+func setResourceData(d *schema.ResourceData, tessellSnapshotDTO *model.TessellSnapshotDTO) error {
+	if err := d.Set("id", tessellSnapshotDTO.Id); err != nil {
 		return err
 	}
 
-	if err := d.Set("name", tessellDmmDataflixBackupDTO.Name); err != nil {
+	if err := d.Set("name", tessellSnapshotDTO.Name); err != nil {
 		return err
 	}
 
-	if err := d.Set("description", tessellDmmDataflixBackupDTO.Description); err != nil {
+	if err := d.Set("description", tessellSnapshotDTO.Description); err != nil {
 		return err
 	}
 
-	if err := d.Set("snapshot_time", tessellDmmDataflixBackupDTO.SnapshotTime); err != nil {
+	if err := d.Set("snapshot_time", tessellSnapshotDTO.SnapshotTime); err != nil {
 		return err
 	}
 
-	if err := d.Set("status", tessellDmmDataflixBackupDTO.Status); err != nil {
+	if err := d.Set("status", tessellSnapshotDTO.Status); err != nil {
 		return err
 	}
 
-	if err := d.Set("size", tessellDmmDataflixBackupDTO.Size); err != nil {
+	if err := d.Set("size", tessellSnapshotDTO.Size); err != nil {
 		return err
 	}
 
-	if err := d.Set("manual", tessellDmmDataflixBackupDTO.Manual); err != nil {
+	if err := d.Set("manual", tessellSnapshotDTO.Manual); err != nil {
 		return err
 	}
 
-	if err := d.Set("cloud_availability", parseCloudRegionInfo1ListWithResData(tessellDmmDataflixBackupDTO.CloudAvailability, d)); err != nil {
+	if err := d.Set("cloud_availability", parseCloudRegionInfoListWithResData(tessellSnapshotDTO.CloudAvailability, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("databases", parseBackupDatabaseInfoListWithResData(tessellDmmDataflixBackupDTO.Databases, d)); err != nil {
+	if err := d.Set("availability_config", parseSnapshotAvailabilityConfigListWithResData(tessellSnapshotDTO.AvailabilityConfig, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("shared_with", parseEntityAclSharingSummaryInfoWithResData(tessellDmmDataflixBackupDTO.SharedWith, d)); err != nil {
+	if err := d.Set("databases", parseBackupDatabaseInfoListWithResData(tessellSnapshotDTO.Databases, d)); err != nil {
+		return err
+	}
+
+	if err := d.Set("shared_with", parseEntityAclSharingSummaryInfoWithResData(tessellSnapshotDTO.SharedWith, d)); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func parseCloudRegionInfo1ListWithResData(cloudAvailability *[]model.CloudRegionInfo1, d *schema.ResourceData) []interface{} {
+func parseCloudRegionInfoListWithResData(cloudAvailability *[]model.CloudRegionInfo, d *schema.ResourceData) []interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
-	cloudRegionInfo1List := make([]interface{}, 0)
+	cloudRegionInfoList := make([]interface{}, 0)
 
 	if cloudAvailability != nil {
-		cloudRegionInfo1List = make([]interface{}, len(*cloudAvailability))
-		for i, cloudRegionInfo1Item := range *cloudAvailability {
-			cloudRegionInfo1List[i] = parseCloudRegionInfo1(&cloudRegionInfo1Item)
+		cloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
+		for i, cloudRegionInfoItem := range *cloudAvailability {
+			cloudRegionInfoList[i] = parseCloudRegionInfo(&cloudRegionInfoItem)
 		}
 	}
 
-	return cloudRegionInfo1List
+	return cloudRegionInfoList
 }
 
-func parseCloudRegionInfo1(cloudAvailability *model.CloudRegionInfo1) interface{} {
+func parseCloudRegionInfo(cloudAvailability *model.CloudRegionInfo) interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
@@ -108,6 +112,96 @@ func parseRegionInfo(regions *model.RegionInfo) interface{} {
 	parsedRegions := make(map[string]interface{})
 	parsedRegions["region"] = regions.Region
 	parsedRegions["availability_zones"] = regions.AvailabilityZones
+
+	return parsedRegions
+}
+
+func parseSnapshotAvailabilityConfigListWithResData(availabilityConfig *[]model.SnapshotAvailabilityConfig, d *schema.ResourceData) []interface{} {
+	if availabilityConfig == nil {
+		return nil
+	}
+	snapshotAvailabilityConfigList := make([]interface{}, 0)
+
+	if availabilityConfig != nil {
+		snapshotAvailabilityConfigList = make([]interface{}, len(*availabilityConfig))
+		for i, snapshotAvailabilityConfigItem := range *availabilityConfig {
+			snapshotAvailabilityConfigList[i] = parseSnapshotAvailabilityConfig(&snapshotAvailabilityConfigItem)
+		}
+	}
+
+	return snapshotAvailabilityConfigList
+}
+
+func parseSnapshotAvailabilityConfig(availabilityConfig *model.SnapshotAvailabilityConfig) interface{} {
+	if availabilityConfig == nil {
+		return nil
+	}
+	parsedAvailabilityConfig := make(map[string]interface{})
+	parsedAvailabilityConfig["availability_configured_manually"] = availabilityConfig.AvailabilityConfiguredManually
+	parsedAvailabilityConfig["dap_id"] = availabilityConfig.DapId
+
+	var cloudAvailabilityConfig *[]model.SnapshotCloudAvailabilityInfo
+	if availabilityConfig.CloudAvailabilityConfig != cloudAvailabilityConfig {
+		parsedAvailabilityConfig["cloud_availability_config"] = parseSnapshotCloudAvailabilityInfoList(availabilityConfig.CloudAvailabilityConfig)
+	}
+
+	return parsedAvailabilityConfig
+}
+
+func parseSnapshotCloudAvailabilityInfoList(cloudAvailabilityConfig *[]model.SnapshotCloudAvailabilityInfo) []interface{} {
+	if cloudAvailabilityConfig == nil {
+		return nil
+	}
+	snapshotCloudAvailabilityInfoList := make([]interface{}, 0)
+
+	if cloudAvailabilityConfig != nil {
+		snapshotCloudAvailabilityInfoList = make([]interface{}, len(*cloudAvailabilityConfig))
+		for i, snapshotCloudAvailabilityInfoItem := range *cloudAvailabilityConfig {
+			snapshotCloudAvailabilityInfoList[i] = parseSnapshotCloudAvailabilityInfo(&snapshotCloudAvailabilityInfoItem)
+		}
+	}
+
+	return snapshotCloudAvailabilityInfoList
+}
+
+func parseSnapshotCloudAvailabilityInfo(cloudAvailabilityConfig *model.SnapshotCloudAvailabilityInfo) interface{} {
+	if cloudAvailabilityConfig == nil {
+		return nil
+	}
+	parsedCloudAvailabilityConfig := make(map[string]interface{})
+	parsedCloudAvailabilityConfig["cloud"] = cloudAvailabilityConfig.Cloud
+
+	var regions *[]model.SnapshotRegionAvailability
+	if cloudAvailabilityConfig.Regions != regions {
+		parsedCloudAvailabilityConfig["regions"] = parseSnapshotRegionAvailabilityList(cloudAvailabilityConfig.Regions)
+	}
+
+	return parsedCloudAvailabilityConfig
+}
+
+func parseSnapshotRegionAvailabilityList(regions *[]model.SnapshotRegionAvailability) []interface{} {
+	if regions == nil {
+		return nil
+	}
+	snapshotRegionAvailabilityList := make([]interface{}, 0)
+
+	if regions != nil {
+		snapshotRegionAvailabilityList = make([]interface{}, len(*regions))
+		for i, snapshotRegionAvailabilityItem := range *regions {
+			snapshotRegionAvailabilityList[i] = parseSnapshotRegionAvailability(&snapshotRegionAvailabilityItem)
+		}
+	}
+
+	return snapshotRegionAvailabilityList
+}
+
+func parseSnapshotRegionAvailability(regions *model.SnapshotRegionAvailability) interface{} {
+	if regions == nil {
+		return nil
+	}
+	parsedRegions := make(map[string]interface{})
+	parsedRegions["region"] = regions.Region
+	parsedRegions["status"] = regions.Status
 
 	return parsedRegions
 }
