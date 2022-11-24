@@ -57,7 +57,7 @@ func (c *Client) DeleteBackupRequest(availabilityMachineId string, id string) (*
 	return &apiStatus, statusCode, nil
 }
 
-func (c *Client) GetBackup(availabilityMachineId string, id string) (*model.TessellDmmDataflixBackupDTO, int, error) {
+func (c *Client) GetBackup(availabilityMachineId string, id string) (*model.TessellSnapshotDTO, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/availability-machines/%s/backups/%s", c.APIAddress, availabilityMachineId, id), nil)
 	if err != nil {
 		return nil, 0, err
@@ -68,13 +68,13 @@ func (c *Client) GetBackup(availabilityMachineId string, id string) (*model.Tess
 		return nil, statusCode, err
 	}
 
-	tessellDmmDataflixBackupDTO := model.TessellDmmDataflixBackupDTO{}
-	err = json.Unmarshal(body, &tessellDmmDataflixBackupDTO)
+	tessellSnapshotDTO := model.TessellSnapshotDTO{}
+	err = json.Unmarshal(body, &tessellSnapshotDTO)
 	if err != nil {
 		return nil, statusCode, err
 	}
 
-	return &tessellDmmDataflixBackupDTO, statusCode, nil
+	return &tessellSnapshotDTO, statusCode, nil
 }
 
 func (c *Client) DBSnapshotPollForStatus(availabilityMachineId string, id string, status string, timeout int, interval int) error {

@@ -34,7 +34,7 @@ func setResourceData(d *schema.ResourceData, tessellDmmServiceConsumerDTO *model
 		return err
 	}
 
-	if err := d.Set("status", tessellDmmServiceConsumerDTO.Status); err != nil {
+	if err := d.Set("data_ingestion_status", tessellDmmServiceConsumerDTO.DataIngestionStatus); err != nil {
 		return err
 	}
 
@@ -54,7 +54,7 @@ func setResourceData(d *schema.ResourceData, tessellDmmServiceConsumerDTO *model
 		return err
 	}
 
-	if err := d.Set("cloud_availability", parseCloudRegionInfo1ListWithResData(tessellDmmServiceConsumerDTO.CloudAvailability, d)); err != nil {
+	if err := d.Set("cloud_availability", parseCloudRegionInfoListWithResData(tessellDmmServiceConsumerDTO.CloudAvailability, d)); err != nil {
 		return err
 	}
 
@@ -142,39 +142,39 @@ func parseEntityUserAclSharingInfo(entityUserAclSharingInfo *model.EntityUserAcl
 	return parsedEntityUserAclSharingInfo
 }
 
-func parseCloudRegionInfo1ListWithResData(cloudAvailability *[]model.CloudRegionInfo1, d *schema.ResourceData) []interface{} {
+func parseCloudRegionInfoListWithResData(cloudAvailability *[]model.CloudRegionInfo, d *schema.ResourceData) []interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
-	cloudRegionInfo1List := make([]interface{}, 0)
+	cloudRegionInfoList := make([]interface{}, 0)
 
 	if cloudAvailability != nil {
-		cloudRegionInfo1List = make([]interface{}, len(*cloudAvailability))
-		for i, cloudRegionInfo1Item := range *cloudAvailability {
-			cloudRegionInfo1List[i] = parseCloudRegionInfo1(&cloudRegionInfo1Item)
+		cloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
+		for i, cloudRegionInfoItem := range *cloudAvailability {
+			cloudRegionInfoList[i] = parseCloudRegionInfo(&cloudRegionInfoItem)
 		}
 	}
 
-	return cloudRegionInfo1List
+	return cloudRegionInfoList
 }
 
-func parseCloudRegionInfo1List(cloudAvailability *[]model.CloudRegionInfo1) []interface{} {
+func parseCloudRegionInfoList(cloudAvailability *[]model.CloudRegionInfo) []interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
-	cloudRegionInfo1List := make([]interface{}, 0)
+	cloudRegionInfoList := make([]interface{}, 0)
 
 	if cloudAvailability != nil {
-		cloudRegionInfo1List = make([]interface{}, len(*cloudAvailability))
-		for i, cloudRegionInfo1Item := range *cloudAvailability {
-			cloudRegionInfo1List[i] = parseCloudRegionInfo1(&cloudRegionInfo1Item)
+		cloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
+		for i, cloudRegionInfoItem := range *cloudAvailability {
+			cloudRegionInfoList[i] = parseCloudRegionInfo(&cloudRegionInfoItem)
 		}
 	}
 
-	return cloudRegionInfo1List
+	return cloudRegionInfoList
 }
 
-func parseCloudRegionInfo1(cloudAvailability *model.CloudRegionInfo1) interface{} {
+func parseCloudRegionInfo(cloudAvailability *model.CloudRegionInfo) interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
@@ -233,9 +233,9 @@ func parseTessellDmmAvailabilityServiceViewWithResData(rpoSla *model.TessellDmmA
 	parsedRpoSla["rpo_sla_status"] = rpoSla.RpoSlaStatus
 	parsedRpoSla["sla"] = rpoSla.Sla
 
-	var cloudAvailability *[]model.CloudRegionInfo1
+	var cloudAvailability *[]model.CloudRegionInfo
 	if rpoSla.CloudAvailability != cloudAvailability {
-		parsedRpoSla["cloud_availability"] = parseCloudRegionInfo1List(rpoSla.CloudAvailability)
+		parsedRpoSla["cloud_availability"] = parseCloudRegionInfoList(rpoSla.CloudAvailability)
 	}
 
 	var schedule *model.ScheduleInfo
@@ -257,9 +257,9 @@ func parseTessellDmmAvailabilityServiceView(rpoSla *model.TessellDmmAvailability
 	parsedRpoSla["rpo_sla_status"] = rpoSla.RpoSlaStatus
 	parsedRpoSla["sla"] = rpoSla.Sla
 
-	var cloudAvailability *[]model.CloudRegionInfo1
+	var cloudAvailability *[]model.CloudRegionInfo
 	if rpoSla.CloudAvailability != cloudAvailability {
-		parsedRpoSla["cloud_availability"] = parseCloudRegionInfo1List(rpoSla.CloudAvailability)
+		parsedRpoSla["cloud_availability"] = parseCloudRegionInfoList(rpoSla.CloudAvailability)
 	}
 
 	var schedule *model.ScheduleInfo
@@ -388,9 +388,9 @@ func parseTessellDapServiceDTO(daps *model.TessellDapServiceDTO) interface{} {
 		parsedDaps["content_info"] = []interface{}{parseDapContentInfo(daps.ContentInfo)}
 	}
 
-	var cloudAvailability *[]model.CloudRegionInfo1
+	var cloudAvailability *[]model.CloudRegionInfo
 	if daps.CloudAvailability != cloudAvailability {
-		parsedDaps["cloud_availability"] = parseCloudRegionInfo1List(daps.CloudAvailability)
+		parsedDaps["cloud_availability"] = parseCloudRegionInfoList(daps.CloudAvailability)
 	}
 
 	var dataAccessConfig *model.RetentionAndScheduleInfo
@@ -412,12 +412,61 @@ func parseDapContentInfo(dapContentInfo *model.DapContentInfo) interface{} {
 	}
 	parsedDapContentInfo := make(map[string]interface{})
 
+	var asIsContent *model.AsIsDapContent
+	if dapContentInfo.AsIsContent != asIsContent {
+		parsedDapContentInfo["as_is_content"] = []interface{}{parseAsIsDapContent(dapContentInfo.AsIsContent)}
+	}
+
 	var sanitizedContent *model.SanitizationDapContent
 	if dapContentInfo.SanitizedContent != sanitizedContent {
 		parsedDapContentInfo["sanitized_content"] = []interface{}{parseSanitizationDapContent(dapContentInfo.SanitizedContent)}
 	}
 
 	return parsedDapContentInfo
+}
+
+func parseAsIsDapContent(asIsDapContent *model.AsIsDapContent) interface{} {
+	if asIsDapContent == nil {
+		return nil
+	}
+	parsedAsIsDapContent := make(map[string]interface{})
+	parsedAsIsDapContent["automated"] = asIsDapContent.Automated
+
+	var manual *[]model.DapSnapshotInfo
+	if asIsDapContent.Manual != manual {
+		parsedAsIsDapContent["manual"] = parseDapSnapshotInfoList(asIsDapContent.Manual)
+	}
+
+	return parsedAsIsDapContent
+}
+
+func parseDapSnapshotInfoList(dapSnapshotInfo *[]model.DapSnapshotInfo) []interface{} {
+	if dapSnapshotInfo == nil {
+		return nil
+	}
+	dapSnapshotInfoList := make([]interface{}, 0)
+
+	if dapSnapshotInfo != nil {
+		dapSnapshotInfoList = make([]interface{}, len(*dapSnapshotInfo))
+		for i, dapSnapshotInfoItem := range *dapSnapshotInfo {
+			dapSnapshotInfoList[i] = parseDapSnapshotInfo(&dapSnapshotInfoItem)
+		}
+	}
+
+	return dapSnapshotInfoList
+}
+
+func parseDapSnapshotInfo(dapSnapshotInfo *model.DapSnapshotInfo) interface{} {
+	if dapSnapshotInfo == nil {
+		return nil
+	}
+	parsedDapSnapshotInfo := make(map[string]interface{})
+	parsedDapSnapshotInfo["snapshot_id"] = dapSnapshotInfo.SnapshotId
+	parsedDapSnapshotInfo["snapshot_name"] = dapSnapshotInfo.SnapshotName
+	parsedDapSnapshotInfo["snapshot_time"] = dapSnapshotInfo.SnapshotTime
+	parsedDapSnapshotInfo["shared_at"] = dapSnapshotInfo.SharedAt
+
+	return parsedDapSnapshotInfo
 }
 
 func parseSanitizationDapContent(sanitizationDapContent *model.SanitizationDapContent) interface{} {
@@ -429,6 +478,11 @@ func parseSanitizationDapContent(sanitizationDapContent *model.SanitizationDapCo
 	var automated *model.SanitizationDapContentAutomated
 	if sanitizationDapContent.Automated != automated {
 		parsedSanitizationDapContent["automated"] = []interface{}{parseSanitizationDapContentAutomated(sanitizationDapContent.Automated)}
+	}
+
+	var manual *[]model.DapSnapshotInfo
+	if sanitizationDapContent.Manual != manual {
+		parsedSanitizationDapContent["manual"] = parseDapSnapshotInfoList(sanitizationDapContent.Manual)
 	}
 
 	return parsedSanitizationDapContent
@@ -500,9 +554,9 @@ func parseTessellCloneSummaryInfo(clones *model.TessellCloneSummaryInfo) interfa
 	parsedClones["owner"] = clones.Owner
 	parsedClones["date_created"] = clones.DateCreated
 
-	var cloudAvailability *[]model.CloudRegionInfo1
+	var cloudAvailability *[]model.CloudRegionInfo
 	if clones.CloudAvailability != cloudAvailability {
-		parsedClones["cloud_availability"] = parseCloudRegionInfo1List(clones.CloudAvailability)
+		parsedClones["cloud_availability"] = parseCloudRegionInfoList(clones.CloudAvailability)
 	}
 
 	return parsedClones

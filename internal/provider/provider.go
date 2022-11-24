@@ -56,7 +56,7 @@ func New(terraformVersion string) func() *schema.Provider {
 				"tessell_db_services":           db_service.DataSourceDBServices(),
 				"tessell_db_snapshot":           db_snapshot.DataSourceDBSnapshot(),
 				"tessell_dataflix":              dataflix.DataSourceDataflix(),
-				"tessell_dataflixs":             dataflix.DataSourceDataflixs(),
+				"tessell_dataflixes":            dataflix.DataSourceDataflixes(),
 				"tessell_availability_machine":  availability_machine.DataSourceAvailabilityMachine(),
 				"tessell_availability_machines": availability_machine.DataSourceAvailabilityMachines(),
 				"tessell_dataflix_catalog":      dataflix_catalog.DataSourceDataflixCatalog(),

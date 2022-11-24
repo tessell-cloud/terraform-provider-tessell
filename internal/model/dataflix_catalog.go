@@ -4,7 +4,7 @@ type TessellDmmDataflixServiceView struct {
 	AvailabilityMachineId *string                        `json:"availabilityMachineId,omitempty"`
 	TessellServiceId      *string                        `json:"tessellServiceId,omitempty"`
 	ServiceName           *string                        `json:"serviceName,omitempty"`
-	EngineType            *string                        `json:"engineType,omitempty"`
+	EngineType            *string                        `json:"engineType,omitempty"`  // Database Engine Type
 	TimeZone              *string                        `json:"timeZone,omitempty"`    // Output timezone
 	Owner                 *string                        `json:"owner,omitempty"`       // Owner of the Availability Machine
 	PitrCatalog           *[]TessellDataflixPitrInfo     `json:"pitrCatalog,omitempty"` // PITR availability catalog
@@ -32,10 +32,10 @@ type TessellDmmDataflixBackupDTO struct {
 	Name              *string                      `json:"name,omitempty"`         // DB Service snapshot name
 	Description       *string                      `json:"description,omitempty"`  // Description for the snapshot
 	SnapshotTime      *string                      `json:"snapshotTime,omitempty"` // DB Service snapshot capture time
-	Status            *string                      `json:"status,omitempty"`
-	Size              *int                         `json:"size,omitempty"`   // Database Backup size in bytes
-	Manual            *bool                        `json:"manual,omitempty"` // Specifies whether the backup is captured manually
-	CloudAvailability *[]CloudRegionInfo1          `json:"cloudAvailability,omitempty"`
+	Status            *string                      `json:"status,omitempty"`       // Database Backup Status
+	Size              *int                         `json:"size,omitempty"`         // Database Backup size in bytes
+	Manual            *bool                        `json:"manual,omitempty"`       // Specifies whether the backup is captured manually
+	CloudAvailability *[]CloudRegionInfo           `json:"cloudAvailability,omitempty"`
 	Databases         *[]BackupDatabaseInfo        `json:"databases,omitempty"` // The databases that are captured as part of the snapshot
 	SharedWith        *EntityAclSharingSummaryInfo `json:"sharedWith,omitempty"`
 }

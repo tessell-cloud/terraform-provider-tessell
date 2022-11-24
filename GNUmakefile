@@ -4,7 +4,7 @@ NAMESPACE=dev
 NAME=tessell
 BINARY=terraform-provider-${NAME}
 VERSION=0.0.1
-OS_ARCH=darwin_amd64
+OS_ARCH=$(shell go env GOOS)_$(shell go env GOARCH)
 
 default: install
 

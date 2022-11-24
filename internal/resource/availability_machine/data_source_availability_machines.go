@@ -49,12 +49,12 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 						},
 						"engine_type": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Database Engine Type",
 							Computed:    true,
 						},
-						"status": {
+						"data_ingestion_status": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Availability Machine's data ingestion status",
 							Computed:    true,
 						},
 						"user_id": {
@@ -300,12 +300,12 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 									},
 									"content_type": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "Content Type for the Data Access Policy",
 										Computed:    true,
 									},
 									"status": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "Database Access Policy Status",
 										Computed:    true,
 									},
 									"content_info": {
@@ -314,6 +314,49 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"as_is_content": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"automated": {
+																Type:        schema.TypeBool,
+																Description: "Share the automated as-is snapshots. This is exclusive with manual specification.",
+																Computed:    true,
+															},
+															"manual": {
+																Type:        schema.TypeList,
+																Description: "The list of snapshots that are to be shared as part of this access policy",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"snapshot_id": {
+																			Type:        schema.TypeString,
+																			Description: "The DB Service snapshot id",
+																			Computed:    true,
+																		},
+																		"snapshot_name": {
+																			Type:        schema.TypeString,
+																			Description: "The DB Service snapshot name",
+																			Computed:    true,
+																		},
+																		"snapshot_time": {
+																			Type:        schema.TypeString,
+																			Description: "DB Service snapshot capture time",
+																			Computed:    true,
+																		},
+																		"shared_at": {
+																			Type:        schema.TypeString,
+																			Description: "The timestamp when the snapshot was added to DAP for sharing",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
 												"sanitized_content": {
 													Type:        schema.TypeList,
 													Description: "",
@@ -329,6 +372,35 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 																		"sanitization_schedule_id": {
 																			Type:        schema.TypeString,
 																			Description: "Id of the sanitization schedule to process automated backups, required only if contentType = Sanitized.",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+															"manual": {
+																Type:        schema.TypeList,
+																Description: "The list of sanitized snapshots that are to be shared as part of this access policy",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"snapshot_id": {
+																			Type:        schema.TypeString,
+																			Description: "The DB Service snapshot id",
+																			Computed:    true,
+																		},
+																		"snapshot_name": {
+																			Type:        schema.TypeString,
+																			Description: "The DB Service snapshot name",
+																			Computed:    true,
+																		},
+																		"snapshot_time": {
+																			Type:        schema.TypeString,
+																			Description: "DB Service snapshot capture time",
+																			Computed:    true,
+																		},
+																		"shared_at": {
+																			Type:        schema.TypeString,
+																			Description: "The timestamp when the snapshot was added to DAP for sharing",
 																			Computed:    true,
 																		},
 																	},
@@ -599,23 +671,23 @@ func setDataSourceValues(d *schema.ResourceData, AvailabilityMachineList *[]mode
 		parsedAvailabilityMachineList = make([]interface{}, len(*AvailabilityMachineList))
 		for i, AvailabilityMachine := range *AvailabilityMachineList {
 			parsedAvailabilityMachineList[i] = map[string]interface{}{
-				"id":                  AvailabilityMachine.Id,
-				"tessell_service_id":  AvailabilityMachine.TessellServiceId,
-				"service_name":        AvailabilityMachine.ServiceName,
-				"tenant":              AvailabilityMachine.Tenant,
-				"subscription":        AvailabilityMachine.Subscription,
-				"engine_type":         AvailabilityMachine.EngineType,
-				"status":              AvailabilityMachine.Status,
-				"user_id":             AvailabilityMachine.UserId,
-				"owner":               AvailabilityMachine.Owner,
-				"logged_in_user_role": AvailabilityMachine.LoggedInUserRole,
-				"shared_with":         []interface{}{parseEntityAclSharingInfo(AvailabilityMachine.SharedWith)},
-				"cloud_availability":  parseCloudRegionInfo1List(AvailabilityMachine.CloudAvailability),
-				"rpo_sla":             []interface{}{parseTessellDmmAvailabilityServiceView(AvailabilityMachine.RpoSla)},
-				"daps":                parseTessellDapServiceDTOList(AvailabilityMachine.Daps),
-				"clones":              parseTessellCloneSummaryInfoList(AvailabilityMachine.Clones),
-				"date_created":        AvailabilityMachine.DateCreated,
-				"date_modified":       AvailabilityMachine.DateModified,
+				"id":                    AvailabilityMachine.Id,
+				"tessell_service_id":    AvailabilityMachine.TessellServiceId,
+				"service_name":          AvailabilityMachine.ServiceName,
+				"tenant":                AvailabilityMachine.Tenant,
+				"subscription":          AvailabilityMachine.Subscription,
+				"engine_type":           AvailabilityMachine.EngineType,
+				"data_ingestion_status": AvailabilityMachine.DataIngestionStatus,
+				"user_id":               AvailabilityMachine.UserId,
+				"owner":                 AvailabilityMachine.Owner,
+				"logged_in_user_role":   AvailabilityMachine.LoggedInUserRole,
+				"shared_with":           []interface{}{parseEntityAclSharingInfo(AvailabilityMachine.SharedWith)},
+				"cloud_availability":    parseCloudRegionInfoList(AvailabilityMachine.CloudAvailability),
+				"rpo_sla":               []interface{}{parseTessellDmmAvailabilityServiceView(AvailabilityMachine.RpoSla)},
+				"daps":                  parseTessellDapServiceDTOList(AvailabilityMachine.Daps),
+				"clones":                parseTessellCloneSummaryInfoList(AvailabilityMachine.Clones),
+				"date_created":          AvailabilityMachine.DateCreated,
+				"date_modified":         AvailabilityMachine.DateModified,
 			}
 		}
 	}

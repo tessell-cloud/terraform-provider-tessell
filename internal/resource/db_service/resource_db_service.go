@@ -21,7 +21,7 @@ func ResourceDBService() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:        schema.TypeString,
-				Description: "Tessell generated UUID for the Tessell Service",
+				Description: "Tessell generated UUID for the DB Service. This is the unique identifier for the DB Service.",
 				Computed:    true,
 			},
 			"availability_machine_id": {
@@ -43,22 +43,22 @@ func ResourceDBService() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "Name of the Tessell Service",
+				Description: "Name of the DB Service",
 				Required:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Description: "Tessell Service's description",
+				Description: "DB Service's description",
 				Optional:    true,
 			},
 			"tenant_id": {
 				Type:        schema.TypeString,
-				Description: "The tenant-id for the Tessell Service",
+				Description: "The tenant-id for the DB Service",
 				Computed:    true,
 			},
 			"subscription": {
 				Type:        schema.TypeString,
-				Description: "Tessell Subscription in which the Tessell Service is to be created",
+				Description: "Tessell Subscription in which the DB Service is to be created",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -76,9 +76,8 @@ func ResourceDBService() *schema.Resource {
 			},
 			"num_of_instances": {
 				Type:        schema.TypeInt,
-				Description: "Number of instance (nodes) to be created for the Tessell Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.",
-				Optional:    true,
-				ForceNew:    true,
+				Description: "Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.",
+				Computed:    true,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -87,37 +86,36 @@ func ResourceDBService() *schema.Resource {
 			},
 			"license_type": {
 				Type:        schema.TypeString,
-				Description: "",
-				Optional:    true,
-				ForceNew:    true,
+				Description: "DB Service License Type",
+				Computed:    true,
 			},
 			"software_image": {
 				Type:        schema.TypeString,
-				Description: "Software Image to be used to create the Tessell Service",
+				Description: "Software Image to be used to create the DB Service",
 				Required:    true,
 				ForceNew:    true,
 			},
 			"software_image_version": {
 				Type:        schema.TypeString,
-				Description: "Software Image Version to be used to create the Tessell Service",
+				Description: "Software Image Version to be used to create the DB Service",
 				Required:    true,
 				ForceNew:    true,
 			},
 			"auto_minor_version_update": {
 				Type:        schema.TypeBool,
-				Description: "Specify whether to automatically update minor version for Tessell Service",
+				Description: "Specify whether to automatically update minor version for DB Service",
 				Optional:    true,
 				Default:     true,
 			},
 			"enable_deletion_protection": {
 				Type:        schema.TypeBool,
-				Description: "Specify whether to enable deletion protection for the Tessell Service",
+				Description: "Specify whether to enable deletion protection for the DB Service",
 				Optional:    true,
 				Default:     true,
 			},
 			"owner": {
 				Type:        schema.TypeString,
-				Description: "Tessell Service owner email address",
+				Description: "DB Service owner email address",
 				Computed:    true,
 			},
 			"logged_in_user_role": {
@@ -127,58 +125,58 @@ func ResourceDBService() *schema.Resource {
 			},
 			"date_created": {
 				Type:        schema.TypeString,
-				Description: "Timestamp when the Tessell Service was created at",
+				Description: "Timestamp when the DB Service was created at",
 				Computed:    true,
 			},
 			"started_at": {
 				Type:        schema.TypeString,
-				Description: "Timestamp when the Tessell Service was last started at",
+				Description: "Timestamp when the DB Service was last started at",
 				Computed:    true,
 			},
 			"stopped_at": {
 				Type:        schema.TypeString,
-				Description: "Timestamp when the Tessell Service was last stopped at",
+				Description: "Timestamp when the DB Service was last stopped at",
 				Computed:    true,
 			},
 			"cloned_from_info": {
 				Type:        schema.TypeList,
-				Description: "If the Tessell Service is created as a clone from some other Tessell Service, this section describes the parent Tessell Service and cloning details",
+				Description: "If the DB Service is created as a clone from some other DB Service, this section describes the parent DB Service and cloning details",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"tessell_service_id": {
 							Type:        schema.TypeString,
-							Description: "The Tessell Service Id using which this Tessell Service clone is created",
+							Description: "The DB Service Id using which this DB Service clone is created",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"availability_machine_id": {
 							Type:        schema.TypeString,
-							Description: "The Availability Machine Id using which this Tessell Service clone is created",
+							Description: "The Availability Machine Id using which this DB Service clone is created",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"tessell_service": {
 							Type:        schema.TypeString,
-							Description: "The Tessell Service name using which this Tessell Service clone is created",
+							Description: "The DB Service name using which this DB Service clone is created",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"availability_machine": {
 							Type:        schema.TypeString,
-							Description: "The Availaility Machine name using which this Tessell Service clone is created",
+							Description: "The Availaility Machine name using which this DB Service clone is created",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"snapshot_name": {
 							Type:        schema.TypeString,
-							Description: "The snapshot using which this Tessell Service clone is created",
+							Description: "The snapshot using which this DB Service clone is created",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"snapshot_id": {
 							Type:        schema.TypeString,
-							Description: "The snapshot Id using which this Tessell Service clone is created",
+							Description: "The snapshot Id using which this DB Service clone is created",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -188,12 +186,19 @@ func ResourceDBService() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
+						"maximum_recoverability": {
+							Type:        schema.TypeBool,
+							Description: "If the service was created using a maximum recoverablity from the parent service",
+							Optional:    true,
+							ForceNew:    true,
+							Default:     false,
+						},
 					},
 				},
 			},
 			"infrastructure": {
 				Type:        schema.TypeList,
-				Description: "The infra details where the Tessell Service is present",
+				Description: "This field contains DB Service's infrastructure related information, like, where the service is hosted - cloud, region; what compute shape, or network is is configured with.",
 				Required:    true,
 				ForceNew:    true,
 				MaxItems:    1,
@@ -202,19 +207,19 @@ func ResourceDBService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"cloud": {
 							Type:        schema.TypeString,
-							Description: "The cloud-type in which the Tessell Service is provisioned (ex. aws, azure)",
+							Description: "The cloud-type in which the DB Service is provisioned (ex. aws, azure)",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"region": {
 							Type:        schema.TypeString,
-							Description: "The region in which the Tessell Service provisioned",
+							Description: "The region in which the DB Service provisioned",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"availability_zone": {
 							Type:        schema.TypeString,
-							Description: "The availability-zone in which the Tessell Service is provisioned",
+							Description: "The availability-zone in which the DB Service is provisioned",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -260,19 +265,37 @@ func ResourceDBService() *schema.Resource {
 						},
 						"vpc": {
 							Type:        schema.TypeString,
-							Description: "The VPC to be used for provisioning the Tessell Service",
+							Description: "The VPC to be used for provisioning the DB Service",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"enable_encryption": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+							Default:     false,
+						},
+						"encryption_key": {
+							Type:        schema.TypeString,
+							Description: "The encryption key name which is used to encrypt the data at rest",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"compute_type": {
 							Type:        schema.TypeString,
-							Description: "The compute-type to be used for provisioning the Tessell Service",
+							Description: "The compute-type to be used for provisioning the DB Service",
 							Optional:    true,
 							ForceNew:    true,
 						},
+						"storage": {
+							Type:        schema.TypeInt,
+							Description: "The storage (in bytes) that has been provisioned for the DB Service",
+							Computed:    true,
+						},
 						"additional_storage": {
 							Type:        schema.TypeInt,
-							Description: "The additional storage (in GBs) to be provisioned for the Tessell Service. This is in addition to what is specified in the compute type.",
+							Description: "Size in GB. This is maintained for backward compatibility and would be deprecated soon.",
 							Optional:    true,
 							ForceNew:    true,
 							Default:     0,
@@ -282,7 +305,7 @@ func ResourceDBService() *schema.Resource {
 			},
 			"service_connectivity": {
 				Type:        schema.TypeList,
-				Description: "Tessell Service's connectivity information",
+				Description: "DB Service's connectivity information",
 				Required:    true,
 				MaxItems:    1,
 				MinItems:    1,
@@ -295,18 +318,18 @@ func ResourceDBService() *schema.Resource {
 						},
 						"service_port": {
 							Type:        schema.TypeInt,
-							Description: "The connection port for the Tessell Service",
+							Description: "The connection port for the DB Service",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"enable_public_access": {
 							Type:        schema.TypeBool,
-							Description: "Specify whether to enable public access to the Tessell Service, default false",
+							Description: "Specify whether to enable public access to the DB Service, default false",
 							Optional:    true,
 						},
 						"allowed_ip_addresses": {
 							Type:        schema.TypeList,
-							Description: "The list of allowed ipv4 addresses that can connect to the Tessell Service",
+							Description: "The list of allowed ipv4 addresses that can connect to the DB Service",
 							Optional:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -314,11 +337,17 @@ func ResourceDBService() *schema.Resource {
 						},
 						"connect_strings": {
 							Type:        schema.TypeList,
-							Description: "The list of connect strings for the Tessell Service",
+							Description: "The list of connect strings for the DB Service",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"type": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"usage_type": {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
@@ -344,16 +373,38 @@ func ResourceDBService() *schema.Resource {
 									},
 									"service_port": {
 										Type:        schema.TypeInt,
-										Description: "The connection port for the Tessell Service",
+										Description: "The connection port for the DB Service",
 										Optional:    true,
 										ForceNew:    true,
 									},
 								},
 							},
 						},
+						"private_link": {
+							Type:        schema.TypeList,
+							Description: "The interface endpoint or Gateway Load Balancer endpoint to connect to your DB service.",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"service_principals": {
+										Type:        schema.TypeList,
+										Description: "The list of AWS account principals that are currently enabled",
+										Computed:    true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"endpoint_service_name": {
+										Type:        schema.TypeString,
+										Description: "The configured endpoint as a result of configuring the service-pricipals",
+										Computed:    true,
+									},
+								},
+							},
+						},
 						"update_in_progress_info": {
 							Type:        schema.TypeList,
-							Description: "Tessell Service connectivity update-in-progress details",
+							Description: "DB Service connectivity update-in-progress details",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -365,17 +416,38 @@ func ResourceDBService() *schema.Resource {
 									},
 									"enable_public_access": {
 										Type:        schema.TypeBool,
-										Description: "Specify whether to enable public access to the Tessell Service, default false",
+										Description: "Specify whether to enable public access to the DB Service, default false",
 										Optional:    true,
 										ForceNew:    true,
 									},
 									"allowed_ip_addresses": {
 										Type:        schema.TypeList,
-										Description: "The list of allowed ipv4 addresses that can connect to the Tessell Service",
+										Description: "The list of allowed ipv4 addresses that can connect to the DB Service",
 										Optional:    true,
 										ForceNew:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
+										},
+									},
+									"private_link": {
+										Type:        schema.TypeList,
+										Description: "The interface endpoint or Gateway Load Balancer endpoint to connect to your DB service.",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"service_principals": {
+													Type:        schema.TypeList,
+													Description: "The list of AWS account principals that are currently enabled",
+													Optional:    true,
+													ForceNew:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
 										},
 									},
 								},
@@ -384,9 +456,14 @@ func ResourceDBService() *schema.Resource {
 					},
 				},
 			},
+			"tessell_genie_status": {
+				Type:        schema.TypeString,
+				Description: "DB Service's Genie status",
+				Computed:    true,
+			},
 			"creds": {
 				Type:        schema.TypeList,
-				Description: "Tessell Service's credential details",
+				Description: "DB Service's credential details",
 				Required:    true,
 				ForceNew:    true,
 				MaxItems:    1,
@@ -395,12 +472,12 @@ func ResourceDBService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"master_user": {
 							Type:        schema.TypeString,
-							Description: "Tessell Service's master username",
+							Description: "DB Service's master username",
 							Required:    true,
 						},
 						"master_password": {
 							Type:        schema.TypeString,
-							Description: "Tessell Service's master password",
+							Description: "DB Service's master password",
 							Required:    true,
 						},
 					},
@@ -408,7 +485,7 @@ func ResourceDBService() *schema.Resource {
 			},
 			"maintenance_window": {
 				Type:        schema.TypeList,
-				Description: "Tessell Service's maintenance window details",
+				Description: "This field details the DB Service maintenance related details.",
 				Optional:    true,
 				ForceNew:    true,
 				MaxItems:    1,
@@ -423,7 +500,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"time": {
 							Type:        schema.TypeString,
-							Description: "Time value in (hh:mm) format. ex. \"02:00\"",
+							Description: "Time value in (hh:mm) format. ex. '02:00'",
 							Required:    true,
 							ForceNew:    true,
 						},
@@ -438,7 +515,7 @@ func ResourceDBService() *schema.Resource {
 			},
 			"snapshot_configuration": {
 				Type:        schema.TypeList,
-				Description: "Tessell Service's backup configurations. If not specified, the default recommended backup configurations would be applied.",
+				Description: "DB Service's backup configurations. If not specified, the default recommended backup configurations would be applied.",
 				Optional:    true,
 				MaxItems:    1,
 				MinItems:    1,
@@ -446,13 +523,13 @@ func ResourceDBService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"auto_snapshot": {
 							Type:        schema.TypeBool,
-							Description: "Specify whether to capture automated snapshots for the Tessell Service, default true.",
+							Description: "Specify whether to capture automated snapshots for the DB Service, default true.",
 							Optional:    true,
 							Default:     true,
 						},
 						"sla": {
 							Type:        schema.TypeString,
-							Description: "The snapshot SLA for the Tessell Service. If not specified, a default SLA would be associated with the Tessell Service",
+							Description: "The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service",
 							Optional:    true,
 						},
 						"snapshot_window": {
@@ -465,12 +542,12 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"time": {
 										Type:        schema.TypeString,
-										Description: "Time value in (hh:mm) format. ex. \"02:00\"",
+										Description: "Time value in (hh:mm) format. ex. '02:00'",
 										Optional:    true,
 									},
 									"duration": {
 										Type:        schema.TypeInt,
-										Description: "The allowed duration for capturing the Tessell Service backup",
+										Description: "The allowed duration for capturing the DB Service backup",
 										Optional:    true,
 									},
 								},
@@ -481,7 +558,7 @@ func ResourceDBService() *schema.Resource {
 			},
 			"engine_configuration": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "This field details the DB Service engine configuration details like - parameter profile, or options profile (if applicable) are used to configure the DB Service.",
 				Required:    true,
 				ForceNew:    true,
 				MaxItems:    1,
@@ -499,7 +576,7 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"multi_tenant": {
 										Type:        schema.TypeBool,
-										Description: "Specify whether the Tessell Service is multi-tenant.",
+										Description: "Specify whether the DB Service is multi-tenant.",
 										Optional:    true,
 										ForceNew:    true,
 										Default:     false,
@@ -656,7 +733,7 @@ func ResourceDBService() *schema.Resource {
 			},
 			"databases": {
 				Type:        schema.TypeList,
-				Description: "Databases that are part of this Tessell Service",
+				Description: "Databases that are part of this DB Service",
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -678,12 +755,12 @@ func ResourceDBService() *schema.Resource {
 						},
 						"tessell_service_id": {
 							Type:        schema.TypeString,
-							Description: "Associated Tessell Service Id",
+							Description: "Associated DB Service Id",
 							Computed:    true,
 						},
 						"engine_type": {
 							Type:        schema.TypeString,
-							Description: "Database engine type",
+							Description: "Database Engine Type",
 							Computed:    true,
 						},
 						"status": {
@@ -698,7 +775,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"cloned_from_info": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "If a database is created as a clone from some other DB Service's database, this section describes the original database details",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -761,7 +838,7 @@ func ResourceDBService() *schema.Resource {
 											},
 										},
 									},
-									"my_sql_config": {
+									"mysql_config": {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
@@ -805,7 +882,7 @@ func ResourceDBService() *schema.Resource {
 			},
 			"integrations_config": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "Integrations to be enabled for the DB Service",
 				Optional:    true,
 				MaxItems:    1,
 				MinItems:    1,
@@ -840,7 +917,7 @@ func ResourceDBService() *schema.Resource {
 			},
 			"tags": {
 				Type:        schema.TypeList,
-				Description: "The tags to be associated with the Tessell Service",
+				Description: "The tags to be associated with the DB Service",
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -875,23 +952,23 @@ func ResourceDBService() *schema.Resource {
 			},
 			"instances": {
 				Type:        schema.TypeList,
-				Description: "Instances associated with this Tessell Service",
+				Description: "Instances associated with this DB Service",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
-							Description: "Tessell generated UUID for the Tessell Service Instance",
+							Description: "Tessell generated UUID for the DB Service Instance",
 							Computed:    true,
 						},
 						"name": {
 							Type:        schema.TypeString,
-							Description: "Name of the Tessell Service Instance",
+							Description: "Name of the DB Service Instance",
 							Computed:    true,
 						},
 						"role": {
 							Type:        schema.TypeString,
-							Description: "Tessell Service Topology",
+							Description: "DB Service Topology",
 							Computed:    true,
 						},
 						"status": {
@@ -901,27 +978,33 @@ func ResourceDBService() *schema.Resource {
 						},
 						"tessell_service_id": {
 							Type:        schema.TypeString,
-							Description: "Tessell Service Instance's associated Tessell Service id",
+							Description: "DB Service Instance's associated DB Service id",
 							Computed:    true,
+						},
+						"encryption_key": {
+							Type:        schema.TypeString,
+							Description: "The encryption key name which is used to encrypt the data at rest",
+							Optional:    true,
+							ForceNew:    true,
 						},
 						"compute_type": {
 							Type:        schema.TypeString,
-							Description: "The compute used for creation of the Tessell Service Instance",
+							Description: "The compute used for creation of the DB Service Instance",
 							Computed:    true,
 						},
 						"cloud": {
 							Type:        schema.TypeString,
-							Description: "Tessell Service Instance's cloud type",
+							Description: "DB Service Instance's cloud type",
 							Computed:    true,
 						},
 						"region": {
 							Type:        schema.TypeString,
-							Description: "Tessell Service Instance's cloud region",
+							Description: "DB Service Instance's cloud region",
 							Computed:    true,
 						},
 						"availability_zone": {
 							Type:        schema.TypeString,
-							Description: "Tessell Service Instance's cloud availability zone",
+							Description: "DB Service Instance's cloud availability zone",
 							Computed:    true,
 						},
 						"date_created": {
@@ -967,29 +1050,37 @@ func ResourceDBService() *schema.Resource {
 									"update_type": {
 										Type:        schema.TypeString,
 										Description: "Type of the update",
-										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"reference_id": {
 										Type:        schema.TypeString,
 										Description: "The reference-id of the update request",
-										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"submitted_at": {
 										Type:        schema.TypeString,
 										Description: "Timestamp when the resource update was requested",
-										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"update_info": {
 										Type:        schema.TypeMap,
 										Description: "The specific details for a Tessell resource that are being updated",
-										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 								},
 							},
+						},
+						"last_started_at": {
+							Type:        schema.TypeString,
+							Description: "Timestamp when the service instance was last started at",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"last_stopped_at": {
+							Type:        schema.TypeString,
+							Description: "Timestamp when the Service Instance was last stopped at",
+							Optional:    true,
+							ForceNew:    true,
 						},
 					},
 				},
@@ -1028,15 +1119,122 @@ func ResourceDBService() *schema.Resource {
 					},
 				},
 			},
-			"deletion_config": {
+			"upcoming_scheduled_actions": {
 				Type:        schema.TypeList,
 				Description: "",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"start_stop": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"action": {
+										Type:        schema.TypeString,
+										Description: "Action which can be either start/stop",
+										Computed:    true,
+									},
+									"at": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"delete": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"at": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"deletion_config": {
+				Type:        schema.TypeList,
+				Description: "If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
 						"retain_availability_machine": {
 							Type:        schema.TypeBool,
-							Description: "If 'retainAvailabilityMachine' is true then set value of field takeFinalBackup and dapsToRetain. By default retainAvailabilityMachine is false, that means delete all details like Availability Machine, Backups, DAPs etc.",
+							Description: "If specified as true, the associated Availability Machine (snapshots, sanitized-snapshots, logs) would be retained",
+							Optional:    true,
+							ForceNew:    true,
+							Default:     false,
+						},
+					},
+				},
+			},
+			"deletion_schedule": {
+				Type:        schema.TypeList,
+				Description: "",
+				Optional:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				MinItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"delete_at": {
+							Type:        schema.TypeString,
+							Description: "DB Service deletion Time",
+							Required:    true,
+							ForceNew:    true,
+						},
+						"deletion_config": {
+							Type:        schema.TypeList,
+							Description: "If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"retain_availability_machine": {
+										Type:        schema.TypeBool,
+										Description: "If specified as true, the associated Availability Machine (snapshots, sanitized-snapshots, logs) would be retained",
+										Optional:    true,
+										ForceNew:    true,
+										Default:     false,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"updates_in_progress": {
+				Type:        schema.TypeList,
+				Description: "The updates that are in progress for this resource",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"update_type": {
+							Type:        schema.TypeString,
+							Description: "Type of the update",
+							Computed:    true,
+						},
+						"reference_id": {
+							Type:        schema.TypeString,
+							Description: "The reference-id of the update request",
+							Computed:    true,
+						},
+						"submitted_at": {
+							Type:        schema.TypeString,
+							Description: "Timestamp when the resource update was requested",
+							Computed:    true,
+						},
+						"update_info": {
+							Type:        schema.TypeMap,
+							Description: "The specific details for a Tessell resource that are being updated",
 							Computed:    true,
 						},
 					},
@@ -1064,6 +1262,7 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "If provided, invoke the DB Service start/stop API",
 				Optional:    true,
+				Default:     "READY",
 			},
 		},
 	}
@@ -1075,14 +1274,14 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 	var diags diag.Diagnostics
 	var id string
 
-	availabilityMachineId := d.Get("availability_machine_id").(string)
+	parentAvailabilityMachineId := d.Get("parent_availability_machine_id").(string)
 	snapshotId := d.Get("snapshot_id").(string)
 	pitr := d.Get("pitr").(string)
 
 	if snapshotId != "" || pitr != "" {
 		payload := formPayloadForCloneTessellService(d)
 
-		response, _, err := client.CloneTessellService(availabilityMachineId, payload)
+		response, _, err := client.CloneTessellService(parentAvailabilityMachineId, payload)
 		if err != nil {
 			return diag.FromErr(err)
 		}

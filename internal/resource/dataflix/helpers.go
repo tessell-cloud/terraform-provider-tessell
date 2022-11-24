@@ -26,7 +26,7 @@ func setResourceData(d *schema.ResourceData, tessellAmDataflixDTO *model.Tessell
 		return err
 	}
 
-	if err := d.Set("cloud_availability", parseCloudRegionInfo1ListWithResData(tessellAmDataflixDTO.CloudAvailability, d)); err != nil {
+	if err := d.Set("cloud_availability", parseCloudRegionInfoListWithResData(tessellAmDataflixDTO.CloudAvailability, d)); err != nil {
 		return err
 	}
 
@@ -41,39 +41,39 @@ func setResourceData(d *schema.ResourceData, tessellAmDataflixDTO *model.Tessell
 	return nil
 }
 
-func parseCloudRegionInfo1ListWithResData(cloudAvailability *[]model.CloudRegionInfo1, d *schema.ResourceData) []interface{} {
+func parseCloudRegionInfoListWithResData(cloudAvailability *[]model.CloudRegionInfo, d *schema.ResourceData) []interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
-	cloudRegionInfo1List := make([]interface{}, 0)
+	cloudRegionInfoList := make([]interface{}, 0)
 
 	if cloudAvailability != nil {
-		cloudRegionInfo1List = make([]interface{}, len(*cloudAvailability))
-		for i, cloudRegionInfo1Item := range *cloudAvailability {
-			cloudRegionInfo1List[i] = parseCloudRegionInfo1(&cloudRegionInfo1Item)
+		cloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
+		for i, cloudRegionInfoItem := range *cloudAvailability {
+			cloudRegionInfoList[i] = parseCloudRegionInfo(&cloudRegionInfoItem)
 		}
 	}
 
-	return cloudRegionInfo1List
+	return cloudRegionInfoList
 }
 
-func parseCloudRegionInfo1List(cloudAvailability *[]model.CloudRegionInfo1) []interface{} {
+func parseCloudRegionInfoList(cloudAvailability *[]model.CloudRegionInfo) []interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
-	cloudRegionInfo1List := make([]interface{}, 0)
+	cloudRegionInfoList := make([]interface{}, 0)
 
 	if cloudAvailability != nil {
-		cloudRegionInfo1List = make([]interface{}, len(*cloudAvailability))
-		for i, cloudRegionInfo1Item := range *cloudAvailability {
-			cloudRegionInfo1List[i] = parseCloudRegionInfo1(&cloudRegionInfo1Item)
+		cloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
+		for i, cloudRegionInfoItem := range *cloudAvailability {
+			cloudRegionInfoList[i] = parseCloudRegionInfo(&cloudRegionInfoItem)
 		}
 	}
 
-	return cloudRegionInfo1List
+	return cloudRegionInfoList
 }
 
-func parseCloudRegionInfo1(cloudAvailability *model.CloudRegionInfo1) interface{} {
+func parseCloudRegionInfo(cloudAvailability *model.CloudRegionInfo) interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}

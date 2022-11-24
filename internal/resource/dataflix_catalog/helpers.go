@@ -178,9 +178,9 @@ func parseTessellDmmDataflixBackupDTO(snapshotCatalog *model.TessellDmmDataflixB
 	parsedSnapshotCatalog["size"] = snapshotCatalog.Size
 	parsedSnapshotCatalog["manual"] = snapshotCatalog.Manual
 
-	var cloudAvailability *[]model.CloudRegionInfo1
+	var cloudAvailability *[]model.CloudRegionInfo
 	if snapshotCatalog.CloudAvailability != cloudAvailability {
-		parsedSnapshotCatalog["cloud_availability"] = parseCloudRegionInfo1List(snapshotCatalog.CloudAvailability)
+		parsedSnapshotCatalog["cloud_availability"] = parseCloudRegionInfoList(snapshotCatalog.CloudAvailability)
 	}
 
 	var databases *[]model.BackupDatabaseInfo
@@ -196,23 +196,23 @@ func parseTessellDmmDataflixBackupDTO(snapshotCatalog *model.TessellDmmDataflixB
 	return parsedSnapshotCatalog
 }
 
-func parseCloudRegionInfo1List(cloudAvailability *[]model.CloudRegionInfo1) []interface{} {
+func parseCloudRegionInfoList(cloudAvailability *[]model.CloudRegionInfo) []interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
-	cloudRegionInfo1List := make([]interface{}, 0)
+	cloudRegionInfoList := make([]interface{}, 0)
 
 	if cloudAvailability != nil {
-		cloudRegionInfo1List = make([]interface{}, len(*cloudAvailability))
-		for i, cloudRegionInfo1Item := range *cloudAvailability {
-			cloudRegionInfo1List[i] = parseCloudRegionInfo1(&cloudRegionInfo1Item)
+		cloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
+		for i, cloudRegionInfoItem := range *cloudAvailability {
+			cloudRegionInfoList[i] = parseCloudRegionInfo(&cloudRegionInfoItem)
 		}
 	}
 
-	return cloudRegionInfo1List
+	return cloudRegionInfoList
 }
 
-func parseCloudRegionInfo1(cloudAvailability *model.CloudRegionInfo1) interface{} {
+func parseCloudRegionInfo(cloudAvailability *model.CloudRegionInfo) interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}

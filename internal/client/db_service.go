@@ -10,13 +10,13 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func (c *Client) CloneTessellService(availabilityMachineId string, payload model.CloneTessellServicePayload) (*model.TaskSummary, int, error) {
+func (c *Client) CloneTessellService(parentAvailabilityMachineId string, payload model.CloneTessellServicePayload) (*model.TaskSummary, int, error) {
 	rb, err := json.Marshal(payload)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/availability-machines/%s/clones", c.APIAddress, availabilityMachineId), strings.NewReader(string(rb)))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/availability-machines/%s/clones", c.APIAddress, parentAvailabilityMachineId), strings.NewReader(string(rb)))
 	if err != nil {
 		return nil, 0, err
 	}
