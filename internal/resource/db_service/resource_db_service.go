@@ -753,6 +753,12 @@ func ResourceDBService() *schema.Resource {
 							Description: "Database description",
 							Optional:    true,
 						},
+						"source_database_id": {
+							Type:        schema.TypeString,
+							Description: "Id of the source database",
+							Optional:    true,
+							ForceNew:    true,
+						},
 						"tessell_service_id": {
 							Type:        schema.TypeString,
 							Description: "Associated DB Service Id",

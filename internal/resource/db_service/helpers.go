@@ -884,6 +884,7 @@ func parseTessellDatabaseDTO(databases *model.TessellDatabaseDTO) interface{} {
 	parsedDatabases["id"] = databases.Id
 	parsedDatabases["database_name"] = databases.DatabaseName
 	parsedDatabases["description"] = databases.Description
+	parsedDatabases["source_database_id"] = databases.SourceDatabaseId
 	parsedDatabases["tessell_service_id"] = databases.TessellServiceId
 	parsedDatabases["engine_type"] = databases.EngineType
 	parsedDatabases["status"] = databases.Status
