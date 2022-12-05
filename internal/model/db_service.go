@@ -326,6 +326,7 @@ type TessellDatabaseDTO struct {
 	Id                    *string                        `json:"id,omitempty"`
 	DatabaseName          *string                        `json:"databaseName,omitempty"`     // Database name
 	Description           *string                        `json:"description,omitempty"`      // Database description
+	SourceDatabaseId      *string                        `json:"sourceDatabaseId,omitempty"` // Id of the source database
 	TessellServiceId      *string                        `json:"tessellServiceId,omitempty"` // Associated DB Service Id
 	EngineType            *string                        `json:"engineType,omitempty"`       // Database Engine Type
 	Status                *string                        `json:"status,omitempty"`           // Database status

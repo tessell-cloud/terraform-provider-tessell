@@ -796,6 +796,11 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "Database description",
 										Computed:    true,
 									},
+									"source_database_id": {
+										Type:        schema.TypeString,
+										Description: "Id of the source database",
+										Computed:    true,
+									},
 									"tessell_service_id": {
 										Type:        schema.TypeString,
 										Description: "Associated DB Service Id",
