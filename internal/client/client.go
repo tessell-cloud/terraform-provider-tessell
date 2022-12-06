@@ -50,7 +50,10 @@ func (c *Client) doRequest(req *http.Request) ([]byte, int, error) {
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return nil, res.StatusCode, err
+		if res != nil {
+			return nil, res.StatusCode, err
+		}
+		return nil, 0, err
 	}
 	defer res.Body.Close()
 
