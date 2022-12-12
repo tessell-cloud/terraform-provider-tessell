@@ -8,29 +8,21 @@ import (
 	"strings"
 )
 
-type AuthStruct struct {
-	EmailId  string `json:"emailId"`
-	Password string `json:"password"`
+type APIKeyPayload struct {
+	APIKey string `json:"apiKey"`
 }
 
 type AuthResponse struct {
-	EmailId     string `json:"emailId"`
 	AccessToken string `json:"accessToken"`
-	Tenant      []struct {
-		TenantId string `json:"tenantId"`
-	} `json:"tenantUserAttributes"`
 }
 
-func (c *Client) SignIn() (*AuthResponse, error) {
-	if c.Auth.EmailId == "" || c.Auth.Password == "" || c.APIAddress == "" {
-		return nil, fmt.Errorf("all of 'email_id', 'password' and 'api_address' are required")
-	}
-	rb, err := json.Marshal(c.Auth)
+func (c *Client) SignIn(apiKey string) (*AuthResponse, error) {
+	rb, err := json.Marshal(APIKeyPayload{APIKey: apiKey})
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/iam/users/login", c.APIAddress), strings.NewReader(string(rb)))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/iam/authorize", c.APIAddress), strings.NewReader(string(rb)))
 	if err != nil {
 		return nil, err
 	}
