@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func init() {
@@ -35,20 +36,23 @@ func New(terraformVersion string) func() *schema.Provider {
 		provider := &schema.Provider{
 			Schema: map[string]*schema.Schema{
 				"api_address": {
-					Type:        schema.TypeString,
-					Required:    true,
-					DefaultFunc: schema.EnvDefaultFunc("TESSELL_API_ADDRESS", nil),
+					Type:         schema.TypeString,
+					Required:     true,
+					ValidateFunc: validation.IsURLWithHTTPS,
+					DefaultFunc:  schema.EnvDefaultFunc("TESSELL_API_ADDRESS", nil),
 				},
-				"email_id": {
-					Type:        schema.TypeString,
-					Required:    true,
-					DefaultFunc: schema.EnvDefaultFunc("TESSELL_EMAIL_ID", nil),
+				"api_key": {
+					Type:         schema.TypeString,
+					Required:     true,
+					Sensitive:    true,
+					ValidateFunc: validation.StringLenBetween(32, 40),
+					DefaultFunc:  schema.EnvDefaultFunc("TESSELL_API_KEY", nil),
 				},
-				"password": {
-					Type:        schema.TypeString,
-					Required:    true,
-					Sensitive:   true,
-					DefaultFunc: schema.EnvDefaultFunc("TESSELL_PASSWORD", nil),
+				"tenant_id": {
+					Type:         schema.TypeString,
+					Required:     true,
+					ValidateFunc: validation.IsUUID,
+					DefaultFunc:  schema.EnvDefaultFunc("TESSELL_TENANT_ID", nil),
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
@@ -75,13 +79,13 @@ func New(terraformVersion string) func() *schema.Provider {
 
 func configure(terraformVersion string, provider *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	return func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		emailId := d.Get("email_id").(string)
-		password := d.Get("password").(string)
 		apiAddress := d.Get("api_address").(string)
+		apiKey := d.Get("api_key").(string)
+		tenantId := d.Get("tenant_id").(string)
 
 		var diags diag.Diagnostics
 
-		c, err := client.NewClient(&apiAddress, &emailId, &password)
+		c, err := client.NewClient(&apiAddress, &apiKey, &tenantId)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}

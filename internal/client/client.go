@@ -2,47 +2,38 @@ package client
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
 
 type Client struct {
-	APIAddress          string
-	HTTPClient          *http.Client
-	AuthorizationToken  string
-	AuthenticationToken string
-	TenantId            string
-	Auth                AuthStruct
+	APIAddress         string
+	HTTPClient         *http.Client
+	AuthorizationToken string
+	TenantId           string
 }
 
-func NewClient(apiAddress *string, emailId *string, password *string) (*Client, error) {
+func NewClient(apiAddress *string, apiKey *string, tenantId *string) (*Client, error) {
 	c := Client{
 		HTTPClient: &http.Client{Timeout: 10 * time.Second},
 		APIAddress: *apiAddress,
-		Auth: AuthStruct{
-			EmailId:  *emailId,
-			Password: *password,
-		},
+		TenantId:   *tenantId,
 	}
 
-	ar, err := c.SignIn()
+	ar, err := c.SignIn(*apiKey)
 	if err != nil {
 		return nil, err
 	}
-
 	c.AuthorizationToken = ar.AccessToken
-	c.TenantId = ar.Tenant[0].TenantId
 
 	return &c, nil
 }
 
 func (c *Client) doRequest(req *http.Request) ([]byte, int, error) {
+	req.Header.Set("tenant-id", c.TenantId)
 	if c.AuthorizationToken != "" {
 		req.Header.Set("Authorization", c.AuthorizationToken)
-	}
-	if c.TenantId != "" {
-		req.Header.Set("tenant-id", c.TenantId)
 	}
 	if req.Method == "POST" {
 		req.Header.Set("Content-Type", "application/json")
@@ -57,7 +48,7 @@ func (c *Client) doRequest(req *http.Request) ([]byte, int, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, res.StatusCode, err
 	}
