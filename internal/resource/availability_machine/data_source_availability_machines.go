@@ -152,37 +152,33 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 										Description: "Associated Availability Machine Name",
 										Computed:    true,
 									},
-									"cloud_availability": {
+									"topology": {
 										Type:        schema.TypeList,
 										Description: "The availability location details: cloudAccount to region",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"cloud": {
+												"type": {
 													Type:        schema.TypeString,
 													Description: "",
 													Computed:    true,
 												},
-												"regions": {
-													Type:        schema.TypeList,
-													Description: "The regions details",
+												"cloud_type": {
+													Type:        schema.TypeString,
+													Description: "",
 													Computed:    true,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"region": {
-																Type:        schema.TypeString,
-																Description: "The cloud region name",
-																Computed:    true,
-															},
-															"availability_zones": {
-																Type:        schema.TypeList,
-																Description: "",
-																Computed:    true,
-																Elem: &schema.Schema{
-																	Type: schema.TypeString,
-																},
-															},
-														},
+												},
+												"region": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"availability_zones": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
 													},
 												},
 											},
@@ -534,6 +530,11 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 										Description: "Clone's subsription name",
 										Computed:    true,
 									},
+									"compute_type": {
+										Type:        schema.TypeString,
+										Description: "Clone's compute type",
+										Computed:    true,
+									},
 									"status": {
 										Type:        schema.TypeString,
 										Description: "Status of the clone database",
@@ -664,7 +665,7 @@ func dataSourceAvailabilityMachinesRead(ctx context.Context, d *schema.ResourceD
 	return diags
 }
 
-func setDataSourceValues(d *schema.ResourceData, AvailabilityMachineList *[]model.TessellDmmServiceConsumerDTO) error {
+func setDataSourceValues(d *schema.ResourceData, AvailabilityMachineList *[]model.TessellDMMServiceConsumerDTO) error {
 	parsedAvailabilityMachineList := make([]interface{}, 0)
 
 	if AvailabilityMachineList != nil {
@@ -683,8 +684,8 @@ func setDataSourceValues(d *schema.ResourceData, AvailabilityMachineList *[]mode
 				"logged_in_user_role":   AvailabilityMachine.LoggedInUserRole,
 				"shared_with":           []interface{}{parseEntityAclSharingInfo(AvailabilityMachine.SharedWith)},
 				"cloud_availability":    parseCloudRegionInfoList(AvailabilityMachine.CloudAvailability),
-				"rpo_sla":               []interface{}{parseTessellDmmAvailabilityServiceView(AvailabilityMachine.RpoSla)},
-				"daps":                  parseTessellDapServiceDTOList(AvailabilityMachine.Daps),
+				"rpo_sla":               []interface{}{parseTessellDMMAvailabilityServiceView(AvailabilityMachine.RPOSLA)},
+				"daps":                  parseTessellDAPServiceDTOList(AvailabilityMachine.DAPs),
 				"clones":                parseTessellCloneSummaryInfoList(AvailabilityMachine.Clones),
 				"date_created":          AvailabilityMachine.DateCreated,
 				"date_modified":         AvailabilityMachine.DateModified,

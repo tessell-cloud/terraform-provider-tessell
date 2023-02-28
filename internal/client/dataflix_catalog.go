@@ -8,7 +8,7 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func (c *Client) GetDataflixCatalog(availabilityMachineId string) (*model.TessellDmmDataflixServiceView, int, error) {
+func (c *Client) GetDataflixCatalog(availabilityMachineId string) (*model.TessellDMMDataflixServiceView, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/dataflix/%s/catalog", c.APIAddress, availabilityMachineId), nil)
 	if err != nil {
 		return nil, 0, err
@@ -19,11 +19,11 @@ func (c *Client) GetDataflixCatalog(availabilityMachineId string) (*model.Tessel
 		return nil, statusCode, err
 	}
 
-	tessellDmmDataflixServiceView := model.TessellDmmDataflixServiceView{}
-	err = json.Unmarshal(body, &tessellDmmDataflixServiceView)
+	tessellDMMDataflixServiceView := model.TessellDMMDataflixServiceView{}
+	err = json.Unmarshal(body, &tessellDMMDataflixServiceView)
 	if err != nil {
 		return nil, statusCode, err
 	}
 
-	return &tessellDmmDataflixServiceView, statusCode, nil
+	return &tessellDMMDataflixServiceView, statusCode, nil
 }

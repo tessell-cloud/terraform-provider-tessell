@@ -11,6 +11,7 @@ import (
 )
 
 func setResourceData(d *schema.ResourceData, tessellSnapshotDTO *model.TessellSnapshotDTO) error {
+
 	if err := d.Set("id", tessellSnapshotDTO.Id); err != nil {
 		return err
 	}
@@ -138,7 +139,7 @@ func parseSnapshotAvailabilityConfig(availabilityConfig *model.SnapshotAvailabil
 	}
 	parsedAvailabilityConfig := make(map[string]interface{})
 	parsedAvailabilityConfig["availability_configured_manually"] = availabilityConfig.AvailabilityConfiguredManually
-	parsedAvailabilityConfig["dap_id"] = availabilityConfig.DapId
+	parsedAvailabilityConfig["dap_id"] = availabilityConfig.DAPId
 
 	var cloudAvailabilityConfig *[]model.SnapshotCloudAvailabilityInfo
 	if availabilityConfig.CloudAvailabilityConfig != cloudAvailabilityConfig {

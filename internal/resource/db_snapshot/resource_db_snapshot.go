@@ -241,13 +241,6 @@ func resourceDBSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	d.SetId(id)
 
-	if d.Get("block_until_complete").(bool) {
-		//if err := client.WaitTillReady(resourceId, d.Get("timeout").(int)); err != nil {
-		if err := client.DBSnapshotPollForStatus(availabilityMachineId, id, "AVAILABLE", d.Get("timeout").(int), 60); err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
 	resourceDBSnapshotRead(ctx, d, meta)
 
 	return diags
@@ -274,6 +267,7 @@ func resourceDBSnapshotRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	return diags
 }
+
 func resourceDBSnapshotUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	return diags
@@ -293,13 +287,7 @@ func resourceDBSnapshotDelete(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	if statusCode != 200 {
-		return diag.FromErr(fmt.Errorf("deletion failed for tessell_db_snapshot with resourceId %s. Received response: %+v", id, response))
-	}
-
-	//err = client.WaitTillDeleted(databaseDeletionResponse.TaskId, d.Get("timeout").(int), "Database Deletion")
-	err = client.DBSnapshotPollForStatusCode(availabilityMachineId, id, 404, d.Get("timeout").(int), 30)
-	if err != nil {
-		return diag.FromErr(err)
+		return diag.FromErr(fmt.Errorf("deletion failed for tessell_db_snapshot with id %s. Received response: %+v", id, response))
 	}
 
 	return diags

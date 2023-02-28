@@ -182,8 +182,8 @@ func (c *Client) StopTessellService(id string) (*model.TaskSummary, int, error) 
 	return &taskSummary, statusCode, nil
 }
 
-func (c *Client) DBServicePollForStatus(id string, status string, timeout int, interval int) error {
-	//loopCount := -5
+func (c *Client) DBServicePollForStatusCode(id string, statusCodeRequired int, timeout int, interval int) error {
+
 	loopCount := 0
 	sleepCycleDurationSmall, err := time.ParseDuration("10s")
 	if err != nil {
@@ -194,46 +194,7 @@ func (c *Client) DBServicePollForStatus(id string, status string, timeout int, i
 		return err
 	}
 
-	//loops := timeout / int(sleepCycleDuration.Seconds())
 	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
-
-	for {
-		response, _, err := c.GetTessellService(id)
-		if err != nil {
-			return err
-		}
-		switch *response.Status {
-		case status:
-			return nil
-		case "FAILED":
-			return fmt.Errorf("received status FAILED while polling")
-		}
-
-		loopCount = loopCount + 1
-		if loopCount > loops {
-			return fmt.Errorf("timed out with last seen status '%s'", *response.Status)
-		}
-		//if loopCount > 1 && loopCount < loops-2 {
-		if loopCount > 6 {
-			time.Sleep(sleepCycleDuration)
-		} else {
-			time.Sleep(sleepCycleDurationSmall)
-		}
-	}
-}
-
-func (c *Client) DBServicePollForStatusCode(id string, statusCodeRequired int, timeout int, interval int) error {
-	loopCount := -5
-	sleepCycleDurationSmall, err := time.ParseDuration("10s")
-	if err != nil {
-		return err
-	}
-	sleepCycleDuration, err := time.ParseDuration(fmt.Sprintf("%ds", interval))
-	if err != nil {
-		return err
-	}
-
-	loops := timeout / int(sleepCycleDuration.Seconds())
 
 	for {
 		_, statusCode, err := c.GetTessellService(id)
@@ -246,9 +207,48 @@ func (c *Client) DBServicePollForStatusCode(id string, statusCodeRequired int, t
 
 		loopCount = loopCount + 1
 		if loopCount > loops {
-			return fmt.Errorf("timed out")
+			return fmt.Errorf("timed out while polling")
 		}
-		if loopCount > 1 && loopCount < loops-2 {
+		if loopCount > 6 {
+			time.Sleep(sleepCycleDuration)
+		} else {
+			time.Sleep(sleepCycleDurationSmall)
+		}
+	}
+}
+
+func (c *Client) DBServicePollForStatus(id string, value string, timeout int, interval int) error {
+
+	loopCount := 0
+	sleepCycleDurationSmall, err := time.ParseDuration("10s")
+	if err != nil {
+		return err
+	}
+	sleepCycleDuration, err := time.ParseDuration(fmt.Sprintf("%ds", interval))
+	if err != nil {
+		return err
+	}
+
+	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
+
+	for {
+		response, _, err := c.GetTessellService(id)
+		if err != nil {
+			return fmt.Errorf("error while polling: %s", err.Error())
+		}
+
+		switch *response.Status {
+		case value:
+			return nil
+		case "FAILED":
+			return fmt.Errorf("received status FAILED while polling")
+		}
+
+		loopCount = loopCount + 1
+		if loopCount > loops {
+			return fmt.Errorf("timed out while polling")
+		}
+		if loopCount > 6 {
 			time.Sleep(sleepCycleDuration)
 		} else {
 			time.Sleep(sleepCycleDurationSmall)

@@ -11,6 +11,7 @@ import (
 )
 
 func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellServiceDTO) error {
+
 	if err := d.Set("id", tessellServiceDTO.Id); err != nil {
 		return err
 	}
@@ -40,6 +41,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 	}
 
 	if err := d.Set("status", tessellServiceDTO.Status); err != nil {
+		return err
+	}
+
+	if err := d.Set("context_info", parseTessellServiceContextInfoWithResData(tessellServiceDTO.ContextInfo, d)); err != nil {
 		return err
 	}
 
@@ -154,6 +159,34 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 	return nil
 }
 
+func parseTessellServiceContextInfoWithResData(contextInfo *model.TessellServiceContextInfo, d *schema.ResourceData) []interface{} {
+	if contextInfo == nil {
+		return nil
+	}
+	parsedContextInfo := make(map[string]interface{})
+	if d.Get("context_info") != nil {
+		contextInfoResourceData := d.Get("context_info").([]interface{})
+		if len(contextInfoResourceData) > 0 {
+			parsedContextInfo = (contextInfoResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedContextInfo["sub_status"] = contextInfo.SubStatus
+	parsedContextInfo["description"] = contextInfo.Description
+
+	return []interface{}{parsedContextInfo}
+}
+
+func parseTessellServiceContextInfo(contextInfo *model.TessellServiceContextInfo) interface{} {
+	if contextInfo == nil {
+		return nil
+	}
+	parsedContextInfo := make(map[string]interface{})
+	parsedContextInfo["sub_status"] = contextInfo.SubStatus
+	parsedContextInfo["description"] = contextInfo.Description
+
+	return parsedContextInfo
+}
+
 func parseTessellServiceClonedFromInfoWithResData(clonedFromInfo *model.TessellServiceClonedFromInfo, d *schema.ResourceData) []interface{} {
 	if clonedFromInfo == nil {
 		return nil
@@ -171,7 +204,8 @@ func parseTessellServiceClonedFromInfoWithResData(clonedFromInfo *model.TessellS
 	parsedClonedFromInfo["availability_machine"] = clonedFromInfo.AvailabilityMachine
 	parsedClonedFromInfo["snapshot_name"] = clonedFromInfo.SnapshotName
 	parsedClonedFromInfo["snapshot_id"] = clonedFromInfo.SnapshotId
-	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PitrTime
+	parsedClonedFromInfo["snapshot_time"] = clonedFromInfo.SnapshotTime
+	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PITRTime
 	parsedClonedFromInfo["maximum_recoverability"] = clonedFromInfo.MaximumRecoverability
 
 	return []interface{}{parsedClonedFromInfo}
@@ -188,7 +222,8 @@ func parseTessellServiceClonedFromInfo(clonedFromInfo *model.TessellServiceClone
 	parsedClonedFromInfo["availability_machine"] = clonedFromInfo.AvailabilityMachine
 	parsedClonedFromInfo["snapshot_name"] = clonedFromInfo.SnapshotName
 	parsedClonedFromInfo["snapshot_id"] = clonedFromInfo.SnapshotId
-	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PitrTime
+	parsedClonedFromInfo["snapshot_time"] = clonedFromInfo.SnapshotTime
+	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PITRTime
 	parsedClonedFromInfo["maximum_recoverability"] = clonedFromInfo.MaximumRecoverability
 
 	return parsedClonedFromInfo
@@ -205,7 +240,9 @@ func parseTessellServiceConnectivityInfoWithResData(serviceConnectivity *model.T
 			parsedServiceConnectivity = (serviceConnectivityResourceData[0]).(map[string]interface{})
 		}
 	}
-	parsedServiceConnectivity["dns_prefix"] = serviceConnectivity.DnsPrefix
+	parsedServiceConnectivity["enable_s_s_l"] = serviceConnectivity.EnableSsl
+	parsedServiceConnectivity["ca_cert_id"] = serviceConnectivity.CaCertId
+	parsedServiceConnectivity["dns_prefix"] = serviceConnectivity.DNSPrefix
 	parsedServiceConnectivity["service_port"] = serviceConnectivity.ServicePort
 	parsedServiceConnectivity["enable_public_access"] = serviceConnectivity.EnablePublicAccess
 	parsedServiceConnectivity["allowed_ip_addresses"] = serviceConnectivity.AllowedIpAddresses
@@ -233,7 +270,9 @@ func parseTessellServiceConnectivityInfo(serviceConnectivity *model.TessellServi
 		return nil
 	}
 	parsedServiceConnectivity := make(map[string]interface{})
-	parsedServiceConnectivity["dns_prefix"] = serviceConnectivity.DnsPrefix
+	parsedServiceConnectivity["enable_s_s_l"] = serviceConnectivity.EnableSsl
+	parsedServiceConnectivity["ca_cert_id"] = serviceConnectivity.CaCertId
+	parsedServiceConnectivity["dns_prefix"] = serviceConnectivity.DNSPrefix
 	parsedServiceConnectivity["service_port"] = serviceConnectivity.ServicePort
 	parsedServiceConnectivity["enable_public_access"] = serviceConnectivity.EnablePublicAccess
 	parsedServiceConnectivity["allowed_ip_addresses"] = serviceConnectivity.AllowedIpAddresses
@@ -303,7 +342,7 @@ func parseTessellServiceConnectivityUpdateInProgressInfo(tessellServiceConnectiv
 		return nil
 	}
 	parsedTessellServiceConnectivityUpdateInProgressInfo := make(map[string]interface{})
-	parsedTessellServiceConnectivityUpdateInProgressInfo["dns_prefix"] = tessellServiceConnectivityUpdateInProgressInfo.DnsPrefix
+	parsedTessellServiceConnectivityUpdateInProgressInfo["dns_prefix"] = tessellServiceConnectivityUpdateInProgressInfo.DNSPrefix
 	parsedTessellServiceConnectivityUpdateInProgressInfo["enable_public_access"] = tessellServiceConnectivityUpdateInProgressInfo.EnablePublicAccess
 	parsedTessellServiceConnectivityUpdateInProgressInfo["allowed_ip_addresses"] = tessellServiceConnectivityUpdateInProgressInfo.AllowedIpAddresses
 
@@ -340,7 +379,7 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 	parsedInfrastructure["region"] = infrastructure.Region
 	parsedInfrastructure["availability_zone"] = infrastructure.AvailabilityZone
 
-	parsedInfrastructure["vpc"] = infrastructure.Vpc
+	parsedInfrastructure["vpc"] = infrastructure.VPC
 	parsedInfrastructure["enable_encryption"] = infrastructure.EnableEncryption
 	parsedInfrastructure["encryption_key"] = infrastructure.EncryptionKey
 	parsedInfrastructure["compute_type"] = infrastructure.ComputeType
@@ -364,7 +403,7 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	parsedInfrastructure["region"] = infrastructure.Region
 	parsedInfrastructure["availability_zone"] = infrastructure.AvailabilityZone
 
-	parsedInfrastructure["vpc"] = infrastructure.Vpc
+	parsedInfrastructure["vpc"] = infrastructure.VPC
 	parsedInfrastructure["enable_encryption"] = infrastructure.EnableEncryption
 	parsedInfrastructure["encryption_key"] = infrastructure.EncryptionKey
 	parsedInfrastructure["compute_type"] = infrastructure.ComputeType
@@ -489,9 +528,9 @@ func parseTessellServiceEngineInfoWithResData(engineConfiguration *model.Tessell
 		parsedEngineConfiguration["postgresql_config"] = []interface{}{parseTessellServicePostgresqlEngineConfig(engineConfiguration.PostgresqlConfig)}
 	}
 
-	var mysqlConfig *model.TessellServiceMySqlEngineConfig
+	var mysqlConfig *model.TessellServiceMysqlEngineConfig
 	if engineConfiguration.MysqlConfig != mysqlConfig {
-		parsedEngineConfiguration["mysql_config"] = []interface{}{parseTessellServiceMySqlEngineConfig(engineConfiguration.MysqlConfig)}
+		parsedEngineConfiguration["mysql_config"] = []interface{}{parseTessellServiceMysqlEngineConfig(engineConfiguration.MysqlConfig)}
 	}
 
 	var sqlServerConfig *model.TessellServiceSqlServerEngineConfig
@@ -533,9 +572,9 @@ func parseTessellServiceEngineInfo(engineConfiguration *model.TessellServiceEngi
 		parsedEngineConfiguration["postgresql_config"] = []interface{}{parseTessellServicePostgresqlEngineConfig(engineConfiguration.PostgresqlConfig)}
 	}
 
-	var mysqlConfig *model.TessellServiceMySqlEngineConfig
+	var mysqlConfig *model.TessellServiceMysqlEngineConfig
 	if engineConfiguration.MysqlConfig != mysqlConfig {
-		parsedEngineConfiguration["mysql_config"] = []interface{}{parseTessellServiceMySqlEngineConfig(engineConfiguration.MysqlConfig)}
+		parsedEngineConfiguration["mysql_config"] = []interface{}{parseTessellServiceMysqlEngineConfig(engineConfiguration.MysqlConfig)}
 	}
 
 	var sqlServerConfig *model.TessellServiceSqlServerEngineConfig
@@ -585,7 +624,7 @@ func parseTessellServicePostgresqlEngineConfig(tessellServicePostgresqlEngineCon
 	return parsedTessellServicePostgresqlEngineConfig
 }
 
-func parseTessellServiceMySqlEngineConfig(tessellServiceMySqlEngineConfig *model.TessellServiceMySqlEngineConfig) interface{} {
+func parseTessellServiceMysqlEngineConfig(tessellServiceMySqlEngineConfig *model.TessellServiceMysqlEngineConfig) interface{} {
 	if tessellServiceMySqlEngineConfig == nil {
 		return nil
 	}
@@ -805,14 +844,19 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	parsedInstances := make(map[string]interface{})
 	parsedInstances["id"] = instances.Id
 	parsedInstances["name"] = instances.Name
+	parsedInstances["type"] = instances.Type
 	parsedInstances["role"] = instances.Role
 	parsedInstances["status"] = instances.Status
 	parsedInstances["tessell_service_id"] = instances.TessellServiceId
-	parsedInstances["encryption_key"] = instances.EncryptionKey
-	parsedInstances["compute_type"] = instances.ComputeType
 	parsedInstances["cloud"] = instances.Cloud
 	parsedInstances["region"] = instances.Region
 	parsedInstances["availability_zone"] = instances.AvailabilityZone
+	parsedInstances["instance_group_id"] = instances.InstanceGroupId
+	parsedInstances["compute_type"] = instances.ComputeType
+	parsedInstances["vpc"] = instances.VPC
+	parsedInstances["encryption_key"] = instances.EncryptionKey
+	parsedInstances["software_image"] = instances.SoftwareImage
+	parsedInstances["software_image_version"] = instances.SoftwareImageVersion
 	parsedInstances["date_created"] = instances.DateCreated
 
 	parsedInstances["last_started_at"] = instances.LastStartedAt
@@ -884,7 +928,6 @@ func parseTessellDatabaseDTO(databases *model.TessellDatabaseDTO) interface{} {
 	parsedDatabases["id"] = databases.Id
 	parsedDatabases["database_name"] = databases.DatabaseName
 	parsedDatabases["description"] = databases.Description
-	parsedDatabases["source_database_id"] = databases.SourceDatabaseId
 	parsedDatabases["tessell_service_id"] = databases.TessellServiceId
 	parsedDatabases["engine_type"] = databases.EngineType
 	parsedDatabases["status"] = databases.Status
@@ -929,9 +972,9 @@ func parseDatabaseConfiguration(databaseConfiguration *model.DatabaseConfigurati
 		parsedDatabaseConfiguration["postgresql_config"] = []interface{}{parsePostgresqlDatabaseConfig(databaseConfiguration.PostgresqlConfig)}
 	}
 
-	var mysqlConfig *model.MySqlDatabaseConfig
+	var mysqlConfig *model.MysqlDatabaseConfig
 	if databaseConfiguration.MysqlConfig != mysqlConfig {
-		parsedDatabaseConfiguration["mysql_config"] = []interface{}{parseMySqlDatabaseConfig(databaseConfiguration.MysqlConfig)}
+		parsedDatabaseConfiguration["my_sql_config"] = []interface{}{parseMysqlDatabaseConfig(databaseConfiguration.MysqlConfig)}
 	}
 
 	var sqlServerConfig *model.SqlServerDatabaseConfig
@@ -963,7 +1006,7 @@ func parsePostgresqlDatabaseConfig(postgresqlDatabaseConfig *model.PostgresqlDat
 	return parsedPostgresqlDatabaseConfig
 }
 
-func parseMySqlDatabaseConfig(mySqlDatabaseConfig *model.MySqlDatabaseConfig) interface{} {
+func parseMysqlDatabaseConfig(mySqlDatabaseConfig *model.MysqlDatabaseConfig) interface{} {
 	if mySqlDatabaseConfig == nil {
 		return nil
 	}
@@ -1148,7 +1191,7 @@ func parseServiceUpcomingScheduledActionsDelete(serviceUpcomingScheduledActions_
 func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessellServicePayload {
 	cloneTessellServicePayloadFormed := model.CloneTessellServicePayload{
 		SnapshotId:               helper.GetStringPointer(d.Get("snapshot_id")),
-		Pitr:                     helper.GetStringPointer(d.Get("pitr")),
+		PITR:                     helper.GetStringPointer(d.Get("pitr")),
 		Name:                     helper.GetStringPointer(d.Get("name")),
 		Description:              helper.GetStringPointer(d.Get("description")),
 		Subscription:             helper.GetStringPointer(d.Get("subscription")),
@@ -1220,7 +1263,7 @@ func formTessellServiceInfrastructurePayload(tessellServiceInfrastructurePayload
 		Cloud:             helper.GetStringPointer(tessellServiceInfrastructurePayloadData["cloud"]),
 		Region:            helper.GetStringPointer(tessellServiceInfrastructurePayloadData["region"]),
 		AvailabilityZone:  helper.GetStringPointer(tessellServiceInfrastructurePayloadData["availability_zone"]),
-		Vpc:               helper.GetStringPointer(tessellServiceInfrastructurePayloadData["vpc"]),
+		VPC:               helper.GetStringPointer(tessellServiceInfrastructurePayloadData["vpc"]),
 		EnableEncryption:  helper.GetBoolPointer(tessellServiceInfrastructurePayloadData["enable_encryption"]),
 		EncryptionKey:     helper.GetStringPointer(tessellServiceInfrastructurePayloadData["encryption_key"]),
 		ComputeType:       helper.GetStringPointer(tessellServiceInfrastructurePayloadData["compute_type"]),
@@ -1238,7 +1281,8 @@ func formTessellServiceConnectivityInfoPayload(tessellServiceConnectivityInfoPay
 	tessellServiceConnectivityInfoPayloadData := tessellServiceConnectivityInfoPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	tessellServiceConnectivityInfoPayloadFormed := model.TessellServiceConnectivityInfoPayload{
-		DnsPrefix:          helper.GetStringPointer(tessellServiceConnectivityInfoPayloadData["dns_prefix"]),
+		EnableSsl:          helper.GetBoolPointer(tessellServiceConnectivityInfoPayloadData["enable_s_s_l"]),
+		DNSPrefix:          helper.GetStringPointer(tessellServiceConnectivityInfoPayloadData["dns_prefix"]),
 		ServicePort:        helper.GetIntPointer(tessellServiceConnectivityInfoPayloadData["service_port"]),
 		EnablePublicAccess: helper.GetBoolPointer(tessellServiceConnectivityInfoPayloadData["enable_public_access"]),
 		AllowedIpAddresses: helper.InterfaceToStringSlice(tessellServiceConnectivityInfoPayloadData["allowed_ip_addresses"]),
@@ -1301,7 +1345,7 @@ func formTessellServiceBackupConfigurationPayload(tessellServiceBackupConfigurat
 
 	tessellServiceBackupConfigurationPayloadFormed := model.TessellServiceBackupConfigurationPayload{
 		AutoSnapshot:   helper.GetBoolPointer(tessellServiceBackupConfigurationPayloadData["auto_snapshot"]),
-		Sla:            helper.GetStringPointer(tessellServiceBackupConfigurationPayloadData["sla"]),
+		SLA:            helper.GetStringPointer(tessellServiceBackupConfigurationPayloadData["sla"]),
 		SnapshotWindow: formTessellServiceBackupConfigurationPayloadSnapshotWindow(tessellServiceBackupConfigurationPayloadData["snapshot_window"]),
 	}
 
@@ -1335,7 +1379,7 @@ func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurat
 		PostScriptInfo:    formScriptInfo(tessellServiceEngineConfigurationPayloadData["post_script_info"]),
 		OracleConfig:      formOracleEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["oracle_config"]),
 		PostgresqlConfig:  formPostgresqlEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["postgresql_config"]),
-		MysqlConfig:       formMySqlEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mysql_config"]),
+		MysqlConfig:       formMysqlEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mysql_config"]),
 		SqlServerConfig:   formSqlServerEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["sql_server_config"]),
 		ApacheKafkaConfig: formApacheKafkaEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["apache_kafka_config"]),
 	}
@@ -1390,18 +1434,18 @@ func formPostgresqlEngineConfigPayload(postgresqlEngineConfigPayloadRaw interfac
 	return &postgresqlEngineConfigPayloadFormed
 }
 
-func formMySqlEngineConfigPayload(mySqlEngineConfigPayloadRaw interface{}) *model.MySqlEngineConfigPayload {
-	if mySqlEngineConfigPayloadRaw == nil || len(mySqlEngineConfigPayloadRaw.([]interface{})) == 0 {
+func formMysqlEngineConfigPayload(mysqlEngineConfigPayloadRaw interface{}) *model.MysqlEngineConfigPayload {
+	if mysqlEngineConfigPayloadRaw == nil || len(mysqlEngineConfigPayloadRaw.([]interface{})) == 0 {
 		return nil
 	}
 
-	mySqlEngineConfigPayloadData := mySqlEngineConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
+	mysqlEngineConfigPayloadData := mysqlEngineConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
 
-	mySqlEngineConfigPayloadFormed := model.MySqlEngineConfigPayload{
-		ParameterProfile: helper.GetStringPointer(mySqlEngineConfigPayloadData["parameter_profile"]),
+	mysqlEngineConfigPayloadFormed := model.MysqlEngineConfigPayload{
+		ParameterProfile: helper.GetStringPointer(mysqlEngineConfigPayloadData["parameter_profile"]),
 	}
 
-	return &mySqlEngineConfigPayloadFormed
+	return &mysqlEngineConfigPayloadFormed
 }
 
 func formSqlServerEngineConfigPayload(sqlServerEngineConfigPayloadRaw interface{}) *model.SqlServerEngineConfigPayload {
@@ -1470,7 +1514,7 @@ func formCreateDatabasePayloadDatabaseConfiguration(createDatabasePayloadDatabas
 	createDatabasePayloadDatabaseConfigurationFormed := model.CreateDatabasePayloadDatabaseConfiguration{
 		OracleConfig:     formOracleDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["oracle_config"]),
 		PostgresqlConfig: formPostgresqlDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["postgresql_config"]),
-		MysqlConfig:      formMySqlDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["mysql_config"]),
+		MysqlConfig:      formMysqlDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["mysql_config"]),
 		SqlServerConfig:  formSqlServerDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["sql_server_config"]),
 	}
 
@@ -1506,18 +1550,18 @@ func formPostgresqlDatabaseConfig(postgresqlDatabaseConfigRaw interface{}) *mode
 	return &postgresqlDatabaseConfigFormed
 }
 
-func formMySqlDatabaseConfig(mySqlDatabaseConfigRaw interface{}) *model.MySqlDatabaseConfig {
-	if mySqlDatabaseConfigRaw == nil || len(mySqlDatabaseConfigRaw.([]interface{})) == 0 {
+func formMysqlDatabaseConfig(mysqlDatabaseConfigRaw interface{}) *model.MysqlDatabaseConfig {
+	if mysqlDatabaseConfigRaw == nil || len(mysqlDatabaseConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
 
-	mySqlDatabaseConfigData := mySqlDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
+	mysqlDatabaseConfigData := mysqlDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
-	mySqlDatabaseConfigFormed := model.MySqlDatabaseConfig{
-		ParameterProfile: helper.GetStringPointer(mySqlDatabaseConfigData["parameter_profile"]),
+	mysqlDatabaseConfigFormed := model.MysqlDatabaseConfig{
+		ParameterProfile: helper.GetStringPointer(mysqlDatabaseConfigData["parameter_profile"]),
 	}
 
-	return &mySqlDatabaseConfigFormed
+	return &mysqlDatabaseConfigFormed
 }
 
 func formSqlServerDatabaseConfig(sqlServerDatabaseConfigRaw interface{}) *model.SqlServerDatabaseConfig {
