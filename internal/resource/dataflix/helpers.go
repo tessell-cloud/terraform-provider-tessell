@@ -10,6 +10,7 @@ import (
 )
 
 func setResourceData(d *schema.ResourceData, tessellAmDataflixDTO *model.TessellAmDataflixDTO) error {
+
 	if err := d.Set("availability_machine_id", tessellAmDataflixDTO.AvailabilityMachineId); err != nil {
 		return err
 	}

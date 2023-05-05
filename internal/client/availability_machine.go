@@ -9,7 +9,7 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func (c *Client) GetAvailabilityMachine(id string) (*model.TessellDmmServiceConsumerDTO, int, error) {
+func (c *Client) GetAvailabilityMachine(id string) (*model.TessellDMMServiceConsumerDTO, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/availability-machines/%s", c.APIAddress, id), nil)
 	if err != nil {
 		return nil, 0, err
@@ -20,16 +20,16 @@ func (c *Client) GetAvailabilityMachine(id string) (*model.TessellDmmServiceCons
 		return nil, statusCode, err
 	}
 
-	tessellDmmServiceConsumerDTO := model.TessellDmmServiceConsumerDTO{}
-	err = json.Unmarshal(body, &tessellDmmServiceConsumerDTO)
+	tessellDMMServiceConsumerDTO := model.TessellDMMServiceConsumerDTO{}
+	err = json.Unmarshal(body, &tessellDMMServiceConsumerDTO)
 	if err != nil {
 		return nil, statusCode, err
 	}
 
-	return &tessellDmmServiceConsumerDTO, statusCode, nil
+	return &tessellDMMServiceConsumerDTO, statusCode, nil
 }
 
-func (c *Client) GetAvailabilityMachines(name string, status string, engineType string, loadAcls bool, owners []string) (*model.GetDmmsServiceView, int, error) {
+func (c *Client) GetAvailabilityMachines(name string, status string, engineType string, loadAcls bool, owners []string) (*model.GetDMMsServiceView, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/availability-machines", c.APIAddress), nil)
 	if err != nil {
 		return nil, 0, err
@@ -47,11 +47,11 @@ func (c *Client) GetAvailabilityMachines(name string, status string, engineType 
 		return nil, statusCode, err
 	}
 
-	getDmmsServiceView := model.GetDmmsServiceView{}
-	err = json.Unmarshal(body, &getDmmsServiceView)
+	getDMMsServiceView := model.GetDMMsServiceView{}
+	err = json.Unmarshal(body, &getDMMsServiceView)
 	if err != nil {
 		return nil, statusCode, err
 	}
 
-	return &getDmmsServiceView, statusCode, nil
+	return &getDMMsServiceView, statusCode, nil
 }

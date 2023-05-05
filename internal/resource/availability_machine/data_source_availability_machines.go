@@ -152,37 +152,33 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 										Description: "Associated Availability Machine Name",
 										Computed:    true,
 									},
-									"cloud_availability": {
+									"topology": {
 										Type:        schema.TypeList,
 										Description: "The availability location details: cloudAccount to region",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"cloud": {
+												"type": {
 													Type:        schema.TypeString,
 													Description: "",
 													Computed:    true,
 												},
-												"regions": {
-													Type:        schema.TypeList,
-													Description: "The regions details",
+												"cloud_type": {
+													Type:        schema.TypeString,
+													Description: "",
 													Computed:    true,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"region": {
-																Type:        schema.TypeString,
-																Description: "The cloud region name",
-																Computed:    true,
-															},
-															"availability_zones": {
-																Type:        schema.TypeList,
-																Description: "",
-																Computed:    true,
-																Elem: &schema.Schema{
-																	Type: schema.TypeString,
-																},
-															},
-														},
+												},
+												"region": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"availability_zones": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
 													},
 												},
 											},
@@ -534,6 +530,11 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 										Description: "Clone's subsription name",
 										Computed:    true,
 									},
+									"compute_type": {
+										Type:        schema.TypeString,
+										Description: "Clone's compute type",
+										Computed:    true,
+									},
 									"status": {
 										Type:        schema.TypeString,
 										Description: "Status of the clone database",
@@ -603,6 +604,25 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 							Description: "",
 							Computed:    true,
 						},
+						"backup_download_config": {
+							Type:        schema.TypeList,
+							Description: "This is a definition for backup download config",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allow_backup_downloads_for_all_users": {
+										Type:        schema.TypeBool,
+										Description: "Allow all users to download the backup, if false only owner/co-owner(s) will be allowed",
+										Computed:    true,
+									},
+									"allow_backup_downloads": {
+										Type:        schema.TypeBool,
+										Description: "Allow download of the backup for owner/co-owner of the AM",
+										Computed:    true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -664,30 +684,31 @@ func dataSourceAvailabilityMachinesRead(ctx context.Context, d *schema.ResourceD
 	return diags
 }
 
-func setDataSourceValues(d *schema.ResourceData, AvailabilityMachineList *[]model.TessellDmmServiceConsumerDTO) error {
+func setDataSourceValues(d *schema.ResourceData, AvailabilityMachineList *[]model.TessellDMMServiceConsumerDTO) error {
 	parsedAvailabilityMachineList := make([]interface{}, 0)
 
 	if AvailabilityMachineList != nil {
 		parsedAvailabilityMachineList = make([]interface{}, len(*AvailabilityMachineList))
 		for i, AvailabilityMachine := range *AvailabilityMachineList {
 			parsedAvailabilityMachineList[i] = map[string]interface{}{
-				"id":                    AvailabilityMachine.Id,
-				"tessell_service_id":    AvailabilityMachine.TessellServiceId,
-				"service_name":          AvailabilityMachine.ServiceName,
-				"tenant":                AvailabilityMachine.Tenant,
-				"subscription":          AvailabilityMachine.Subscription,
-				"engine_type":           AvailabilityMachine.EngineType,
-				"data_ingestion_status": AvailabilityMachine.DataIngestionStatus,
-				"user_id":               AvailabilityMachine.UserId,
-				"owner":                 AvailabilityMachine.Owner,
-				"logged_in_user_role":   AvailabilityMachine.LoggedInUserRole,
-				"shared_with":           []interface{}{parseEntityAclSharingInfo(AvailabilityMachine.SharedWith)},
-				"cloud_availability":    parseCloudRegionInfoList(AvailabilityMachine.CloudAvailability),
-				"rpo_sla":               []interface{}{parseTessellDmmAvailabilityServiceView(AvailabilityMachine.RpoSla)},
-				"daps":                  parseTessellDapServiceDTOList(AvailabilityMachine.Daps),
-				"clones":                parseTessellCloneSummaryInfoList(AvailabilityMachine.Clones),
-				"date_created":          AvailabilityMachine.DateCreated,
-				"date_modified":         AvailabilityMachine.DateModified,
+				"id":                     AvailabilityMachine.Id,
+				"tessell_service_id":     AvailabilityMachine.TessellServiceId,
+				"service_name":           AvailabilityMachine.ServiceName,
+				"tenant":                 AvailabilityMachine.Tenant,
+				"subscription":           AvailabilityMachine.Subscription,
+				"engine_type":            AvailabilityMachine.EngineType,
+				"data_ingestion_status":  AvailabilityMachine.DataIngestionStatus,
+				"user_id":                AvailabilityMachine.UserId,
+				"owner":                  AvailabilityMachine.Owner,
+				"logged_in_user_role":    AvailabilityMachine.LoggedInUserRole,
+				"shared_with":            []interface{}{parseEntityAclSharingInfo(AvailabilityMachine.SharedWith)},
+				"cloud_availability":     parseCloudRegionInfoList(AvailabilityMachine.CloudAvailability),
+				"rpo_sla":                []interface{}{parseTessellDMMAvailabilityServiceView(AvailabilityMachine.RPOSLA)},
+				"daps":                   parseTessellDAPServiceDTOList(AvailabilityMachine.DAPs),
+				"clones":                 parseTessellCloneSummaryInfoList(AvailabilityMachine.Clones),
+				"date_created":           AvailabilityMachine.DateCreated,
+				"date_modified":          AvailabilityMachine.DateModified,
+				"backup_download_config": []interface{}{parseBackupDownloadConfig(AvailabilityMachine.BackupDownloadConfig)},
 			}
 		}
 	}

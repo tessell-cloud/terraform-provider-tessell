@@ -11,6 +11,6 @@ type TessellAmDataflixDTO struct {
 }
 
 type TessellDataflixResponse struct {
-	Metadata *ApiMetadata            `json:"metadata,omitempty"`
+	Metadata *APIMetadata            `json:"metadata,omitempty"`
 	Response *[]TessellAmDataflixDTO `json:"response,omitempty"`
 }

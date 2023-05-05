@@ -9,90 +9,95 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func setResourceData(d *schema.ResourceData, tessellDmmDataflixServiceView *model.TessellDmmDataflixServiceView) error {
-	if err := d.Set("availability_machine_id", tessellDmmDataflixServiceView.AvailabilityMachineId); err != nil {
+func setResourceData(d *schema.ResourceData, getDataflixCatalogResponse *model.GetDataflixCatalogResponse) error {
+
+	if err := d.Set("availability_machine_id", getDataflixCatalogResponse.AvailabilityMachineId); err != nil {
 		return err
 	}
 
-	if err := d.Set("tessell_service_id", tessellDmmDataflixServiceView.TessellServiceId); err != nil {
+	if err := d.Set("tessell_service_id", getDataflixCatalogResponse.TessellServiceId); err != nil {
 		return err
 	}
 
-	if err := d.Set("service_name", tessellDmmDataflixServiceView.ServiceName); err != nil {
+	if err := d.Set("service_name", getDataflixCatalogResponse.ServiceName); err != nil {
 		return err
 	}
 
-	if err := d.Set("engine_type", tessellDmmDataflixServiceView.EngineType); err != nil {
+	if err := d.Set("engine_type", getDataflixCatalogResponse.EngineType); err != nil {
 		return err
 	}
 
-	if err := d.Set("time_zone", tessellDmmDataflixServiceView.TimeZone); err != nil {
+	if err := d.Set("time_zone", getDataflixCatalogResponse.TimeZone); err != nil {
 		return err
 	}
 
-	if err := d.Set("owner", tessellDmmDataflixServiceView.Owner); err != nil {
+	if err := d.Set("owner", getDataflixCatalogResponse.Owner); err != nil {
 		return err
 	}
 
-	if err := d.Set("pitr_catalog", parseTessellDataflixPitrInfoListWithResData(tessellDmmDataflixServiceView.PitrCatalog, d)); err != nil {
+	if err := d.Set("pitr_catalog", parseTessellDataflixPITRInfoListWithResData(getDataflixCatalogResponse.PITRCatalog, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("snapshot_catalog", parseTessellDmmDataflixBackupDTOListWithResData(tessellDmmDataflixServiceView.SnapshotCatalog, d)); err != nil {
+	if err := d.Set("snapshot_catalog", parseDataflixSnapshotListWithResData(getDataflixCatalogResponse.SnapshotCatalog, d)); err != nil {
+		return err
+	}
+
+	if err := d.Set("allow_backup_download", getDataflixCatalogResponse.AllowBackupDownload); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func parseTessellDataflixPitrInfoListWithResData(pitrCatalog *[]model.TessellDataflixPitrInfo, d *schema.ResourceData) []interface{} {
+func parseTessellDataflixPITRInfoListWithResData(pitrCatalog *[]model.TessellDataflixPITRInfo, d *schema.ResourceData) []interface{} {
 	if pitrCatalog == nil {
 		return nil
 	}
-	tessellDataflixPitrInfoList := make([]interface{}, 0)
+	tessellDataflixPITRInfoList := make([]interface{}, 0)
 
 	if pitrCatalog != nil {
-		tessellDataflixPitrInfoList = make([]interface{}, len(*pitrCatalog))
-		for i, tessellDataflixPitrInfoItem := range *pitrCatalog {
-			tessellDataflixPitrInfoList[i] = parseTessellDataflixPitrInfo(&tessellDataflixPitrInfoItem)
+		tessellDataflixPITRInfoList = make([]interface{}, len(*pitrCatalog))
+		for i, tessellDataflixPITRInfoItem := range *pitrCatalog {
+			tessellDataflixPITRInfoList[i] = parseTessellDataflixPITRInfo(&tessellDataflixPITRInfoItem)
 		}
 	}
 
-	return tessellDataflixPitrInfoList
+	return tessellDataflixPITRInfoList
 }
 
-func parseTessellDataflixPitrInfo(pitrCatalog *model.TessellDataflixPitrInfo) interface{} {
+func parseTessellDataflixPITRInfo(pitrCatalog *model.TessellDataflixPITRInfo) interface{} {
 	if pitrCatalog == nil {
 		return nil
 	}
 	parsedPitrCatalog := make(map[string]interface{})
 	parsedPitrCatalog["cloud"] = pitrCatalog.Cloud
 
-	var regions *[]model.TessellDataflixPitrInfoForRegion
+	var regions *[]model.TessellDataflixPITRInfoForRegion
 	if pitrCatalog.Regions != regions {
-		parsedPitrCatalog["regions"] = parseTessellDataflixPitrInfoForRegionList(pitrCatalog.Regions)
+		parsedPitrCatalog["regions"] = parseTessellDataflixPITRInfoForRegionList(pitrCatalog.Regions)
 	}
 
 	return parsedPitrCatalog
 }
 
-func parseTessellDataflixPitrInfoForRegionList(regions *[]model.TessellDataflixPitrInfoForRegion) []interface{} {
+func parseTessellDataflixPITRInfoForRegionList(regions *[]model.TessellDataflixPITRInfoForRegion) []interface{} {
 	if regions == nil {
 		return nil
 	}
-	tessellDataflixPitrInfoForRegionList := make([]interface{}, 0)
+	tessellDataflixPITRInfoForRegionList := make([]interface{}, 0)
 
 	if regions != nil {
-		tessellDataflixPitrInfoForRegionList = make([]interface{}, len(*regions))
-		for i, tessellDataflixPitrInfoForRegionItem := range *regions {
-			tessellDataflixPitrInfoForRegionList[i] = parseTessellDataflixPitrInfoForRegion(&tessellDataflixPitrInfoForRegionItem)
+		tessellDataflixPITRInfoForRegionList = make([]interface{}, len(*regions))
+		for i, tessellDataflixPITRInfoForRegionItem := range *regions {
+			tessellDataflixPITRInfoForRegionList[i] = parseTessellDataflixPITRInfoForRegion(&tessellDataflixPITRInfoForRegionItem)
 		}
 	}
 
-	return tessellDataflixPitrInfoForRegionList
+	return tessellDataflixPITRInfoForRegionList
 }
 
-func parseTessellDataflixPitrInfoForRegion(regions *model.TessellDataflixPitrInfoForRegion) interface{} {
+func parseTessellDataflixPITRInfoForRegion(regions *model.TessellDataflixPITRInfoForRegion) interface{} {
 	if regions == nil {
 		return nil
 	}
@@ -149,23 +154,23 @@ func parseEntityAclSharingSummaryInfo(entityAclSharingSummaryInfo *model.EntityA
 	return parsedEntityAclSharingSummaryInfo
 }
 
-func parseTessellDmmDataflixBackupDTOListWithResData(snapshotCatalog *[]model.TessellDmmDataflixBackupDTO, d *schema.ResourceData) []interface{} {
+func parseDataflixSnapshotListWithResData(snapshotCatalog *[]model.DataflixSnapshot, d *schema.ResourceData) []interface{} {
 	if snapshotCatalog == nil {
 		return nil
 	}
-	tessellDmmDataflixBackupDTOList := make([]interface{}, 0)
+	dataflixSnapshotList := make([]interface{}, 0)
 
 	if snapshotCatalog != nil {
-		tessellDmmDataflixBackupDTOList = make([]interface{}, len(*snapshotCatalog))
-		for i, tessellDmmDataflixBackupDTOItem := range *snapshotCatalog {
-			tessellDmmDataflixBackupDTOList[i] = parseTessellDmmDataflixBackupDTO(&tessellDmmDataflixBackupDTOItem)
+		dataflixSnapshotList = make([]interface{}, len(*snapshotCatalog))
+		for i, dataflixSnapshotItem := range *snapshotCatalog {
+			dataflixSnapshotList[i] = parseDataflixSnapshot(&dataflixSnapshotItem)
 		}
 	}
 
-	return tessellDmmDataflixBackupDTOList
+	return dataflixSnapshotList
 }
 
-func parseTessellDmmDataflixBackupDTO(snapshotCatalog *model.TessellDmmDataflixBackupDTO) interface{} {
+func parseDataflixSnapshot(snapshotCatalog *model.DataflixSnapshot) interface{} {
 	if snapshotCatalog == nil {
 		return nil
 	}
@@ -177,6 +182,8 @@ func parseTessellDmmDataflixBackupDTO(snapshotCatalog *model.TessellDmmDataflixB
 	parsedSnapshotCatalog["status"] = snapshotCatalog.Status
 	parsedSnapshotCatalog["size"] = snapshotCatalog.Size
 	parsedSnapshotCatalog["manual"] = snapshotCatalog.Manual
+
+	parsedSnapshotCatalog["backup_status"] = snapshotCatalog.BackupStatus
 
 	var cloudAvailability *[]model.CloudRegionInfo
 	if snapshotCatalog.CloudAvailability != cloudAvailability {

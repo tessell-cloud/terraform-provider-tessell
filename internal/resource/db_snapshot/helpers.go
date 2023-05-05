@@ -10,48 +10,53 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func setResourceData(d *schema.ResourceData, tessellSnapshotDTO *model.TessellSnapshotDTO) error {
-	if err := d.Set("id", tessellSnapshotDTO.Id); err != nil {
+func setResourceData(d *schema.ResourceData, databaseSnapshot *model.DatabaseSnapshot) error {
+
+	if err := d.Set("id", databaseSnapshot.Id); err != nil {
 		return err
 	}
 
-	if err := d.Set("name", tessellSnapshotDTO.Name); err != nil {
+	if err := d.Set("name", databaseSnapshot.Name); err != nil {
 		return err
 	}
 
-	if err := d.Set("description", tessellSnapshotDTO.Description); err != nil {
+	if err := d.Set("description", databaseSnapshot.Description); err != nil {
 		return err
 	}
 
-	if err := d.Set("snapshot_time", tessellSnapshotDTO.SnapshotTime); err != nil {
+	if err := d.Set("snapshot_time", databaseSnapshot.SnapshotTime); err != nil {
 		return err
 	}
 
-	if err := d.Set("status", tessellSnapshotDTO.Status); err != nil {
+	if err := d.Set("status", databaseSnapshot.Status); err != nil {
 		return err
 	}
 
-	if err := d.Set("size", tessellSnapshotDTO.Size); err != nil {
+	if err := d.Set("size", databaseSnapshot.Size); err != nil {
 		return err
 	}
 
-	if err := d.Set("manual", tessellSnapshotDTO.Manual); err != nil {
+	if err := d.Set("manual", databaseSnapshot.Manual); err != nil {
 		return err
 	}
 
-	if err := d.Set("cloud_availability", parseCloudRegionInfoListWithResData(tessellSnapshotDTO.CloudAvailability, d)); err != nil {
+	if err := d.Set("cloud_availability", parseCloudRegionInfoListWithResData(databaseSnapshot.CloudAvailability, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("availability_config", parseSnapshotAvailabilityConfigListWithResData(tessellSnapshotDTO.AvailabilityConfig, d)); err != nil {
+	if err := d.Set("availability_config", parseSnapshotAvailabilityConfigListWithResData(databaseSnapshot.AvailabilityConfig, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("databases", parseBackupDatabaseInfoListWithResData(tessellSnapshotDTO.Databases, d)); err != nil {
+	if err := d.Set("databases", parseBackupDatabaseInfoListWithResData(databaseSnapshot.Databases, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("shared_with", parseEntityAclSharingSummaryInfoWithResData(tessellSnapshotDTO.SharedWith, d)); err != nil {
+	if err := d.Set("shared_with", parseEntityAclSharingSummaryInfoWithResData(databaseSnapshot.SharedWith, d)); err != nil {
+		return err
+	}
+
+	if err := d.Set("backup_status", databaseSnapshot.BackupStatus); err != nil {
 		return err
 	}
 
@@ -138,7 +143,7 @@ func parseSnapshotAvailabilityConfig(availabilityConfig *model.SnapshotAvailabil
 	}
 	parsedAvailabilityConfig := make(map[string]interface{})
 	parsedAvailabilityConfig["availability_configured_manually"] = availabilityConfig.AvailabilityConfiguredManually
-	parsedAvailabilityConfig["dap_id"] = availabilityConfig.DapId
+	parsedAvailabilityConfig["dap_id"] = availabilityConfig.DAPId
 
 	var cloudAvailabilityConfig *[]model.SnapshotCloudAvailabilityInfo
 	if availabilityConfig.CloudAvailabilityConfig != cloudAvailabilityConfig {
@@ -250,11 +255,11 @@ func parseEntityAclSharingSummaryInfoWithResData(sharedWith *model.EntityAclShar
 	return []interface{}{parsedSharedWith}
 }
 
-func formPayloadForCreateTessellServiceBackupRequest(d *schema.ResourceData) model.CreateBackupTaskPayload {
-	createBackupTaskPayloadFormed := model.CreateBackupTaskPayload{
+func formPayloadForCreateDatabaseSnapshotRequest(d *schema.ResourceData) model.CreateDatabaseSnapshotTaskPayload {
+	createDatabaseSnapshotTaskPayloadFormed := model.CreateDatabaseSnapshotTaskPayload{
 		Name:        helper.GetStringPointer(d.Get("name")),
 		Description: helper.GetStringPointer(d.Get("description")),
 	}
 
-	return createBackupTaskPayloadFormed
+	return createDatabaseSnapshotTaskPayloadFormed
 }

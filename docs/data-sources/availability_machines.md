@@ -43,6 +43,7 @@ data_source "tessell_availability_machines" "example" {
 
 Read-Only:
 
+- `backup_download_config` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--backup_download_config))
 - `clones` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--clones))
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--cloud_availability))
 - `daps` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--daps))
@@ -61,6 +62,15 @@ Read-Only:
 - `tessell_service_id` (String)
 - `user_id` (String)
 
+<a id="nestedobjatt--availability_machines--backup_download_config"></a>
+### Nested Schema for `availability_machines.backup_download_config`
+
+Read-Only:
+
+- `allow_backup_downloads` (Boolean)
+- `allow_backup_downloads_for_all_users` (Boolean)
+
+
 <a id="nestedobjatt--availability_machines--clones"></a>
 ### Nested Schema for `availability_machines.clones`
 
@@ -68,6 +78,7 @@ Read-Only:
 
 - `clone_info` (Map of String)
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--clones--cloud_availability))
+- `compute_type` (String)
 - `date_created` (String)
 - `id` (String)
 - `name` (String)

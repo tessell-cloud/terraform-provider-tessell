@@ -55,6 +55,25 @@ func DataSourceDBService() *schema.Resource {
 				Description: "",
 				Computed:    true,
 			},
+			"context_info": {
+				Type:        schema.TypeList,
+				Description: "",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"sub_status": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+					},
+				},
+			},
 			"license_type": {
 				Type:        schema.TypeString,
 				Description: "",
@@ -68,6 +87,16 @@ func DataSourceDBService() *schema.Resource {
 			"enable_deletion_protection": {
 				Type:        schema.TypeBool,
 				Description: "This field specifies whether to enable deletion protection for the DB Service. If this is enabled, the deletion for the DB Service would be disallowed until this setting is disabled.",
+				Computed:    true,
+			},
+			"enable_stop_protection": {
+				Type:        schema.TypeBool,
+				Description: "This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.",
+				Computed:    true,
+			},
+			"edition": {
+				Type:        schema.TypeString,
+				Description: "",
 				Computed:    true,
 			},
 			"software_image": {
@@ -151,6 +180,11 @@ func DataSourceDBService() *schema.Resource {
 							Description: "The snapshot Id using which this DB Service clone is created",
 							Computed:    true,
 						},
+						"snapshot_time": {
+							Type:        schema.TypeString,
+							Description: "DB Service snapshot capture time",
+							Computed:    true,
+						},
 						"pitr_time": {
 							Type:        schema.TypeString,
 							Description: "If the database was created using a Point-In-Time mechanism, it specifies the timestamp in UTC",
@@ -170,6 +204,16 @@ func DataSourceDBService() *schema.Resource {
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"enable_ssl": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Computed:    true,
+						},
+						"ca_cert_id": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
 						"dns_prefix": {
 							Type:        schema.TypeString,
 							Description: "",
@@ -499,6 +543,11 @@ func DataSourceDBService() *schema.Resource {
 										Description: "The parameter profile for the database",
 										Computed:    true,
 									},
+									"ad_domain_id": {
+										Type:        schema.TypeString,
+										Description: "Active Directory Domain id",
+										Computed:    true,
+									},
 								},
 							},
 						},
@@ -652,6 +701,11 @@ func DataSourceDBService() *schema.Resource {
 							Description: "Name of the DB Service Instance",
 							Computed:    true,
 						},
+						"type": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
 						"role": {
 							Type:        schema.TypeString,
 							Description: "DB Service Topology",
@@ -667,16 +721,6 @@ func DataSourceDBService() *schema.Resource {
 							Description: "DB Service Instance's associated DB Service id",
 							Computed:    true,
 						},
-						"encryption_key": {
-							Type:        schema.TypeString,
-							Description: "The encryption key name which is used to encrypt the data at rest",
-							Computed:    true,
-						},
-						"compute_type": {
-							Type:        schema.TypeString,
-							Description: "The compute used for creation of the DB Service Instance",
-							Computed:    true,
-						},
 						"cloud": {
 							Type:        schema.TypeString,
 							Description: "DB Service Instance's cloud type",
@@ -690,6 +734,36 @@ func DataSourceDBService() *schema.Resource {
 						"availability_zone": {
 							Type:        schema.TypeString,
 							Description: "DB Service Instance's cloud availability zone",
+							Computed:    true,
+						},
+						"instance_group_id": {
+							Type:        schema.TypeString,
+							Description: "The instance groupd Id",
+							Computed:    true,
+						},
+						"compute_type": {
+							Type:        schema.TypeString,
+							Description: "The compute used for creation of the Tessell Service Instance",
+							Computed:    true,
+						},
+						"vpc": {
+							Type:        schema.TypeString,
+							Description: "The VPC used for creation of the DB Service Instance",
+							Computed:    true,
+						},
+						"encryption_key": {
+							Type:        schema.TypeString,
+							Description: "The encryption key name which is used to encrypt the data at rest",
+							Computed:    true,
+						},
+						"software_image": {
+							Type:        schema.TypeString,
+							Description: "Software Image to be used to create the instance",
+							Computed:    true,
+						},
+						"software_image_version": {
+							Type:        schema.TypeString,
+							Description: "Software Image Version to be used to create the instance",
 							Computed:    true,
 						},
 						"date_created": {
@@ -789,11 +863,6 @@ func DataSourceDBService() *schema.Resource {
 							Description: "Database description",
 							Computed:    true,
 						},
-						"source_database_id": {
-							Type:        schema.TypeString,
-							Description: "Id of the source database",
-							Computed:    true,
-						},
 						"tessell_service_id": {
 							Type:        schema.TypeString,
 							Description: "Associated DB Service Id",
@@ -867,7 +936,7 @@ func DataSourceDBService() *schema.Resource {
 											},
 										},
 									},
-									"mysql_config": {
+									"my_sql_config": {
 										Type:        schema.TypeList,
 										Description: "",
 										Computed:    true,
@@ -975,6 +1044,25 @@ func DataSourceDBService() *schema.Resource {
 										Computed:    true,
 									},
 									"at": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"patch": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"at": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"message": {
 										Type:        schema.TypeString,
 										Description: "",
 										Computed:    true,

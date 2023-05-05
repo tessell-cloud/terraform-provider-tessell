@@ -25,7 +25,7 @@ terraform {
   required_providers {
     tessell = {
       source  = "tessell-cloud/tessell"
-      version = "0.0.6"
+      version = "0.0.8"
     }
   }
 }
@@ -74,7 +74,7 @@ terraform {
   required_providers {
     tessell = {
       source  = "tessell-cloud/tessell"
-      version = "0.0.6"
+      version = "0.0.8"
     }
   }
 }

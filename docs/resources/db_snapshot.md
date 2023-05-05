@@ -28,6 +28,7 @@ resource "tessell_db_snapshot" "example" {
 ### Optional
 
 - `availability_machine_id` (String) Id of the parent AvailabilityMachine, required when creating a clone
+- `backup_status` (String)
 - `block_until_complete` (Boolean) For any operation on this resource, block the flow until the action has completed successfully
 - `description` (String) Description for the snapshot
 - `name` (String) DB Service snapshot name

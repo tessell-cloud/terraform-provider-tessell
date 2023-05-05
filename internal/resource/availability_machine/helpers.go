@@ -9,72 +9,77 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func setResourceData(d *schema.ResourceData, tessellDmmServiceConsumerDTO *model.TessellDmmServiceConsumerDTO) error {
-	if err := d.Set("id", tessellDmmServiceConsumerDTO.Id); err != nil {
+func setResourceData(d *schema.ResourceData, tessellDMMServiceConsumerDTO *model.TessellDMMServiceConsumerDTO) error {
+
+	if err := d.Set("id", tessellDMMServiceConsumerDTO.Id); err != nil {
 		return err
 	}
 
-	if err := d.Set("tessell_service_id", tessellDmmServiceConsumerDTO.TessellServiceId); err != nil {
+	if err := d.Set("tessell_service_id", tessellDMMServiceConsumerDTO.TessellServiceId); err != nil {
 		return err
 	}
 
-	if err := d.Set("service_name", tessellDmmServiceConsumerDTO.ServiceName); err != nil {
+	if err := d.Set("service_name", tessellDMMServiceConsumerDTO.ServiceName); err != nil {
 		return err
 	}
 
-	if err := d.Set("tenant", tessellDmmServiceConsumerDTO.Tenant); err != nil {
+	if err := d.Set("tenant", tessellDMMServiceConsumerDTO.Tenant); err != nil {
 		return err
 	}
 
-	if err := d.Set("subscription", tessellDmmServiceConsumerDTO.Subscription); err != nil {
+	if err := d.Set("subscription", tessellDMMServiceConsumerDTO.Subscription); err != nil {
 		return err
 	}
 
-	if err := d.Set("engine_type", tessellDmmServiceConsumerDTO.EngineType); err != nil {
+	if err := d.Set("engine_type", tessellDMMServiceConsumerDTO.EngineType); err != nil {
 		return err
 	}
 
-	if err := d.Set("data_ingestion_status", tessellDmmServiceConsumerDTO.DataIngestionStatus); err != nil {
+	if err := d.Set("data_ingestion_status", tessellDMMServiceConsumerDTO.DataIngestionStatus); err != nil {
 		return err
 	}
 
-	if err := d.Set("user_id", tessellDmmServiceConsumerDTO.UserId); err != nil {
+	if err := d.Set("user_id", tessellDMMServiceConsumerDTO.UserId); err != nil {
 		return err
 	}
 
-	if err := d.Set("owner", tessellDmmServiceConsumerDTO.Owner); err != nil {
+	if err := d.Set("owner", tessellDMMServiceConsumerDTO.Owner); err != nil {
 		return err
 	}
 
-	if err := d.Set("logged_in_user_role", tessellDmmServiceConsumerDTO.LoggedInUserRole); err != nil {
+	if err := d.Set("logged_in_user_role", tessellDMMServiceConsumerDTO.LoggedInUserRole); err != nil {
 		return err
 	}
 
-	if err := d.Set("shared_with", parseEntityAclSharingInfoWithResData(tessellDmmServiceConsumerDTO.SharedWith, d)); err != nil {
+	if err := d.Set("shared_with", parseEntityAclSharingInfoWithResData(tessellDMMServiceConsumerDTO.SharedWith, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("cloud_availability", parseCloudRegionInfoListWithResData(tessellDmmServiceConsumerDTO.CloudAvailability, d)); err != nil {
+	if err := d.Set("cloud_availability", parseCloudRegionInfoListWithResData(tessellDMMServiceConsumerDTO.CloudAvailability, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("rpo_sla", parseTessellDmmAvailabilityServiceViewWithResData(tessellDmmServiceConsumerDTO.RpoSla, d)); err != nil {
+	if err := d.Set("rpo_sla", parseTessellDMMAvailabilityServiceViewWithResData(tessellDMMServiceConsumerDTO.RPOSLA, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("daps", parseTessellDapServiceDTOListWithResData(tessellDmmServiceConsumerDTO.Daps, d)); err != nil {
+	if err := d.Set("daps", parseTessellDAPServiceDTOListWithResData(tessellDMMServiceConsumerDTO.DAPs, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("clones", parseTessellCloneSummaryInfoListWithResData(tessellDmmServiceConsumerDTO.Clones, d)); err != nil {
+	if err := d.Set("clones", parseTessellCloneSummaryInfoListWithResData(tessellDMMServiceConsumerDTO.Clones, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("date_created", tessellDmmServiceConsumerDTO.DateCreated); err != nil {
+	if err := d.Set("date_created", tessellDMMServiceConsumerDTO.DateCreated); err != nil {
 		return err
 	}
 
-	if err := d.Set("date_modified", tessellDmmServiceConsumerDTO.DateModified); err != nil {
+	if err := d.Set("date_modified", tessellDMMServiceConsumerDTO.DateModified); err != nil {
+		return err
+	}
+
+	if err := d.Set("backup_download_config", parseBackupDownloadConfigWithResData(tessellDMMServiceConsumerDTO.BackupDownloadConfig, d)); err != nil {
 		return err
 	}
 
@@ -216,7 +221,7 @@ func parseRegionInfo(regionInfo *model.RegionInfo) interface{} {
 	return parsedRegionInfo
 }
 
-func parseTessellDmmAvailabilityServiceViewWithResData(rpoSla *model.TessellDmmAvailabilityServiceView, d *schema.ResourceData) []interface{} {
+func parseTessellDMMAvailabilityServiceViewWithResData(rpoSla *model.TessellDMMAvailabilityServiceView, d *schema.ResourceData) []interface{} {
 	if rpoSla == nil {
 		return nil
 	}
@@ -230,12 +235,12 @@ func parseTessellDmmAvailabilityServiceViewWithResData(rpoSla *model.TessellDmmA
 	parsedRpoSla["availability_machine_id"] = rpoSla.AvailabilityMachineId
 	parsedRpoSla["availability_machine"] = rpoSla.AvailabilityMachine
 
-	parsedRpoSla["rpo_sla_status"] = rpoSla.RpoSlaStatus
-	parsedRpoSla["sla"] = rpoSla.Sla
+	parsedRpoSla["rpo_sla_status"] = rpoSla.RPOSLAStatus
+	parsedRpoSla["sla"] = rpoSla.SLA
 
-	var cloudAvailability *[]model.CloudRegionInfo
-	if rpoSla.CloudAvailability != cloudAvailability {
-		parsedRpoSla["cloud_availability"] = parseCloudRegionInfoList(rpoSla.CloudAvailability)
+	var topology *[]model.DBServiceTopology
+	if rpoSla.Topology != topology {
+		parsedRpoSla["topology"] = parseDBServiceTopologyList(rpoSla.Topology)
 	}
 
 	var schedule *model.ScheduleInfo
@@ -246,7 +251,7 @@ func parseTessellDmmAvailabilityServiceViewWithResData(rpoSla *model.TessellDmmA
 	return []interface{}{parsedRpoSla}
 }
 
-func parseTessellDmmAvailabilityServiceView(rpoSla *model.TessellDmmAvailabilityServiceView) interface{} {
+func parseTessellDMMAvailabilityServiceView(rpoSla *model.TessellDMMAvailabilityServiceView) interface{} {
 	if rpoSla == nil {
 		return nil
 	}
@@ -254,12 +259,12 @@ func parseTessellDmmAvailabilityServiceView(rpoSla *model.TessellDmmAvailability
 	parsedRpoSla["availability_machine_id"] = rpoSla.AvailabilityMachineId
 	parsedRpoSla["availability_machine"] = rpoSla.AvailabilityMachine
 
-	parsedRpoSla["rpo_sla_status"] = rpoSla.RpoSlaStatus
-	parsedRpoSla["sla"] = rpoSla.Sla
+	parsedRpoSla["rpo_sla_status"] = rpoSla.RPOSLAStatus
+	parsedRpoSla["sla"] = rpoSla.SLA
 
-	var cloudAvailability *[]model.CloudRegionInfo
-	if rpoSla.CloudAvailability != cloudAvailability {
-		parsedRpoSla["cloud_availability"] = parseCloudRegionInfoList(rpoSla.CloudAvailability)
+	var topology *[]model.DBServiceTopology
+	if rpoSla.Topology != topology {
+		parsedRpoSla["topology"] = parseDBServiceTopologyList(rpoSla.Topology)
 	}
 
 	var schedule *model.ScheduleInfo
@@ -268,6 +273,35 @@ func parseTessellDmmAvailabilityServiceView(rpoSla *model.TessellDmmAvailability
 	}
 
 	return parsedRpoSla
+}
+
+func parseDBServiceTopologyList(dbServiceTopology *[]model.DBServiceTopology) []interface{} {
+	if dbServiceTopology == nil {
+		return nil
+	}
+	dbServiceTopologyList := make([]interface{}, 0)
+
+	if dbServiceTopology != nil {
+		dbServiceTopologyList = make([]interface{}, len(*dbServiceTopology))
+		for i, dbServiceTopologyItem := range *dbServiceTopology {
+			dbServiceTopologyList[i] = parseDBServiceTopology(&dbServiceTopologyItem)
+		}
+	}
+
+	return dbServiceTopologyList
+}
+
+func parseDBServiceTopology(dbServiceTopology *model.DBServiceTopology) interface{} {
+	if dbServiceTopology == nil {
+		return nil
+	}
+	parsedDbServiceTopology := make(map[string]interface{})
+	parsedDbServiceTopology["type"] = dbServiceTopology.Type
+	parsedDbServiceTopology["cloud_type"] = dbServiceTopology.CloudType
+	parsedDbServiceTopology["region"] = dbServiceTopology.Region
+	parsedDbServiceTopology["availability_zones"] = dbServiceTopology.AvailabilityZones
+
+	return parsedDbServiceTopology
 }
 
 func parseScheduleInfo(scheduleInfo *model.ScheduleInfo) interface{} {
@@ -331,39 +365,39 @@ func parseDailySchedule(dailySchedule *model.DailySchedule) interface{} {
 	return parsedDailySchedule
 }
 
-func parseTessellDapServiceDTOListWithResData(daps *[]model.TessellDapServiceDTO, d *schema.ResourceData) []interface{} {
+func parseTessellDAPServiceDTOListWithResData(daps *[]model.TessellDAPServiceDTO, d *schema.ResourceData) []interface{} {
 	if daps == nil {
 		return nil
 	}
-	tessellDapServiceDTOList := make([]interface{}, 0)
+	tessellDAPServiceDTOList := make([]interface{}, 0)
 
 	if daps != nil {
-		tessellDapServiceDTOList = make([]interface{}, len(*daps))
-		for i, tessellDapServiceDTOItem := range *daps {
-			tessellDapServiceDTOList[i] = parseTessellDapServiceDTO(&tessellDapServiceDTOItem)
+		tessellDAPServiceDTOList = make([]interface{}, len(*daps))
+		for i, tessellDAPServiceDTOItem := range *daps {
+			tessellDAPServiceDTOList[i] = parseTessellDAPServiceDTO(&tessellDAPServiceDTOItem)
 		}
 	}
 
-	return tessellDapServiceDTOList
+	return tessellDAPServiceDTOList
 }
 
-func parseTessellDapServiceDTOList(daps *[]model.TessellDapServiceDTO) []interface{} {
+func parseTessellDAPServiceDTOList(daps *[]model.TessellDAPServiceDTO) []interface{} {
 	if daps == nil {
 		return nil
 	}
-	tessellDapServiceDTOList := make([]interface{}, 0)
+	tessellDAPServiceDTOList := make([]interface{}, 0)
 
 	if daps != nil {
-		tessellDapServiceDTOList = make([]interface{}, len(*daps))
-		for i, tessellDapServiceDTOItem := range *daps {
-			tessellDapServiceDTOList[i] = parseTessellDapServiceDTO(&tessellDapServiceDTOItem)
+		tessellDAPServiceDTOList = make([]interface{}, len(*daps))
+		for i, tessellDAPServiceDTOItem := range *daps {
+			tessellDAPServiceDTOList[i] = parseTessellDAPServiceDTO(&tessellDAPServiceDTOItem)
 		}
 	}
 
-	return tessellDapServiceDTOList
+	return tessellDAPServiceDTOList
 }
 
-func parseTessellDapServiceDTO(daps *model.TessellDapServiceDTO) interface{} {
+func parseTessellDAPServiceDTO(daps *model.TessellDAPServiceDTO) interface{} {
 	if daps == nil {
 		return nil
 	}
@@ -383,9 +417,9 @@ func parseTessellDapServiceDTO(daps *model.TessellDapServiceDTO) interface{} {
 	parsedDaps["date_created"] = daps.DateCreated
 	parsedDaps["date_modified"] = daps.DateModified
 
-	var contentInfo *model.DapContentInfo
+	var contentInfo *model.DAPContentInfo
 	if daps.ContentInfo != contentInfo {
-		parsedDaps["content_info"] = []interface{}{parseDapContentInfo(daps.ContentInfo)}
+		parsedDaps["content_info"] = []interface{}{parseDAPContentInfo(daps.ContentInfo)}
 	}
 
 	var cloudAvailability *[]model.CloudRegionInfo
@@ -406,41 +440,41 @@ func parseTessellDapServiceDTO(daps *model.TessellDapServiceDTO) interface{} {
 	return parsedDaps
 }
 
-func parseDapContentInfo(dapContentInfo *model.DapContentInfo) interface{} {
+func parseDAPContentInfo(dapContentInfo *model.DAPContentInfo) interface{} {
 	if dapContentInfo == nil {
 		return nil
 	}
 	parsedDapContentInfo := make(map[string]interface{})
 
-	var asIsContent *model.AsIsDapContent
+	var asIsContent *model.AsIsDAPContent
 	if dapContentInfo.AsIsContent != asIsContent {
-		parsedDapContentInfo["as_is_content"] = []interface{}{parseAsIsDapContent(dapContentInfo.AsIsContent)}
+		parsedDapContentInfo["as_is_content"] = []interface{}{parseAsIsDAPContent(dapContentInfo.AsIsContent)}
 	}
 
-	var sanitizedContent *model.SanitizationDapContent
+	var sanitizedContent *model.SanitizationDAPContent
 	if dapContentInfo.SanitizedContent != sanitizedContent {
-		parsedDapContentInfo["sanitized_content"] = []interface{}{parseSanitizationDapContent(dapContentInfo.SanitizedContent)}
+		parsedDapContentInfo["sanitized_content"] = []interface{}{parseSanitizationDAPContent(dapContentInfo.SanitizedContent)}
 	}
 
 	return parsedDapContentInfo
 }
 
-func parseAsIsDapContent(asIsDapContent *model.AsIsDapContent) interface{} {
+func parseAsIsDAPContent(asIsDapContent *model.AsIsDAPContent) interface{} {
 	if asIsDapContent == nil {
 		return nil
 	}
 	parsedAsIsDapContent := make(map[string]interface{})
 	parsedAsIsDapContent["automated"] = asIsDapContent.Automated
 
-	var manual *[]model.DapSnapshotInfo
+	var manual *[]model.DAPSnapshotInfo
 	if asIsDapContent.Manual != manual {
-		parsedAsIsDapContent["manual"] = parseDapSnapshotInfoList(asIsDapContent.Manual)
+		parsedAsIsDapContent["manual"] = parseDAPSnapshotInfoList(asIsDapContent.Manual)
 	}
 
 	return parsedAsIsDapContent
 }
 
-func parseDapSnapshotInfoList(dapSnapshotInfo *[]model.DapSnapshotInfo) []interface{} {
+func parseDAPSnapshotInfoList(dapSnapshotInfo *[]model.DAPSnapshotInfo) []interface{} {
 	if dapSnapshotInfo == nil {
 		return nil
 	}
@@ -449,14 +483,14 @@ func parseDapSnapshotInfoList(dapSnapshotInfo *[]model.DapSnapshotInfo) []interf
 	if dapSnapshotInfo != nil {
 		dapSnapshotInfoList = make([]interface{}, len(*dapSnapshotInfo))
 		for i, dapSnapshotInfoItem := range *dapSnapshotInfo {
-			dapSnapshotInfoList[i] = parseDapSnapshotInfo(&dapSnapshotInfoItem)
+			dapSnapshotInfoList[i] = parseDAPSnapshotInfo(&dapSnapshotInfoItem)
 		}
 	}
 
 	return dapSnapshotInfoList
 }
 
-func parseDapSnapshotInfo(dapSnapshotInfo *model.DapSnapshotInfo) interface{} {
+func parseDAPSnapshotInfo(dapSnapshotInfo *model.DAPSnapshotInfo) interface{} {
 	if dapSnapshotInfo == nil {
 		return nil
 	}
@@ -469,26 +503,26 @@ func parseDapSnapshotInfo(dapSnapshotInfo *model.DapSnapshotInfo) interface{} {
 	return parsedDapSnapshotInfo
 }
 
-func parseSanitizationDapContent(sanitizationDapContent *model.SanitizationDapContent) interface{} {
+func parseSanitizationDAPContent(sanitizationDapContent *model.SanitizationDAPContent) interface{} {
 	if sanitizationDapContent == nil {
 		return nil
 	}
 	parsedSanitizationDapContent := make(map[string]interface{})
 
-	var automated *model.SanitizationDapContentAutomated
+	var automated *model.SanitizationDAPContentAutomated
 	if sanitizationDapContent.Automated != automated {
-		parsedSanitizationDapContent["automated"] = []interface{}{parseSanitizationDapContentAutomated(sanitizationDapContent.Automated)}
+		parsedSanitizationDapContent["automated"] = []interface{}{parseSanitizationDAPContentAutomated(sanitizationDapContent.Automated)}
 	}
 
-	var manual *[]model.DapSnapshotInfo
+	var manual *[]model.DAPSnapshotInfo
 	if sanitizationDapContent.Manual != manual {
-		parsedSanitizationDapContent["manual"] = parseDapSnapshotInfoList(sanitizationDapContent.Manual)
+		parsedSanitizationDapContent["manual"] = parseDAPSnapshotInfoList(sanitizationDapContent.Manual)
 	}
 
 	return parsedSanitizationDapContent
 }
 
-func parseSanitizationDapContentAutomated(sanitizationDapContent_automated *model.SanitizationDapContentAutomated) interface{} {
+func parseSanitizationDAPContentAutomated(sanitizationDapContent_automated *model.SanitizationDAPContentAutomated) interface{} {
 	if sanitizationDapContent_automated == nil {
 		return nil
 	}
@@ -548,6 +582,7 @@ func parseTessellCloneSummaryInfo(clones *model.TessellCloneSummaryInfo) interfa
 	parsedClones["id"] = clones.Id
 	parsedClones["name"] = clones.Name
 	parsedClones["subscription"] = clones.Subscription
+	parsedClones["compute_type"] = clones.ComputeType
 	parsedClones["status"] = clones.Status
 
 	parsedClones["clone_info"] = clones.CloneInfo
@@ -560,4 +595,32 @@ func parseTessellCloneSummaryInfo(clones *model.TessellCloneSummaryInfo) interfa
 	}
 
 	return parsedClones
+}
+
+func parseBackupDownloadConfigWithResData(backupDownloadConfig *model.BackupDownloadConfig, d *schema.ResourceData) []interface{} {
+	if backupDownloadConfig == nil {
+		return nil
+	}
+	parsedBackupDownloadConfig := make(map[string]interface{})
+	if d.Get("backup_download_config") != nil {
+		backupDownloadConfigResourceData := d.Get("backup_download_config").([]interface{})
+		if len(backupDownloadConfigResourceData) > 0 {
+			parsedBackupDownloadConfig = (backupDownloadConfigResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedBackupDownloadConfig["allow_backup_downloads_for_all_users"] = backupDownloadConfig.AllowBackupDownloadsForAllUsers
+	parsedBackupDownloadConfig["allow_backup_downloads"] = backupDownloadConfig.AllowBackupDownloads
+
+	return []interface{}{parsedBackupDownloadConfig}
+}
+
+func parseBackupDownloadConfig(backupDownloadConfig *model.BackupDownloadConfig) interface{} {
+	if backupDownloadConfig == nil {
+		return nil
+	}
+	parsedBackupDownloadConfig := make(map[string]interface{})
+	parsedBackupDownloadConfig["allow_backup_downloads_for_all_users"] = backupDownloadConfig.AllowBackupDownloadsForAllUsers
+	parsedBackupDownloadConfig["allow_backup_downloads"] = backupDownloadConfig.AllowBackupDownloads
+
+	return parsedBackupDownloadConfig
 }

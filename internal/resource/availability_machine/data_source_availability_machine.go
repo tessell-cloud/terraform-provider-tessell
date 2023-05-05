@@ -145,37 +145,33 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 							Description: "Associated Availability Machine Name",
 							Computed:    true,
 						},
-						"cloud_availability": {
+						"topology": {
 							Type:        schema.TypeList,
 							Description: "The availability location details: cloudAccount to region",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"cloud": {
+									"type": {
 										Type:        schema.TypeString,
 										Description: "",
 										Computed:    true,
 									},
-									"regions": {
-										Type:        schema.TypeList,
-										Description: "The regions details",
+									"cloud_type": {
+										Type:        schema.TypeString,
+										Description: "",
 										Computed:    true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"region": {
-													Type:        schema.TypeString,
-													Description: "The cloud region name",
-													Computed:    true,
-												},
-												"availability_zones": {
-													Type:        schema.TypeList,
-													Description: "",
-													Computed:    true,
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
-												},
-											},
+									},
+									"region": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"availability_zones": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
 										},
 									},
 								},
@@ -527,6 +523,11 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 							Description: "Clone's subsription name",
 							Computed:    true,
 						},
+						"compute_type": {
+							Type:        schema.TypeString,
+							Description: "Clone's compute type",
+							Computed:    true,
+						},
 						"status": {
 							Type:        schema.TypeString,
 							Description: "Status of the clone database",
@@ -595,6 +596,25 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "",
 				Computed:    true,
+			},
+			"backup_download_config": {
+				Type:        schema.TypeList,
+				Description: "This is a definition for backup download config",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allow_backup_downloads_for_all_users": {
+							Type:        schema.TypeBool,
+							Description: "Allow all users to download the backup, if false only owner/co-owner(s) will be allowed",
+							Computed:    true,
+						},
+						"allow_backup_downloads": {
+							Type:        schema.TypeBool,
+							Description: "Allow download of the backup for owner/co-owner of the AM",
+							Computed:    true,
+						},
+					},
+				},
 			},
 		},
 	}

@@ -1,9 +1,8 @@
 package model
 
-type ApiMetadata struct {
-	TimeZone   *string            `json:"timeZone,omitempty"`
-	Records    *int               `json:"records,omitempty"`
-	Pagination *ApiPaginationInfo `json:"pagination,omitempty"`
+type APIPaginationInfo struct {
+	PageSize   *int `json:"pageSize,omitempty"`
+	PageOffset *int `json:"pageOffset,omitempty"`
 }
 
 type EntityUserAclSharingInfo struct {
@@ -18,11 +17,6 @@ type TaskSummary struct {
 	Details    *map[string]string `json:"details,omitempty"`
 }
 
-type ApiPaginationInfo struct {
-	PageSize   *int `json:"pageSize,omitempty"`
-	PageOffset *int `json:"pageOffset,omitempty"`
-}
-
 type RegionInfo struct {
 	Region            *string   `json:"region"` // The cloud region name
 	AvailabilityZones *[]string `json:"availabilityZones,omitempty"`
@@ -35,6 +29,12 @@ type CloudRegionInfo struct {
 
 type EntityAclSharingSummaryInfo struct {
 	Users *[]string `json:"users,omitempty"`
+}
+
+type APIMetadata struct {
+	TimeZone   *string            `json:"timeZone,omitempty"`
+	Records    *int               `json:"records,omitempty"`
+	Pagination *APIPaginationInfo `json:"pagination,omitempty"`
 }
 
 type EntityAclSharingInfo struct {
