@@ -16,7 +16,7 @@ type Client struct {
 
 func NewClient(apiAddress *string, apiKey *string, tenantId *string) (*Client, error) {
 	c := Client{
-		HTTPClient: &http.Client{Timeout: 10 * time.Second},
+		HTTPClient: &http.Client{Timeout: 30 * time.Second},
 		APIAddress: *apiAddress,
 		TenantId:   *tenantId,
 	}

@@ -200,7 +200,9 @@ resource "tessell_db_service" "example" {
 - `databases` (Block List) Databases that are part of this DB Service (see [below for nested schema](#nestedblock--databases))
 - `deletion_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--deletion_schedule))
 - `description` (String) DB Service's description
+- `edition` (String)
 - `enable_deletion_protection` (Boolean) Specify whether to enable deletion protection for the DB Service
+- `enable_stop_protection` (Boolean) This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
 - `expected_status` (String) Field used to start/stop a DB service. Ignored during the initial resource creation. Set to "STOPPED" to stop a DB service. Set to "READY" to start a stopped DB service. Defaults to "READY".
 - `integrations_config` (Block List, Max: 1) Integrations to be enabled for the DB Service (see [below for nested schema](#nestedblock--integrations_config))
 - `maintenance_window` (Block List, Max: 1) This field details the DB Service maintenance related details. (see [below for nested schema](#nestedblock--maintenance_window))
@@ -211,11 +213,13 @@ resource "tessell_db_service" "example" {
 - `snapshot_id` (String) Tessell service snapshot Id, using which the clone is to be created
 - `tags` (Block List) The tags to be associated with the DB Service (see [below for nested schema](#nestedblock--tags))
 - `timeout` (Number) If block_until_complete is true, how long it should block for. (In seconds)
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
 
 - `availability_machine_id` (String) Associated Availability Machine Id
 - `cloned_from_info` (List of Object) If the DB Service is created as a clone from some other DB Service, this section describes the parent DB Service and cloning details (see [below for nested schema](#nestedatt--cloned_from_info))
+- `context_info` (List of Object) (see [below for nested schema](#nestedatt--context_info))
 - `date_created` (String) Timestamp when the DB Service was created at
 - `deletion_config` (List of Object) If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service (see [below for nested schema](#nestedatt--deletion_config))
 - `id` (String) Tessell generated UUID for the DB Service. This is the unique identifier for the DB Service.
@@ -313,6 +317,7 @@ Optional:
 
 Optional:
 
+- `ad_domain_id` (String) Active Directory Domain id
 - `parameter_profile` (String) The parameter profile for the database
 
 
@@ -363,10 +368,12 @@ Optional:
 - `allowed_ip_addresses` (List of String) The list of allowed ipv4 addresses that can connect to the DB Service
 - `dns_prefix` (String)
 - `enable_public_access` (Boolean) Specify whether to enable public access to the DB Service, default false
+- `enable_ssl` (Boolean)
 - `service_port` (Number) The connection port for the DB Service
 
 Read-Only:
 
+- `ca_cert_id` (String)
 - `connect_strings` (List of Object) The list of connect strings for the DB Service (see [below for nested schema](#nestedatt--service_connectivity--connect_strings))
 - `private_link` (List of Object) The interface endpoint or Gateway Load Balancer endpoint to connect to your DB service. (see [below for nested schema](#nestedatt--service_connectivity--private_link))
 - `update_in_progress_info` (List of Object) DB Service connectivity update-in-progress details (see [below for nested schema](#nestedatt--service_connectivity--update_in_progress_info))
@@ -421,7 +428,7 @@ Optional:
 - `database_configuration` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration))
 - `database_name` (String) Database name
 - `description` (String) Database description
-- `source_database_id` (String) Id of the source database
+- `source_database_id` (String) Required while creating a clone. It specifies the Id of the source database from which the clone is being created.
 
 Read-Only:
 
@@ -568,6 +575,14 @@ Optional:
 - `value` (String) Case sensitive, tag value
 
 
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `create` (String)
+
+
 <a id="nestedatt--cloned_from_info"></a>
 ### Nested Schema for `cloned_from_info`
 
@@ -579,8 +594,18 @@ Read-Only:
 - `pitr_time` (String)
 - `snapshot_id` (String)
 - `snapshot_name` (String)
+- `snapshot_time` (String)
 - `tessell_service` (String)
 - `tessell_service_id` (String)
+
+
+<a id="nestedatt--context_info"></a>
+### Nested Schema for `context_info`
+
+Read-Only:
+
+- `description` (String)
+- `sub_status` (String)
 
 
 <a id="nestedatt--deletion_config"></a>
@@ -646,6 +671,7 @@ Read-Only:
 Read-Only:
 
 - `delete` (List of Object) (see [below for nested schema](#nestedobjatt--upcoming_scheduled_actions--delete))
+- `patch` (List of Object) (see [below for nested schema](#nestedobjatt--upcoming_scheduled_actions--patch))
 - `start_stop` (List of Object) (see [below for nested schema](#nestedobjatt--upcoming_scheduled_actions--start_stop))
 
 <a id="nestedobjatt--upcoming_scheduled_actions--delete"></a>
@@ -654,6 +680,15 @@ Read-Only:
 Read-Only:
 
 - `at` (String)
+
+
+<a id="nestedobjatt--upcoming_scheduled_actions--patch"></a>
+### Nested Schema for `upcoming_scheduled_actions.patch`
+
+Read-Only:
+
+- `at` (String)
+- `message` (String)
 
 
 <a id="nestedobjatt--upcoming_scheduled_actions--start_stop"></a>

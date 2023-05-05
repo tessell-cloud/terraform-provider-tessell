@@ -60,6 +60,14 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("enable_stop_protection", tessellServiceDTO.EnableStopProtection); err != nil {
+		return err
+	}
+
+	if err := d.Set("edition", tessellServiceDTO.Edition); err != nil {
+		return err
+	}
+
 	if err := d.Set("software_image", tessellServiceDTO.SoftwareImage); err != nil {
 		return err
 	}
@@ -240,7 +248,7 @@ func parseTessellServiceConnectivityInfoWithResData(serviceConnectivity *model.T
 			parsedServiceConnectivity = (serviceConnectivityResourceData[0]).(map[string]interface{})
 		}
 	}
-	parsedServiceConnectivity["enable_s_s_l"] = serviceConnectivity.EnableSsl
+	parsedServiceConnectivity["enable_ssl"] = serviceConnectivity.EnableSsl
 	parsedServiceConnectivity["ca_cert_id"] = serviceConnectivity.CaCertId
 	parsedServiceConnectivity["dns_prefix"] = serviceConnectivity.DNSPrefix
 	parsedServiceConnectivity["service_port"] = serviceConnectivity.ServicePort
@@ -270,7 +278,7 @@ func parseTessellServiceConnectivityInfo(serviceConnectivity *model.TessellServi
 		return nil
 	}
 	parsedServiceConnectivity := make(map[string]interface{})
-	parsedServiceConnectivity["enable_s_s_l"] = serviceConnectivity.EnableSsl
+	parsedServiceConnectivity["enable_ssl"] = serviceConnectivity.EnableSsl
 	parsedServiceConnectivity["ca_cert_id"] = serviceConnectivity.CaCertId
 	parsedServiceConnectivity["dns_prefix"] = serviceConnectivity.DNSPrefix
 	parsedServiceConnectivity["service_port"] = serviceConnectivity.ServicePort
@@ -640,6 +648,7 @@ func parseTessellServiceSqlServerEngineConfig(tessellServiceSqlServerEngineConfi
 	}
 	parsedTessellServiceSqlServerEngineConfig := make(map[string]interface{})
 	parsedTessellServiceSqlServerEngineConfig["parameter_profile"] = tessellServiceSqlServerEngineConfig.ParameterProfile
+	parsedTessellServiceSqlServerEngineConfig["ad_domain_id"] = tessellServiceSqlServerEngineConfig.AdDomainId
 
 	return parsedTessellServiceSqlServerEngineConfig
 }
@@ -1140,6 +1149,11 @@ func parseServiceUpcomingScheduledActionsWithResData(upcomingScheduledActions *m
 		parsedUpcomingScheduledActions["start_stop"] = []interface{}{parseServiceUpcomingScheduledActionsStartStop(upcomingScheduledActions.StartStop)}
 	}
 
+	var patch *model.ServiceUpcomingScheduledActionsPatch
+	if upcomingScheduledActions.Patch != patch {
+		parsedUpcomingScheduledActions["patch"] = []interface{}{parseServiceUpcomingScheduledActionsPatch(upcomingScheduledActions.Patch)}
+	}
+
 	var delete *model.ServiceUpcomingScheduledActionsDelete
 	if upcomingScheduledActions.Delete != delete {
 		parsedUpcomingScheduledActions["delete"] = []interface{}{parseServiceUpcomingScheduledActionsDelete(upcomingScheduledActions.Delete)}
@@ -1157,6 +1171,11 @@ func parseServiceUpcomingScheduledActions(upcomingScheduledActions *model.Servic
 	var startStop *model.ServiceUpcomingScheduledActionsStartStop
 	if upcomingScheduledActions.StartStop != startStop {
 		parsedUpcomingScheduledActions["start_stop"] = []interface{}{parseServiceUpcomingScheduledActionsStartStop(upcomingScheduledActions.StartStop)}
+	}
+
+	var patch *model.ServiceUpcomingScheduledActionsPatch
+	if upcomingScheduledActions.Patch != patch {
+		parsedUpcomingScheduledActions["patch"] = []interface{}{parseServiceUpcomingScheduledActionsPatch(upcomingScheduledActions.Patch)}
 	}
 
 	var delete *model.ServiceUpcomingScheduledActionsDelete
@@ -1178,6 +1197,17 @@ func parseServiceUpcomingScheduledActionsStartStop(serviceUpcomingScheduledActio
 	return parsedServiceUpcomingScheduledActions_startStop
 }
 
+func parseServiceUpcomingScheduledActionsPatch(serviceUpcomingScheduledActions_patch *model.ServiceUpcomingScheduledActionsPatch) interface{} {
+	if serviceUpcomingScheduledActions_patch == nil {
+		return nil
+	}
+	parsedServiceUpcomingScheduledActions_patch := make(map[string]interface{})
+	parsedServiceUpcomingScheduledActions_patch["at"] = serviceUpcomingScheduledActions_patch.At
+	parsedServiceUpcomingScheduledActions_patch["message"] = serviceUpcomingScheduledActions_patch.Message
+
+	return parsedServiceUpcomingScheduledActions_patch
+}
+
 func parseServiceUpcomingScheduledActionsDelete(serviceUpcomingScheduledActions_delete *model.ServiceUpcomingScheduledActionsDelete) interface{} {
 	if serviceUpcomingScheduledActions_delete == nil {
 		return nil
@@ -1195,6 +1225,7 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		Name:                     helper.GetStringPointer(d.Get("name")),
 		Description:              helper.GetStringPointer(d.Get("description")),
 		Subscription:             helper.GetStringPointer(d.Get("subscription")),
+		Edition:                  helper.GetStringPointer(d.Get("edition")),
 		EngineType:               helper.GetStringPointer(d.Get("engine_type")),
 		Topology:                 helper.GetStringPointer(d.Get("topology")),
 		NumOfInstances:           helper.GetIntPointer(d.Get("num_of_instances")),
@@ -1202,6 +1233,7 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		SoftwareImageVersion:     helper.GetStringPointer(d.Get("software_image_version")),
 		AutoMinorVersionUpdate:   helper.GetBoolPointer(d.Get("auto_minor_version_update")),
 		EnableDeletionProtection: helper.GetBoolPointer(d.Get("enable_deletion_protection")),
+		EnableStopProtection:     helper.GetBoolPointer(d.Get("enable_stop_protection")),
 		Infrastructure:           formTessellServiceInfrastructurePayload(d.Get("infrastructure")),
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
@@ -1220,6 +1252,7 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 func formPayloadForDeleteTessellService(d *schema.ResourceData) model.DeleteTessellServicePayload {
 	deleteTessellServicePayloadFormed := model.DeleteTessellServicePayload{
 		DeletionConfig: formTessellServiceDeletionConfig(d.Get("deletion_config")),
+		Comment:        helper.GetStringPointer(d.Get("comment")),
 	}
 
 	return deleteTessellServicePayloadFormed
@@ -1230,6 +1263,7 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		Name:                     helper.GetStringPointer(d.Get("name")),
 		Description:              helper.GetStringPointer(d.Get("description")),
 		Subscription:             helper.GetStringPointer(d.Get("subscription")),
+		Edition:                  helper.GetStringPointer(d.Get("edition")),
 		EngineType:               helper.GetStringPointer(d.Get("engine_type")),
 		Topology:                 helper.GetStringPointer(d.Get("topology")),
 		NumOfInstances:           helper.GetIntPointer(d.Get("num_of_instances")),
@@ -1237,6 +1271,7 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		SoftwareImageVersion:     helper.GetStringPointer(d.Get("software_image_version")),
 		AutoMinorVersionUpdate:   helper.GetBoolPointer(d.Get("auto_minor_version_update")),
 		EnableDeletionProtection: helper.GetBoolPointer(d.Get("enable_deletion_protection")),
+		EnableStopProtection:     helper.GetBoolPointer(d.Get("enable_stop_protection")),
 		Infrastructure:           formTessellServiceInfrastructurePayload(d.Get("infrastructure")),
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
@@ -1250,6 +1285,22 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 	}
 
 	return provisionTessellServicePayloadFormed
+}
+
+func formPayloadForStartTessellService(d *schema.ResourceData) model.StartTessellServicePayload {
+	startTessellServicePayloadFormed := model.StartTessellServicePayload{
+		Comment: helper.GetStringPointer(d.Get("comment")),
+	}
+
+	return startTessellServicePayloadFormed
+}
+
+func formPayloadForStopTessellService(d *schema.ResourceData) model.StopTessellServicePayload {
+	stopTessellServicePayloadFormed := model.StopTessellServicePayload{
+		Comment: helper.GetStringPointer(d.Get("comment")),
+	}
+
+	return stopTessellServicePayloadFormed
 }
 
 func formTessellServiceInfrastructurePayload(tessellServiceInfrastructurePayloadRaw interface{}) *model.TessellServiceInfrastructurePayload {
@@ -1281,7 +1332,7 @@ func formTessellServiceConnectivityInfoPayload(tessellServiceConnectivityInfoPay
 	tessellServiceConnectivityInfoPayloadData := tessellServiceConnectivityInfoPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	tessellServiceConnectivityInfoPayloadFormed := model.TessellServiceConnectivityInfoPayload{
-		EnableSsl:          helper.GetBoolPointer(tessellServiceConnectivityInfoPayloadData["enable_s_s_l"]),
+		EnableSsl:          helper.GetBoolPointer(tessellServiceConnectivityInfoPayloadData["enable_ssl"]),
 		DNSPrefix:          helper.GetStringPointer(tessellServiceConnectivityInfoPayloadData["dns_prefix"]),
 		ServicePort:        helper.GetIntPointer(tessellServiceConnectivityInfoPayloadData["service_port"]),
 		EnablePublicAccess: helper.GetBoolPointer(tessellServiceConnectivityInfoPayloadData["enable_public_access"]),
@@ -1457,6 +1508,7 @@ func formSqlServerEngineConfigPayload(sqlServerEngineConfigPayloadRaw interface{
 
 	sqlServerEngineConfigPayloadFormed := model.SqlServerEngineConfigPayload{
 		ParameterProfile: helper.GetStringPointer(sqlServerEngineConfigPayloadData["parameter_profile"]),
+		AdDomainId:       helper.GetStringPointer(sqlServerEngineConfigPayloadData["ad_domain_id"]),
 	}
 
 	return &sqlServerEngineConfigPayloadFormed

@@ -9,37 +9,41 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func setResourceData(d *schema.ResourceData, tessellDMMDataflixServiceView *model.TessellDMMDataflixServiceView) error {
+func setResourceData(d *schema.ResourceData, getDataflixCatalogResponse *model.GetDataflixCatalogResponse) error {
 
-	if err := d.Set("availability_machine_id", tessellDMMDataflixServiceView.AvailabilityMachineId); err != nil {
+	if err := d.Set("availability_machine_id", getDataflixCatalogResponse.AvailabilityMachineId); err != nil {
 		return err
 	}
 
-	if err := d.Set("tessell_service_id", tessellDMMDataflixServiceView.TessellServiceId); err != nil {
+	if err := d.Set("tessell_service_id", getDataflixCatalogResponse.TessellServiceId); err != nil {
 		return err
 	}
 
-	if err := d.Set("service_name", tessellDMMDataflixServiceView.ServiceName); err != nil {
+	if err := d.Set("service_name", getDataflixCatalogResponse.ServiceName); err != nil {
 		return err
 	}
 
-	if err := d.Set("engine_type", tessellDMMDataflixServiceView.EngineType); err != nil {
+	if err := d.Set("engine_type", getDataflixCatalogResponse.EngineType); err != nil {
 		return err
 	}
 
-	if err := d.Set("time_zone", tessellDMMDataflixServiceView.TimeZone); err != nil {
+	if err := d.Set("time_zone", getDataflixCatalogResponse.TimeZone); err != nil {
 		return err
 	}
 
-	if err := d.Set("owner", tessellDMMDataflixServiceView.Owner); err != nil {
+	if err := d.Set("owner", getDataflixCatalogResponse.Owner); err != nil {
 		return err
 	}
 
-	if err := d.Set("pitr_catalog", parseTessellDataflixPITRInfoListWithResData(tessellDMMDataflixServiceView.PITRCatalog, d)); err != nil {
+	if err := d.Set("pitr_catalog", parseTessellDataflixPITRInfoListWithResData(getDataflixCatalogResponse.PITRCatalog, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("snapshot_catalog", parseTessellDMMDataflixBackupDTOListWithResData(tessellDMMDataflixServiceView.SnapshotCatalog, d)); err != nil {
+	if err := d.Set("snapshot_catalog", parseDataflixSnapshotListWithResData(getDataflixCatalogResponse.SnapshotCatalog, d)); err != nil {
+		return err
+	}
+
+	if err := d.Set("allow_backup_download", getDataflixCatalogResponse.AllowBackupDownload); err != nil {
 		return err
 	}
 
@@ -150,23 +154,23 @@ func parseEntityAclSharingSummaryInfo(entityAclSharingSummaryInfo *model.EntityA
 	return parsedEntityAclSharingSummaryInfo
 }
 
-func parseTessellDMMDataflixBackupDTOListWithResData(snapshotCatalog *[]model.TessellDMMDataflixBackupDTO, d *schema.ResourceData) []interface{} {
+func parseDataflixSnapshotListWithResData(snapshotCatalog *[]model.DataflixSnapshot, d *schema.ResourceData) []interface{} {
 	if snapshotCatalog == nil {
 		return nil
 	}
-	tessellDMMDataflixBackupDTOList := make([]interface{}, 0)
+	dataflixSnapshotList := make([]interface{}, 0)
 
 	if snapshotCatalog != nil {
-		tessellDMMDataflixBackupDTOList = make([]interface{}, len(*snapshotCatalog))
-		for i, tessellDMMDataflixBackupDTOItem := range *snapshotCatalog {
-			tessellDMMDataflixBackupDTOList[i] = parseTessellDMMDataflixBackupDTO(&tessellDMMDataflixBackupDTOItem)
+		dataflixSnapshotList = make([]interface{}, len(*snapshotCatalog))
+		for i, dataflixSnapshotItem := range *snapshotCatalog {
+			dataflixSnapshotList[i] = parseDataflixSnapshot(&dataflixSnapshotItem)
 		}
 	}
 
-	return tessellDMMDataflixBackupDTOList
+	return dataflixSnapshotList
 }
 
-func parseTessellDMMDataflixBackupDTO(snapshotCatalog *model.TessellDMMDataflixBackupDTO) interface{} {
+func parseDataflixSnapshot(snapshotCatalog *model.DataflixSnapshot) interface{} {
 	if snapshotCatalog == nil {
 		return nil
 	}
@@ -178,6 +182,8 @@ func parseTessellDMMDataflixBackupDTO(snapshotCatalog *model.TessellDMMDataflixB
 	parsedSnapshotCatalog["status"] = snapshotCatalog.Status
 	parsedSnapshotCatalog["size"] = snapshotCatalog.Size
 	parsedSnapshotCatalog["manual"] = snapshotCatalog.Manual
+
+	parsedSnapshotCatalog["backup_status"] = snapshotCatalog.BackupStatus
 
 	var cloudAvailability *[]model.CloudRegionInfo
 	if snapshotCatalog.CloudAvailability != cloudAvailability {

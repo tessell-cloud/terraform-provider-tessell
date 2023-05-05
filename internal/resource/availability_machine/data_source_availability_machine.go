@@ -597,6 +597,25 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 				Description: "",
 				Computed:    true,
 			},
+			"backup_download_config": {
+				Type:        schema.TypeList,
+				Description: "This is a definition for backup download config",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allow_backup_downloads_for_all_users": {
+							Type:        schema.TypeBool,
+							Description: "Allow all users to download the backup, if false only owner/co-owner(s) will be allowed",
+							Computed:    true,
+						},
+						"allow_backup_downloads": {
+							Type:        schema.TypeBool,
+							Description: "Allow download of the backup for owner/co-owner of the AM",
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

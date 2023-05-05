@@ -50,12 +50,15 @@ Read-Only:
 - `auto_minor_version_update` (Boolean)
 - `availability_machine_id` (String)
 - `cloned_from_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--cloned_from_info))
+- `context_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--context_info))
 - `databases` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases))
 - `date_created` (String)
 - `deletion_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--deletion_config))
 - `deletion_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--deletion_schedule))
 - `description` (String)
+- `edition` (String)
 - `enable_deletion_protection` (Boolean)
+- `enable_stop_protection` (Boolean)
 - `engine_configuration` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration))
 - `engine_type` (String)
 - `id` (String)
@@ -94,8 +97,18 @@ Read-Only:
 - `pitr_time` (String)
 - `snapshot_id` (String)
 - `snapshot_name` (String)
+- `snapshot_time` (String)
 - `tessell_service` (String)
 - `tessell_service_id` (String)
+
+
+<a id="nestedobjatt--db_services--context_info"></a>
+### Nested Schema for `db_services.context_info`
+
+Read-Only:
+
+- `description` (String)
+- `sub_status` (String)
 
 
 <a id="nestedobjatt--db_services--databases"></a>
@@ -110,7 +123,6 @@ Read-Only:
 - `description` (String)
 - `engine_type` (String)
 - `id` (String)
-- `source_database_id` (String)
 - `status` (String)
 - `tessell_service_id` (String)
 
@@ -264,6 +276,7 @@ Read-Only:
 
 Read-Only:
 
+- `ad_domain_id` (String)
 - `parameter_profile` (String)
 
 
@@ -376,9 +389,11 @@ Read-Only:
 Read-Only:
 
 - `allowed_ip_addresses` (List of String)
+- `ca_cert_id` (String)
 - `connect_strings` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--connect_strings))
 - `dns_prefix` (String)
 - `enable_public_access` (Boolean)
+- `enable_ssl` (Boolean)
 - `private_link` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--private_link))
 - `service_port` (Number)
 - `update_in_progress_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info))
@@ -457,6 +472,7 @@ Read-Only:
 Read-Only:
 
 - `delete` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--upcoming_scheduled_actions--delete))
+- `patch` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--upcoming_scheduled_actions--patch))
 - `start_stop` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--upcoming_scheduled_actions--start_stop))
 
 <a id="nestedobjatt--db_services--upcoming_scheduled_actions--delete"></a>
@@ -465,6 +481,15 @@ Read-Only:
 Read-Only:
 
 - `at` (String)
+
+
+<a id="nestedobjatt--db_services--upcoming_scheduled_actions--patch"></a>
+### Nested Schema for `db_services.upcoming_scheduled_actions.patch`
+
+Read-Only:
+
+- `at` (String)
+- `message` (String)
 
 
 <a id="nestedobjatt--db_services--upcoming_scheduled_actions--start_stop"></a>

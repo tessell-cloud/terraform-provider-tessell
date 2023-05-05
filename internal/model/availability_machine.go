@@ -87,29 +87,35 @@ type TessellCloneSummaryInfo struct {
 	ComputeType       *string            `json:"computeType,omitempty"`  // Clone&#39;s compute type
 	Status            *string            `json:"status,omitempty"`       // Status of the clone database
 	CloudAvailability *[]CloudRegionInfo `json:"cloudAvailability,omitempty"`
-	CloneInfo         *map[string]string `json:"cloneInfo,omitempty"`   // Miscellaneous information
+	CloneInfo         *interface{}       `json:"cloneInfo,omitempty"`   // Miscellaneous information
 	Owner             *string            `json:"owner,omitempty"`       // The user who created database clone
 	DateCreated       *string            `json:"dateCreated,omitempty"` // Timestamp when the entity was created
 }
 
+type BackupDownloadConfig struct {
+	AllowBackupDownloadsForAllUsers *bool `json:"allowBackupDownloadsForAllUsers,omitempty"` // Allow all users to download the backup, if false only owner/co-owner(s) will be allowed
+	AllowBackupDownloads            *bool `json:"allowBackupDownloads,omitempty"`            // Allow download of the backup for owner/co-owner of the AM
+}
+
 type TessellDMMServiceConsumerDTO struct {
-	Id                  *string                            `json:"id,omitempty"`
-	TessellServiceId    *string                            `json:"tessellServiceId,omitempty"`
-	ServiceName         *string                            `json:"serviceName,omitempty"`
-	Tenant              *string                            `json:"tenant,omitempty"`              // Dmm&#39;s tenancy details
-	Subscription        *string                            `json:"subscription,omitempty"`        // Dmm&#39;s subscription name
-	EngineType          *string                            `json:"engineType,omitempty"`          // Database Engine Type
-	DataIngestionStatus *string                            `json:"dataIngestionStatus,omitempty"` // Availability Machine&#39;s data ingestion status
-	UserId              *string                            `json:"userId,omitempty"`              // Data Management Machine&#39;s user
-	Owner               *string                            `json:"owner,omitempty"`               // Availability Machine&#39;s owner
-	LoggedInUserRole    *string                            `json:"loggedInUserRole,omitempty"`    // The role of the logged in user for accessing the Availability Machine
-	SharedWith          *EntityAclSharingInfo              `json:"sharedWith,omitempty"`
-	CloudAvailability   *[]CloudRegionInfo                 `json:"cloudAvailability,omitempty"`
-	RPOSLA              *TessellDMMAvailabilityServiceView `json:"rpoSla,omitempty"`
-	DAPs                *[]TessellDAPServiceDTO            `json:"daps,omitempty"`
-	Clones              *[]TessellCloneSummaryInfo         `json:"clones,omitempty"` // Clone databases that are created from this Availability Machine
-	DateCreated         *string                            `json:"dateCreated,omitempty"`
-	DateModified        *string                            `json:"dateModified,omitempty"`
+	Id                   *string                            `json:"id,omitempty"`
+	TessellServiceId     *string                            `json:"tessellServiceId,omitempty"`
+	ServiceName          *string                            `json:"serviceName,omitempty"`
+	Tenant               *string                            `json:"tenant,omitempty"`              // Dmm&#39;s tenancy details
+	Subscription         *string                            `json:"subscription,omitempty"`        // Dmm&#39;s subscription name
+	EngineType           *string                            `json:"engineType,omitempty"`          // Database Engine Type
+	DataIngestionStatus  *string                            `json:"dataIngestionStatus,omitempty"` // Availability Machine&#39;s data ingestion status
+	UserId               *string                            `json:"userId,omitempty"`              // Data Management Machine&#39;s user
+	Owner                *string                            `json:"owner,omitempty"`               // Availability Machine&#39;s owner
+	LoggedInUserRole     *string                            `json:"loggedInUserRole,omitempty"`    // The role of the logged in user for accessing the Availability Machine
+	SharedWith           *EntityAclSharingInfo              `json:"sharedWith,omitempty"`
+	CloudAvailability    *[]CloudRegionInfo                 `json:"cloudAvailability,omitempty"`
+	RPOSLA               *TessellDMMAvailabilityServiceView `json:"rpoSla,omitempty"`
+	DAPs                 *[]TessellDAPServiceDTO            `json:"daps,omitempty"`
+	Clones               *[]TessellCloneSummaryInfo         `json:"clones,omitempty"` // Clone databases that are created from this Availability Machine
+	DateCreated          *string                            `json:"dateCreated,omitempty"`
+	DateModified         *string                            `json:"dateModified,omitempty"`
+	BackupDownloadConfig *BackupDownloadConfig              `json:"backupDownloadConfig,omitempty"`
 }
 
 type GetDMMsServiceView struct {

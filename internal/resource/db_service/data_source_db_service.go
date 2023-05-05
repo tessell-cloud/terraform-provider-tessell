@@ -89,6 +89,16 @@ func DataSourceDBService() *schema.Resource {
 				Description: "This field specifies whether to enable deletion protection for the DB Service. If this is enabled, the deletion for the DB Service would be disallowed until this setting is disabled.",
 				Computed:    true,
 			},
+			"enable_stop_protection": {
+				Type:        schema.TypeBool,
+				Description: "This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.",
+				Computed:    true,
+			},
+			"edition": {
+				Type:        schema.TypeString,
+				Description: "",
+				Computed:    true,
+			},
 			"software_image": {
 				Type:        schema.TypeString,
 				Description: "The software image that has been used to create the DB Service",
@@ -194,7 +204,7 @@ func DataSourceDBService() *schema.Resource {
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"enable_s_s_l": {
+						"enable_ssl": {
 							Type:        schema.TypeBool,
 							Description: "",
 							Computed:    true,
@@ -531,6 +541,11 @@ func DataSourceDBService() *schema.Resource {
 									"parameter_profile": {
 										Type:        schema.TypeString,
 										Description: "The parameter profile for the database",
+										Computed:    true,
+									},
+									"ad_domain_id": {
+										Type:        schema.TypeString,
+										Description: "Active Directory Domain id",
 										Computed:    true,
 									},
 								},
@@ -1029,6 +1044,25 @@ func DataSourceDBService() *schema.Resource {
 										Computed:    true,
 									},
 									"at": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"patch": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"at": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"message": {
 										Type:        schema.TypeString,
 										Description: "",
 										Computed:    true,

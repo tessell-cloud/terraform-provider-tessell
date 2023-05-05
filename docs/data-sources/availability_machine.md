@@ -24,6 +24,7 @@ data_source "tessell_availability_machine" "example" {
 
 ### Read-Only
 
+- `backup_download_config` (List of Object) This is a definition for backup download config (see [below for nested schema](#nestedatt--backup_download_config))
 - `clones` (List of Object) Clone databases that are created from this Availability Machine (see [below for nested schema](#nestedatt--clones))
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedatt--cloud_availability))
 - `daps` (List of Object) (see [below for nested schema](#nestedatt--daps))
@@ -42,6 +43,15 @@ data_source "tessell_availability_machine" "example" {
 - `tessell_service_id` (String)
 - `user_id` (String) Data Management Machine's user
 
+<a id="nestedatt--backup_download_config"></a>
+### Nested Schema for `backup_download_config`
+
+Read-Only:
+
+- `allow_backup_downloads` (Boolean)
+- `allow_backup_downloads_for_all_users` (Boolean)
+
+
 <a id="nestedatt--clones"></a>
 ### Nested Schema for `clones`
 
@@ -49,6 +59,7 @@ Read-Only:
 
 - `clone_info` (Map of String)
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedobjatt--clones--cloud_availability))
+- `compute_type` (String)
 - `date_created` (String)
 - `id` (String)
 - `name` (String)

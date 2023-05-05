@@ -16,7 +16,7 @@ type TessellDataflixFromTimeInfo struct {
 	SharedWith *EntityAclSharingSummaryInfo `json:"sharedWith,omitempty"`
 }
 
-type TessellDMMDataflixBackupDTO struct {
+type DataflixSnapshot struct {
 	Id                *string                      `json:"id,omitempty"`           // DB Service snapshot Id
 	Name              *string                      `json:"name,omitempty"`         // DB Service snapshot name
 	Description       *string                      `json:"description,omitempty"`  // Description for the snapshot
@@ -27,15 +27,17 @@ type TessellDMMDataflixBackupDTO struct {
 	CloudAvailability *[]CloudRegionInfo           `json:"cloudAvailability,omitempty"`
 	Databases         *[]BackupDatabaseInfo        `json:"databases,omitempty"` // The databases that are captured as part of the snapshot
 	SharedWith        *EntityAclSharingSummaryInfo `json:"sharedWith,omitempty"`
+	BackupStatus      *string                      `json:"backupStatus,omitempty"`
 }
 
-type TessellDMMDataflixServiceView struct {
-	AvailabilityMachineId *string                        `json:"availabilityMachineId,omitempty"`
-	TessellServiceId      *string                        `json:"tessellServiceId,omitempty"`
-	ServiceName           *string                        `json:"serviceName,omitempty"`
-	EngineType            *string                        `json:"engineType,omitempty"`  // Database Engine Type
-	TimeZone              *string                        `json:"timeZone,omitempty"`    // Output timezone
-	Owner                 *string                        `json:"owner,omitempty"`       // Owner of the Availability Machine
-	PITRCatalog           *[]TessellDataflixPITRInfo     `json:"pitrCatalog,omitempty"` // PITR availability catalog
-	SnapshotCatalog       *[]TessellDMMDataflixBackupDTO `json:"snapshotCatalog,omitempty"`
+type GetDataflixCatalogResponse struct {
+	AvailabilityMachineId *string                    `json:"availabilityMachineId,omitempty"`
+	TessellServiceId      *string                    `json:"tessellServiceId,omitempty"`
+	ServiceName           *string                    `json:"serviceName,omitempty"`
+	EngineType            *string                    `json:"engineType,omitempty"`  // Database Engine Type
+	TimeZone              *string                    `json:"timeZone,omitempty"`    // Output timezone
+	Owner                 *string                    `json:"owner,omitempty"`       // Owner of the Availability Machine
+	PITRCatalog           *[]TessellDataflixPITRInfo `json:"pitrCatalog,omitempty"` // PITR availability catalog
+	SnapshotCatalog       *[]DataflixSnapshot        `json:"snapshotCatalog,omitempty"`
+	AllowBackupDownload   *bool                      `json:"allowBackupDownload,omitempty"` // True if the user is allowed to download backups of the service
 }

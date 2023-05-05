@@ -142,11 +142,18 @@ func (c *Client) ProvisionTessellService(payload model.ProvisionTessellServicePa
 	return &taskSummary, statusCode, nil
 }
 
-func (c *Client) StartTessellService(id string) (*model.TaskSummary, int, error) {
-	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s/start", c.APIAddress, id), nil)
+func (c *Client) StartTessellService(id string, payload model.StartTessellServicePayload) (*model.TaskSummary, int, error) {
+	rb, err := json.Marshal(payload)
 	if err != nil {
 		return nil, 0, err
 	}
+
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s/start", c.APIAddress, id), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
 
 	body, statusCode, err := c.doRequest(req)
 	if err != nil {
@@ -162,11 +169,18 @@ func (c *Client) StartTessellService(id string) (*model.TaskSummary, int, error)
 	return &taskSummary, statusCode, nil
 }
 
-func (c *Client) StopTessellService(id string) (*model.TaskSummary, int, error) {
-	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s/stop", c.APIAddress, id), nil)
+func (c *Client) StopTessellService(id string, payload model.StopTessellServicePayload) (*model.TaskSummary, int, error) {
+	rb, err := json.Marshal(payload)
 	if err != nil {
 		return nil, 0, err
 	}
+
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s/stop", c.APIAddress, id), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
 
 	body, statusCode, err := c.doRequest(req)
 	if err != nil {

@@ -604,6 +604,25 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 							Description: "",
 							Computed:    true,
 						},
+						"backup_download_config": {
+							Type:        schema.TypeList,
+							Description: "This is a definition for backup download config",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allow_backup_downloads_for_all_users": {
+										Type:        schema.TypeBool,
+										Description: "Allow all users to download the backup, if false only owner/co-owner(s) will be allowed",
+										Computed:    true,
+									},
+									"allow_backup_downloads": {
+										Type:        schema.TypeBool,
+										Description: "Allow download of the backup for owner/co-owner of the AM",
+										Computed:    true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -672,23 +691,24 @@ func setDataSourceValues(d *schema.ResourceData, AvailabilityMachineList *[]mode
 		parsedAvailabilityMachineList = make([]interface{}, len(*AvailabilityMachineList))
 		for i, AvailabilityMachine := range *AvailabilityMachineList {
 			parsedAvailabilityMachineList[i] = map[string]interface{}{
-				"id":                    AvailabilityMachine.Id,
-				"tessell_service_id":    AvailabilityMachine.TessellServiceId,
-				"service_name":          AvailabilityMachine.ServiceName,
-				"tenant":                AvailabilityMachine.Tenant,
-				"subscription":          AvailabilityMachine.Subscription,
-				"engine_type":           AvailabilityMachine.EngineType,
-				"data_ingestion_status": AvailabilityMachine.DataIngestionStatus,
-				"user_id":               AvailabilityMachine.UserId,
-				"owner":                 AvailabilityMachine.Owner,
-				"logged_in_user_role":   AvailabilityMachine.LoggedInUserRole,
-				"shared_with":           []interface{}{parseEntityAclSharingInfo(AvailabilityMachine.SharedWith)},
-				"cloud_availability":    parseCloudRegionInfoList(AvailabilityMachine.CloudAvailability),
-				"rpo_sla":               []interface{}{parseTessellDMMAvailabilityServiceView(AvailabilityMachine.RPOSLA)},
-				"daps":                  parseTessellDAPServiceDTOList(AvailabilityMachine.DAPs),
-				"clones":                parseTessellCloneSummaryInfoList(AvailabilityMachine.Clones),
-				"date_created":          AvailabilityMachine.DateCreated,
-				"date_modified":         AvailabilityMachine.DateModified,
+				"id":                     AvailabilityMachine.Id,
+				"tessell_service_id":     AvailabilityMachine.TessellServiceId,
+				"service_name":           AvailabilityMachine.ServiceName,
+				"tenant":                 AvailabilityMachine.Tenant,
+				"subscription":           AvailabilityMachine.Subscription,
+				"engine_type":            AvailabilityMachine.EngineType,
+				"data_ingestion_status":  AvailabilityMachine.DataIngestionStatus,
+				"user_id":                AvailabilityMachine.UserId,
+				"owner":                  AvailabilityMachine.Owner,
+				"logged_in_user_role":    AvailabilityMachine.LoggedInUserRole,
+				"shared_with":            []interface{}{parseEntityAclSharingInfo(AvailabilityMachine.SharedWith)},
+				"cloud_availability":     parseCloudRegionInfoList(AvailabilityMachine.CloudAvailability),
+				"rpo_sla":                []interface{}{parseTessellDMMAvailabilityServiceView(AvailabilityMachine.RPOSLA)},
+				"daps":                   parseTessellDAPServiceDTOList(AvailabilityMachine.DAPs),
+				"clones":                 parseTessellCloneSummaryInfoList(AvailabilityMachine.Clones),
+				"date_created":           AvailabilityMachine.DateCreated,
+				"date_modified":          AvailabilityMachine.DateModified,
+				"backup_download_config": []interface{}{parseBackupDownloadConfig(AvailabilityMachine.BackupDownloadConfig)},
 			}
 		}
 	}

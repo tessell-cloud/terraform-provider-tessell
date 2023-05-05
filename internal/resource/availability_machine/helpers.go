@@ -79,6 +79,10 @@ func setResourceData(d *schema.ResourceData, tessellDMMServiceConsumerDTO *model
 		return err
 	}
 
+	if err := d.Set("backup_download_config", parseBackupDownloadConfigWithResData(tessellDMMServiceConsumerDTO.BackupDownloadConfig, d)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -591,4 +595,32 @@ func parseTessellCloneSummaryInfo(clones *model.TessellCloneSummaryInfo) interfa
 	}
 
 	return parsedClones
+}
+
+func parseBackupDownloadConfigWithResData(backupDownloadConfig *model.BackupDownloadConfig, d *schema.ResourceData) []interface{} {
+	if backupDownloadConfig == nil {
+		return nil
+	}
+	parsedBackupDownloadConfig := make(map[string]interface{})
+	if d.Get("backup_download_config") != nil {
+		backupDownloadConfigResourceData := d.Get("backup_download_config").([]interface{})
+		if len(backupDownloadConfigResourceData) > 0 {
+			parsedBackupDownloadConfig = (backupDownloadConfigResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedBackupDownloadConfig["allow_backup_downloads_for_all_users"] = backupDownloadConfig.AllowBackupDownloadsForAllUsers
+	parsedBackupDownloadConfig["allow_backup_downloads"] = backupDownloadConfig.AllowBackupDownloads
+
+	return []interface{}{parsedBackupDownloadConfig}
+}
+
+func parseBackupDownloadConfig(backupDownloadConfig *model.BackupDownloadConfig) interface{} {
+	if backupDownloadConfig == nil {
+		return nil
+	}
+	parsedBackupDownloadConfig := make(map[string]interface{})
+	parsedBackupDownloadConfig["allow_backup_downloads_for_all_users"] = backupDownloadConfig.AllowBackupDownloadsForAllUsers
+	parsedBackupDownloadConfig["allow_backup_downloads"] = backupDownloadConfig.AllowBackupDownloads
+
+	return parsedBackupDownloadConfig
 }

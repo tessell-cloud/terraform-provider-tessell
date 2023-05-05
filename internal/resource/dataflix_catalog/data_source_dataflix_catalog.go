@@ -18,7 +18,7 @@ func DataSourceDataflixCatalog() *schema.Resource {
 			"availability_machine_id": {
 				Type:        schema.TypeString,
 				Description: "",
-				Computed:    true,
+				Required:    true,
 			},
 			"tessell_service_id": {
 				Type:        schema.TypeString,
@@ -227,8 +227,18 @@ func DataSourceDataflixCatalog() *schema.Resource {
 								},
 							},
 						},
+						"backup_status": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
 					},
 				},
+			},
+			"allow_backup_download": {
+				Type:        schema.TypeBool,
+				Description: "True if the user is allowed to download backups of the service",
+				Computed:    true,
 			},
 		},
 	}

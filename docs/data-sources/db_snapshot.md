@@ -26,11 +26,13 @@ data_source "tessell_db_snapshot" "example" {
 
 ### Required
 
+- `availability_machine_id` (String) Id of the parent AvailabilityMachine, required when creating a clone
 - `id` (String) DB Service snapshot Id
 
 ### Read-Only
 
 - `availability_config` (List of Object) (see [below for nested schema](#nestedatt--availability_config))
+- `backup_status` (String)
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedatt--cloud_availability))
 - `databases` (List of Object) The databases that are captured as part of the snapshot (see [below for nested schema](#nestedatt--databases))
 - `description` (String) Description for the snapshot

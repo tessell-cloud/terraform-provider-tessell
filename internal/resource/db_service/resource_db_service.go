@@ -3,6 +3,7 @@ package db_service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,6 +18,10 @@ func ResourceDBService() *schema.Resource {
 		ReadContext:   resourceDBServiceRead,
 		UpdateContext: resourceDBServiceUpdate,
 		DeleteContext: resourceDBServiceDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(60 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -87,10 +92,7 @@ func ResourceDBService() *schema.Resource {
 			"context_info": {
 				Type:        schema.TypeList,
 				Description: "",
-				Optional:    true,
-				ForceNew:    true,
-				MaxItems:    1,
-				MinItems:    1,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"sub_status": {
@@ -112,6 +114,12 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "DB Service License Type",
 				Computed:    true,
+			},
+			"edition": {
+				Type:        schema.TypeString,
+				Description: "",
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"software_image": {
 				Type:        schema.TypeString,
@@ -136,6 +144,12 @@ func ResourceDBService() *schema.Resource {
 				Description: "Specify whether to enable deletion protection for the DB Service",
 				Optional:    true,
 				Default:     true,
+			},
+			"enable_stop_protection": {
+				Type:        schema.TypeBool,
+				Description: "This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.",
+				Optional:    true,
+				Default:     false,
 			},
 			"owner": {
 				Type:        schema.TypeString,
@@ -305,12 +319,27 @@ func ResourceDBService() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Default:     false,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								if old != "" {
+									clonedFromDatabaseId := d.GetRawState().GetAttr("databases").AsValueSlice()[0].GetAttr("cloned_from_info").AsValueSlice()[0].GetAttr("database_id").AsString()
+									return clonedFromDatabaseId != ""
+								}
+								return false
+							},
 						},
 						"encryption_key": {
 							Type:        schema.TypeString,
 							Description: "The encryption key name which is used to encrypt the data at rest",
 							Optional:    true,
 							ForceNew:    true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								if old != "" {
+									encryptionKey := d.Get(k)
+									clonedFromDatabaseId := d.GetRawState().GetAttr("databases").AsValueSlice()[0].GetAttr("cloned_from_info").AsValueSlice()[0].GetAttr("database_id").AsString()
+									return old == encryptionKey && new == "" && clonedFromDatabaseId != ""
+								}
+								return false
+							},
 						},
 						"compute_type": {
 							Type:        schema.TypeString,
@@ -341,7 +370,7 @@ func ResourceDBService() *schema.Resource {
 				MinItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"enable_s_s_l": {
+						"enable_ssl": {
 							Type:        schema.TypeBool,
 							Description: "",
 							Optional:    true,
@@ -701,6 +730,12 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
+									"ad_domain_id": {
+										Type:        schema.TypeString,
+										Description: "Active Directory Domain id",
+										Optional:    true,
+										ForceNew:    true,
+									},
 								},
 							},
 						},
@@ -779,6 +814,22 @@ func ResourceDBService() *schema.Resource {
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"source_database_id": {
+							Type:        schema.TypeString,
+							Description: "Required while creating a clone. It specifies the Id of the source database from which the clone is being created.",
+							Optional:    true,
+							ForceNew:    true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								sourceDatabaseId := d.Get(k)
+								if old == "" && new == sourceDatabaseId && !d.GetRawState().IsNull() {
+									clonedFromDatabaseId := d.GetRawState().GetAttr("databases").AsValueSlice()[0].GetAttr("cloned_from_info").AsValueSlice()[0].GetAttr("database_id").AsString()
+									if sourceDatabaseId == clonedFromDatabaseId {
+										return true
+									}
+								}
+								return false
+							},
+						},
 						"id": {
 							Type:        schema.TypeString,
 							Description: "",
@@ -1215,6 +1266,26 @@ func ResourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"patch": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"at": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"message": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+								},
+							},
+						},
 						"delete": {
 							Type:        schema.TypeList,
 							Description: "",
@@ -1327,7 +1398,7 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeInt,
 				Description: "If block_until_complete is true, how long it should block for. (In seconds)",
 				Optional:    true,
-				Default:     1200,
+				Default:     3600,
 			},
 			"expected_status": {
 				Type:        schema.TypeString,
@@ -1413,8 +1484,9 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	id := d.Get("id").(string)
 
 	if d.HasChanges("expected_status") && expectedStatus == "READY" {
+		payload := formPayloadForStartTessellService(d)
 
-		_, _, err := client.StartTessellService(id)
+		_, _, err := client.StartTessellService(id, payload)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1422,8 +1494,9 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		pollBreakValue = "READY"
 		pollFunc = client.DBServicePollForStatus
 	} else if d.HasChanges("expected_status") && expectedStatus == "STOPPED" {
+		payload := formPayloadForStopTessellService(d)
 
-		_, _, err := client.StopTessellService(id)
+		_, _, err := client.StopTessellService(id, payload)
 		if err != nil {
 			return diag.FromErr(err)
 		}

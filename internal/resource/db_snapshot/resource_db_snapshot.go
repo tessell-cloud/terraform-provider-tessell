@@ -200,6 +200,26 @@ func ResourceDBSnapshot() *schema.Resource {
 						},
 					},
 				},
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if old == "0" && new == "1" {
+						users := d.Get("shared_with.0.users")
+						if len(users.([]interface{})) == 0 {
+							return true
+						}
+					} else if old == "1" && new == "0" {
+						users := d.GetRawState().GetAttr("shared_with").AsValueSlice()[0].GetAttr("users").AsValueSlice()
+						if len(users) == 0 {
+							return true
+						}
+					}
+					return false
+				},
+			},
+			"backup_status": {
+				Type:        schema.TypeString,
+				Description: "",
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"availability_machine_id": {
 				Type:        schema.TypeString,
@@ -231,9 +251,9 @@ func resourceDBSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	availabilityMachineId := d.Get("availability_machine_id").(string)
 
-	payload := formPayloadForCreateTessellServiceBackupRequest(d)
+	payload := formPayloadForCreateDatabaseSnapshotRequest(d)
 
-	response, _, err := client.CreateTessellServiceBackupRequest(availabilityMachineId, payload)
+	response, _, err := client.CreateDatabaseSnapshotRequest(availabilityMachineId, payload)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -254,7 +274,7 @@ func resourceDBSnapshotRead(_ context.Context, d *schema.ResourceData, meta inte
 	availabilityMachineId := d.Get("availability_machine_id").(string)
 	id := d.Get("id").(string)
 
-	response, _, err := client.GetBackup(availabilityMachineId, id)
+	response, _, err := client.GetDatabaseSnapshot(availabilityMachineId, id)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -281,7 +301,7 @@ func resourceDBSnapshotDelete(_ context.Context, d *schema.ResourceData, meta in
 	availabilityMachineId := d.Get("availability_machine_id").(string)
 	id := d.Get("id").(string)
 
-	response, statusCode, err := client.DeleteBackupRequest(availabilityMachineId, id)
+	response, statusCode, err := client.DeleteDatabaseSnapshotRequest(availabilityMachineId, id)
 	if err != nil {
 		return diag.FromErr(err)
 	}

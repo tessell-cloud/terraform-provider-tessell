@@ -117,6 +117,7 @@ type TessellServiceMysqlEngineConfig struct {
 
 type TessellServiceSqlServerEngineConfig struct {
 	ParameterProfile *string `json:"parameterProfile,omitempty"` // The parameter profile for the database
+	AdDomainId       *string `json:"adDomainId,omitempty"`       // Active Directory Domain id
 }
 
 type TessellServiceApacheKafkaEngineConfig struct {
@@ -128,7 +129,8 @@ type ScriptInfo struct {
 	ScriptVersion *string `json:"scriptVersion,omitempty"` // The Tessell Script version
 }
 
-type TessellDatabaseDTO struct {
+type TerraformTessellDatabaseDTO struct {
+	SourceDatabaseId      *string                        `json:"sourceDatabaseId,omitempty"` // Required while creating a clone. It specifies the Id of the source database from which the clone is being created.
 	Id                    *string                        `json:"id,omitempty"`
 	DatabaseName          *string                        `json:"databaseName,omitempty"`     // Database name
 	Description           *string                        `json:"description,omitempty"`      // Database description
@@ -216,12 +218,18 @@ type TessellResourceUpdateInfo struct {
 
 type ServiceUpcomingScheduledActions struct {
 	StartStop *ServiceUpcomingScheduledActionsStartStop `json:"startStop,omitempty"`
+	Patch     *ServiceUpcomingScheduledActionsPatch     `json:"patch,omitempty"`
 	Delete    *ServiceUpcomingScheduledActionsDelete    `json:"delete,omitempty"`
 }
 
 type ServiceUpcomingScheduledActionsStartStop struct {
 	Action *string `json:"action,omitempty"` // Action which can be either start/stop
 	At     *string `json:"at,omitempty"`
+}
+
+type ServiceUpcomingScheduledActionsPatch struct {
+	At      *string `json:"at,omitempty"`
+	Message *string `json:"message,omitempty"`
 }
 
 type ServiceUpcomingScheduledActionsDelete struct {
@@ -251,11 +259,13 @@ type TerraformTessellServiceDTO struct {
 	NumOfInstances           *int                                      `json:"numOfInstances,omitempty"` // Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.
 	Status                   *string                                   `json:"status,omitempty"`
 	ContextInfo              *TessellServiceContextInfo                `json:"contextInfo,omitempty"`
-	LicenseType              *string                                   `json:"licenseType,omitempty"`              // DB Service License Type
+	LicenseType              *string                                   `json:"licenseType,omitempty"` // DB Service License Type
+	Edition                  *string                                   `json:"edition,omitempty"`
 	SoftwareImage            *string                                   `json:"softwareImage"`                      // Software Image to be used to create the DB Service
 	SoftwareImageVersion     *string                                   `json:"softwareImageVersion"`               // Software Image Version to be used to create the DB Service
 	AutoMinorVersionUpdate   *bool                                     `json:"autoMinorVersionUpdate,omitempty"`   // Specify whether to automatically update minor version for DB Service
 	EnableDeletionProtection *bool                                     `json:"enableDeletionProtection,omitempty"` // Specify whether to enable deletion protection for the DB Service
+	EnableStopProtection     *bool                                     `json:"enableStopProtection,omitempty"`     // This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
 	Owner                    *string                                   `json:"owner,omitempty"`                    // DB Service owner email address
 	LoggedInUserRole         *string                                   `json:"loggedInUserRole,omitempty"`         // Access role for the currently logged in user
 	DateCreated              *string                                   `json:"dateCreated,omitempty"`              // Timestamp when the DB Service was created at
@@ -269,7 +279,7 @@ type TerraformTessellServiceDTO struct {
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
 	SnapshotConfiguration    *TessellServiceBackupConfigurationPayload `json:"snapshotConfiguration,omitempty"`
 	EngineConfiguration      *TessellServiceEngineInfo                 `json:"engineConfiguration"`
-	Databases                *[]TessellDatabaseDTO                     `json:"databases,omitempty"` // Databases that are part of this DB Service
+	Databases                *[]TerraformTessellDatabaseDTO            `json:"databases,omitempty"` // Databases that are part of this DB Service
 	IntegrationsConfig       *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`
 	Tags                     *[]TessellTag                             `json:"tags,omitempty"`      // The tags to be associated with the DB Service
 	Instances                *[]TessellServiceInstanceDTO              `json:"instances,omitempty"` // Instances associated with this DB Service
@@ -286,6 +296,7 @@ type CloneTessellServicePayload struct {
 	Name                     *string                                   `json:"name"`                  // DB Service name
 	Description              *string                                   `json:"description,omitempty"` // DB Service&#39;s description
 	Subscription             *string                                   `json:"subscription"`          // Tessell Subscription in which the DB Service is to be created
+	Edition                  *string                                   `json:"edition,omitempty"`
 	EngineType               *string                                   `json:"engineType"`
 	Topology                 *string                                   `json:"topology"`
 	NumOfInstances           *int                                      `json:"numOfInstances,omitempty"`           // Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.
@@ -293,6 +304,7 @@ type CloneTessellServicePayload struct {
 	SoftwareImageVersion     *string                                   `json:"softwareImageVersion"`               // Software Image Version to be used to create the DB Service
 	AutoMinorVersionUpdate   *bool                                     `json:"autoMinorVersionUpdate,omitempty"`   // Specify whether to automatically update minor version for DB Service
 	EnableDeletionProtection *bool                                     `json:"enableDeletionProtection,omitempty"` // Specify whether to enable deletion protection for the DB Service
+	EnableStopProtection     *bool                                     `json:"enableStopProtection,omitempty"`     // Specify whether to enable stop protection for the DB Service
 	Infrastructure           *TessellServiceInfrastructurePayload      `json:"infrastructure"`
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
@@ -351,7 +363,8 @@ type MysqlEngineConfigPayload struct {
 }
 
 type SqlServerEngineConfigPayload struct {
-	ParameterProfile *string `json:"parameterProfile"` // The parameter profile for the database
+	ParameterProfile *string `json:"parameterProfile"`     // The parameter profile for the database
+	AdDomainId       *string `json:"adDomainId,omitempty"` // Active Directory Domain id
 }
 
 type ApacheKafkaEngineConfigPayload struct {
@@ -373,6 +386,7 @@ type CreateDatabasePayloadDatabaseConfiguration struct {
 
 type DeleteTessellServicePayload struct {
 	DeletionConfig *TessellServiceDeletionConfig `json:"deletionConfig,omitempty"`
+	Comment        *string                       `json:"comment,omitempty"` // Comment for the the action
 }
 
 type TessellServiceDTO struct {
@@ -388,15 +402,17 @@ type TessellServiceDTO struct {
 	LicenseType              *string                           `json:"licenseType,omitempty"`
 	AutoMinorVersionUpdate   *bool                             `json:"autoMinorVersionUpdate,omitempty"`   // This field specifies whether to automatically update minor version for the DB Service
 	EnableDeletionProtection *bool                             `json:"enableDeletionProtection,omitempty"` // This field specifies whether to enable deletion protection for the DB Service. If this is enabled, the deletion for the DB Service would be disallowed until this setting is disabled.
-	SoftwareImage            *string                           `json:"softwareImage,omitempty"`            // The software image that has been used to create the DB Service
-	SoftwareImageVersion     *string                           `json:"softwareImageVersion,omitempty"`     // The software image version that is used to create the DB Service
-	TenantId                 *string                           `json:"tenantId,omitempty"`                 // The tenant identifier under which the DB Service is created
-	Subscription             *string                           `json:"subscription,omitempty"`             // The Tessell Subscription under which this DB Service is created
-	Owner                    *string                           `json:"owner,omitempty"`                    // This field specifies who is the owner for the DB Service
-	LoggedInUserRole         *string                           `json:"loggedInUserRole,omitempty"`         // This field specifies access role on the DB Service for the currently logged in user
-	DateCreated              *string                           `json:"dateCreated,omitempty"`              // This field specifies the timestamp when the DB Service was created at
-	StartedAt                *string                           `json:"startedAt,omitempty"`                // This field specifies the timestamp when the DB Service was last started at
-	StoppedAt                *string                           `json:"stoppedAt,omitempty"`                // This field specifies the timestamp when the DB Service was last stopped at
+	EnableStopProtection     *bool                             `json:"enableStopProtection,omitempty"`     // This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
+	Edition                  *string                           `json:"edition,omitempty"`
+	SoftwareImage            *string                           `json:"softwareImage,omitempty"`        // The software image that has been used to create the DB Service
+	SoftwareImageVersion     *string                           `json:"softwareImageVersion,omitempty"` // The software image version that is used to create the DB Service
+	TenantId                 *string                           `json:"tenantId,omitempty"`             // The tenant identifier under which the DB Service is created
+	Subscription             *string                           `json:"subscription,omitempty"`         // The Tessell Subscription under which this DB Service is created
+	Owner                    *string                           `json:"owner,omitempty"`                // This field specifies who is the owner for the DB Service
+	LoggedInUserRole         *string                           `json:"loggedInUserRole,omitempty"`     // This field specifies access role on the DB Service for the currently logged in user
+	DateCreated              *string                           `json:"dateCreated,omitempty"`          // This field specifies the timestamp when the DB Service was created at
+	StartedAt                *string                           `json:"startedAt,omitempty"`            // This field specifies the timestamp when the DB Service was last started at
+	StoppedAt                *string                           `json:"stoppedAt,omitempty"`            // This field specifies the timestamp when the DB Service was last stopped at
 	ClonedFromInfo           *TessellServiceClonedFromInfo     `json:"clonedFromInfo,omitempty"`
 	ServiceConnectivity      *TessellServiceConnectivityInfo   `json:"serviceConnectivity,omitempty"`
 	TessellGenieStatus       *string                           `json:"tessellGenieStatus,omitempty"`
@@ -418,6 +434,18 @@ type TessellServiceIntegrationsInfo struct {
 	Integrations *[]string `json:"integrations,omitempty"`
 }
 
+type TessellDatabaseDTO struct {
+	Id                    *string                        `json:"id,omitempty"`
+	DatabaseName          *string                        `json:"databaseName,omitempty"`     // Database name
+	Description           *string                        `json:"description,omitempty"`      // Database description
+	TessellServiceId      *string                        `json:"tessellServiceId,omitempty"` // Associated DB Service Id
+	EngineType            *string                        `json:"engineType,omitempty"`       // Database Engine Type
+	Status                *string                        `json:"status,omitempty"`           // Database status
+	DateCreated           *string                        `json:"dateCreated,omitempty"`      // Timestamp when the entity was created
+	ClonedFromInfo        *TessellDatabaseClonedFromInfo `json:"clonedFromInfo,omitempty"`
+	DatabaseConfiguration *DatabaseConfiguration         `json:"databaseConfiguration,omitempty"`
+}
+
 type TessellServicesResponse struct {
 	Metadata *APIMetadata         `json:"metadata,omitempty"`
 	Response *[]TessellServiceDTO `json:"response,omitempty"`
@@ -427,6 +455,7 @@ type ProvisionTessellServicePayload struct {
 	Name                     *string                                   `json:"name"`                  // DB Service name
 	Description              *string                                   `json:"description,omitempty"` // DB Service&#39;s description
 	Subscription             *string                                   `json:"subscription"`          // Tessell Subscription in which the DB Service is to be created
+	Edition                  *string                                   `json:"edition,omitempty"`
 	EngineType               *string                                   `json:"engineType"`
 	Topology                 *string                                   `json:"topology"`
 	NumOfInstances           *int                                      `json:"numOfInstances,omitempty"`           // Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.
@@ -434,6 +463,7 @@ type ProvisionTessellServicePayload struct {
 	SoftwareImageVersion     *string                                   `json:"softwareImageVersion"`               // Software Image Version to be used to create the DB Service
 	AutoMinorVersionUpdate   *bool                                     `json:"autoMinorVersionUpdate,omitempty"`   // Specify whether to automatically update minor version for DB Service
 	EnableDeletionProtection *bool                                     `json:"enableDeletionProtection,omitempty"` // Specify whether to enable deletion protection for the DB Service
+	EnableStopProtection     *bool                                     `json:"enableStopProtection,omitempty"`     // Specify whether to enable stop protection for the DB Service
 	Infrastructure           *TessellServiceInfrastructurePayload      `json:"infrastructure"`
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
@@ -444,4 +474,12 @@ type ProvisionTessellServicePayload struct {
 	Databases                *[]CreateDatabasePayload                  `json:"databases,omitempty"` // Specify the databases to be created in the DB Service
 	IntegrationsConfig       *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`
 	Tags                     *[]TessellTag                             `json:"tags,omitempty"` // The tags to be associated with the DB Service
+}
+
+type StartTessellServicePayload struct {
+	Comment *string `json:"comment,omitempty"` // Comment for the the action
+}
+
+type StopTessellServicePayload struct {
+	Comment *string `json:"comment,omitempty"` // Comment for the the action
 }

@@ -31,12 +31,15 @@ data_source "tessell_db_service" "example" {
 - `auto_minor_version_update` (Boolean) This field specifies whether to automatically update minor version for the DB Service
 - `availability_machine_id` (String) Unique id of the associated Availability Machine
 - `cloned_from_info` (List of Object) If the DB Service is created as a clone from some other DB Service, this section describes the parent DB Service and cloning details (see [below for nested schema](#nestedatt--cloned_from_info))
+- `context_info` (List of Object) (see [below for nested schema](#nestedatt--context_info))
 - `databases` (List of Object) This field details about the databases that are created under this DB Service (see [below for nested schema](#nestedatt--databases))
 - `date_created` (String) This field specifies the timestamp when the DB Service was created at
 - `deletion_config` (List of Object) If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service (see [below for nested schema](#nestedatt--deletion_config))
 - `deletion_schedule` (List of Object) (see [below for nested schema](#nestedatt--deletion_schedule))
 - `description` (String) User specified description for the DB Service
+- `edition` (String)
 - `enable_deletion_protection` (Boolean) This field specifies whether to enable deletion protection for the DB Service. If this is enabled, the deletion for the DB Service would be disallowed until this setting is disabled.
+- `enable_stop_protection` (Boolean) This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
 - `engine_configuration` (List of Object) This field details the DB Service engine configuration details like - parameter profile, or options profile (if applicable) are used to configure the DB Service. (see [below for nested schema](#nestedatt--engine_configuration))
 - `engine_type` (String)
 - `infrastructure` (List of Object) This field contains DB Service's infrastructure related information, like, where the service is hosted - cloud, region; what compute shape, or network is is configured with. (see [below for nested schema](#nestedatt--infrastructure))
@@ -74,8 +77,18 @@ Read-Only:
 - `pitr_time` (String)
 - `snapshot_id` (String)
 - `snapshot_name` (String)
+- `snapshot_time` (String)
 - `tessell_service` (String)
 - `tessell_service_id` (String)
+
+
+<a id="nestedatt--context_info"></a>
+### Nested Schema for `context_info`
+
+Read-Only:
+
+- `description` (String)
+- `sub_status` (String)
 
 
 <a id="nestedatt--databases"></a>
@@ -90,7 +103,6 @@ Read-Only:
 - `description` (String)
 - `engine_type` (String)
 - `id` (String)
-- `source_database_id` (String)
 - `status` (String)
 - `tessell_service_id` (String)
 
@@ -244,6 +256,7 @@ Read-Only:
 
 Read-Only:
 
+- `ad_domain_id` (String)
 - `parameter_profile` (String)
 
 
@@ -356,9 +369,11 @@ Read-Only:
 Read-Only:
 
 - `allowed_ip_addresses` (List of String)
+- `ca_cert_id` (String)
 - `connect_strings` (List of Object) (see [below for nested schema](#nestedobjatt--service_connectivity--connect_strings))
 - `dns_prefix` (String)
 - `enable_public_access` (Boolean)
+- `enable_ssl` (Boolean)
 - `private_link` (List of Object) (see [below for nested schema](#nestedobjatt--service_connectivity--private_link))
 - `service_port` (Number)
 - `update_in_progress_info` (List of Object) (see [below for nested schema](#nestedobjatt--service_connectivity--update_in_progress_info))
@@ -437,6 +452,7 @@ Read-Only:
 Read-Only:
 
 - `delete` (List of Object) (see [below for nested schema](#nestedobjatt--upcoming_scheduled_actions--delete))
+- `patch` (List of Object) (see [below for nested schema](#nestedobjatt--upcoming_scheduled_actions--patch))
 - `start_stop` (List of Object) (see [below for nested schema](#nestedobjatt--upcoming_scheduled_actions--start_stop))
 
 <a id="nestedobjatt--upcoming_scheduled_actions--delete"></a>
@@ -445,6 +461,15 @@ Read-Only:
 Read-Only:
 
 - `at` (String)
+
+
+<a id="nestedobjatt--upcoming_scheduled_actions--patch"></a>
+### Nested Schema for `upcoming_scheduled_actions.patch`
+
+Read-Only:
+
+- `at` (String)
+- `message` (String)
 
 
 <a id="nestedobjatt--upcoming_scheduled_actions--start_stop"></a>

@@ -10,7 +10,7 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func (c *Client) CreateTessellServiceBackupRequest(availabilityMachineId string, payload model.CreateBackupTaskPayload) (*model.TaskSummary, int, error) {
+func (c *Client) CreateDatabaseSnapshotRequest(availabilityMachineId string, payload model.CreateDatabaseSnapshotTaskPayload) (*model.TaskSummary, int, error) {
 	rb, err := json.Marshal(payload)
 	if err != nil {
 		return nil, 0, err
@@ -37,7 +37,7 @@ func (c *Client) CreateTessellServiceBackupRequest(availabilityMachineId string,
 	return &taskSummary, statusCode, nil
 }
 
-func (c *Client) DeleteBackupRequest(availabilityMachineId string, id string) (*model.APIStatus, int, error) {
+func (c *Client) DeleteDatabaseSnapshotRequest(availabilityMachineId string, id string) (*model.APIStatus, int, error) {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/availability-machines/%s/snapshots/%s", c.APIAddress, availabilityMachineId, id), nil)
 	if err != nil {
 		return nil, 0, err
@@ -57,7 +57,7 @@ func (c *Client) DeleteBackupRequest(availabilityMachineId string, id string) (*
 	return &apiStatus, statusCode, nil
 }
 
-func (c *Client) GetBackup(availabilityMachineId string, id string) (*model.TessellSnapshotDTO, int, error) {
+func (c *Client) GetDatabaseSnapshot(availabilityMachineId string, id string) (*model.DatabaseSnapshot, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/availability-machines/%s/snapshots/%s", c.APIAddress, availabilityMachineId, id), nil)
 	if err != nil {
 		return nil, 0, err
@@ -68,13 +68,13 @@ func (c *Client) GetBackup(availabilityMachineId string, id string) (*model.Tess
 		return nil, statusCode, err
 	}
 
-	tessellSnapshotDTO := model.TessellSnapshotDTO{}
-	err = json.Unmarshal(body, &tessellSnapshotDTO)
+	databaseSnapshot := model.DatabaseSnapshot{}
+	err = json.Unmarshal(body, &databaseSnapshot)
 	if err != nil {
 		return nil, statusCode, err
 	}
 
-	return &tessellSnapshotDTO, statusCode, nil
+	return &databaseSnapshot, statusCode, nil
 }
 
 func (c *Client) DBSnapshotPollForStatus(availabilityMachineId string, id string, value string, timeout int, interval int) error {
@@ -92,7 +92,7 @@ func (c *Client) DBSnapshotPollForStatus(availabilityMachineId string, id string
 	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
 
 	for {
-		response, _, err := c.GetBackup(availabilityMachineId, id)
+		response, _, err := c.GetDatabaseSnapshot(availabilityMachineId, id)
 		if err != nil {
 			return fmt.Errorf("error while polling: %s", err.Error())
 		}

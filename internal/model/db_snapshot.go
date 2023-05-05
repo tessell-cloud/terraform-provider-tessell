@@ -16,7 +16,7 @@ type SnapshotRegionAvailability struct {
 	Status *string `json:"status"` // Database Backup Status
 }
 
-type TessellSnapshotDTO struct {
+type DatabaseSnapshot struct {
 	Id                 *string                       `json:"id,omitempty"`           // DB Service snapshot Id
 	Name               *string                       `json:"name,omitempty"`         // DB Service snapshot name
 	Description        *string                       `json:"description,omitempty"`  // Description for the snapshot
@@ -28,9 +28,10 @@ type TessellSnapshotDTO struct {
 	AvailabilityConfig *[]SnapshotAvailabilityConfig `json:"availabilityConfig,omitempty"`
 	Databases          *[]BackupDatabaseInfo         `json:"databases,omitempty"` // The databases that are captured as part of the snapshot
 	SharedWith         *EntityAclSharingSummaryInfo  `json:"sharedWith,omitempty"`
+	BackupStatus       *string                       `json:"backupStatus,omitempty"`
 }
 
-type CreateBackupTaskPayload struct {
+type CreateDatabaseSnapshotTaskPayload struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description,omitempty"`
 }

@@ -18,7 +18,7 @@ func DataSourceDataflix() *schema.Resource {
 			"availability_machine_id": {
 				Type:        schema.TypeString,
 				Description: "",
-				Computed:    true,
+				Required:    true,
 			},
 			"tessell_service_id": {
 				Type:        schema.TypeString,

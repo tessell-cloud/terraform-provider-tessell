@@ -20,6 +20,11 @@ func DataSourceDBSnapshot() *schema.Resource {
 				Description: "DB Service snapshot Id",
 				Required:    true,
 			},
+			"availability_machine_id": {
+				Type:        schema.TypeString,
+				Description: "Id of the parent AvailabilityMachine, required when creating a clone",
+				Required:    true,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Description: "DB Service snapshot name",
@@ -179,6 +184,11 @@ func DataSourceDBSnapshot() *schema.Resource {
 					},
 				},
 			},
+			"backup_status": {
+				Type:        schema.TypeString,
+				Description: "",
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -191,7 +201,7 @@ func dataSourceDBSnapshotRead(ctx context.Context, d *schema.ResourceData, meta 
 	availabilityMachineId := d.Get("availability_machine_id").(string)
 	id := d.Get("id").(string)
 
-	response, _, err := client.GetBackup(availabilityMachineId, id)
+	response, _, err := client.GetDatabaseSnapshot(availabilityMachineId, id)
 	if err != nil {
 		return diag.FromErr(err)
 	}
