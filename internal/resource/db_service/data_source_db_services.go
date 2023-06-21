@@ -943,7 +943,7 @@ func DataSourceDBServices() *schema.Resource {
 														},
 													},
 												},
-												"my_sql_config": {
+												"mysql_config": {
 													Type:        schema.TypeList,
 													Description: "",
 													Computed:    true,

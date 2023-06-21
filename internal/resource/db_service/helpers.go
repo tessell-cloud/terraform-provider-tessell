@@ -983,7 +983,7 @@ func parseDatabaseConfiguration(databaseConfiguration *model.DatabaseConfigurati
 
 	var mysqlConfig *model.MysqlDatabaseConfig
 	if databaseConfiguration.MysqlConfig != mysqlConfig {
-		parsedDatabaseConfiguration["my_sql_config"] = []interface{}{parseMysqlDatabaseConfig(databaseConfiguration.MysqlConfig)}
+		parsedDatabaseConfiguration["mysql_config"] = []interface{}{parseMysqlDatabaseConfig(databaseConfiguration.MysqlConfig)}
 	}
 
 	var sqlServerConfig *model.SqlServerDatabaseConfig
