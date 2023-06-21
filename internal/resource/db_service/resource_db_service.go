@@ -931,7 +931,7 @@ func ResourceDBService() *schema.Resource {
 											},
 										},
 									},
-									"my_sql_config": {
+									"mysql_config": {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
