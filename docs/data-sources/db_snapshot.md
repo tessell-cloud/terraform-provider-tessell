@@ -84,8 +84,8 @@ Read-Only:
 
 Read-Only:
 
-- `availability_zones` (List of String)
 - `region` (String)
+- `status` (String)
 
 
 

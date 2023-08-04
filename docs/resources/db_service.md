@@ -228,6 +228,7 @@ resource "tessell_db_service" "example" {
 - `logged_in_user_role` (String) Access role for the currently logged in user
 - `num_of_instances` (Number) Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.
 - `owner` (String) DB Service owner email address
+- `software_image_version_family` (String) Software Image Family DB Service belongs to
 - `started_at` (String) Timestamp when the DB Service was last started at
 - `status` (String)
 - `stopped_at` (String) Timestamp when the DB Service was last stopped at
@@ -263,7 +264,7 @@ Optional:
 
 Optional:
 
-- `parameter_profile` (String) The parameter profile for the database
+- `parameter_profile_id` (String) The parameter profile id for the database
 
 
 <a id="nestedblock--engine_configuration--mysql_config"></a>
@@ -271,7 +272,7 @@ Optional:
 
 Optional:
 
-- `parameter_profile` (String) The parameter profile for the database
+- `parameter_profile_id` (String) The parameter profile id for the database
 
 
 <a id="nestedblock--engine_configuration--oracle_config"></a>
@@ -283,7 +284,7 @@ Optional:
 - `multi_tenant` (Boolean) Specify whether the DB Service is multi-tenant.
 - `national_character_set` (String) The national-character-set for the database
 - `options_profile` (String) The options profile for the database
-- `parameter_profile` (String) The parameter profile for the database
+- `parameter_profile_id` (String) The parameter profile id for the database
 
 
 <a id="nestedblock--engine_configuration--post_script_info"></a>
@@ -300,7 +301,7 @@ Optional:
 
 Optional:
 
-- `parameter_profile` (String) The parameter profile for the database
+- `parameter_profile_id` (String) The parameter profile id for the database
 
 
 <a id="nestedblock--engine_configuration--pre_script_info"></a>
@@ -318,7 +319,7 @@ Optional:
 Optional:
 
 - `ad_domain_id` (String) Active Directory Domain id
-- `parameter_profile` (String) The parameter profile for the database
+- `parameter_profile_id` (String) The parameter profile id for the database
 
 
 
@@ -396,8 +397,11 @@ Read-Only:
 
 Read-Only:
 
+- `client_azure_subscription_ids` (List of String)
 - `endpoint_service_name` (String)
+- `private_link_service_alias` (String)
 - `service_principals` (List of String)
+- `status` (String)
 
 
 <a id="nestedatt--service_connectivity--update_in_progress_info"></a>
@@ -415,6 +419,7 @@ Read-Only:
 
 Read-Only:
 
+- `client_azure_subscription_ids` (List of String)
 - `service_principals` (List of String)
 
 
@@ -454,7 +459,7 @@ Optional:
 
 Optional:
 
-- `parameter_profile` (String) The parameter profile for the database
+- `parameter_profile_id` (String) The parameter profile id for the database
 
 
 <a id="nestedblock--databases--database_configuration--oracle_config"></a>
@@ -463,7 +468,7 @@ Optional:
 Optional:
 
 - `options_profile` (String) The options profile for the database
-- `parameter_profile` (String) The parameter profile for the database
+- `parameter_profile_id` (String) The parameter profile id for the database
 
 
 <a id="nestedblock--databases--database_configuration--postgresql_config"></a>
@@ -471,7 +476,7 @@ Optional:
 
 Optional:
 
-- `parameter_profile` (String) The parameter profile for the database
+- `parameter_profile_id` (String) The parameter profile id for the database
 
 
 <a id="nestedblock--databases--database_configuration--sql_server_config"></a>
@@ -479,7 +484,7 @@ Optional:
 
 Optional:
 
-- `parameter_profile` (String) The parameter profile for the database
+- `parameter_profile_id` (String) The parameter profile id for the database
 
 
 
@@ -625,6 +630,7 @@ Read-Only:
 - `cloud` (String)
 - `compute_type` (String)
 - `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--instances--connect_string))
+- `data_volume_iops` (Number)
 - `date_created` (String)
 - `encryption_key` (String)
 - `id` (String)
@@ -632,11 +638,13 @@ Read-Only:
 - `last_started_at` (String)
 - `last_stopped_at` (String)
 - `name` (String)
+- `parameter_profile` (List of Object) (see [below for nested schema](#nestedobjatt--instances--parameter_profile))
 - `region` (String)
 - `role` (String)
 - `software_image` (String)
 - `software_image_version` (String)
 - `status` (String)
+- `storage` (Number)
 - `tessell_service_id` (String)
 - `type` (String)
 - `updates_in_progress` (List of Object) (see [below for nested schema](#nestedobjatt--instances--updates_in_progress))
@@ -651,6 +659,17 @@ Read-Only:
 - `endpoint` (String)
 - `master_user` (String)
 - `service_port` (String)
+
+
+<a id="nestedobjatt--instances--parameter_profile"></a>
+### Nested Schema for `instances.parameter_profile`
+
+Read-Only:
+
+- `id` (String)
+- `name` (String)
+- `status` (String)
+- `version` (String)
 
 
 <a id="nestedobjatt--instances--updates_in_progress"></a>

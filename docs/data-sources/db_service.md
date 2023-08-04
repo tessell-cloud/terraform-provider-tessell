@@ -55,6 +55,7 @@ data_source "tessell_db_service" "example" {
 - `shared_with` (List of Object) Tessell Entity ACL Sharing Info (see [below for nested schema](#nestedatt--shared_with))
 - `software_image` (String) The software image that has been used to create the DB Service
 - `software_image_version` (String) The software image version that is used to create the DB Service
+- `software_image_version_family` (String) The software image version family that is used to create the DB Service
 - `started_at` (String) This field specifies the timestamp when the DB Service was last started at
 - `status` (String)
 - `stopped_at` (String) This field specifies the timestamp when the DB Service was last stopped at
@@ -129,7 +130,7 @@ Read-Only:
 
 Read-Only:
 
-- `parameter_profile` (String)
+- `parameter_profile_id` (String)
 
 
 <a id="nestedobjatt--databases--database_configuration--oracle_config"></a>
@@ -138,7 +139,7 @@ Read-Only:
 Read-Only:
 
 - `options_profile` (String)
-- `parameter_profile` (String)
+- `parameter_profile_id` (String)
 
 
 <a id="nestedobjatt--databases--database_configuration--postgresql_config"></a>
@@ -146,7 +147,7 @@ Read-Only:
 
 Read-Only:
 
-- `parameter_profile` (String)
+- `parameter_profile_id` (String)
 
 
 <a id="nestedobjatt--databases--database_configuration--sql_server_config"></a>
@@ -154,7 +155,7 @@ Read-Only:
 
 Read-Only:
 
-- `parameter_profile` (String)
+- `parameter_profile_id` (String)
 
 
 
@@ -202,7 +203,7 @@ Read-Only:
 
 Read-Only:
 
-- `parameter_profile` (String)
+- `parameter_profile_id` (String)
 
 
 <a id="nestedobjatt--engine_configuration--mysql_config"></a>
@@ -210,7 +211,7 @@ Read-Only:
 
 Read-Only:
 
-- `parameter_profile` (String)
+- `parameter_profile_id` (String)
 
 
 <a id="nestedobjatt--engine_configuration--oracle_config"></a>
@@ -222,7 +223,7 @@ Read-Only:
 - `multi_tenant` (Boolean)
 - `national_character_set` (String)
 - `options_profile` (String)
-- `parameter_profile` (String)
+- `parameter_profile_id` (String)
 
 
 <a id="nestedobjatt--engine_configuration--post_script_info"></a>
@@ -239,7 +240,7 @@ Read-Only:
 
 Read-Only:
 
-- `parameter_profile` (String)
+- `parameter_profile_id` (String)
 
 
 <a id="nestedobjatt--engine_configuration--pre_script_info"></a>
@@ -257,7 +258,7 @@ Read-Only:
 Read-Only:
 
 - `ad_domain_id` (String)
-- `parameter_profile` (String)
+- `parameter_profile_id` (String)
 
 
 
@@ -305,6 +306,7 @@ Read-Only:
 - `cloud` (String)
 - `compute_type` (String)
 - `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--instances--connect_string))
+- `data_volume_iops` (Number)
 - `date_created` (String)
 - `encryption_key` (String)
 - `id` (String)
@@ -312,11 +314,13 @@ Read-Only:
 - `last_started_at` (String)
 - `last_stopped_at` (String)
 - `name` (String)
+- `parameter_profile` (List of Object) (see [below for nested schema](#nestedobjatt--instances--parameter_profile))
 - `region` (String)
 - `role` (String)
 - `software_image` (String)
 - `software_image_version` (String)
 - `status` (String)
+- `storage` (Number)
 - `tessell_service_id` (String)
 - `type` (String)
 - `updates_in_progress` (List of Object) (see [below for nested schema](#nestedobjatt--instances--updates_in_progress))
@@ -331,6 +335,17 @@ Read-Only:
 - `endpoint` (String)
 - `master_user` (String)
 - `service_port` (String)
+
+
+<a id="nestedobjatt--instances--parameter_profile"></a>
+### Nested Schema for `instances.parameter_profile`
+
+Read-Only:
+
+- `id` (String)
+- `name` (String)
+- `status` (String)
+- `version` (String)
 
 
 <a id="nestedobjatt--instances--updates_in_progress"></a>
@@ -396,8 +411,11 @@ Read-Only:
 
 Read-Only:
 
+- `client_azure_subscription_ids` (List of String)
 - `endpoint_service_name` (String)
+- `private_link_service_alias` (String)
 - `service_principals` (List of String)
+- `status` (String)
 
 
 <a id="nestedobjatt--service_connectivity--update_in_progress_info"></a>
@@ -415,6 +433,7 @@ Read-Only:
 
 Read-Only:
 
+- `client_azure_subscription_ids` (List of String)
 - `service_principals` (List of String)
 
 
