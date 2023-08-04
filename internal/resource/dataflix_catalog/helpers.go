@@ -43,10 +43,6 @@ func setResourceData(d *schema.ResourceData, getDataflixCatalogResponse *model.G
 		return err
 	}
 
-	if err := d.Set("allow_backup_download", getDataflixCatalogResponse.AllowBackupDownload); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -185,9 +181,9 @@ func parseDataflixSnapshot(snapshotCatalog *model.DataflixSnapshot) interface{} 
 
 	parsedSnapshotCatalog["backup_status"] = snapshotCatalog.BackupStatus
 
-	var cloudAvailability *[]model.CloudRegionInfo
+	var cloudAvailability *[]model.DatabaseSnapshotCloudRegionInfo
 	if snapshotCatalog.CloudAvailability != cloudAvailability {
-		parsedSnapshotCatalog["cloud_availability"] = parseCloudRegionInfoList(snapshotCatalog.CloudAvailability)
+		parsedSnapshotCatalog["cloud_availability"] = parseDatabaseSnapshotCloudRegionInfoList(snapshotCatalog.CloudAvailability)
 	}
 
 	var databases *[]model.BackupDatabaseInfo
@@ -203,60 +199,60 @@ func parseDataflixSnapshot(snapshotCatalog *model.DataflixSnapshot) interface{} 
 	return parsedSnapshotCatalog
 }
 
-func parseCloudRegionInfoList(cloudAvailability *[]model.CloudRegionInfo) []interface{} {
+func parseDatabaseSnapshotCloudRegionInfoList(cloudAvailability *[]model.DatabaseSnapshotCloudRegionInfo) []interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
-	cloudRegionInfoList := make([]interface{}, 0)
+	databaseSnapshotCloudRegionInfoList := make([]interface{}, 0)
 
 	if cloudAvailability != nil {
-		cloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
-		for i, cloudRegionInfoItem := range *cloudAvailability {
-			cloudRegionInfoList[i] = parseCloudRegionInfo(&cloudRegionInfoItem)
+		databaseSnapshotCloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
+		for i, databaseSnapshotCloudRegionInfoItem := range *cloudAvailability {
+			databaseSnapshotCloudRegionInfoList[i] = parseDatabaseSnapshotCloudRegionInfo(&databaseSnapshotCloudRegionInfoItem)
 		}
 	}
 
-	return cloudRegionInfoList
+	return databaseSnapshotCloudRegionInfoList
 }
 
-func parseCloudRegionInfo(cloudAvailability *model.CloudRegionInfo) interface{} {
+func parseDatabaseSnapshotCloudRegionInfo(cloudAvailability *model.DatabaseSnapshotCloudRegionInfo) interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
 	parsedCloudAvailability := make(map[string]interface{})
 	parsedCloudAvailability["cloud"] = cloudAvailability.Cloud
 
-	var regions *[]model.RegionInfo
+	var regions *[]model.DatabaseSnapshotRegionInfo
 	if cloudAvailability.Regions != regions {
-		parsedCloudAvailability["regions"] = parseRegionInfoList(cloudAvailability.Regions)
+		parsedCloudAvailability["regions"] = parseDatabaseSnapshotRegionInfoList(cloudAvailability.Regions)
 	}
 
 	return parsedCloudAvailability
 }
 
-func parseRegionInfoList(regions *[]model.RegionInfo) []interface{} {
+func parseDatabaseSnapshotRegionInfoList(regions *[]model.DatabaseSnapshotRegionInfo) []interface{} {
 	if regions == nil {
 		return nil
 	}
-	regionInfoList := make([]interface{}, 0)
+	databaseSnapshotRegionInfoList := make([]interface{}, 0)
 
 	if regions != nil {
-		regionInfoList = make([]interface{}, len(*regions))
-		for i, regionInfoItem := range *regions {
-			regionInfoList[i] = parseRegionInfo(&regionInfoItem)
+		databaseSnapshotRegionInfoList = make([]interface{}, len(*regions))
+		for i, databaseSnapshotRegionInfoItem := range *regions {
+			databaseSnapshotRegionInfoList[i] = parseDatabaseSnapshotRegionInfo(&databaseSnapshotRegionInfoItem)
 		}
 	}
 
-	return regionInfoList
+	return databaseSnapshotRegionInfoList
 }
 
-func parseRegionInfo(regions *model.RegionInfo) interface{} {
+func parseDatabaseSnapshotRegionInfo(regions *model.DatabaseSnapshotRegionInfo) interface{} {
 	if regions == nil {
 		return nil
 	}
 	parsedRegions := make(map[string]interface{})
 	parsedRegions["region"] = regions.Region
-	parsedRegions["availability_zones"] = regions.AvailabilityZones
+	parsedRegions["status"] = regions.Status
 
 	return parsedRegions
 }

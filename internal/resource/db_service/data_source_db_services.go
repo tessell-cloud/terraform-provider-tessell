@@ -116,6 +116,11 @@ func DataSourceDBServices() *schema.Resource {
 							Description: "The software image version that is used to create the DB Service",
 							Computed:    true,
 						},
+						"software_image_version_family": {
+							Type:        schema.TypeString,
+							Description: "The software image version family that is used to create the DB Service",
+							Computed:    true,
+						},
 						"tenant_id": {
 							Type:        schema.TypeString,
 							Description: "The tenant identifier under which the DB Service is created",
@@ -289,6 +294,11 @@ func DataSourceDBServices() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
 												"service_principals": {
 													Type:        schema.TypeList,
 													Description: "The list of AWS account principals that are currently enabled",
@@ -300,6 +310,19 @@ func DataSourceDBServices() *schema.Resource {
 												"endpoint_service_name": {
 													Type:        schema.TypeString,
 													Description: "The configured endpoint as a result of configuring the service-pricipals",
+													Computed:    true,
+												},
+												"client_azure_subscription_ids": {
+													Type:        schema.TypeList,
+													Description: "The list of Azure subscription Ids",
+													Computed:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"private_link_service_alias": {
+													Type:        schema.TypeString,
+													Description: "The Azure private link service alias",
 													Computed:    true,
 												},
 											},
@@ -338,6 +361,14 @@ func DataSourceDBServices() *schema.Resource {
 															"service_principals": {
 																Type:        schema.TypeList,
 																Description: "The list of AWS account principals that are currently enabled",
+																Computed:    true,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+															"client_azure_subscription_ids": {
+																Type:        schema.TypeList,
+																Description: "The list of Azure subscription Ids",
 																Computed:    true,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
@@ -488,9 +519,9 @@ func DataSourceDBServices() *schema.Resource {
 													Description: "Specify whether the DB Service is multi-tenant.",
 													Computed:    true,
 												},
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Computed:    true,
 												},
 												"options_profile": {
@@ -517,9 +548,9 @@ func DataSourceDBServices() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Computed:    true,
 												},
 											},
@@ -531,9 +562,9 @@ func DataSourceDBServices() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Computed:    true,
 												},
 											},
@@ -545,9 +576,9 @@ func DataSourceDBServices() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Computed:    true,
 												},
 												"ad_domain_id": {
@@ -564,9 +595,9 @@ func DataSourceDBServices() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Computed:    true,
 												},
 											},
@@ -753,6 +784,45 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "The compute used for creation of the Tessell Service Instance",
 										Computed:    true,
 									},
+									"storage": {
+										Type:        schema.TypeInt,
+										Description: "The storage (in bytes) that has been provisioned for the DB Service instance.",
+										Computed:    true,
+									},
+									"data_volume_iops": {
+										Type:        schema.TypeInt,
+										Description: "",
+										Computed:    true,
+									},
+									"parameter_profile": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"version": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
 									"vpc": {
 										Type:        schema.TypeString,
 										Description: "The VPC used for creation of the DB Service Instance",
@@ -916,9 +986,9 @@ func DataSourceDBServices() *schema.Resource {
 													Computed:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"parameter_profile": {
+															"parameter_profile_id": {
 																Type:        schema.TypeString,
-																Description: "The parameter profile for the database",
+																Description: "The parameter profile id for the database",
 																Computed:    true,
 															},
 															"options_profile": {
@@ -935,9 +1005,9 @@ func DataSourceDBServices() *schema.Resource {
 													Computed:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"parameter_profile": {
+															"parameter_profile_id": {
 																Type:        schema.TypeString,
-																Description: "The parameter profile for the database",
+																Description: "The parameter profile id for the database",
 																Computed:    true,
 															},
 														},
@@ -949,9 +1019,9 @@ func DataSourceDBServices() *schema.Resource {
 													Computed:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"parameter_profile": {
+															"parameter_profile_id": {
 																Type:        schema.TypeString,
-																Description: "The parameter profile for the database",
+																Description: "The parameter profile id for the database",
 																Computed:    true,
 															},
 														},
@@ -963,9 +1033,9 @@ func DataSourceDBServices() *schema.Resource {
 													Computed:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"parameter_profile": {
+															"parameter_profile_id": {
 																Type:        schema.TypeString,
-																Description: "The parameter profile for the database",
+																Description: "The parameter profile id for the database",
 																Computed:    true,
 															},
 														},
@@ -1194,44 +1264,45 @@ func setDataSourceValues(d *schema.ResourceData, DBServiceList *[]model.TessellS
 		parsedDBServiceList = make([]interface{}, len(*DBServiceList))
 		for i, DBService := range *DBServiceList {
 			parsedDBServiceList[i] = map[string]interface{}{
-				"id":                         DBService.Id,
-				"availability_machine_id":    DBService.AvailabilityMachineId,
-				"name":                       DBService.Name,
-				"description":                DBService.Description,
-				"engine_type":                DBService.EngineType,
-				"topology":                   DBService.Topology,
-				"num_of_instances":           DBService.NumOfInstances,
-				"status":                     DBService.Status,
-				"context_info":               []interface{}{parseTessellServiceContextInfo(DBService.ContextInfo)},
-				"license_type":               DBService.LicenseType,
-				"auto_minor_version_update":  DBService.AutoMinorVersionUpdate,
-				"enable_deletion_protection": DBService.EnableDeletionProtection,
-				"enable_stop_protection":     DBService.EnableStopProtection,
-				"edition":                    DBService.Edition,
-				"software_image":             DBService.SoftwareImage,
-				"software_image_version":     DBService.SoftwareImageVersion,
-				"tenant_id":                  DBService.TenantId,
-				"subscription":               DBService.Subscription,
-				"owner":                      DBService.Owner,
-				"logged_in_user_role":        DBService.LoggedInUserRole,
-				"date_created":               DBService.DateCreated,
-				"started_at":                 DBService.StartedAt,
-				"stopped_at":                 DBService.StoppedAt,
-				"cloned_from_info":           []interface{}{parseTessellServiceClonedFromInfo(DBService.ClonedFromInfo)},
-				"service_connectivity":       []interface{}{parseTessellServiceConnectivityInfo(DBService.ServiceConnectivity)},
-				"tessell_genie_status":       DBService.TessellGenieStatus,
-				"infrastructure":             []interface{}{parseTessellServiceInfrastructureInfo(DBService.Infrastructure)},
-				"maintenance_window":         []interface{}{parseTessellServiceMaintenanceWindow(DBService.MaintenanceWindow)},
-				"engine_configuration":       []interface{}{parseTessellServiceEngineInfo(DBService.EngineConfiguration)},
-				"integrations_config":        []interface{}{parseTessellServiceIntegrationsInfo(DBService.IntegrationsConfig)},
-				"deletion_config":            []interface{}{parseTessellServiceDeletionConfig(DBService.DeletionConfig)},
-				"tags":                       parseTessellTagList(DBService.Tags),
-				"updates_in_progress":        parseTessellResourceUpdateInfoList(DBService.UpdatesInProgress),
-				"instances":                  parseTessellServiceInstanceDTOList(DBService.Instances),
-				"databases":                  parseTessellDatabaseDTOList(DBService.Databases),
-				"shared_with":                []interface{}{parseEntityAclSharingInfo(DBService.SharedWith)},
-				"deletion_schedule":          []interface{}{parseDeletionScheduleDTO(DBService.DeletionSchedule)},
-				"upcoming_scheduled_actions": []interface{}{parseServiceUpcomingScheduledActions(DBService.UpcomingScheduledActions)},
+				"id":                            DBService.Id,
+				"availability_machine_id":       DBService.AvailabilityMachineId,
+				"name":                          DBService.Name,
+				"description":                   DBService.Description,
+				"engine_type":                   DBService.EngineType,
+				"topology":                      DBService.Topology,
+				"num_of_instances":              DBService.NumOfInstances,
+				"status":                        DBService.Status,
+				"context_info":                  []interface{}{parseTessellServiceContextInfo(DBService.ContextInfo)},
+				"license_type":                  DBService.LicenseType,
+				"auto_minor_version_update":     DBService.AutoMinorVersionUpdate,
+				"enable_deletion_protection":    DBService.EnableDeletionProtection,
+				"enable_stop_protection":        DBService.EnableStopProtection,
+				"edition":                       DBService.Edition,
+				"software_image":                DBService.SoftwareImage,
+				"software_image_version":        DBService.SoftwareImageVersion,
+				"software_image_version_family": DBService.SoftwareImageVersionFamily,
+				"tenant_id":                     DBService.TenantId,
+				"subscription":                  DBService.Subscription,
+				"owner":                         DBService.Owner,
+				"logged_in_user_role":           DBService.LoggedInUserRole,
+				"date_created":                  DBService.DateCreated,
+				"started_at":                    DBService.StartedAt,
+				"stopped_at":                    DBService.StoppedAt,
+				"cloned_from_info":              []interface{}{parseTessellServiceClonedFromInfo(DBService.ClonedFromInfo)},
+				"service_connectivity":          []interface{}{parseTessellServiceConnectivityInfo(DBService.ServiceConnectivity)},
+				"tessell_genie_status":          DBService.TessellGenieStatus,
+				"infrastructure":                []interface{}{parseTessellServiceInfrastructureInfo(DBService.Infrastructure)},
+				"maintenance_window":            []interface{}{parseTessellServiceMaintenanceWindow(DBService.MaintenanceWindow)},
+				"engine_configuration":          []interface{}{parseTessellServiceEngineInfo(DBService.EngineConfiguration)},
+				"integrations_config":           []interface{}{parseTessellServiceIntegrationsInfo(DBService.IntegrationsConfig)},
+				"deletion_config":               []interface{}{parseTessellServiceDeletionConfig(DBService.DeletionConfig)},
+				"tags":                          parseTessellTagList(DBService.Tags),
+				"updates_in_progress":           parseTessellResourceUpdateInfoList(DBService.UpdatesInProgress),
+				"instances":                     parseTessellServiceInstanceDTOList(DBService.Instances),
+				"databases":                     parseTessellDatabaseDTOList(DBService.Databases),
+				"shared_with":                   []interface{}{parseEntityAclSharingInfo(DBService.SharedWith)},
+				"deletion_schedule":             []interface{}{parseDeletionScheduleDTO(DBService.DeletionSchedule)},
+				"upcoming_scheduled_actions":    []interface{}{parseServiceUpcomingScheduledActions(DBService.UpcomingScheduledActions)},
 			}
 		}
 	}

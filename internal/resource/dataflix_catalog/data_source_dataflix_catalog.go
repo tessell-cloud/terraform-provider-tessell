@@ -172,13 +172,10 @@ func DataSourceDataflixCatalog() *schema.Resource {
 													Description: "The cloud region name",
 													Computed:    true,
 												},
-												"availability_zones": {
-													Type:        schema.TypeList,
-													Description: "",
+												"status": {
+													Type:        schema.TypeString,
+													Description: "The cloud region name",
 													Computed:    true,
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
 												},
 											},
 										},
@@ -234,11 +231,6 @@ func DataSourceDataflixCatalog() *schema.Resource {
 						},
 					},
 				},
-			},
-			"allow_backup_download": {
-				Type:        schema.TypeBool,
-				Description: "True if the user is allowed to download backups of the service",
-				Computed:    true,
 			},
 		},
 	}

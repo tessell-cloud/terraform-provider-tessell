@@ -77,13 +77,10 @@ func DataSourceDBSnapshot() *schema.Resource {
 										Description: "The cloud region name",
 										Computed:    true,
 									},
-									"availability_zones": {
-										Type:        schema.TypeList,
-										Description: "",
+									"status": {
+										Type:        schema.TypeString,
+										Description: "The cloud region name",
 										Computed:    true,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
 									},
 								},
 							},

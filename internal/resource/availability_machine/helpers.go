@@ -456,6 +456,11 @@ func parseDAPContentInfo(dapContentInfo *model.DAPContentInfo) interface{} {
 		parsedDapContentInfo["sanitized_content"] = []interface{}{parseSanitizationDAPContent(dapContentInfo.SanitizedContent)}
 	}
 
+	var backupContent *model.BackupDAPContent
+	if dapContentInfo.BackupContent != backupContent {
+		parsedDapContentInfo["backup_content"] = []interface{}{parseBackupDAPContent(dapContentInfo.BackupContent)}
+	}
+
 	return parsedDapContentInfo
 }
 
@@ -466,41 +471,41 @@ func parseAsIsDAPContent(asIsDapContent *model.AsIsDAPContent) interface{} {
 	parsedAsIsDapContent := make(map[string]interface{})
 	parsedAsIsDapContent["automated"] = asIsDapContent.Automated
 
-	var manual *[]model.DAPSnapshotInfo
+	var manual *[]model.DAPManualInfo
 	if asIsDapContent.Manual != manual {
-		parsedAsIsDapContent["manual"] = parseDAPSnapshotInfoList(asIsDapContent.Manual)
+		parsedAsIsDapContent["manual"] = parseDAPManualInfoList(asIsDapContent.Manual)
 	}
 
 	return parsedAsIsDapContent
 }
 
-func parseDAPSnapshotInfoList(dapSnapshotInfo *[]model.DAPSnapshotInfo) []interface{} {
-	if dapSnapshotInfo == nil {
+func parseDAPManualInfoList(dapManualInfo *[]model.DAPManualInfo) []interface{} {
+	if dapManualInfo == nil {
 		return nil
 	}
-	dapSnapshotInfoList := make([]interface{}, 0)
+	dapManualInfoList := make([]interface{}, 0)
 
-	if dapSnapshotInfo != nil {
-		dapSnapshotInfoList = make([]interface{}, len(*dapSnapshotInfo))
-		for i, dapSnapshotInfoItem := range *dapSnapshotInfo {
-			dapSnapshotInfoList[i] = parseDAPSnapshotInfo(&dapSnapshotInfoItem)
+	if dapManualInfo != nil {
+		dapManualInfoList = make([]interface{}, len(*dapManualInfo))
+		for i, dapManualInfoItem := range *dapManualInfo {
+			dapManualInfoList[i] = parseDAPManualInfo(&dapManualInfoItem)
 		}
 	}
 
-	return dapSnapshotInfoList
+	return dapManualInfoList
 }
 
-func parseDAPSnapshotInfo(dapSnapshotInfo *model.DAPSnapshotInfo) interface{} {
-	if dapSnapshotInfo == nil {
+func parseDAPManualInfo(dapManualInfo *model.DAPManualInfo) interface{} {
+	if dapManualInfo == nil {
 		return nil
 	}
-	parsedDapSnapshotInfo := make(map[string]interface{})
-	parsedDapSnapshotInfo["snapshot_id"] = dapSnapshotInfo.SnapshotId
-	parsedDapSnapshotInfo["snapshot_name"] = dapSnapshotInfo.SnapshotName
-	parsedDapSnapshotInfo["snapshot_time"] = dapSnapshotInfo.SnapshotTime
-	parsedDapSnapshotInfo["shared_at"] = dapSnapshotInfo.SharedAt
+	parsedDapManualInfo := make(map[string]interface{})
+	parsedDapManualInfo["id"] = dapManualInfo.Id
+	parsedDapManualInfo["name"] = dapManualInfo.Name
+	parsedDapManualInfo["creation_time"] = dapManualInfo.CreationTime
+	parsedDapManualInfo["shared_at"] = dapManualInfo.SharedAt
 
-	return parsedDapSnapshotInfo
+	return parsedDapManualInfo
 }
 
 func parseSanitizationDAPContent(sanitizationDapContent *model.SanitizationDAPContent) interface{} {
@@ -514,9 +519,9 @@ func parseSanitizationDAPContent(sanitizationDapContent *model.SanitizationDAPCo
 		parsedSanitizationDapContent["automated"] = []interface{}{parseSanitizationDAPContentAutomated(sanitizationDapContent.Automated)}
 	}
 
-	var manual *[]model.DAPSnapshotInfo
+	var manual *[]model.DAPManualInfo
 	if sanitizationDapContent.Manual != manual {
-		parsedSanitizationDapContent["manual"] = parseDAPSnapshotInfoList(sanitizationDapContent.Manual)
+		parsedSanitizationDapContent["manual"] = parseDAPManualInfoList(sanitizationDapContent.Manual)
 	}
 
 	return parsedSanitizationDapContent
@@ -530,6 +535,21 @@ func parseSanitizationDAPContentAutomated(sanitizationDapContent_automated *mode
 	parsedSanitizationDapContent_automated["sanitization_schedule_id"] = sanitizationDapContent_automated.SanitizationScheduleId
 
 	return parsedSanitizationDapContent_automated
+}
+
+func parseBackupDAPContent(backupDapContent *model.BackupDAPContent) interface{} {
+	if backupDapContent == nil {
+		return nil
+	}
+	parsedBackupDapContent := make(map[string]interface{})
+	parsedBackupDapContent["automated"] = backupDapContent.Automated
+
+	var manual *[]model.DAPManualInfo
+	if backupDapContent.Manual != manual {
+		parsedBackupDapContent["manual"] = parseDAPManualInfoList(backupDapContent.Manual)
+	}
+
+	return parsedBackupDapContent
 }
 
 func parseRetentionAndScheduleInfo(retentionAndScheduleInfo *model.RetentionAndScheduleInfo) interface{} {

@@ -109,6 +109,11 @@ func DataSourceDBService() *schema.Resource {
 				Description: "The software image version that is used to create the DB Service",
 				Computed:    true,
 			},
+			"software_image_version_family": {
+				Type:        schema.TypeString,
+				Description: "The software image version family that is used to create the DB Service",
+				Computed:    true,
+			},
 			"tenant_id": {
 				Type:        schema.TypeString,
 				Description: "The tenant identifier under which the DB Service is created",
@@ -282,6 +287,11 @@ func DataSourceDBService() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"status": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
 									"service_principals": {
 										Type:        schema.TypeList,
 										Description: "The list of AWS account principals that are currently enabled",
@@ -293,6 +303,19 @@ func DataSourceDBService() *schema.Resource {
 									"endpoint_service_name": {
 										Type:        schema.TypeString,
 										Description: "The configured endpoint as a result of configuring the service-pricipals",
+										Computed:    true,
+									},
+									"client_azure_subscription_ids": {
+										Type:        schema.TypeList,
+										Description: "The list of Azure subscription Ids",
+										Computed:    true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"private_link_service_alias": {
+										Type:        schema.TypeString,
+										Description: "The Azure private link service alias",
 										Computed:    true,
 									},
 								},
@@ -331,6 +354,14 @@ func DataSourceDBService() *schema.Resource {
 												"service_principals": {
 													Type:        schema.TypeList,
 													Description: "The list of AWS account principals that are currently enabled",
+													Computed:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"client_azure_subscription_ids": {
+													Type:        schema.TypeList,
+													Description: "The list of Azure subscription Ids",
 													Computed:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
@@ -481,9 +512,9 @@ func DataSourceDBService() *schema.Resource {
 										Description: "Specify whether the DB Service is multi-tenant.",
 										Computed:    true,
 									},
-									"parameter_profile": {
+									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile for the database",
+										Description: "The parameter profile id for the database",
 										Computed:    true,
 									},
 									"options_profile": {
@@ -510,9 +541,9 @@ func DataSourceDBService() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"parameter_profile": {
+									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile for the database",
+										Description: "The parameter profile id for the database",
 										Computed:    true,
 									},
 								},
@@ -524,9 +555,9 @@ func DataSourceDBService() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"parameter_profile": {
+									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile for the database",
+										Description: "The parameter profile id for the database",
 										Computed:    true,
 									},
 								},
@@ -538,9 +569,9 @@ func DataSourceDBService() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"parameter_profile": {
+									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile for the database",
+										Description: "The parameter profile id for the database",
 										Computed:    true,
 									},
 									"ad_domain_id": {
@@ -557,9 +588,9 @@ func DataSourceDBService() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"parameter_profile": {
+									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile for the database",
+										Description: "The parameter profile id for the database",
 										Computed:    true,
 									},
 								},
@@ -746,6 +777,45 @@ func DataSourceDBService() *schema.Resource {
 							Description: "The compute used for creation of the Tessell Service Instance",
 							Computed:    true,
 						},
+						"storage": {
+							Type:        schema.TypeInt,
+							Description: "The storage (in bytes) that has been provisioned for the DB Service instance.",
+							Computed:    true,
+						},
+						"data_volume_iops": {
+							Type:        schema.TypeInt,
+							Description: "",
+							Computed:    true,
+						},
+						"parameter_profile": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Description: "",
+										Required:    true,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"version": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"status": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
 						"vpc": {
 							Type:        schema.TypeString,
 							Description: "The VPC used for creation of the DB Service Instance",
@@ -909,9 +979,9 @@ func DataSourceDBService() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Computed:    true,
 												},
 												"options_profile": {
@@ -928,9 +998,9 @@ func DataSourceDBService() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Computed:    true,
 												},
 											},
@@ -942,9 +1012,9 @@ func DataSourceDBService() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Computed:    true,
 												},
 											},
@@ -956,9 +1026,9 @@ func DataSourceDBService() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Computed:    true,
 												},
 											},

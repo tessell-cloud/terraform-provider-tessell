@@ -133,6 +133,11 @@ func ResourceDBService() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
+			"software_image_version_family": {
+				Type:        schema.TypeString,
+				Description: "Software Image Family DB Service belongs to",
+				Computed:    true,
+			},
 			"auto_minor_version_update": {
 				Type:        schema.TypeBool,
 				Description: "Specify whether to automatically update minor version for DB Service",
@@ -386,6 +391,16 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "",
 							Optional:    true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								dnsPrefix := d.Get(k)
+								if old != "" && new == "" && !d.GetRawState().IsNull() {
+									dnsPrefixInState := d.GetRawState().GetAttr("service_connectivity").AsValueSlice()[0].GetAttr("dns_prefix").AsString()
+									if dnsPrefix == dnsPrefixInState {
+										return true
+									}
+								}
+								return false
+							},
 						},
 						"service_port": {
 							Type:        schema.TypeInt,
@@ -457,6 +472,12 @@ func ResourceDBService() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"status": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
 									"service_principals": {
 										Type:        schema.TypeList,
 										Description: "The list of AWS account principals that are currently enabled",
@@ -469,6 +490,21 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The configured endpoint as a result of configuring the service-pricipals",
 										Computed:    true,
+									},
+									"client_azure_subscription_ids": {
+										Type:        schema.TypeList,
+										Description: "The list of Azure subscription Ids",
+										Optional:    true,
+										ForceNew:    true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"private_link_service_alias": {
+										Type:        schema.TypeString,
+										Description: "The Azure private link service alias",
+										Optional:    true,
+										ForceNew:    true,
 									},
 								},
 							},
@@ -512,6 +548,15 @@ func ResourceDBService() *schema.Resource {
 												"service_principals": {
 													Type:        schema.TypeList,
 													Description: "The list of AWS account principals that are currently enabled",
+													Optional:    true,
+													ForceNew:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"client_azure_subscription_ids": {
+													Type:        schema.TypeList,
+													Description: "The list of Azure subscription Ids",
 													Optional:    true,
 													ForceNew:    true,
 													Elem: &schema.Schema{
@@ -652,9 +697,9 @@ func ResourceDBService() *schema.Resource {
 										ForceNew:    true,
 										Default:     false,
 									},
-									"parameter_profile": {
+									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile for the database",
+										Description: "The parameter profile id for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -688,9 +733,9 @@ func ResourceDBService() *schema.Resource {
 							MinItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"parameter_profile": {
+									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile for the database",
+										Description: "The parameter profile id for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -706,9 +751,9 @@ func ResourceDBService() *schema.Resource {
 							MinItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"parameter_profile": {
+									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile for the database",
+										Description: "The parameter profile id for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -724,9 +769,9 @@ func ResourceDBService() *schema.Resource {
 							MinItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"parameter_profile": {
+									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile for the database",
+										Description: "The parameter profile id for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -748,9 +793,9 @@ func ResourceDBService() *schema.Resource {
 							MinItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"parameter_profile": {
+									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile for the database",
+										Description: "The parameter profile id for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -898,9 +943,9 @@ func ResourceDBService() *schema.Resource {
 										MinItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Optional:    true,
 													ForceNew:    true,
 												},
@@ -922,9 +967,9 @@ func ResourceDBService() *schema.Resource {
 										MinItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Optional:    true,
 													ForceNew:    true,
 												},
@@ -940,9 +985,9 @@ func ResourceDBService() *schema.Resource {
 										MinItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Optional:    true,
 													ForceNew:    true,
 												},
@@ -958,9 +1003,9 @@ func ResourceDBService() *schema.Resource {
 										MinItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"parameter_profile": {
+												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile for the database",
+													Description: "The parameter profile id for the database",
 													Optional:    true,
 													ForceNew:    true,
 												},
@@ -1105,6 +1150,54 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The compute used for creation of the Tessell Service Instance",
 							Computed:    true,
+						},
+						"storage": {
+							Type:        schema.TypeInt,
+							Description: "The storage (in bytes) that has been provisioned for the DB Service instance.",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"data_volume_iops": {
+							Type:        schema.TypeInt,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"parameter_profile": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"version": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"status": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+								},
+							},
 						},
 						"vpc": {
 							Type:        schema.TypeString,
