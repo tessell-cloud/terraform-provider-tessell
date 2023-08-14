@@ -150,6 +150,7 @@ Read-Only:
 Read-Only:
 
 - `as_is_content` (List of Object) (see [below for nested schema](#nestedobjatt--daps--content_info--as_is_content))
+- `backup_content` (List of Object) (see [below for nested schema](#nestedobjatt--daps--content_info--backup_content))
 - `sanitized_content` (List of Object) (see [below for nested schema](#nestedobjatt--daps--content_info--sanitized_content))
 
 <a id="nestedobjatt--daps--content_info--as_is_content"></a>
@@ -165,10 +166,30 @@ Read-Only:
 
 Read-Only:
 
+- `creation_time` (String)
+- `id` (String)
+- `name` (String)
 - `shared_at` (String)
-- `snapshot_id` (String)
-- `snapshot_name` (String)
-- `snapshot_time` (String)
+
+
+
+<a id="nestedobjatt--daps--content_info--backup_content"></a>
+### Nested Schema for `daps.content_info.backup_content`
+
+Read-Only:
+
+- `automated` (Boolean)
+- `manual` (List of Object) (see [below for nested schema](#nestedobjatt--daps--content_info--backup_content--manual))
+
+<a id="nestedobjatt--daps--content_info--backup_content--manual"></a>
+### Nested Schema for `daps.content_info.backup_content.manual`
+
+Read-Only:
+
+- `creation_time` (String)
+- `id` (String)
+- `name` (String)
+- `shared_at` (String)
 
 
 
@@ -193,10 +214,10 @@ Read-Only:
 
 Read-Only:
 
+- `creation_time` (String)
+- `id` (String)
+- `name` (String)
 - `shared_at` (String)
-- `snapshot_id` (String)
-- `snapshot_name` (String)
-- `snapshot_time` (String)
 
 
 

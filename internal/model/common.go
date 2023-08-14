@@ -10,6 +10,11 @@ type EntityUserAclSharingInfo struct {
 	Role    *string `json:"role,omitempty"`
 }
 
+type DatabaseSnapshotRegionInfo struct {
+	Region *string `json:"region"`           // The cloud region name
+	Status *string `json:"status,omitempty"` // The cloud region name
+}
+
 type TaskSummary struct {
 	TaskId     *string            `json:"taskId,omitempty"`
 	TaskType   *string            `json:"taskType,omitempty"`
@@ -39,6 +44,11 @@ type APIMetadata struct {
 
 type EntityAclSharingInfo struct {
 	Users *[]EntityUserAclSharingInfo `json:"users,omitempty"`
+}
+
+type DatabaseSnapshotCloudRegionInfo struct {
+	Cloud   *string                       `json:"cloud"`
+	Regions *[]DatabaseSnapshotRegionInfo `json:"regions,omitempty"` // The regions details
 }
 
 type BackupDatabaseInfo struct {

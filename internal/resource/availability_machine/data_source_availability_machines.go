@@ -327,17 +327,17 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 																Computed:    true,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
-																		"snapshot_id": {
+																		"id": {
 																			Type:        schema.TypeString,
 																			Description: "The DB Service snapshot id",
 																			Computed:    true,
 																		},
-																		"snapshot_name": {
+																		"name": {
 																			Type:        schema.TypeString,
 																			Description: "The DB Service snapshot name",
 																			Computed:    true,
 																		},
-																		"snapshot_time": {
+																		"creation_time": {
 																			Type:        schema.TypeString,
 																			Description: "DB Service snapshot capture time",
 																			Computed:    true,
@@ -379,17 +379,60 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 																Computed:    true,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
-																		"snapshot_id": {
+																		"id": {
 																			Type:        schema.TypeString,
 																			Description: "The DB Service snapshot id",
 																			Computed:    true,
 																		},
-																		"snapshot_name": {
+																		"name": {
 																			Type:        schema.TypeString,
 																			Description: "The DB Service snapshot name",
 																			Computed:    true,
 																		},
-																		"snapshot_time": {
+																		"creation_time": {
+																			Type:        schema.TypeString,
+																			Description: "DB Service snapshot capture time",
+																			Computed:    true,
+																		},
+																		"shared_at": {
+																			Type:        schema.TypeString,
+																			Description: "The timestamp when the snapshot was added to DAP for sharing",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"backup_content": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"automated": {
+																Type:        schema.TypeBool,
+																Description: "Share the automated backups. This is exclusive with manual specification.",
+																Computed:    true,
+															},
+															"manual": {
+																Type:        schema.TypeList,
+																Description: "The list of nackups that are to be shared as part of this access policy",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"id": {
+																			Type:        schema.TypeString,
+																			Description: "The DB Service snapshot id",
+																			Computed:    true,
+																		},
+																		"name": {
+																			Type:        schema.TypeString,
+																			Description: "The DB Service snapshot name",
+																			Computed:    true,
+																		},
+																		"creation_time": {
 																			Type:        schema.TypeString,
 																			Description: "DB Service snapshot capture time",
 																			Computed:    true,

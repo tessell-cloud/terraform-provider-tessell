@@ -81,14 +81,11 @@ func ResourceDBSnapshot() *schema.Resource {
 										Required:    true,
 										ForceNew:    true,
 									},
-									"availability_zones": {
-										Type:        schema.TypeList,
-										Description: "",
+									"status": {
+										Type:        schema.TypeString,
+										Description: "The cloud region name",
 										Optional:    true,
 										ForceNew:    true,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
 									},
 								},
 							},

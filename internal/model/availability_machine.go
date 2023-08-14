@@ -53,27 +53,33 @@ type TessellDAPServiceDTO struct {
 type DAPContentInfo struct {
 	AsIsContent      *AsIsDAPContent         `json:"asIsContent,omitempty"`
 	SanitizedContent *SanitizationDAPContent `json:"sanitizedContent,omitempty"`
+	BackupContent    *BackupDAPContent       `json:"backupContent,omitempty"`
 }
 
 type AsIsDAPContent struct {
-	Automated *bool              `json:"automated,omitempty"` // Share the automated as-is snapshots. This is exclusive with manual specification.
-	Manual    *[]DAPSnapshotInfo `json:"manual,omitempty"`    // The list of snapshots that are to be shared as part of this access policy
+	Automated *bool            `json:"automated,omitempty"` // Share the automated as-is snapshots. This is exclusive with manual specification.
+	Manual    *[]DAPManualInfo `json:"manual,omitempty"`    // The list of snapshots that are to be shared as part of this access policy
 }
 
-type DAPSnapshotInfo struct {
-	SnapshotId   *string `json:"snapshotId,omitempty"`   // The DB Service snapshot id
-	SnapshotName *string `json:"snapshotName,omitempty"` // The DB Service snapshot name
-	SnapshotTime *string `json:"snapshotTime,omitempty"` // DB Service snapshot capture time
+type DAPManualInfo struct {
+	Id           *string `json:"id,omitempty"`           // The DB Service snapshot id
+	Name         *string `json:"name,omitempty"`         // The DB Service snapshot name
+	CreationTime *string `json:"creationTime,omitempty"` // DB Service snapshot capture time
 	SharedAt     *string `json:"sharedAt,omitempty"`     // The timestamp when the snapshot was added to DAP for sharing
 }
 
 type SanitizationDAPContent struct {
 	Automated *SanitizationDAPContentAutomated `json:"automated,omitempty"`
-	Manual    *[]DAPSnapshotInfo               `json:"manual,omitempty"` // The list of sanitized snapshots that are to be shared as part of this access policy
+	Manual    *[]DAPManualInfo                 `json:"manual,omitempty"` // The list of sanitized snapshots that are to be shared as part of this access policy
 }
 
 type SanitizationDAPContentAutomated struct {
 	SanitizationScheduleId *string `json:"sanitizationScheduleId"` // Id of the sanitization schedule to process automated backups, required only if contentType = Sanitized.
+}
+
+type BackupDAPContent struct {
+	Automated *bool            `json:"automated,omitempty"` // Share the automated backups. This is exclusive with manual specification.
+	Manual    *[]DAPManualInfo `json:"manual,omitempty"`    // The list of nackups that are to be shared as part of this access policy
 }
 
 type RetentionAndScheduleInfo struct {
@@ -87,7 +93,7 @@ type TessellCloneSummaryInfo struct {
 	ComputeType       *string            `json:"computeType,omitempty"`  // Clone&#39;s compute type
 	Status            *string            `json:"status,omitempty"`       // Status of the clone database
 	CloudAvailability *[]CloudRegionInfo `json:"cloudAvailability,omitempty"`
-	CloneInfo         *interface{}       `json:"cloneInfo,omitempty"`   // Miscellaneous information
+	CloneInfo         *map[string]string `json:"cloneInfo,omitempty"`   // Miscellaneous information
 	Owner             *string            `json:"owner,omitempty"`       // The user who created database clone
 	DateCreated       *string            `json:"dateCreated,omitempty"` // Timestamp when the entity was created
 }

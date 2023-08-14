@@ -28,7 +28,6 @@ data_source "tessell_dataflix_catalog" "example" {
 
 ### Read-Only
 
-- `allow_backup_download` (Boolean) True if the user is allowed to download backups of the service
 - `engine_type` (String) Database Engine Type
 - `id` (String) The ID of this resource.
 - `owner` (String) Owner of the Availability Machine
@@ -104,8 +103,8 @@ Read-Only:
 
 Read-Only:
 
-- `availability_zones` (List of String)
 - `region` (String)
+- `status` (String)
 
 
 

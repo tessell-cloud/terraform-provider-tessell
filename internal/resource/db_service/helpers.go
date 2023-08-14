@@ -76,6 +76,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("software_image_version_family", tessellServiceDTO.SoftwareImageVersionFamily); err != nil {
+		return err
+	}
+
 	if err := d.Set("tenant_id", tessellServiceDTO.TenantId); err != nil {
 		return err
 	}
@@ -339,8 +343,11 @@ func parseServiceConnectivityPrivateLink(serviceConnectivityPrivateLink *model.S
 		return nil
 	}
 	parsedServiceConnectivityPrivateLink := make(map[string]interface{})
+	parsedServiceConnectivityPrivateLink["status"] = serviceConnectivityPrivateLink.Status
 	parsedServiceConnectivityPrivateLink["service_principals"] = serviceConnectivityPrivateLink.ServicePrincipals
 	parsedServiceConnectivityPrivateLink["endpoint_service_name"] = serviceConnectivityPrivateLink.EndpointServiceName
+	parsedServiceConnectivityPrivateLink["client_azure_subscription_ids"] = serviceConnectivityPrivateLink.ClientAzureSubscriptionIds
+	parsedServiceConnectivityPrivateLink["private_link_service_alias"] = serviceConnectivityPrivateLink.PrivateLinkServiceAlias
 
 	return parsedServiceConnectivityPrivateLink
 }
@@ -368,6 +375,7 @@ func parseServiceConnectivityUpdateInProgressInfo(serviceConnectivityUpdateInPro
 	}
 	parsedServiceConnectivityUpdateInProgressInfo := make(map[string]interface{})
 	parsedServiceConnectivityUpdateInProgressInfo["service_principals"] = serviceConnectivityUpdateInProgressInfo.ServicePrincipals
+	parsedServiceConnectivityUpdateInProgressInfo["client_azure_subscription_ids"] = serviceConnectivityUpdateInProgressInfo.ClientAzureSubscriptionIds
 
 	return parsedServiceConnectivityUpdateInProgressInfo
 }
@@ -614,7 +622,7 @@ func parseTessellServiceOracleEngineConfig(tessellServiceOracleEngineConfig *mod
 	}
 	parsedTessellServiceOracleEngineConfig := make(map[string]interface{})
 	parsedTessellServiceOracleEngineConfig["multi_tenant"] = tessellServiceOracleEngineConfig.MultiTenant
-	parsedTessellServiceOracleEngineConfig["parameter_profile"] = tessellServiceOracleEngineConfig.ParameterProfile
+	parsedTessellServiceOracleEngineConfig["parameter_profile_id"] = tessellServiceOracleEngineConfig.ParameterProfileId
 	parsedTessellServiceOracleEngineConfig["options_profile"] = tessellServiceOracleEngineConfig.OptionsProfile
 	parsedTessellServiceOracleEngineConfig["character_set"] = tessellServiceOracleEngineConfig.CharacterSet
 	parsedTessellServiceOracleEngineConfig["national_character_set"] = tessellServiceOracleEngineConfig.NationalCharacterSet
@@ -627,7 +635,7 @@ func parseTessellServicePostgresqlEngineConfig(tessellServicePostgresqlEngineCon
 		return nil
 	}
 	parsedTessellServicePostgresqlEngineConfig := make(map[string]interface{})
-	parsedTessellServicePostgresqlEngineConfig["parameter_profile"] = tessellServicePostgresqlEngineConfig.ParameterProfile
+	parsedTessellServicePostgresqlEngineConfig["parameter_profile_id"] = tessellServicePostgresqlEngineConfig.ParameterProfileId
 
 	return parsedTessellServicePostgresqlEngineConfig
 }
@@ -637,7 +645,7 @@ func parseTessellServiceMysqlEngineConfig(tessellServiceMySqlEngineConfig *model
 		return nil
 	}
 	parsedTessellServiceMySqlEngineConfig := make(map[string]interface{})
-	parsedTessellServiceMySqlEngineConfig["parameter_profile"] = tessellServiceMySqlEngineConfig.ParameterProfile
+	parsedTessellServiceMySqlEngineConfig["parameter_profile_id"] = tessellServiceMySqlEngineConfig.ParameterProfileId
 
 	return parsedTessellServiceMySqlEngineConfig
 }
@@ -647,7 +655,7 @@ func parseTessellServiceSqlServerEngineConfig(tessellServiceSqlServerEngineConfi
 		return nil
 	}
 	parsedTessellServiceSqlServerEngineConfig := make(map[string]interface{})
-	parsedTessellServiceSqlServerEngineConfig["parameter_profile"] = tessellServiceSqlServerEngineConfig.ParameterProfile
+	parsedTessellServiceSqlServerEngineConfig["parameter_profile_id"] = tessellServiceSqlServerEngineConfig.ParameterProfileId
 	parsedTessellServiceSqlServerEngineConfig["ad_domain_id"] = tessellServiceSqlServerEngineConfig.AdDomainId
 
 	return parsedTessellServiceSqlServerEngineConfig
@@ -658,7 +666,7 @@ func parseTessellServiceApacheKafkaEngineConfig(tessellServiceApacheKafkaEngineC
 		return nil
 	}
 	parsedTessellServiceApacheKafkaEngineConfig := make(map[string]interface{})
-	parsedTessellServiceApacheKafkaEngineConfig["parameter_profile"] = tessellServiceApacheKafkaEngineConfig.ParameterProfile
+	parsedTessellServiceApacheKafkaEngineConfig["parameter_profile_id"] = tessellServiceApacheKafkaEngineConfig.ParameterProfileId
 
 	return parsedTessellServiceApacheKafkaEngineConfig
 }
@@ -862,6 +870,9 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	parsedInstances["availability_zone"] = instances.AvailabilityZone
 	parsedInstances["instance_group_id"] = instances.InstanceGroupId
 	parsedInstances["compute_type"] = instances.ComputeType
+	parsedInstances["storage"] = instances.Storage
+	parsedInstances["data_volume_iops"] = instances.DataVolumeIops
+
 	parsedInstances["vpc"] = instances.VPC
 	parsedInstances["encryption_key"] = instances.EncryptionKey
 	parsedInstances["software_image"] = instances.SoftwareImage
@@ -870,6 +881,11 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 
 	parsedInstances["last_started_at"] = instances.LastStartedAt
 	parsedInstances["last_stopped_at"] = instances.LastStoppedAt
+
+	var parameterProfile *model.ParameterProfile
+	if instances.ParameterProfile != parameterProfile {
+		parsedInstances["parameter_profile"] = []interface{}{parseParameterProfile(instances.ParameterProfile)}
+	}
 
 	var connectString *model.TessellServiceInstanceConnectString
 	if instances.ConnectString != connectString {
@@ -882,6 +898,19 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	}
 
 	return parsedInstances
+}
+
+func parseParameterProfile(parameterProfile *model.ParameterProfile) interface{} {
+	if parameterProfile == nil {
+		return nil
+	}
+	parsedParameterProfile := make(map[string]interface{})
+	parsedParameterProfile["id"] = parameterProfile.Id
+	parsedParameterProfile["name"] = parameterProfile.Name
+	parsedParameterProfile["version"] = parameterProfile.Version
+	parsedParameterProfile["status"] = parameterProfile.Status
+
+	return parsedParameterProfile
 }
 
 func parseTessellServiceInstanceConnectString(tessellServiceInstanceConnectString *model.TessellServiceInstanceConnectString) interface{} {
@@ -999,7 +1028,7 @@ func parseOracleDatabaseConfig(oracleDatabaseConfig *model.OracleDatabaseConfig)
 		return nil
 	}
 	parsedOracleDatabaseConfig := make(map[string]interface{})
-	parsedOracleDatabaseConfig["parameter_profile"] = oracleDatabaseConfig.ParameterProfile
+	parsedOracleDatabaseConfig["parameter_profile_id"] = oracleDatabaseConfig.ParameterProfileId
 	parsedOracleDatabaseConfig["options_profile"] = oracleDatabaseConfig.OptionsProfile
 
 	return parsedOracleDatabaseConfig
@@ -1010,7 +1039,7 @@ func parsePostgresqlDatabaseConfig(postgresqlDatabaseConfig *model.PostgresqlDat
 		return nil
 	}
 	parsedPostgresqlDatabaseConfig := make(map[string]interface{})
-	parsedPostgresqlDatabaseConfig["parameter_profile"] = postgresqlDatabaseConfig.ParameterProfile
+	parsedPostgresqlDatabaseConfig["parameter_profile_id"] = postgresqlDatabaseConfig.ParameterProfileId
 
 	return parsedPostgresqlDatabaseConfig
 }
@@ -1020,7 +1049,7 @@ func parseMysqlDatabaseConfig(mySqlDatabaseConfig *model.MysqlDatabaseConfig) in
 		return nil
 	}
 	parsedMySqlDatabaseConfig := make(map[string]interface{})
-	parsedMySqlDatabaseConfig["parameter_profile"] = mySqlDatabaseConfig.ParameterProfile
+	parsedMySqlDatabaseConfig["parameter_profile_id"] = mySqlDatabaseConfig.ParameterProfileId
 
 	return parsedMySqlDatabaseConfig
 }
@@ -1030,7 +1059,7 @@ func parseSqlServerDatabaseConfig(sqlServerDatabaseConfig *model.SqlServerDataba
 		return nil
 	}
 	parsedSqlServerDatabaseConfig := make(map[string]interface{})
-	parsedSqlServerDatabaseConfig["parameter_profile"] = sqlServerDatabaseConfig.ParameterProfile
+	parsedSqlServerDatabaseConfig["parameter_profile_id"] = sqlServerDatabaseConfig.ParameterProfileId
 
 	return parsedSqlServerDatabaseConfig
 }
@@ -1251,8 +1280,9 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 
 func formPayloadForDeleteTessellService(d *schema.ResourceData) model.DeleteTessellServicePayload {
 	deleteTessellServicePayloadFormed := model.DeleteTessellServicePayload{
-		DeletionConfig: formTessellServiceDeletionConfig(d.Get("deletion_config")),
-		Comment:        helper.GetStringPointer(d.Get("comment")),
+		DeletionConfig:  formTessellServiceDeletionConfig(d.Get("deletion_config")),
+		Comment:         helper.GetStringPointer(d.Get("comment")),
+		PublishEventLog: helper.GetBoolPointer(d.Get("publish_event_log")),
 	}
 
 	return deleteTessellServicePayloadFormed
@@ -1462,7 +1492,7 @@ func formOracleEngineConfigPayload(oracleEngineConfigPayloadRaw interface{}) *mo
 
 	oracleEngineConfigPayloadFormed := model.OracleEngineConfigPayload{
 		MultiTenant:          helper.GetBoolPointer(oracleEngineConfigPayloadData["multi_tenant"]),
-		ParameterProfile:     helper.GetStringPointer(oracleEngineConfigPayloadData["parameter_profile"]),
+		ParameterProfileId:   helper.GetStringPointer(oracleEngineConfigPayloadData["parameter_profile_id"]),
 		OptionsProfile:       helper.GetStringPointer(oracleEngineConfigPayloadData["options_profile"]),
 		CharacterSet:         helper.GetStringPointer(oracleEngineConfigPayloadData["character_set"]),
 		NationalCharacterSet: helper.GetStringPointer(oracleEngineConfigPayloadData["national_character_set"]),
@@ -1479,7 +1509,7 @@ func formPostgresqlEngineConfigPayload(postgresqlEngineConfigPayloadRaw interfac
 	postgresqlEngineConfigPayloadData := postgresqlEngineConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	postgresqlEngineConfigPayloadFormed := model.PostgresqlEngineConfigPayload{
-		ParameterProfile: helper.GetStringPointer(postgresqlEngineConfigPayloadData["parameter_profile"]),
+		ParameterProfileId: helper.GetStringPointer(postgresqlEngineConfigPayloadData["parameter_profile_id"]),
 	}
 
 	return &postgresqlEngineConfigPayloadFormed
@@ -1493,7 +1523,7 @@ func formMysqlEngineConfigPayload(mysqlEngineConfigPayloadRaw interface{}) *mode
 	mysqlEngineConfigPayloadData := mysqlEngineConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	mysqlEngineConfigPayloadFormed := model.MysqlEngineConfigPayload{
-		ParameterProfile: helper.GetStringPointer(mysqlEngineConfigPayloadData["parameter_profile"]),
+		ParameterProfileId: helper.GetStringPointer(mysqlEngineConfigPayloadData["parameter_profile_id"]),
 	}
 
 	return &mysqlEngineConfigPayloadFormed
@@ -1507,8 +1537,8 @@ func formSqlServerEngineConfigPayload(sqlServerEngineConfigPayloadRaw interface{
 	sqlServerEngineConfigPayloadData := sqlServerEngineConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	sqlServerEngineConfigPayloadFormed := model.SqlServerEngineConfigPayload{
-		ParameterProfile: helper.GetStringPointer(sqlServerEngineConfigPayloadData["parameter_profile"]),
-		AdDomainId:       helper.GetStringPointer(sqlServerEngineConfigPayloadData["ad_domain_id"]),
+		ParameterProfileId: helper.GetStringPointer(sqlServerEngineConfigPayloadData["parameter_profile_id"]),
+		AdDomainId:         helper.GetStringPointer(sqlServerEngineConfigPayloadData["ad_domain_id"]),
 	}
 
 	return &sqlServerEngineConfigPayloadFormed
@@ -1522,7 +1552,7 @@ func formApacheKafkaEngineConfigPayload(apacheKafkaEngineConfigPayloadRaw interf
 	apacheKafkaEngineConfigPayloadData := apacheKafkaEngineConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	apacheKafkaEngineConfigPayloadFormed := model.ApacheKafkaEngineConfigPayload{
-		ParameterProfile: helper.GetStringPointer(apacheKafkaEngineConfigPayloadData["parameter_profile"]),
+		ParameterProfileId: helper.GetStringPointer(apacheKafkaEngineConfigPayloadData["parameter_profile_id"]),
 	}
 
 	return &apacheKafkaEngineConfigPayloadFormed
@@ -1581,8 +1611,8 @@ func formOracleDatabaseConfig(oracleDatabaseConfigRaw interface{}) *model.Oracle
 	oracleDatabaseConfigData := oracleDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
 	oracleDatabaseConfigFormed := model.OracleDatabaseConfig{
-		ParameterProfile: helper.GetStringPointer(oracleDatabaseConfigData["parameter_profile"]),
-		OptionsProfile:   helper.GetStringPointer(oracleDatabaseConfigData["options_profile"]),
+		ParameterProfileId: helper.GetStringPointer(oracleDatabaseConfigData["parameter_profile_id"]),
+		OptionsProfile:     helper.GetStringPointer(oracleDatabaseConfigData["options_profile"]),
 	}
 
 	return &oracleDatabaseConfigFormed
@@ -1596,7 +1626,7 @@ func formPostgresqlDatabaseConfig(postgresqlDatabaseConfigRaw interface{}) *mode
 	postgresqlDatabaseConfigData := postgresqlDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
 	postgresqlDatabaseConfigFormed := model.PostgresqlDatabaseConfig{
-		ParameterProfile: helper.GetStringPointer(postgresqlDatabaseConfigData["parameter_profile"]),
+		ParameterProfileId: helper.GetStringPointer(postgresqlDatabaseConfigData["parameter_profile_id"]),
 	}
 
 	return &postgresqlDatabaseConfigFormed
@@ -1610,7 +1640,7 @@ func formMysqlDatabaseConfig(mysqlDatabaseConfigRaw interface{}) *model.MysqlDat
 	mysqlDatabaseConfigData := mysqlDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
 	mysqlDatabaseConfigFormed := model.MysqlDatabaseConfig{
-		ParameterProfile: helper.GetStringPointer(mysqlDatabaseConfigData["parameter_profile"]),
+		ParameterProfileId: helper.GetStringPointer(mysqlDatabaseConfigData["parameter_profile_id"]),
 	}
 
 	return &mysqlDatabaseConfigFormed
@@ -1624,7 +1654,7 @@ func formSqlServerDatabaseConfig(sqlServerDatabaseConfigRaw interface{}) *model.
 	sqlServerDatabaseConfigData := sqlServerDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
 	sqlServerDatabaseConfigFormed := model.SqlServerDatabaseConfig{
-		ParameterProfile: helper.GetStringPointer(sqlServerDatabaseConfigData["parameter_profile"]),
+		ParameterProfileId: helper.GetStringPointer(sqlServerDatabaseConfigData["parameter_profile_id"]),
 	}
 
 	return &sqlServerDatabaseConfigFormed
