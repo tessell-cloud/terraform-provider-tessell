@@ -14,6 +14,20 @@ type Client struct {
 	TenantId           string
 }
 
+func (c *Client) renewTokenInBackground(apiKey *string) {
+	time.Sleep(15 * time.Minute)
+	for start := time.Now(); time.Since(start) < 10*time.Minute; {
+		ar, err := c.SignIn(*apiKey)
+		if err == nil {
+			c.AuthorizationToken = ar.AccessToken
+			go c.renewTokenInBackground(apiKey)
+			break
+		} else {
+			time.Sleep(15 * time.Second)
+		}
+	}
+}
+
 func NewClient(apiAddress *string, apiKey *string, tenantId *string) (*Client, error) {
 	c := Client{
 		HTTPClient: &http.Client{Timeout: 30 * time.Second},
@@ -26,6 +40,7 @@ func NewClient(apiAddress *string, apiKey *string, tenantId *string) (*Client, e
 		return nil, err
 	}
 	c.AuthorizationToken = ar.AccessToken
+	go c.renewTokenInBackground(apiKey)
 
 	return &c, nil
 }
