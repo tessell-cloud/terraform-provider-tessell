@@ -77,6 +77,30 @@ func (c *Client) GetDatabaseSnapshot(availabilityMachineId string, id string) (*
 	return &databaseSnapshot, statusCode, nil
 }
 
+func (c *Client) GetDatabaseSnapshots(availabilityMachineId string, name string, manual bool) (*model.GetDatabaseSnapshotsResponse, int, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/availability-machines/%s/snapshots", c.APIAddress, availabilityMachineId), nil)
+	if err != nil {
+		return nil, 0, err
+	}
+	q := req.URL.Query()
+	q.Add("name", fmt.Sprintf("%v", name))
+	q.Add("manual", fmt.Sprintf("%v", manual))
+	req.URL.RawQuery = q.Encode()
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	getDatabaseSnapshotsResponse := model.GetDatabaseSnapshotsResponse{}
+	err = json.Unmarshal(body, &getDatabaseSnapshotsResponse)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &getDatabaseSnapshotsResponse, statusCode, nil
+}
+
 func (c *Client) DBSnapshotPollForStatus(availabilityMachineId string, id string, value string, timeout int, interval int) error {
 
 	loopCount := 0

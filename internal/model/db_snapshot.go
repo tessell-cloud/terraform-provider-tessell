@@ -1,21 +1,5 @@
 package model
 
-type SnapshotAvailabilityConfig struct {
-	AvailabilityConfiguredManually *bool                            `json:"availabilityConfiguredManually,omitempty"`
-	DAPId                          *string                          `json:"dapId,omitempty"`
-	CloudAvailabilityConfig        *[]SnapshotCloudAvailabilityInfo `json:"cloudAvailabilityConfig,omitempty"`
-}
-
-type SnapshotCloudAvailabilityInfo struct {
-	Cloud   *string                       `json:"cloud"`
-	Regions *[]SnapshotRegionAvailability `json:"regions,omitempty"` // The list of regions and respective avaoilability status
-}
-
-type SnapshotRegionAvailability struct {
-	Region *string `json:"region"`
-	Status *string `json:"status"` // Database Backup Status
-}
-
 type DatabaseSnapshot struct {
 	Id                 *string                            `json:"id,omitempty"`           // DB Service snapshot Id
 	Name               *string                            `json:"name,omitempty"`         // DB Service snapshot name
@@ -39,4 +23,15 @@ type CreateDatabaseSnapshotTaskPayload struct {
 type APIStatus struct {
 	Status  *string `json:"status,omitempty"`
 	Message *string `json:"message,omitempty"`
+}
+
+type GetDatabaseSnapshotsResponse struct {
+	AvailabilityMachineId *string                    `json:"availabilityMachineId,omitempty"`
+	TessellServiceId      *string                    `json:"tessellServiceId,omitempty"`
+	ServiceName           *string                    `json:"serviceName,omitempty"`
+	EngineType            *string                    `json:"engineType,omitempty"`  // Database Engine Type
+	TimeZone              *string                    `json:"timeZone,omitempty"`    // Output timezone
+	Owner                 *string                    `json:"owner,omitempty"`       // Owner of the Availability Machine
+	PITRCatalog           *[]TessellDataflixPITRInfo `json:"pitrCatalog,omitempty"` // PITR availability catalog
+	Snapshots             *[]DatabaseSnapshot        `json:"snapshots,omitempty"`
 }

@@ -15,11 +15,43 @@ type DatabaseSnapshotRegionInfo struct {
 	Status *string `json:"status,omitempty"` // The cloud region name
 }
 
+type SnapshotCloudAvailabilityInfo struct {
+	Cloud   *string                       `json:"cloud"`
+	Regions *[]SnapshotRegionAvailability `json:"regions,omitempty"` // The list of regions and respective avaoilability status
+}
+
 type TaskSummary struct {
 	TaskId     *string            `json:"taskId,omitempty"`
 	TaskType   *string            `json:"taskType,omitempty"`
 	ResourceId *string            `json:"resourceId,omitempty"`
 	Details    *map[string]string `json:"details,omitempty"`
+}
+
+type TessellDataflixPITRInfo struct {
+	Cloud   *string                             `json:"cloud,omitempty"`
+	Regions *[]TessellDataflixPITRInfoForRegion `json:"regions,omitempty"`
+}
+
+type TessellDataflixPITRInfoForRegion struct {
+	Region     *string                        `json:"region,omitempty"` // Region name
+	TimeRanges *[]TessellDataflixFromTimeInfo `json:"timeRanges,omitempty"`
+}
+
+type TessellDataflixFromTimeInfo struct {
+	FromTime   *string                      `json:"fromTime,omitempty"` // PITR recovery from-time
+	ToTime     *string                      `json:"toTime,omitempty"`   // PITR recovery to-time
+	SharedWith *EntityAclSharingSummaryInfo `json:"sharedWith,omitempty"`
+}
+
+type SnapshotRegionAvailability struct {
+	Region *string `json:"region"`
+	Status *string `json:"status"` // Database Backup Status
+}
+
+type SnapshotAvailabilityConfig struct {
+	AvailabilityConfiguredManually *bool                            `json:"availabilityConfiguredManually,omitempty"`
+	DAPId                          *string                          `json:"dapId,omitempty"`
+	CloudAvailabilityConfig        *[]SnapshotCloudAvailabilityInfo `json:"cloudAvailabilityConfig,omitempty"`
 }
 
 type RegionInfo struct {

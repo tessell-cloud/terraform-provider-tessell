@@ -399,12 +399,18 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 	parsedInfrastructure["enable_encryption"] = infrastructure.EnableEncryption
 	parsedInfrastructure["encryption_key"] = infrastructure.EncryptionKey
 	parsedInfrastructure["compute_type"] = infrastructure.ComputeType
+
 	parsedInfrastructure["storage"] = infrastructure.Storage
 	parsedInfrastructure["additional_storage"] = infrastructure.AdditionalStorage
 
 	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
 		parsedInfrastructure["cloud_availability"] = parseCloudRegionInfoList(infrastructure.CloudAvailability)
+	}
+
+	var awsInfraConfig *model.AwsInfraConfig
+	if infrastructure.AwsInfraConfig != awsInfraConfig {
+		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
 	}
 
 	return []interface{}{parsedInfrastructure}
@@ -423,12 +429,18 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	parsedInfrastructure["enable_encryption"] = infrastructure.EnableEncryption
 	parsedInfrastructure["encryption_key"] = infrastructure.EncryptionKey
 	parsedInfrastructure["compute_type"] = infrastructure.ComputeType
+
 	parsedInfrastructure["storage"] = infrastructure.Storage
 	parsedInfrastructure["additional_storage"] = infrastructure.AdditionalStorage
 
 	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
 		parsedInfrastructure["cloud_availability"] = parseCloudRegionInfoList(infrastructure.CloudAvailability)
+	}
+
+	var awsInfraConfig *model.AwsInfraConfig
+	if infrastructure.AwsInfraConfig != awsInfraConfig {
+		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
 	}
 
 	return parsedInfrastructure
@@ -490,6 +502,30 @@ func parseRegionInfo(regionInfo *model.RegionInfo) interface{} {
 	parsedRegionInfo["availability_zones"] = regionInfo.AvailabilityZones
 
 	return parsedRegionInfo
+}
+
+func parseAwsInfraConfig(awsInfraConfig *model.AwsInfraConfig) interface{} {
+	if awsInfraConfig == nil {
+		return nil
+	}
+	parsedAwsInfraConfig := make(map[string]interface{})
+
+	var awsCpuOptions *model.AwsCpuOptions
+	if awsInfraConfig.AwsCpuOptions != awsCpuOptions {
+		parsedAwsInfraConfig["aws_cpu_options"] = []interface{}{parseAwsCpuOptions(awsInfraConfig.AwsCpuOptions)}
+	}
+
+	return parsedAwsInfraConfig
+}
+
+func parseAwsCpuOptions(awsCpuOptions *model.AwsCpuOptions) interface{} {
+	if awsCpuOptions == nil {
+		return nil
+	}
+	parsedAwsCpuOptions := make(map[string]interface{})
+	parsedAwsCpuOptions["vcpus"] = awsCpuOptions.Vcpus
+
+	return parsedAwsCpuOptions
 }
 
 func parseTessellServiceMaintenanceWindowWithResData(maintenanceWindow *model.TessellServiceMaintenanceWindow, d *schema.ResourceData) []interface{} {
@@ -559,6 +595,11 @@ func parseTessellServiceEngineInfoWithResData(engineConfiguration *model.Tessell
 		parsedEngineConfiguration["apache_kafka_config"] = []interface{}{parseTessellServiceApacheKafkaEngineConfig(engineConfiguration.ApacheKafkaConfig)}
 	}
 
+	var mongoDBConfig *model.TessellServiceMongoDBEngineConfig
+	if engineConfiguration.MongoDBConfig != mongoDBConfig {
+		parsedEngineConfiguration["mongodb_config"] = []interface{}{parseTessellServiceMongoDBEngineConfig(engineConfiguration.MongoDBConfig)}
+	}
+
 	var preScriptInfo *model.ScriptInfo
 	if engineConfiguration.PreScriptInfo != preScriptInfo {
 		parsedEngineConfiguration["pre_script_info"] = []interface{}{parseScriptInfo(engineConfiguration.PreScriptInfo)}
@@ -601,6 +642,11 @@ func parseTessellServiceEngineInfo(engineConfiguration *model.TessellServiceEngi
 	var apacheKafkaConfig *model.TessellServiceApacheKafkaEngineConfig
 	if engineConfiguration.ApacheKafkaConfig != apacheKafkaConfig {
 		parsedEngineConfiguration["apache_kafka_config"] = []interface{}{parseTessellServiceApacheKafkaEngineConfig(engineConfiguration.ApacheKafkaConfig)}
+	}
+
+	var mongoDBConfig *model.TessellServiceMongoDBEngineConfig
+	if engineConfiguration.MongoDBConfig != mongoDBConfig {
+		parsedEngineConfiguration["mongodb_config"] = []interface{}{parseTessellServiceMongoDBEngineConfig(engineConfiguration.MongoDBConfig)}
 	}
 
 	var preScriptInfo *model.ScriptInfo
@@ -669,6 +715,17 @@ func parseTessellServiceApacheKafkaEngineConfig(tessellServiceApacheKafkaEngineC
 	parsedTessellServiceApacheKafkaEngineConfig["parameter_profile_id"] = tessellServiceApacheKafkaEngineConfig.ParameterProfileId
 
 	return parsedTessellServiceApacheKafkaEngineConfig
+}
+
+func parseTessellServiceMongoDBEngineConfig(tessellServiceMongodbEngineConfig *model.TessellServiceMongoDBEngineConfig) interface{} {
+	if tessellServiceMongodbEngineConfig == nil {
+		return nil
+	}
+	parsedTessellServiceMongodbEngineConfig := make(map[string]interface{})
+	parsedTessellServiceMongodbEngineConfig["cluster_name"] = tessellServiceMongodbEngineConfig.ClusterName
+	parsedTessellServiceMongodbEngineConfig["parameter_profile_id"] = tessellServiceMongodbEngineConfig.ParameterProfileId
+
+	return parsedTessellServiceMongodbEngineConfig
 }
 
 func parseScriptInfo(scriptInfo *model.ScriptInfo) interface{} {
@@ -870,6 +927,7 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	parsedInstances["availability_zone"] = instances.AvailabilityZone
 	parsedInstances["instance_group_id"] = instances.InstanceGroupId
 	parsedInstances["compute_type"] = instances.ComputeType
+
 	parsedInstances["storage"] = instances.Storage
 	parsedInstances["data_volume_iops"] = instances.DataVolumeIops
 
@@ -881,6 +939,11 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 
 	parsedInstances["last_started_at"] = instances.LastStartedAt
 	parsedInstances["last_stopped_at"] = instances.LastStoppedAt
+
+	var awsInfraConfig *model.AwsInfraConfig
+	if instances.AwsInfraConfig != awsInfraConfig {
+		parsedInstances["aws_infra_config"] = []interface{}{parseAwsInfraConfig(instances.AwsInfraConfig)}
+	}
 
 	var parameterProfile *model.ParameterProfile
 	if instances.ParameterProfile != parameterProfile {
@@ -1020,6 +1083,11 @@ func parseDatabaseConfiguration(databaseConfiguration *model.DatabaseConfigurati
 		parsedDatabaseConfiguration["sql_server_config"] = []interface{}{parseSqlServerDatabaseConfig(databaseConfiguration.SqlServerConfig)}
 	}
 
+	var mongoDBConfig *model.MongoDBDatabaseConfig
+	if databaseConfiguration.MongoDBConfig != mongoDBConfig {
+		parsedDatabaseConfiguration["mongodb_config"] = []interface{}{parseMongoDBDatabaseConfig(databaseConfiguration.MongoDBConfig)}
+	}
+
 	return parsedDatabaseConfiguration
 }
 
@@ -1062,6 +1130,16 @@ func parseSqlServerDatabaseConfig(sqlServerDatabaseConfig *model.SqlServerDataba
 	parsedSqlServerDatabaseConfig["parameter_profile_id"] = sqlServerDatabaseConfig.ParameterProfileId
 
 	return parsedSqlServerDatabaseConfig
+}
+
+func parseMongoDBDatabaseConfig(mongodbDatabaseConfig *model.MongoDBDatabaseConfig) interface{} {
+	if mongodbDatabaseConfig == nil {
+		return nil
+	}
+	parsedMongodbDatabaseConfig := make(map[string]interface{})
+	parsedMongodbDatabaseConfig["parameter_profile_id"] = mongodbDatabaseConfig.ParameterProfileId
+
+	return parsedMongodbDatabaseConfig
 }
 
 func parseEntityAclSharingInfoWithResData(sharedWith *model.EntityAclSharingInfo, d *schema.ResourceData) []interface{} {
@@ -1348,10 +1426,39 @@ func formTessellServiceInfrastructurePayload(tessellServiceInfrastructurePayload
 		EnableEncryption:  helper.GetBoolPointer(tessellServiceInfrastructurePayloadData["enable_encryption"]),
 		EncryptionKey:     helper.GetStringPointer(tessellServiceInfrastructurePayloadData["encryption_key"]),
 		ComputeType:       helper.GetStringPointer(tessellServiceInfrastructurePayloadData["compute_type"]),
+		AwsInfraConfig:    formAwsInfraConfig(tessellServiceInfrastructurePayloadData["aws_infra_config"]),
 		AdditionalStorage: helper.GetIntPointer(tessellServiceInfrastructurePayloadData["additional_storage"]),
 	}
 
 	return &tessellServiceInfrastructurePayloadFormed
+}
+
+func formAwsInfraConfig(awsInfraConfigRaw interface{}) *model.AwsInfraConfig {
+	if awsInfraConfigRaw == nil || len(awsInfraConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	awsInfraConfigData := awsInfraConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	awsInfraConfigFormed := model.AwsInfraConfig{
+		AwsCpuOptions: formAwsCpuOptions(awsInfraConfigData["aws_cpu_options"]),
+	}
+
+	return &awsInfraConfigFormed
+}
+
+func formAwsCpuOptions(awsCpuOptionsRaw interface{}) *model.AwsCpuOptions {
+	if awsCpuOptionsRaw == nil || len(awsCpuOptionsRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	awsCpuOptionsData := awsCpuOptionsRaw.([]interface{})[0].(map[string]interface{})
+
+	awsCpuOptionsFormed := model.AwsCpuOptions{
+		Vcpus: helper.GetIntPointer(awsCpuOptionsData["vcpus"]),
+	}
+
+	return &awsCpuOptionsFormed
 }
 
 func formTessellServiceConnectivityInfoPayload(tessellServiceConnectivityInfoPayloadRaw interface{}) *model.TessellServiceConnectivityInfoPayload {
@@ -1463,6 +1570,7 @@ func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurat
 		MysqlConfig:       formMysqlEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mysql_config"]),
 		SqlServerConfig:   formSqlServerEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["sql_server_config"]),
 		ApacheKafkaConfig: formApacheKafkaEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["apache_kafka_config"]),
+		MongoDBConfig:     formMongoDBEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mongodb_config"]),
 	}
 
 	return &tessellServiceEngineConfigurationPayloadFormed
@@ -1558,6 +1666,21 @@ func formApacheKafkaEngineConfigPayload(apacheKafkaEngineConfigPayloadRaw interf
 	return &apacheKafkaEngineConfigPayloadFormed
 }
 
+func formMongoDBEngineConfigPayload(mongoDBEngineConfigPayloadRaw interface{}) *model.MongoDBEngineConfigPayload {
+	if mongoDBEngineConfigPayloadRaw == nil || len(mongoDBEngineConfigPayloadRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	mongoDBEngineConfigPayloadData := mongoDBEngineConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
+
+	mongoDBEngineConfigPayloadFormed := model.MongoDBEngineConfigPayload{
+		ClusterName:        helper.GetStringPointer(mongoDBEngineConfigPayloadData["cluster_name"]),
+		ParameterProfileId: helper.GetStringPointer(mongoDBEngineConfigPayloadData["parameter_profile_id"]),
+	}
+
+	return &mongoDBEngineConfigPayloadFormed
+}
+
 func formCreateDatabasePayload(createDatabasePayloadRaw interface{}) *model.CreateDatabasePayload {
 	if createDatabasePayloadRaw == nil {
 		return nil
@@ -1598,6 +1721,7 @@ func formCreateDatabasePayloadDatabaseConfiguration(createDatabasePayloadDatabas
 		PostgresqlConfig: formPostgresqlDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["postgresql_config"]),
 		MysqlConfig:      formMysqlDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["mysql_config"]),
 		SqlServerConfig:  formSqlServerDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["sql_server_config"]),
+		MongoDBConfig:    formMongoDBDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["mongodb_config"]),
 	}
 
 	return &createDatabasePayloadDatabaseConfigurationFormed
@@ -1658,6 +1782,20 @@ func formSqlServerDatabaseConfig(sqlServerDatabaseConfigRaw interface{}) *model.
 	}
 
 	return &sqlServerDatabaseConfigFormed
+}
+
+func formMongoDBDatabaseConfig(mongoDBDatabaseConfigRaw interface{}) *model.MongoDBDatabaseConfig {
+	if mongoDBDatabaseConfigRaw == nil || len(mongoDBDatabaseConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	mongoDBDatabaseConfigData := mongoDBDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	mongoDBDatabaseConfigFormed := model.MongoDBDatabaseConfig{
+		ParameterProfileId: helper.GetStringPointer(mongoDBDatabaseConfigData["parameter_profile_id"]),
+	}
+
+	return &mongoDBDatabaseConfigFormed
 }
 
 func formTessellServiceIntegrationsPayload(tessellServiceIntegrationsPayloadRaw interface{}) *model.TessellServiceIntegrationsPayload {

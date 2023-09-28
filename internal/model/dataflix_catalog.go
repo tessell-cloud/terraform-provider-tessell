@@ -1,21 +1,5 @@
 package model
 
-type TessellDataflixPITRInfo struct {
-	Cloud   *string                             `json:"cloud,omitempty"`
-	Regions *[]TessellDataflixPITRInfoForRegion `json:"regions,omitempty"`
-}
-
-type TessellDataflixPITRInfoForRegion struct {
-	Region     *string                        `json:"region,omitempty"` // Region name
-	TimeRanges *[]TessellDataflixFromTimeInfo `json:"timeRanges,omitempty"`
-}
-
-type TessellDataflixFromTimeInfo struct {
-	FromTime   *string                      `json:"fromTime,omitempty"` // PITR recovery from-time
-	ToTime     *string                      `json:"toTime,omitempty"`   // PITR recovery to-time
-	SharedWith *EntityAclSharingSummaryInfo `json:"sharedWith,omitempty"`
-}
-
 type DataflixSnapshot struct {
 	Id                *string                            `json:"id,omitempty"`           // DB Service snapshot Id
 	Name              *string                            `json:"name,omitempty"`         // DB Service snapshot name
