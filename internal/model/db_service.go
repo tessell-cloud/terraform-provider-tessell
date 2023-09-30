@@ -24,10 +24,19 @@ type TessellServiceInfrastructureInfo struct {
 	CloudAvailability *[]CloudRegionInfo `json:"cloudAvailability,omitempty"`
 	VPC               *string            `json:"vpc,omitempty"` // The VPC to be used for provisioning the DB Service
 	EnableEncryption  *bool              `json:"enableEncryption,omitempty"`
-	EncryptionKey     *string            `json:"encryptionKey,omitempty"`     // The encryption key name which is used to encrypt the data at rest
-	ComputeType       *string            `json:"computeType,omitempty"`       // The compute-type to be used for provisioning the DB Service
+	EncryptionKey     *string            `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
+	ComputeType       *string            `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
+	AwsInfraConfig    *AwsInfraConfig    `json:"awsInfraConfig,omitempty"`
 	Storage           *int               `json:"storage,omitempty"`           // The storage (in bytes) that has been provisioned for the DB Service
 	AdditionalStorage *int               `json:"additionalStorage,omitempty"` // Size in GB. This is maintained for backward compatibility and would be deprecated soon.
+}
+
+type AwsInfraConfig struct {
+	AwsCpuOptions *AwsCpuOptions `json:"awsCpuOptions,omitempty"`
+}
+
+type AwsCpuOptions struct {
+	Vcpus *int `json:"vcpus,omitempty"` // Number of vcpus for aws cpu options
 }
 
 type TessellServiceConnectivityInfo struct {
@@ -99,6 +108,7 @@ type TessellServiceEngineInfo struct {
 	MysqlConfig       *TessellServiceMysqlEngineConfig       `json:"mysqlConfig,omitempty"`
 	SqlServerConfig   *TessellServiceSqlServerEngineConfig   `json:"sqlServerConfig,omitempty"`
 	ApacheKafkaConfig *TessellServiceApacheKafkaEngineConfig `json:"apacheKafkaConfig,omitempty"`
+	MongoDBConfig     *TessellServiceMongoDBEngineConfig     `json:"mongodbConfig,omitempty"`
 	PreScriptInfo     *ScriptInfo                            `json:"preScriptInfo,omitempty"`
 	PostScriptInfo    *ScriptInfo                            `json:"postScriptInfo,omitempty"`
 }
@@ -125,6 +135,11 @@ type TessellServiceSqlServerEngineConfig struct {
 }
 
 type TessellServiceApacheKafkaEngineConfig struct {
+	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
+}
+
+type TessellServiceMongoDBEngineConfig struct {
+	ClusterName        *string `json:"clusterName,omitempty"`        // The MongoDB Cluster name
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
 }
 
@@ -155,6 +170,7 @@ type DatabaseConfiguration struct {
 	PostgresqlConfig *PostgresqlDatabaseConfig `json:"postgresqlConfig,omitempty"`
 	MysqlConfig      *MysqlDatabaseConfig      `json:"mySqlConfig,omitempty"`
 	SqlServerConfig  *SqlServerDatabaseConfig  `json:"sqlServerConfig,omitempty"`
+	MongoDBConfig    *MongoDBDatabaseConfig    `json:"mongodbConfig,omitempty"`
 }
 
 type OracleDatabaseConfig struct {
@@ -171,6 +187,10 @@ type MysqlDatabaseConfig struct {
 }
 
 type SqlServerDatabaseConfig struct {
+	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
+}
+
+type MongoDBDatabaseConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
 }
 
@@ -195,7 +215,8 @@ type TessellServiceInstanceDTO struct {
 	AvailabilityZone     *string                              `json:"availabilityZone,omitempty"` // DB Service Instance&#39;s cloud availability zone
 	InstanceGroupId      *string                              `json:"instanceGroupId,omitempty"`  // The instance groupd Id
 	ComputeType          *string                              `json:"computeType,omitempty"`      // The compute used for creation of the Tessell Service Instance
-	Storage              *int                                 `json:"storage,omitempty"`          // The storage (in bytes) that has been provisioned for the DB Service instance.
+	AwsInfraConfig       *AwsInfraConfig                      `json:"awsInfraConfig,omitempty"`
+	Storage              *int                                 `json:"storage,omitempty"` // The storage (in bytes) that has been provisioned for the DB Service instance.
 	DataVolumeIops       *int                                 `json:"dataVolumeIops,omitempty"`
 	ParameterProfile     *ParameterProfile                    `json:"parameterProfile,omitempty"`
 	VPC                  *string                              `json:"vpc,omitempty"`                  // The VPC used for creation of the DB Service Instance
@@ -333,14 +354,15 @@ type CloneTessellServicePayload struct {
 }
 
 type TessellServiceInfrastructurePayload struct {
-	Cloud             *string `json:"cloud"`                       // The cloud-type in which the DB Service is to be provisioned (ex. aws, azure)
-	Region            *string `json:"region"`                      // The region in which the DB Service is to be provisioned
-	AvailabilityZone  *string `json:"availabilityZone,omitempty"`  // The availability-zone in which the DB Service is to be provisioned
-	VPC               *string `json:"vpc"`                         // The VPC to be used for provisioning the DB Service
-	EnableEncryption  *bool   `json:"enableEncryption,omitempty"`  // Specify whether to enable the encryption at rest for the DB Service.
-	EncryptionKey     *string `json:"encryptionKey,omitempty"`     // The encryption key name which is to be used to encrypt the data at rest. This is honoured only if &#39;enableEncryption&#39; is true. If this is not specified, Tessell will use a default out-of-the-box encryption key.
-	ComputeType       *string `json:"computeType"`                 // The compute-type to be used for provisioning the DB Service
-	AdditionalStorage *int    `json:"additionalStorage,omitempty"` // The additional storage (in bytes) to be provisioned for the DB Service. This is in addition to what is specified in the compute type.
+	Cloud             *string         `json:"cloud"`                      // The cloud-type in which the DB Service is to be provisioned (ex. aws, azure)
+	Region            *string         `json:"region"`                     // The region in which the DB Service is to be provisioned
+	AvailabilityZone  *string         `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is to be provisioned
+	VPC               *string         `json:"vpc"`                        // The VPC to be used for provisioning the DB Service
+	EnableEncryption  *bool           `json:"enableEncryption,omitempty"` // Specify whether to enable the encryption at rest for the DB Service.
+	EncryptionKey     *string         `json:"encryptionKey,omitempty"`    // The encryption key name which is to be used to encrypt the data at rest. This is honoured only if &#39;enableEncryption&#39; is true. If this is not specified, Tessell will use a default out-of-the-box encryption key.
+	ComputeType       *string         `json:"computeType"`                // The compute-type to be used for provisioning the DB Service
+	AwsInfraConfig    *AwsInfraConfig `json:"awsInfraConfig,omitempty"`
+	AdditionalStorage *int            `json:"additionalStorage,omitempty"` // The additional storage (in bytes) to be provisioned for the DB Service. This is in addition to what is specified in the compute type.
 }
 
 type TessellServiceConnectivityInfoPayload struct {
@@ -359,6 +381,7 @@ type TessellServiceEngineConfigurationPayload struct {
 	MysqlConfig       *MysqlEngineConfigPayload       `json:"mysqlConfig,omitempty"`
 	SqlServerConfig   *SqlServerEngineConfigPayload   `json:"sqlServerConfig,omitempty"`
 	ApacheKafkaConfig *ApacheKafkaEngineConfigPayload `json:"apacheKafkaConfig,omitempty"`
+	MongoDBConfig     *MongoDBEngineConfigPayload     `json:"mongodbConfig,omitempty"`
 }
 
 type OracleEngineConfigPayload struct {
@@ -386,6 +409,11 @@ type ApacheKafkaEngineConfigPayload struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
 }
 
+type MongoDBEngineConfigPayload struct {
+	ClusterName        *string `json:"clusterName"`                  // The MongoDB Cluster name
+	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
+}
+
 type CreateDatabasePayload struct {
 	DatabaseName          *string                                     `json:"databaseName"`
 	SourceDatabaseId      *string                                     `json:"sourceDatabaseId,omitempty"` // Required while creating a clone. It specifies the Id of the source database from which the clone is being created.
@@ -397,6 +425,7 @@ type CreateDatabasePayloadDatabaseConfiguration struct {
 	PostgresqlConfig *PostgresqlDatabaseConfig `json:"postgresqlConfig,omitempty"`
 	MysqlConfig      *MysqlDatabaseConfig      `json:"mysqlConfig,omitempty"`
 	SqlServerConfig  *SqlServerDatabaseConfig  `json:"sqlServerConfig,omitempty"`
+	MongoDBConfig    *MongoDBDatabaseConfig    `json:"mongodbConfig,omitempty"`
 }
 
 type DeleteTessellServicePayload struct {

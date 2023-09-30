@@ -352,6 +352,36 @@ func ResourceDBService() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
+						"aws_infra_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"aws_cpu_options": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"vcpus": {
+													Type:        schema.TypeInt,
+													Description: "Number of vcpus for aws cpu options",
+													Optional:    true,
+													ForceNew:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"storage": {
 							Type:        schema.TypeInt,
 							Description: "The storage (in bytes) that has been provisioned for the DB Service",
@@ -802,6 +832,30 @@ func ResourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"mongodb_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"cluster_name": {
+										Type:        schema.TypeString,
+										Description: "The MongoDB Cluster name",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"parameter_profile_id": {
+										Type:        schema.TypeString,
+										Description: "The parameter profile id for the database",
+										Optional:    true,
+										ForceNew:    true,
+									},
+								},
+							},
+						},
 						"pre_script_info": {
 							Type:        schema.TypeList,
 							Description: "",
@@ -1012,6 +1066,24 @@ func ResourceDBService() *schema.Resource {
 											},
 										},
 									},
+									"mongodb_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"parameter_profile_id": {
+													Type:        schema.TypeString,
+													Description: "The parameter profile id for the database",
+													Optional:    true,
+													ForceNew:    true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -1150,6 +1222,36 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The compute used for creation of the Tessell Service Instance",
 							Computed:    true,
+						},
+						"aws_infra_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"aws_cpu_options": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"vcpus": {
+													Type:        schema.TypeInt,
+													Description: "Number of vcpus for aws cpu options",
+													Optional:    true,
+													ForceNew:    true,
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 						"storage": {
 							Type:        schema.TypeInt,

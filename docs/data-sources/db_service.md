@@ -120,10 +120,19 @@ Read-Only:
 
 Read-Only:
 
+- `mongodb_config` (List of Object) (see [below for nested schema](#nestedobjatt--databases--database_configuration--mongodb_config))
 - `mysql_config` (List of Object) (see [below for nested schema](#nestedobjatt--databases--database_configuration--mysql_config))
 - `oracle_config` (List of Object) (see [below for nested schema](#nestedobjatt--databases--database_configuration--oracle_config))
 - `postgresql_config` (List of Object) (see [below for nested schema](#nestedobjatt--databases--database_configuration--postgresql_config))
 - `sql_server_config` (List of Object) (see [below for nested schema](#nestedobjatt--databases--database_configuration--sql_server_config))
+
+<a id="nestedobjatt--databases--database_configuration--mongodb_config"></a>
+### Nested Schema for `databases.database_configuration.mongodb_config`
+
+Read-Only:
+
+- `parameter_profile_id` (String)
+
 
 <a id="nestedobjatt--databases--database_configuration--mysql_config"></a>
 ### Nested Schema for `databases.database_configuration.mysql_config`
@@ -191,6 +200,7 @@ Read-Only:
 Read-Only:
 
 - `apache_kafka_config` (List of Object) (see [below for nested schema](#nestedobjatt--engine_configuration--apache_kafka_config))
+- `mongodb_config` (List of Object) (see [below for nested schema](#nestedobjatt--engine_configuration--mongodb_config))
 - `mysql_config` (List of Object) (see [below for nested schema](#nestedobjatt--engine_configuration--mysql_config))
 - `oracle_config` (List of Object) (see [below for nested schema](#nestedobjatt--engine_configuration--oracle_config))
 - `post_script_info` (List of Object) (see [below for nested schema](#nestedobjatt--engine_configuration--post_script_info))
@@ -203,6 +213,15 @@ Read-Only:
 
 Read-Only:
 
+- `parameter_profile_id` (String)
+
+
+<a id="nestedobjatt--engine_configuration--mongodb_config"></a>
+### Nested Schema for `engine_configuration.mongodb_config`
+
+Read-Only:
+
+- `cluster_name` (String)
 - `parameter_profile_id` (String)
 
 
@@ -269,6 +288,7 @@ Read-Only:
 
 - `additional_storage` (Number)
 - `availability_zone` (String)
+- `aws_infra_config` (List of Object) (see [below for nested schema](#nestedobjatt--infrastructure--aws_infra_config))
 - `cloud` (String)
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedobjatt--infrastructure--cloud_availability))
 - `compute_type` (String)
@@ -277,6 +297,22 @@ Read-Only:
 - `region` (String)
 - `storage` (Number)
 - `vpc` (String)
+
+<a id="nestedobjatt--infrastructure--aws_infra_config"></a>
+### Nested Schema for `infrastructure.aws_infra_config`
+
+Read-Only:
+
+- `aws_cpu_options` (List of Object) (see [below for nested schema](#nestedobjatt--infrastructure--aws_infra_config--aws_cpu_options))
+
+<a id="nestedobjatt--infrastructure--aws_infra_config--aws_cpu_options"></a>
+### Nested Schema for `infrastructure.aws_infra_config.aws_cpu_options`
+
+Read-Only:
+
+- `vcpus` (Number)
+
+
 
 <a id="nestedobjatt--infrastructure--cloud_availability"></a>
 ### Nested Schema for `infrastructure.cloud_availability`
@@ -303,6 +339,7 @@ Read-Only:
 Read-Only:
 
 - `availability_zone` (String)
+- `aws_infra_config` (List of Object) (see [below for nested schema](#nestedobjatt--instances--aws_infra_config))
 - `cloud` (String)
 - `compute_type` (String)
 - `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--instances--connect_string))
@@ -325,6 +362,22 @@ Read-Only:
 - `type` (String)
 - `updates_in_progress` (List of Object) (see [below for nested schema](#nestedobjatt--instances--updates_in_progress))
 - `vpc` (String)
+
+<a id="nestedobjatt--instances--aws_infra_config"></a>
+### Nested Schema for `instances.aws_infra_config`
+
+Read-Only:
+
+- `aws_cpu_options` (List of Object) (see [below for nested schema](#nestedobjatt--instances--aws_infra_config--aws_cpu_options))
+
+<a id="nestedobjatt--instances--aws_infra_config--aws_cpu_options"></a>
+### Nested Schema for `instances.aws_infra_config.aws_cpu_options`
+
+Read-Only:
+
+- `vcpus` (Number)
+
+
 
 <a id="nestedobjatt--instances--connect_string"></a>
 ### Nested Schema for `instances.connect_string`

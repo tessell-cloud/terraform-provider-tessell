@@ -252,6 +252,7 @@ Required:
 Optional:
 
 - `apache_kafka_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--apache_kafka_config))
+- `mongodb_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--mongodb_config))
 - `mysql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--mysql_config))
 - `oracle_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--oracle_config))
 - `post_script_info` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--post_script_info))
@@ -264,6 +265,15 @@ Optional:
 
 Optional:
 
+- `parameter_profile_id` (String) The parameter profile id for the database
+
+
+<a id="nestedblock--engine_configuration--mongodb_config"></a>
+### Nested Schema for `engine_configuration.mongodb_config`
+
+Optional:
+
+- `cluster_name` (String) The MongoDB Cluster name
 - `parameter_profile_id` (String) The parameter profile id for the database
 
 
@@ -330,6 +340,7 @@ Optional:
 
 - `additional_storage` (Number) Size in GB. This is maintained for backward compatibility and would be deprecated soon.
 - `availability_zone` (String) The availability-zone in which the DB Service is provisioned
+- `aws_infra_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--infrastructure--aws_infra_config))
 - `cloud` (String) The cloud-type in which the DB Service is provisioned (ex. aws, azure)
 - `compute_type` (String) The compute-type to be used for provisioning the DB Service
 - `enable_encryption` (Boolean)
@@ -341,6 +352,22 @@ Read-Only:
 
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedatt--infrastructure--cloud_availability))
 - `storage` (Number) The storage (in bytes) that has been provisioned for the DB Service
+
+<a id="nestedblock--infrastructure--aws_infra_config"></a>
+### Nested Schema for `infrastructure.aws_infra_config`
+
+Optional:
+
+- `aws_cpu_options` (Block List, Max: 1) (see [below for nested schema](#nestedblock--infrastructure--aws_infra_config--aws_cpu_options))
+
+<a id="nestedblock--infrastructure--aws_infra_config--aws_cpu_options"></a>
+### Nested Schema for `infrastructure.aws_infra_config.aws_cpu_options`
+
+Optional:
+
+- `vcpus` (Number) Number of vcpus for aws cpu options
+
+
 
 <a id="nestedatt--infrastructure--cloud_availability"></a>
 ### Nested Schema for `infrastructure.cloud_availability`
@@ -449,10 +476,19 @@ Read-Only:
 
 Optional:
 
+- `mongodb_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--mongodb_config))
 - `mysql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--mysql_config))
 - `oracle_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--oracle_config))
 - `postgresql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--postgresql_config))
 - `sql_server_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--sql_server_config))
+
+<a id="nestedblock--databases--database_configuration--mongodb_config"></a>
+### Nested Schema for `databases.database_configuration.mongodb_config`
+
+Optional:
+
+- `parameter_profile_id` (String) The parameter profile id for the database
+
 
 <a id="nestedblock--databases--database_configuration--mysql_config"></a>
 ### Nested Schema for `databases.database_configuration.mysql_config`
@@ -627,6 +663,7 @@ Read-Only:
 Read-Only:
 
 - `availability_zone` (String)
+- `aws_infra_config` (List of Object) (see [below for nested schema](#nestedobjatt--instances--aws_infra_config))
 - `cloud` (String)
 - `compute_type` (String)
 - `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--instances--connect_string))
@@ -649,6 +686,22 @@ Read-Only:
 - `type` (String)
 - `updates_in_progress` (List of Object) (see [below for nested schema](#nestedobjatt--instances--updates_in_progress))
 - `vpc` (String)
+
+<a id="nestedobjatt--instances--aws_infra_config"></a>
+### Nested Schema for `instances.aws_infra_config`
+
+Read-Only:
+
+- `aws_cpu_options` (List of Object) (see [below for nested schema](#nestedobjatt--instances--aws_infra_config--aws_cpu_options))
+
+<a id="nestedobjatt--instances--aws_infra_config--aws_cpu_options"></a>
+### Nested Schema for `instances.aws_infra_config.aws_cpu_options`
+
+Read-Only:
+
+- `vcpus` (Number)
+
+
 
 <a id="nestedobjatt--instances--connect_string"></a>
 ### Nested Schema for `instances.connect_string`

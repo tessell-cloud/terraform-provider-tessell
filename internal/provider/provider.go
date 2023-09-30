@@ -7,8 +7,11 @@ import (
 	"terraform-provider-tessell/internal/resource/availability_machine"
 	"terraform-provider-tessell/internal/resource/dataflix"
 	"terraform-provider-tessell/internal/resource/dataflix_catalog"
+	"terraform-provider-tessell/internal/resource/db_backup"
+	"terraform-provider-tessell/internal/resource/db_parameter_profile"
 	"terraform-provider-tessell/internal/resource/db_service"
 	"terraform-provider-tessell/internal/resource/db_snapshot"
+	"terraform-provider-tessell/internal/resource/sanitized_db_snapshot"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -56,14 +59,18 @@ func New(terraformVersion string) func() *schema.Provider {
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
-				"tessell_db_service":            db_service.DataSourceDBService(),
-				"tessell_db_services":           db_service.DataSourceDBServices(),
-				"tessell_db_snapshot":           db_snapshot.DataSourceDBSnapshot(),
-				"tessell_dataflix":              dataflix.DataSourceDataflix(),
-				"tessell_dataflixes":            dataflix.DataSourceDataflixes(),
-				"tessell_availability_machine":  availability_machine.DataSourceAvailabilityMachine(),
-				"tessell_availability_machines": availability_machine.DataSourceAvailabilityMachines(),
-				"tessell_dataflix_catalog":      dataflix_catalog.DataSourceDataflixCatalog(),
+				"tessell_db_backups":             db_backup.DataSourceDBBackups(),
+				"tessell_db_service":             db_service.DataSourceDBService(),
+				"tessell_db_services":            db_service.DataSourceDBServices(),
+				"tessell_db_parameter_profiles":  db_parameter_profile.DataSourceDBParameterProfiles(),
+				"tessell_db_snapshot":            db_snapshot.DataSourceDBSnapshot(),
+				"tessell_db_snapshots":           db_snapshot.DataSourceDBSnapshots(),
+				"tessell_dataflix":               dataflix.DataSourceDataflix(),
+				"tessell_dataflixes":             dataflix.DataSourceDataflixes(),
+				"tessell_availability_machine":   availability_machine.DataSourceAvailabilityMachine(),
+				"tessell_availability_machines":  availability_machine.DataSourceAvailabilityMachines(),
+				"tessell_dataflix_catalog":       dataflix_catalog.DataSourceDataflixCatalog(),
+				"tessell_sanitized_db_snapshots": sanitized_db_snapshot.DataSourceSanitizedDBSnapshots(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"tessell_db_service":  db_service.ResourceDBService(),

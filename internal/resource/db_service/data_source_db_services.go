@@ -465,6 +465,29 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "The compute-type to be used for provisioning the DB Service",
 										Computed:    true,
 									},
+									"aws_infra_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"aws_cpu_options": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"vcpus": {
+																Type:        schema.TypeInt,
+																Description: "Number of vcpus for aws cpu options",
+																Computed:    true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"storage": {
 										Type:        schema.TypeInt,
 										Description: "The storage (in bytes) that has been provisioned for the DB Service",
@@ -595,6 +618,25 @@ func DataSourceDBServices() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"parameter_profile_id": {
+													Type:        schema.TypeString,
+													Description: "The parameter profile id for the database",
+													Computed:    true,
+												},
+											},
+										},
+									},
+									"mongodb_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cluster_name": {
+													Type:        schema.TypeString,
+													Description: "The MongoDB Cluster name",
+													Computed:    true,
+												},
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
 													Description: "The parameter profile id for the database",
@@ -783,6 +825,29 @@ func DataSourceDBServices() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The compute used for creation of the Tessell Service Instance",
 										Computed:    true,
+									},
+									"aws_infra_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"aws_cpu_options": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"vcpus": {
+																Type:        schema.TypeInt,
+																Description: "Number of vcpus for aws cpu options",
+																Computed:    true,
+															},
+														},
+													},
+												},
+											},
+										},
 									},
 									"storage": {
 										Type:        schema.TypeInt,
@@ -1028,6 +1093,20 @@ func DataSourceDBServices() *schema.Resource {
 													},
 												},
 												"sql_server_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"parameter_profile_id": {
+																Type:        schema.TypeString,
+																Description: "The parameter profile id for the database",
+																Computed:    true,
+															},
+														},
+													},
+												},
+												"mongodb_config": {
 													Type:        schema.TypeList,
 													Description: "",
 													Computed:    true,

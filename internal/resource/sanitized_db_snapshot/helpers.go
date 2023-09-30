@@ -1,4 +1,4 @@
-package db_snapshot
+package sanitized_db_snapshot
 
 import (
 	//"fmt"
@@ -6,57 +6,56 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"terraform-provider-tessell/internal/helper"
 	"terraform-provider-tessell/internal/model"
 )
 
-func setResourceData(d *schema.ResourceData, databaseSnapshot *model.DatabaseSnapshot) error {
+func setResourceData(d *schema.ResourceData, sanitizedDatabaseSnapshot *model.SanitizedDatabaseSnapshot) error {
 
-	if err := d.Set("id", databaseSnapshot.Id); err != nil {
+	if err := d.Set("id", sanitizedDatabaseSnapshot.Id); err != nil {
 		return err
 	}
 
-	if err := d.Set("name", databaseSnapshot.Name); err != nil {
+	if err := d.Set("name", sanitizedDatabaseSnapshot.Name); err != nil {
 		return err
 	}
 
-	if err := d.Set("description", databaseSnapshot.Description); err != nil {
+	if err := d.Set("snapshot_time", sanitizedDatabaseSnapshot.SnapshotTime); err != nil {
 		return err
 	}
 
-	if err := d.Set("snapshot_time", databaseSnapshot.SnapshotTime); err != nil {
+	if err := d.Set("status", sanitizedDatabaseSnapshot.Status); err != nil {
 		return err
 	}
 
-	if err := d.Set("status", databaseSnapshot.Status); err != nil {
+	if err := d.Set("size", sanitizedDatabaseSnapshot.Size); err != nil {
 		return err
 	}
 
-	if err := d.Set("size", databaseSnapshot.Size); err != nil {
+	if err := d.Set("manual", sanitizedDatabaseSnapshot.Manual); err != nil {
 		return err
 	}
 
-	if err := d.Set("manual", databaseSnapshot.Manual); err != nil {
+	if err := d.Set("cloud_availability", parseDatabaseSnapshotCloudRegionInfoListWithResData(sanitizedDatabaseSnapshot.CloudAvailability, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("cloud_availability", parseDatabaseSnapshotCloudRegionInfoListWithResData(databaseSnapshot.CloudAvailability, d)); err != nil {
+	if err := d.Set("availability_config", parseSnapshotAvailabilityConfigListWithResData(sanitizedDatabaseSnapshot.AvailabilityConfig, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("availability_config", parseSnapshotAvailabilityConfigListWithResData(databaseSnapshot.AvailabilityConfig, d)); err != nil {
+	if err := d.Set("sanitization_info", parseSanitizedDatabaseSnapshotSanitizationInfoWithResData(sanitizedDatabaseSnapshot.SanitizationInfo, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("databases", parseBackupDatabaseInfoListWithResData(databaseSnapshot.Databases, d)); err != nil {
+	if err := d.Set("databases", parseBackupDatabaseInfoListWithResData(sanitizedDatabaseSnapshot.Databases, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("shared_with", parseEntityAclSharingSummaryInfoWithResData(databaseSnapshot.SharedWith, d)); err != nil {
+	if err := d.Set("shared_with", parseEntityAclSharingSummaryInfoWithResData(sanitizedDatabaseSnapshot.SharedWith, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("backup_status", databaseSnapshot.BackupStatus); err != nil {
+	if err := d.Set("backup_status", sanitizedDatabaseSnapshot.BackupStatus); err != nil {
 		return err
 	}
 
@@ -243,6 +242,42 @@ func parseSnapshotRegionAvailability(snapshotRegionAvailability *model.SnapshotR
 	return parsedSnapshotRegionAvailability
 }
 
+func parseSanitizedDatabaseSnapshotSanitizationInfoWithResData(sanitizationInfo *model.SanitizedDatabaseSnapshotSanitizationInfo, d *schema.ResourceData) []interface{} {
+	if sanitizationInfo == nil {
+		return nil
+	}
+	parsedSanitizationInfo := make(map[string]interface{})
+	if d.Get("sanitization_info") != nil {
+		sanitizationInfoResourceData := d.Get("sanitization_info").([]interface{})
+		if len(sanitizationInfoResourceData) > 0 {
+			parsedSanitizationInfo = (sanitizationInfoResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedSanitizationInfo["source_snapshot_id"] = sanitizationInfo.SourceSnapshotId
+	parsedSanitizationInfo["sanitization_schedule_id"] = sanitizationInfo.SanitizationScheduleId
+	parsedSanitizationInfo["sanitization_schedule"] = sanitizationInfo.SanitizationSchedule
+	parsedSanitizationInfo["sanitization_script_id"] = sanitizationInfo.SanitizationScriptId
+	parsedSanitizationInfo["sanitization_script"] = sanitizationInfo.SanitizationScript
+	parsedSanitizationInfo["script_version"] = sanitizationInfo.ScriptVersion
+
+	return []interface{}{parsedSanitizationInfo}
+}
+
+func parseSanitizedDatabaseSnapshotSanitizationInfo(sanitizationInfo *model.SanitizedDatabaseSnapshotSanitizationInfo) interface{} {
+	if sanitizationInfo == nil {
+		return nil
+	}
+	parsedSanitizationInfo := make(map[string]interface{})
+	parsedSanitizationInfo["source_snapshot_id"] = sanitizationInfo.SourceSnapshotId
+	parsedSanitizationInfo["sanitization_schedule_id"] = sanitizationInfo.SanitizationScheduleId
+	parsedSanitizationInfo["sanitization_schedule"] = sanitizationInfo.SanitizationSchedule
+	parsedSanitizationInfo["sanitization_script_id"] = sanitizationInfo.SanitizationScriptId
+	parsedSanitizationInfo["sanitization_script"] = sanitizationInfo.SanitizationScript
+	parsedSanitizationInfo["script_version"] = sanitizationInfo.ScriptVersion
+
+	return parsedSanitizationInfo
+}
+
 func parseBackupDatabaseInfoListWithResData(databases *[]model.BackupDatabaseInfo, d *schema.ResourceData) []interface{} {
 	if databases == nil {
 		return nil
@@ -311,13 +346,4 @@ func parseEntityAclSharingSummaryInfo(sharedWith *model.EntityAclSharingSummaryI
 	parsedSharedWith["users"] = sharedWith.Users
 
 	return parsedSharedWith
-}
-
-func formPayloadForCreateDatabaseSnapshotRequest(d *schema.ResourceData) model.CreateDatabaseSnapshotTaskPayload {
-	createDatabaseSnapshotTaskPayloadFormed := model.CreateDatabaseSnapshotTaskPayload{
-		Name:        helper.GetStringPointer(d.Get("name")),
-		Description: helper.GetStringPointer(d.Get("description")),
-	}
-
-	return createDatabaseSnapshotTaskPayloadFormed
 }

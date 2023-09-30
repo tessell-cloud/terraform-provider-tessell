@@ -1,4 +1,4 @@
-package db_snapshot
+package db_backup
 
 import (
 	//"fmt"
@@ -6,135 +6,134 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"terraform-provider-tessell/internal/helper"
 	"terraform-provider-tessell/internal/model"
 )
 
-func setResourceData(d *schema.ResourceData, databaseSnapshot *model.DatabaseSnapshot) error {
+func setResourceData(d *schema.ResourceData, databaseBackup *model.DatabaseBackup) error {
 
-	if err := d.Set("id", databaseSnapshot.Id); err != nil {
+	if err := d.Set("id", databaseBackup.Id); err != nil {
 		return err
 	}
 
-	if err := d.Set("name", databaseSnapshot.Name); err != nil {
+	if err := d.Set("name", databaseBackup.Name); err != nil {
 		return err
 	}
 
-	if err := d.Set("description", databaseSnapshot.Description); err != nil {
+	if err := d.Set("backup_time", databaseBackup.BackupTime); err != nil {
 		return err
 	}
 
-	if err := d.Set("snapshot_time", databaseSnapshot.SnapshotTime); err != nil {
+	if err := d.Set("status", databaseBackup.Status); err != nil {
 		return err
 	}
 
-	if err := d.Set("status", databaseSnapshot.Status); err != nil {
+	if err := d.Set("size", databaseBackup.Size); err != nil {
 		return err
 	}
 
-	if err := d.Set("size", databaseSnapshot.Size); err != nil {
+	if err := d.Set("manual", databaseBackup.Manual); err != nil {
 		return err
 	}
 
-	if err := d.Set("manual", databaseSnapshot.Manual); err != nil {
+	if err := d.Set("cloud_availability", parseCloudRegionInfoListWithResData(databaseBackup.CloudAvailability, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("cloud_availability", parseDatabaseSnapshotCloudRegionInfoListWithResData(databaseSnapshot.CloudAvailability, d)); err != nil {
+	if err := d.Set("availability_config", parseSnapshotAvailabilityConfigListWithResData(databaseBackup.AvailabilityConfig, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("availability_config", parseSnapshotAvailabilityConfigListWithResData(databaseSnapshot.AvailabilityConfig, d)); err != nil {
+	if err := d.Set("databases", parseBackupDatabaseInfoListWithResData(databaseBackup.Databases, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("databases", parseBackupDatabaseInfoListWithResData(databaseSnapshot.Databases, d)); err != nil {
+	if err := d.Set("backup_info", parseBackupSourceInfoWithResData(databaseBackup.BackupInfo, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("shared_with", parseEntityAclSharingSummaryInfoWithResData(databaseSnapshot.SharedWith, d)); err != nil {
+	if err := d.Set("shared_with", parseDatabaseBackupSharedWithWithResData(databaseBackup.SharedWith, d)); err != nil {
 		return err
 	}
 
-	if err := d.Set("backup_status", databaseSnapshot.BackupStatus); err != nil {
+	if err := d.Set("download_url_status", databaseBackup.DownloadUrlStatus); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func parseDatabaseSnapshotCloudRegionInfoListWithResData(cloudAvailability *[]model.DatabaseSnapshotCloudRegionInfo, d *schema.ResourceData) []interface{} {
+func parseCloudRegionInfoListWithResData(cloudAvailability *[]model.CloudRegionInfo, d *schema.ResourceData) []interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
-	databaseSnapshotCloudRegionInfoList := make([]interface{}, 0)
+	cloudRegionInfoList := make([]interface{}, 0)
 
 	if cloudAvailability != nil {
-		databaseSnapshotCloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
-		for i, databaseSnapshotCloudRegionInfoItem := range *cloudAvailability {
-			databaseSnapshotCloudRegionInfoList[i] = parseDatabaseSnapshotCloudRegionInfo(&databaseSnapshotCloudRegionInfoItem)
+		cloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
+		for i, cloudRegionInfoItem := range *cloudAvailability {
+			cloudRegionInfoList[i] = parseCloudRegionInfo(&cloudRegionInfoItem)
 		}
 	}
 
-	return databaseSnapshotCloudRegionInfoList
+	return cloudRegionInfoList
 }
 
-func parseDatabaseSnapshotCloudRegionInfoList(cloudAvailability *[]model.DatabaseSnapshotCloudRegionInfo) []interface{} {
+func parseCloudRegionInfoList(cloudAvailability *[]model.CloudRegionInfo) []interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
-	databaseSnapshotCloudRegionInfoList := make([]interface{}, 0)
+	cloudRegionInfoList := make([]interface{}, 0)
 
 	if cloudAvailability != nil {
-		databaseSnapshotCloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
-		for i, databaseSnapshotCloudRegionInfoItem := range *cloudAvailability {
-			databaseSnapshotCloudRegionInfoList[i] = parseDatabaseSnapshotCloudRegionInfo(&databaseSnapshotCloudRegionInfoItem)
+		cloudRegionInfoList = make([]interface{}, len(*cloudAvailability))
+		for i, cloudRegionInfoItem := range *cloudAvailability {
+			cloudRegionInfoList[i] = parseCloudRegionInfo(&cloudRegionInfoItem)
 		}
 	}
 
-	return databaseSnapshotCloudRegionInfoList
+	return cloudRegionInfoList
 }
 
-func parseDatabaseSnapshotCloudRegionInfo(cloudAvailability *model.DatabaseSnapshotCloudRegionInfo) interface{} {
+func parseCloudRegionInfo(cloudAvailability *model.CloudRegionInfo) interface{} {
 	if cloudAvailability == nil {
 		return nil
 	}
 	parsedCloudAvailability := make(map[string]interface{})
 	parsedCloudAvailability["cloud"] = cloudAvailability.Cloud
 
-	var regions *[]model.DatabaseSnapshotRegionInfo
+	var regions *[]model.RegionInfo
 	if cloudAvailability.Regions != regions {
-		parsedCloudAvailability["regions"] = parseDatabaseSnapshotRegionInfoList(cloudAvailability.Regions)
+		parsedCloudAvailability["regions"] = parseRegionInfoList(cloudAvailability.Regions)
 	}
 
 	return parsedCloudAvailability
 }
 
-func parseDatabaseSnapshotRegionInfoList(databaseSnapshotRegionInfo *[]model.DatabaseSnapshotRegionInfo) []interface{} {
-	if databaseSnapshotRegionInfo == nil {
+func parseRegionInfoList(regionInfo *[]model.RegionInfo) []interface{} {
+	if regionInfo == nil {
 		return nil
 	}
-	databaseSnapshotRegionInfoList := make([]interface{}, 0)
+	regionInfoList := make([]interface{}, 0)
 
-	if databaseSnapshotRegionInfo != nil {
-		databaseSnapshotRegionInfoList = make([]interface{}, len(*databaseSnapshotRegionInfo))
-		for i, databaseSnapshotRegionInfoItem := range *databaseSnapshotRegionInfo {
-			databaseSnapshotRegionInfoList[i] = parseDatabaseSnapshotRegionInfo(&databaseSnapshotRegionInfoItem)
+	if regionInfo != nil {
+		regionInfoList = make([]interface{}, len(*regionInfo))
+		for i, regionInfoItem := range *regionInfo {
+			regionInfoList[i] = parseRegionInfo(&regionInfoItem)
 		}
 	}
 
-	return databaseSnapshotRegionInfoList
+	return regionInfoList
 }
 
-func parseDatabaseSnapshotRegionInfo(databaseSnapshotRegionInfo *model.DatabaseSnapshotRegionInfo) interface{} {
-	if databaseSnapshotRegionInfo == nil {
+func parseRegionInfo(regionInfo *model.RegionInfo) interface{} {
+	if regionInfo == nil {
 		return nil
 	}
-	parsedDatabaseSnapshotRegionInfo := make(map[string]interface{})
-	parsedDatabaseSnapshotRegionInfo["region"] = databaseSnapshotRegionInfo.Region
-	parsedDatabaseSnapshotRegionInfo["status"] = databaseSnapshotRegionInfo.Status
+	parsedRegionInfo := make(map[string]interface{})
+	parsedRegionInfo["region"] = regionInfo.Region
+	parsedRegionInfo["availability_zones"] = regionInfo.AvailabilityZones
 
-	return parsedDatabaseSnapshotRegionInfo
+	return parsedRegionInfo
 }
 
 func parseSnapshotAvailabilityConfigListWithResData(availabilityConfig *[]model.SnapshotAvailabilityConfig, d *schema.ResourceData) []interface{} {
@@ -287,7 +286,37 @@ func parseBackupDatabaseInfo(databases *model.BackupDatabaseInfo) interface{} {
 	return parsedDatabases
 }
 
-func parseEntityAclSharingSummaryInfoWithResData(sharedWith *model.EntityAclSharingSummaryInfo, d *schema.ResourceData) []interface{} {
+func parseBackupSourceInfoWithResData(backupInfo *model.BackupSourceInfo, d *schema.ResourceData) []interface{} {
+	if backupInfo == nil {
+		return nil
+	}
+	parsedBackupInfo := make(map[string]interface{})
+	if d.Get("backup_info") != nil {
+		backupInfoResourceData := d.Get("backup_info").([]interface{})
+		if len(backupInfoResourceData) > 0 {
+			parsedBackupInfo = (backupInfoResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedBackupInfo["source_snapshot_id"] = backupInfo.SourceSnapshotId
+	parsedBackupInfo["snapshot_name"] = backupInfo.SnapshotName
+	parsedBackupInfo["snapshot_time"] = backupInfo.SnapshotTime
+
+	return []interface{}{parsedBackupInfo}
+}
+
+func parseBackupSourceInfo(backupInfo *model.BackupSourceInfo) interface{} {
+	if backupInfo == nil {
+		return nil
+	}
+	parsedBackupInfo := make(map[string]interface{})
+	parsedBackupInfo["source_snapshot_id"] = backupInfo.SourceSnapshotId
+	parsedBackupInfo["snapshot_name"] = backupInfo.SnapshotName
+	parsedBackupInfo["snapshot_time"] = backupInfo.SnapshotTime
+
+	return parsedBackupInfo
+}
+
+func parseDatabaseBackupSharedWithWithResData(sharedWith *model.DatabaseBackupSharedWith, d *schema.ResourceData) []interface{} {
 	if sharedWith == nil {
 		return nil
 	}
@@ -298,26 +327,67 @@ func parseEntityAclSharingSummaryInfoWithResData(sharedWith *model.EntityAclShar
 			parsedSharedWith = (sharedWithResourceData[0]).(map[string]interface{})
 		}
 	}
-	parsedSharedWith["users"] = sharedWith.Users
+
+	var users *[]model.BackupUserInfo
+	if sharedWith.Users != users {
+		parsedSharedWith["users"] = parseBackupUserInfoList(sharedWith.Users)
+	}
 
 	return []interface{}{parsedSharedWith}
 }
 
-func parseEntityAclSharingSummaryInfo(sharedWith *model.EntityAclSharingSummaryInfo) interface{} {
+func parseDatabaseBackupSharedWith(sharedWith *model.DatabaseBackupSharedWith) interface{} {
 	if sharedWith == nil {
 		return nil
 	}
 	parsedSharedWith := make(map[string]interface{})
-	parsedSharedWith["users"] = sharedWith.Users
+
+	var users *[]model.BackupUserInfo
+	if sharedWith.Users != users {
+		parsedSharedWith["users"] = parseBackupUserInfoList(sharedWith.Users)
+	}
 
 	return parsedSharedWith
 }
 
-func formPayloadForCreateDatabaseSnapshotRequest(d *schema.ResourceData) model.CreateDatabaseSnapshotTaskPayload {
-	createDatabaseSnapshotTaskPayloadFormed := model.CreateDatabaseSnapshotTaskPayload{
-		Name:        helper.GetStringPointer(d.Get("name")),
-		Description: helper.GetStringPointer(d.Get("description")),
+func parseBackupUserInfoList(backupUserInfo *[]model.BackupUserInfo) []interface{} {
+	if backupUserInfo == nil {
+		return nil
+	}
+	backupUserInfoList := make([]interface{}, 0)
+
+	if backupUserInfo != nil {
+		backupUserInfoList = make([]interface{}, len(*backupUserInfo))
+		for i, backupUserInfoItem := range *backupUserInfo {
+			backupUserInfoList[i] = parseBackupUserInfo(&backupUserInfoItem)
+		}
 	}
 
-	return createDatabaseSnapshotTaskPayloadFormed
+	return backupUserInfoList
+}
+
+func parseBackupUserInfo(backupUserInfo *model.BackupUserInfo) interface{} {
+	if backupUserInfo == nil {
+		return nil
+	}
+	parsedBackupUserInfo := make(map[string]interface{})
+	parsedBackupUserInfo["user_email"] = backupUserInfo.UserEmail
+	parsedBackupUserInfo["download_url_status"] = backupUserInfo.DownloadUrlStatus
+
+	var expiryConfig *model.ExpiryConfig
+	if backupUserInfo.ExpiryConfig != expiryConfig {
+		parsedBackupUserInfo["expiry_config"] = []interface{}{parseExpiryConfig(backupUserInfo.ExpiryConfig)}
+	}
+
+	return parsedBackupUserInfo
+}
+
+func parseExpiryConfig(expiryConfig *model.ExpiryConfig) interface{} {
+	if expiryConfig == nil {
+		return nil
+	}
+	parsedExpiryConfig := make(map[string]interface{})
+	parsedExpiryConfig["expire_at"] = expiryConfig.ExpireAt
+
+	return parsedExpiryConfig
 }
