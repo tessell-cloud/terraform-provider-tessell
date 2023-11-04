@@ -394,6 +394,12 @@ func ResourceDBService() *schema.Resource {
 							ForceNew:    true,
 							Default:     0,
 						},
+						"enable_compute_sharing": {
+							Type:        schema.TypeBool,
+							Description: "Specify if the computes should be shared across DB Services",
+							Optional:    true,
+							ForceNew:    true,
+						},
 					},
 				},
 			},
@@ -1009,6 +1015,12 @@ func ResourceDBService() *schema.Resource {
 													Optional:    true,
 													ForceNew:    true,
 												},
+												"username": {
+													Type:        schema.TypeString,
+													Description: "Username for the oracle database",
+													Optional:    true,
+													ForceNew:    true,
+												},
 											},
 										},
 									},
@@ -1083,6 +1095,35 @@ func ResourceDBService() *schema.Resource {
 												},
 											},
 										},
+									},
+								},
+							},
+						},
+						"connect_string": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"connect_descriptor": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"master_user": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"endpoint": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"service_port": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
 									},
 								},
 							},
@@ -1252,6 +1293,12 @@ func ResourceDBService() *schema.Resource {
 									},
 								},
 							},
+						},
+						"compute_id": {
+							Type:        schema.TypeString,
+							Description: "The associated compute identifier",
+							Optional:    true,
+							ForceNew:    true,
 						},
 						"storage": {
 							Type:        schema.TypeInt,
