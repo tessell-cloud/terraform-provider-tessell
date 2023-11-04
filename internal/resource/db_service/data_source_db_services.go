@@ -498,6 +498,11 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "Size in GB. This is maintained for backward compatibility and would be deprecated soon.",
 										Computed:    true,
 									},
+									"enable_compute_sharing": {
+										Type:        schema.TypeBool,
+										Description: "Specify if the computes should be shared across DB Services",
+										Computed:    true,
+									},
 								},
 							},
 						},
@@ -849,6 +854,11 @@ func DataSourceDBServices() *schema.Resource {
 											},
 										},
 									},
+									"compute_id": {
+										Type:        schema.TypeString,
+										Description: "The associated compute identifier",
+										Computed:    true,
+									},
 									"storage": {
 										Type:        schema.TypeInt,
 										Description: "The storage (in bytes) that has been provisioned for the DB Service instance.",
@@ -1061,6 +1071,11 @@ func DataSourceDBServices() *schema.Resource {
 																Description: "The options profile for the database",
 																Computed:    true,
 															},
+															"username": {
+																Type:        schema.TypeString,
+																Description: "Username for the oracle database",
+																Computed:    true,
+															},
 														},
 													},
 												},
@@ -1119,6 +1134,35 @@ func DataSourceDBServices() *schema.Resource {
 															},
 														},
 													},
+												},
+											},
+										},
+									},
+									"connect_string": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"connect_descriptor": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"master_user": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"endpoint": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"service_port": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
 												},
 											},
 										},

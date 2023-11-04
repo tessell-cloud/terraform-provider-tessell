@@ -402,6 +402,7 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 
 	parsedInfrastructure["storage"] = infrastructure.Storage
 	parsedInfrastructure["additional_storage"] = infrastructure.AdditionalStorage
+	parsedInfrastructure["enable_compute_sharing"] = infrastructure.EnableComputeSharing
 
 	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
@@ -432,6 +433,7 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 
 	parsedInfrastructure["storage"] = infrastructure.Storage
 	parsedInfrastructure["additional_storage"] = infrastructure.AdditionalStorage
+	parsedInfrastructure["enable_compute_sharing"] = infrastructure.EnableComputeSharing
 
 	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
@@ -928,6 +930,7 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	parsedInstances["instance_group_id"] = instances.InstanceGroupId
 	parsedInstances["compute_type"] = instances.ComputeType
 
+	parsedInstances["compute_id"] = instances.ComputeId
 	parsedInstances["storage"] = instances.Storage
 	parsedInstances["data_volume_iops"] = instances.DataVolumeIops
 
@@ -1044,6 +1047,11 @@ func parseTessellDatabaseDTO(databases *model.TessellDatabaseDTO) interface{} {
 		parsedDatabases["database_configuration"] = []interface{}{parseDatabaseConfiguration(databases.DatabaseConfiguration)}
 	}
 
+	var connectString *model.TessellServiceDatabaseConnectString
+	if databases.ConnectString != connectString {
+		parsedDatabases["connect_string"] = []interface{}{parseTessellServiceDatabaseConnectString(databases.ConnectString)}
+	}
+
 	return parsedDatabases
 }
 
@@ -1098,6 +1106,7 @@ func parseOracleDatabaseConfig(oracleDatabaseConfig *model.OracleDatabaseConfig)
 	parsedOracleDatabaseConfig := make(map[string]interface{})
 	parsedOracleDatabaseConfig["parameter_profile_id"] = oracleDatabaseConfig.ParameterProfileId
 	parsedOracleDatabaseConfig["options_profile"] = oracleDatabaseConfig.OptionsProfile
+	parsedOracleDatabaseConfig["username"] = oracleDatabaseConfig.Username
 
 	return parsedOracleDatabaseConfig
 }
@@ -1140,6 +1149,19 @@ func parseMongoDBDatabaseConfig(mongodbDatabaseConfig *model.MongoDBDatabaseConf
 	parsedMongodbDatabaseConfig["parameter_profile_id"] = mongodbDatabaseConfig.ParameterProfileId
 
 	return parsedMongodbDatabaseConfig
+}
+
+func parseTessellServiceDatabaseConnectString(tessellServiceDatabaseConnectString *model.TessellServiceDatabaseConnectString) interface{} {
+	if tessellServiceDatabaseConnectString == nil {
+		return nil
+	}
+	parsedTessellServiceDatabaseConnectString := make(map[string]interface{})
+	parsedTessellServiceDatabaseConnectString["connect_descriptor"] = tessellServiceDatabaseConnectString.ConnectDescriptor
+	parsedTessellServiceDatabaseConnectString["master_user"] = tessellServiceDatabaseConnectString.MasterUser
+	parsedTessellServiceDatabaseConnectString["endpoint"] = tessellServiceDatabaseConnectString.Endpoint
+	parsedTessellServiceDatabaseConnectString["service_port"] = tessellServiceDatabaseConnectString.ServicePort
+
+	return parsedTessellServiceDatabaseConnectString
 }
 
 func parseEntityAclSharingInfoWithResData(sharedWith *model.EntityAclSharingInfo, d *schema.ResourceData) []interface{} {
@@ -1419,15 +1441,21 @@ func formTessellServiceInfrastructurePayload(tessellServiceInfrastructurePayload
 	tessellServiceInfrastructurePayloadData := tessellServiceInfrastructurePayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	tessellServiceInfrastructurePayloadFormed := model.TessellServiceInfrastructurePayload{
-		Cloud:             helper.GetStringPointer(tessellServiceInfrastructurePayloadData["cloud"]),
-		Region:            helper.GetStringPointer(tessellServiceInfrastructurePayloadData["region"]),
-		AvailabilityZone:  helper.GetStringPointer(tessellServiceInfrastructurePayloadData["availability_zone"]),
-		VPC:               helper.GetStringPointer(tessellServiceInfrastructurePayloadData["vpc"]),
-		EnableEncryption:  helper.GetBoolPointer(tessellServiceInfrastructurePayloadData["enable_encryption"]),
-		EncryptionKey:     helper.GetStringPointer(tessellServiceInfrastructurePayloadData["encryption_key"]),
-		ComputeType:       helper.GetStringPointer(tessellServiceInfrastructurePayloadData["compute_type"]),
-		AwsInfraConfig:    formAwsInfraConfig(tessellServiceInfrastructurePayloadData["aws_infra_config"]),
-		AdditionalStorage: helper.GetIntPointer(tessellServiceInfrastructurePayloadData["additional_storage"]),
+		Cloud:                helper.GetStringPointer(tessellServiceInfrastructurePayloadData["cloud"]),
+		Region:               helper.GetStringPointer(tessellServiceInfrastructurePayloadData["region"]),
+		AvailabilityZone:     helper.GetStringPointer(tessellServiceInfrastructurePayloadData["availability_zone"]),
+		VPC:                  helper.GetStringPointer(tessellServiceInfrastructurePayloadData["vpc"]),
+		EnableEncryption:     helper.GetBoolPointer(tessellServiceInfrastructurePayloadData["enable_encryption"]),
+		EncryptionKey:        helper.GetStringPointer(tessellServiceInfrastructurePayloadData["encryption_key"]),
+		ComputeType:          helper.GetStringPointer(tessellServiceInfrastructurePayloadData["compute_type"]),
+		AwsInfraConfig:       formAwsInfraConfig(tessellServiceInfrastructurePayloadData["aws_infra_config"]),
+		AdditionalStorage:    helper.GetIntPointer(tessellServiceInfrastructurePayloadData["additional_storage"]),
+		EnableComputeSharing: helper.GetBoolPointer(tessellServiceInfrastructurePayloadData["enable_compute_sharing"]),
+		Computes:             formProvisionComputePayloadList(tessellServiceInfrastructurePayloadData["computes"]),
+	}
+
+	if tessellServiceInfrastructurePayloadData["compute_name_prefix"] != nil {
+		tessellServiceInfrastructurePayloadFormed.ComputeNamePrefix = helper.GetStringPointer(tessellServiceInfrastructurePayloadData["compute_name_prefix"])
 	}
 
 	return &tessellServiceInfrastructurePayloadFormed
@@ -1461,6 +1489,37 @@ func formAwsCpuOptions(awsCpuOptionsRaw interface{}) *model.AwsCpuOptions {
 	return &awsCpuOptionsFormed
 }
 
+func formProvisionComputePayload(provisionComputePayloadRaw interface{}) *model.ProvisionComputePayload {
+	if provisionComputePayloadRaw == nil {
+		return nil
+	}
+
+	provisionComputePayloadData := provisionComputePayloadRaw.(map[string]interface{})
+
+	provisionComputePayloadFormed := model.ProvisionComputePayload{
+		Region:           helper.GetStringPointer(provisionComputePayloadData["region"]),
+		AvailabilityZone: helper.GetStringPointer(provisionComputePayloadData["availability_zone"]),
+		Role:             helper.GetStringPointer(provisionComputePayloadData["role"]),
+		VPC:              helper.GetStringPointer(provisionComputePayloadData["vpc"]),
+		ComputeType:      helper.GetStringPointer(provisionComputePayloadData["compute_type"]),
+		ComputeId:        helper.GetStringPointer(provisionComputePayloadData["compute_id"]),
+	}
+
+	return &provisionComputePayloadFormed
+}
+func formProvisionComputePayloadList(provisionComputePayloadListRaw interface{}) *[]model.ProvisionComputePayload {
+	if provisionComputePayloadListRaw == nil || len(provisionComputePayloadListRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	ProvisionComputePayloadListFormed := make([]model.ProvisionComputePayload, len(provisionComputePayloadListRaw.([]interface{})))
+
+	for i, provisionComputePayload := range provisionComputePayloadListRaw.([]interface{}) {
+		ProvisionComputePayloadListFormed[i] = *formProvisionComputePayload(provisionComputePayload)
+	}
+
+	return &ProvisionComputePayloadListFormed
+}
 func formTessellServiceConnectivityInfoPayload(tessellServiceConnectivityInfoPayloadRaw interface{}) *model.TessellServiceConnectivityInfoPayload {
 	if tessellServiceConnectivityInfoPayloadRaw == nil || len(tessellServiceConnectivityInfoPayloadRaw.([]interface{})) == 0 {
 		return nil
@@ -1717,7 +1776,7 @@ func formCreateDatabasePayloadDatabaseConfiguration(createDatabasePayloadDatabas
 	createDatabasePayloadDatabaseConfigurationData := createDatabasePayloadDatabaseConfigurationRaw.([]interface{})[0].(map[string]interface{})
 
 	createDatabasePayloadDatabaseConfigurationFormed := model.CreateDatabasePayloadDatabaseConfiguration{
-		OracleConfig:     formOracleDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["oracle_config"]),
+		OracleConfig:     formCreateOracleDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["oracle_config"]),
 		PostgresqlConfig: formPostgresqlDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["postgresql_config"]),
 		MysqlConfig:      formMysqlDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["mysql_config"]),
 		SqlServerConfig:  formSqlServerDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["sql_server_config"]),
@@ -1727,19 +1786,21 @@ func formCreateDatabasePayloadDatabaseConfiguration(createDatabasePayloadDatabas
 	return &createDatabasePayloadDatabaseConfigurationFormed
 }
 
-func formOracleDatabaseConfig(oracleDatabaseConfigRaw interface{}) *model.OracleDatabaseConfig {
-	if oracleDatabaseConfigRaw == nil || len(oracleDatabaseConfigRaw.([]interface{})) == 0 {
+func formCreateOracleDatabaseConfig(createOracleDatabaseConfigRaw interface{}) *model.CreateOracleDatabaseConfig {
+	if createOracleDatabaseConfigRaw == nil || len(createOracleDatabaseConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
 
-	oracleDatabaseConfigData := oracleDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
+	createOracleDatabaseConfigData := createOracleDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
-	oracleDatabaseConfigFormed := model.OracleDatabaseConfig{
-		ParameterProfileId: helper.GetStringPointer(oracleDatabaseConfigData["parameter_profile_id"]),
-		OptionsProfile:     helper.GetStringPointer(oracleDatabaseConfigData["options_profile"]),
+	createOracleDatabaseConfigFormed := model.CreateOracleDatabaseConfig{
+		ParameterProfileId: helper.GetStringPointer(createOracleDatabaseConfigData["parameter_profile_id"]),
+		OptionsProfile:     helper.GetStringPointer(createOracleDatabaseConfigData["options_profile"]),
+		Username:           helper.GetStringPointer(createOracleDatabaseConfigData["username"]),
+		Password:           helper.GetStringPointer(createOracleDatabaseConfigData["password"]),
 	}
 
-	return &oracleDatabaseConfigFormed
+	return &createOracleDatabaseConfigFormed
 }
 
 func formPostgresqlDatabaseConfig(postgresqlDatabaseConfigRaw interface{}) *model.PostgresqlDatabaseConfig {
