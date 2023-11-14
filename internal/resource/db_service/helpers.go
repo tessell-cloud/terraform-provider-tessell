@@ -931,6 +931,7 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	parsedInstances["compute_type"] = instances.ComputeType
 
 	parsedInstances["compute_id"] = instances.ComputeId
+	parsedInstances["compute_name"] = instances.ComputeName
 	parsedInstances["storage"] = instances.Storage
 	parsedInstances["data_volume_iops"] = instances.DataVolumeIops
 
