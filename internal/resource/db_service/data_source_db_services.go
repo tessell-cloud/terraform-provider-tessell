@@ -859,6 +859,11 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "The associated compute identifier",
 										Computed:    true,
 									},
+									"compute_name": {
+										Type:        schema.TypeString,
+										Description: "The associated compute name",
+										Computed:    true,
+									},
 									"storage": {
 										Type:        schema.TypeInt,
 										Description: "The storage (in bytes) that has been provisioned for the DB Service instance.",
