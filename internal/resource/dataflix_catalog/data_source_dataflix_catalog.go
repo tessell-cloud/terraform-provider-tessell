@@ -17,17 +17,17 @@ func DataSourceDataflixCatalog() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"availability_machine_id": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "ID of the Availability Machine",
 				Required:    true,
 			},
 			"tessell_service_id": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "ID of the associated DB Service",
 				Computed:    true,
 			},
 			"service_name": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "Name of the associated DB Service",
 				Computed:    true,
 			},
 			"engine_type": {
@@ -37,7 +37,7 @@ func DataSourceDataflixCatalog() *schema.Resource {
 			},
 			"time_zone": {
 				Type:        schema.TypeString,
-				Description: "Output timezone",
+				Description: "Timezone applicable for timestamps that are returned in this response",
 				Computed:    true,
 			},
 			"owner": {
@@ -47,7 +47,7 @@ func DataSourceDataflixCatalog() *schema.Resource {
 			},
 			"pitr_catalog": {
 				Type:        schema.TypeList,
-				Description: "PITR availability catalog",
+				Description: "Catalog information for the point-in-time recoverability",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -75,12 +75,12 @@ func DataSourceDataflixCatalog() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"from_time": {
 													Type:        schema.TypeString,
-													Description: "PITR recovery from-time",
+													Description: "Recoverability start timestamp",
 													Computed:    true,
 												},
 												"to_time": {
 													Type:        schema.TypeString,
-													Description: "PITR recovery to-time",
+													Description: "Recoverability end timestamp",
 													Computed:    true,
 												},
 												"shared_with": {
@@ -111,18 +111,18 @@ func DataSourceDataflixCatalog() *schema.Resource {
 			},
 			"snapshot_catalog": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "Catalog information for the available snapshots",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
-							Description: "DB Service snapshot Id",
+							Description: "ID of the snapshot",
 							Required:    true,
 						},
 						"name": {
 							Type:        schema.TypeString,
-							Description: "DB Service snapshot name",
+							Description: "Name of the snapshot",
 							Computed:    true,
 						},
 						"description": {
@@ -132,7 +132,7 @@ func DataSourceDataflixCatalog() *schema.Resource {
 						},
 						"snapshot_time": {
 							Type:        schema.TypeString,
-							Description: "DB Service snapshot capture time",
+							Description: "Capture time of the snapshot",
 							Computed:    true,
 						},
 						"status": {
@@ -142,17 +142,17 @@ func DataSourceDataflixCatalog() *schema.Resource {
 						},
 						"size": {
 							Type:        schema.TypeInt,
-							Description: "Database Backup size in bytes",
+							Description: "Size of this snapshot (in bytes)",
 							Computed:    true,
 						},
 						"manual": {
 							Type:        schema.TypeBool,
-							Description: "Specifies whether the backup is captured manually",
+							Description: "Specifies whether the backup is captured as per manual user request or as per the automated schedule",
 							Computed:    true,
 						},
 						"cloud_availability": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "The cloud and region information where this snapshot has been made available at",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -163,18 +163,18 @@ func DataSourceDataflixCatalog() *schema.Resource {
 									},
 									"regions": {
 										Type:        schema.TypeList,
-										Description: "The regions details",
+										Description: "Region specific availability details for the snapshot",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"region": {
 													Type:        schema.TypeString,
-													Description: "The cloud region name",
+													Description: "The region name",
 													Computed:    true,
 												},
 												"status": {
 													Type:        schema.TypeString,
-													Description: "The cloud region name",
+													Description: "The current status of the snapshot in the respective region",
 													Computed:    true,
 												},
 											},
@@ -185,23 +185,23 @@ func DataSourceDataflixCatalog() *schema.Resource {
 						},
 						"databases": {
 							Type:        schema.TypeList,
-							Description: "The databases that are captured as part of the snapshot",
+							Description: "The databases that are captured as part of this snapshot",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
 										Type:        schema.TypeString,
-										Description: "Databases Id",
+										Description: "ID of the database",
 										Required:    true,
 									},
 									"name": {
 										Type:        schema.TypeString,
-										Description: "Databases name",
+										Description: "Name of the database",
 										Computed:    true,
 									},
 									"status": {
 										Type:        schema.TypeString,
-										Description: "Databases status",
+										Description: "Status of the database as of capture of this snapshot",
 										Computed:    true,
 									},
 								},

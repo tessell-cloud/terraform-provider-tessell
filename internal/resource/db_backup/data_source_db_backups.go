@@ -38,17 +38,17 @@ func DataSourceDBBackups() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
-							Description: "DB Service backup Id",
+							Description: "ID of the backup",
 							Computed:    true,
 						},
 						"name": {
 							Type:        schema.TypeString,
-							Description: "DB Service backup name",
+							Description: "Name of the backup",
 							Computed:    true,
 						},
 						"backup_time": {
 							Type:        schema.TypeString,
-							Description: "DB Service backup capture time",
+							Description: "Backup capture time",
 							Computed:    true,
 						},
 						"status": {
@@ -58,17 +58,17 @@ func DataSourceDBBackups() *schema.Resource {
 						},
 						"size": {
 							Type:        schema.TypeInt,
-							Description: "Backup size in bytes",
+							Description: "Size of this backup (in bytes)",
 							Computed:    true,
 						},
 						"manual": {
 							Type:        schema.TypeBool,
-							Description: "Specifies whether the backup is captured manually",
+							Description: "Specifies whether the backup is captured as per manual user request or per automated schedule",
 							Computed:    true,
 						},
 						"cloud_availability": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "The cloud and region information where this backup has been made available at",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -104,7 +104,7 @@ func DataSourceDBBackups() *schema.Resource {
 						},
 						"availability_config": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "The config information for cloud and region availability for this backup",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -156,23 +156,23 @@ func DataSourceDBBackups() *schema.Resource {
 						},
 						"databases": {
 							Type:        schema.TypeList,
-							Description: "The databases that are captured as part of the backup",
+							Description: "The databases that are captured as part of this backup",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
 										Type:        schema.TypeString,
-										Description: "Databases Id",
+										Description: "ID of the database",
 										Computed:    true,
 									},
 									"name": {
 										Type:        schema.TypeString,
-										Description: "Databases name",
+										Description: "Name of the database",
 										Computed:    true,
 									},
 									"status": {
 										Type:        schema.TypeString,
-										Description: "Databases status",
+										Description: "Status of the database as of capture of this snapshot",
 										Computed:    true,
 									},
 								},
@@ -186,17 +186,17 @@ func DataSourceDBBackups() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"source_snapshot_id": {
 										Type:        schema.TypeString,
-										Description: "snapshot from which backup was created",
+										Description: "ID of snapshot from which this backup was created",
 										Computed:    true,
 									},
 									"snapshot_name": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "Name of snapshot from which this backup was created",
 										Computed:    true,
 									},
 									"snapshot_time": {
 										Type:        schema.TypeString,
-										Description: "snapshot creation time",
+										Description: "Capture time of snapshot from which this backup was created",
 										Computed:    true,
 									},
 								},
@@ -204,7 +204,7 @@ func DataSourceDBBackups() *schema.Resource {
 						},
 						"shared_with": {
 							Type:        schema.TypeList,
-							Description: "Users having shared access to the Database Backup",
+							Description: "List of users who have access to this backup",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -232,7 +232,7 @@ func DataSourceDBBackups() *schema.Resource {
 														Schema: map[string]*schema.Schema{
 															"expire_at": {
 																Type:        schema.TypeString,
-																Description: "time till backup will be live",
+																Description: "time-to-live for the Pre auth url",
 																Computed:    true,
 															},
 														},

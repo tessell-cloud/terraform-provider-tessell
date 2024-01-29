@@ -86,12 +86,12 @@ func ResourceDBService() *schema.Resource {
 			},
 			"status": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "The current status of the DB Service",
 				Computed:    true,
 			},
 			"context_info": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "Provide more context of DB Service state",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -189,13 +189,13 @@ func ResourceDBService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"tessell_service_id": {
 							Type:        schema.TypeString,
-							Description: "The DB Service Id using which this DB Service clone is created",
+							Description: "The DB Service ID using which this DB Service clone is created",
 							Optional:    true,
 							ForceNew:    true,
 						},
 						"availability_machine_id": {
 							Type:        schema.TypeString,
-							Description: "The Availability Machine Id using which this DB Service clone is created",
+							Description: "The Availability Machine ID using which this DB Service clone is created",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -207,7 +207,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"availability_machine": {
 							Type:        schema.TypeString,
-							Description: "The Availaility Machine name using which this DB Service clone is created",
+							Description: "The Availability Machine name using which this DB Service clone is created",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -219,7 +219,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"snapshot_id": {
 							Type:        schema.TypeString,
-							Description: "The snapshot Id using which this DB Service clone is created",
+							Description: "The snapshot ID using which this DB Service clone is created",
 							Optional:    true,
 							ForceNew:    true,
 						},
@@ -237,7 +237,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"maximum_recoverability": {
 							Type:        schema.TypeBool,
-							Description: "If the service was created using a maximum recoverablity from the parent service",
+							Description: "If the service was created using a maximum recoverability from the parent service",
 							Optional:    true,
 							ForceNew:    true,
 							Default:     false,
@@ -399,6 +399,31 @@ func ResourceDBService() *schema.Resource {
 							Description: "Specify if the computes should be shared across DB Services",
 							Optional:    true,
 							ForceNew:    true,
+							Default:     false,
+						},
+						"timezone": {
+							Type:        schema.TypeString,
+							Description: "The timezone detail",
+							Optional:    true,
+							ForceNew:    true,
+							Default:     "UTC",
+						},
+						"multi_disk": {
+							Type:        schema.TypeBool,
+							Description: "Specify whether the DB service uses multiple data disks",
+							Computed:    true,
+						},
+						"iops": {
+							Type:        schema.TypeInt,
+							Description: "IOPS requested for the DB Service",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"throughput": {
+							Type:        schema.TypeInt,
+							Description: "throughput requested for the DB Service",
+							Optional:    true,
+							ForceNew:    true,
 						},
 						"compute_name_prefix": {
 							Type:        schema.TypeString,
@@ -449,6 +474,13 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
+									"timezone": {
+										Type:        schema.TypeString,
+										Description: "The timezone detail",
+										Optional:    true,
+										ForceNew:    true,
+										Default:     "UTC",
+									},
 								},
 							},
 						},
@@ -465,19 +497,19 @@ func ResourceDBService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"enable_ssl": {
 							Type:        schema.TypeBool,
-							Description: "",
+							Description: "Specify whether to enable SSL to the DB Service, default false",
 							Optional:    true,
 							ForceNew:    true,
 							Default:     false,
 						},
 						"ca_cert_id": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "The CA certificate ID associated with the DB Service",
 							Computed:    true,
 						},
 						"dns_prefix": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "DNS Prefix associated with the DB Service",
 							Optional:    true,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								dnsPrefix := d.Get(k)
@@ -529,19 +561,19 @@ func ResourceDBService() *schema.Resource {
 									},
 									"connect_descriptor": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The connection description for the DB Service",
 										Optional:    true,
 										ForceNew:    true,
 									},
 									"endpoint": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The connection end point for the DB Service",
 										Optional:    true,
 										ForceNew:    true,
 									},
 									"master_user": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The master user name for the DB Service",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -605,7 +637,7 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"dns_prefix": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The DNS prefix associated with the DB Service",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -710,7 +742,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"duration": {
 							Type:        schema.TypeInt,
-							Description: "",
+							Description: "The duration during which the maintenance window will be allowed to trigger",
 							Required:    true,
 							ForceNew:    true,
 						},
@@ -823,7 +855,7 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile id for the database",
+										Description: "The parameter profile ID for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -841,7 +873,7 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile id for the database",
+										Description: "The parameter profile ID for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -859,13 +891,13 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile id for the database",
+										Description: "The parameter profile ID for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
 									"ad_domain_id": {
 										Type:        schema.TypeString,
-										Description: "Active Directory Domain id",
+										Description: "Active Directory Domain ID",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -907,7 +939,25 @@ func ResourceDBService() *schema.Resource {
 									},
 									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile id for the database",
+										Description: "The parameter profile ID for the database",
+										Optional:    true,
+										ForceNew:    true,
+									},
+								},
+							},
+						},
+						"milvus_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"parameter_profile_id": {
+										Type:        schema.TypeString,
+										Description: "The parameter profile ID for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -925,7 +975,7 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"script_id": {
 										Type:        schema.TypeString,
-										Description: "The Tessell Script Id",
+										Description: "The Tessell Script ID",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -949,7 +999,7 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"script_id": {
 										Type:        schema.TypeString,
-										Description: "The Tessell Script Id",
+										Description: "The Tessell Script ID",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -993,7 +1043,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"id": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Tessell generated UUID for the database",
 							Computed:    true,
 						},
 						"database_name": {
@@ -1009,7 +1059,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"tessell_service_id": {
 							Type:        schema.TypeString,
-							Description: "Associated DB Service Id",
+							Description: "Associated DB Service ID",
 							Computed:    true,
 						},
 						"engine_type": {
@@ -1091,7 +1141,7 @@ func ResourceDBService() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile id for the database",
+													Description: "The parameter profile ID for the database",
 													Optional:    true,
 													ForceNew:    true,
 												},
@@ -1109,7 +1159,7 @@ func ResourceDBService() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile id for the database",
+													Description: "The parameter profile ID for the database",
 													Optional:    true,
 													ForceNew:    true,
 												},
@@ -1127,7 +1177,7 @@ func ResourceDBService() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile id for the database",
+													Description: "The parameter profile ID for the database",
 													Optional:    true,
 													ForceNew:    true,
 												},
@@ -1145,7 +1195,25 @@ func ResourceDBService() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile id for the database",
+													Description: "The parameter profile ID for the database",
+													Optional:    true,
+													ForceNew:    true,
+												},
+											},
+										},
+									},
+									"milvus_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"parameter_profile_id": {
+													Type:        schema.TypeString,
+													Description: "The parameter profile ID for the database",
 													Optional:    true,
 													ForceNew:    true,
 												},
@@ -1281,12 +1349,12 @@ func ResourceDBService() *schema.Resource {
 						},
 						"role": {
 							Type:        schema.TypeString,
-							Description: "DB Service Topology",
+							Description: "DB Service instance role",
 							Computed:    true,
 						},
 						"status": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "DB Service instance status",
 							Computed:    true,
 						},
 						"tessell_service_id": {
@@ -1374,6 +1442,12 @@ func ResourceDBService() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 						},
+						"throughput": {
+							Type:        schema.TypeInt,
+							Description: "Throughput requested for this DB Service instance",
+							Optional:    true,
+							ForceNew:    true,
+						},
 						"parameter_profile": {
 							Type:        schema.TypeList,
 							Description: "",
@@ -1385,19 +1459,19 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"id": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "Tessell generated UUID for the the parameter profile",
 										Optional:    true,
 										ForceNew:    true,
 									},
 									"name": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The name used to identify the parameter profile",
 										Optional:    true,
 										ForceNew:    true,
 									},
 									"version": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The version of the parameter profile assoiciated with the instance",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -1406,6 +1480,42 @@ func ResourceDBService() *schema.Resource {
 										Description: "",
 										Optional:    true,
 										ForceNew:    true,
+									},
+								},
+							},
+						},
+						"monitoring_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"perf_insights": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"perf_insights_enabled": {
+													Type:        schema.TypeBool,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"monitoring_deployment_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1564,7 +1674,7 @@ func ResourceDBService() *schema.Resource {
 									},
 									"at": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The time at which the specified action is to be performed",
 										Computed:    true,
 									},
 								},
@@ -1578,12 +1688,12 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"at": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The updated time at which the specified action is to be performed",
 										Computed:    true,
 									},
 									"message": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "Details for the update",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -1598,7 +1708,7 @@ func ResourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"at": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The scheduled time for the action to be deleted",
 										Computed:    true,
 									},
 								},
@@ -1609,7 +1719,7 @@ func ResourceDBService() *schema.Resource {
 			},
 			"deletion_config": {
 				Type:        schema.TypeList,
-				Description: "If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
+				Description: "If the DB Service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1625,7 +1735,7 @@ func ResourceDBService() *schema.Resource {
 			},
 			"deletion_schedule": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "Details of the deletion schedule on a DB Service",
 				Optional:    true,
 				ForceNew:    true,
 				MaxItems:    1,
@@ -1634,13 +1744,13 @@ func ResourceDBService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"delete_at": {
 							Type:        schema.TypeString,
-							Description: "DB Service deletion Time",
+							Description: "Time at which the DB Service should be deleted at",
 							Required:    true,
 							ForceNew:    true,
 						},
 						"deletion_config": {
 							Type:        schema.TypeList,
-							Description: "If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
+							Description: "If the DB Service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

@@ -38,22 +38,22 @@ func DataSourceDBSnapshots() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
-							Description: "DB Service snapshot Id",
+							Description: "ID of the snapshot",
 							Computed:    true,
 						},
 						"name": {
 							Type:        schema.TypeString,
-							Description: "DB Service snapshot name",
+							Description: "Name of the snapshot",
 							Computed:    true,
 						},
 						"description": {
 							Type:        schema.TypeString,
-							Description: "Description for the snapshot",
+							Description: "Description of the snapshot",
 							Computed:    true,
 						},
 						"snapshot_time": {
 							Type:        schema.TypeString,
-							Description: "DB Service snapshot capture time",
+							Description: "Capture time of the snapshot",
 							Computed:    true,
 						},
 						"status": {
@@ -63,17 +63,17 @@ func DataSourceDBSnapshots() *schema.Resource {
 						},
 						"size": {
 							Type:        schema.TypeInt,
-							Description: "Database Backup size in bytes",
+							Description: "Size of this snapshot (in bytes)",
 							Computed:    true,
 						},
 						"manual": {
 							Type:        schema.TypeBool,
-							Description: "Specifies whether the backup is captured manually",
+							Description: "Specifies whether this snapshot is captured as per manual user request or per automated schedule",
 							Computed:    true,
 						},
 						"cloud_availability": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "The cloud and region information where this snapshot has been made available at",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -84,18 +84,18 @@ func DataSourceDBSnapshots() *schema.Resource {
 									},
 									"regions": {
 										Type:        schema.TypeList,
-										Description: "The regions details",
+										Description: "Region specific availability details for the snapshot",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"region": {
 													Type:        schema.TypeString,
-													Description: "The cloud region name",
+													Description: "The region name",
 													Computed:    true,
 												},
 												"status": {
 													Type:        schema.TypeString,
-													Description: "The cloud region name",
+													Description: "The current status of the snapshot in the respective region",
 													Computed:    true,
 												},
 											},
@@ -106,7 +106,7 @@ func DataSourceDBSnapshots() *schema.Resource {
 						},
 						"availability_config": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "The config information for cloud and region availability for this snapshot",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -158,23 +158,23 @@ func DataSourceDBSnapshots() *schema.Resource {
 						},
 						"databases": {
 							Type:        schema.TypeList,
-							Description: "The databases that are captured as part of the snapshot",
+							Description: "The databases that are captured as part of this snapshot",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
 										Type:        schema.TypeString,
-										Description: "Databases Id",
+										Description: "ID of the database",
 										Computed:    true,
 									},
 									"name": {
 										Type:        schema.TypeString,
-										Description: "Databases name",
+										Description: "Name of the database",
 										Computed:    true,
 									},
 									"status": {
 										Type:        schema.TypeString,
-										Description: "Databases status",
+										Description: "Status of the database as of capture of this snapshot",
 										Computed:    true,
 									},
 								},

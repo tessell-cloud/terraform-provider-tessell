@@ -32,22 +32,22 @@ type DailySchedule struct {
 }
 
 type TessellDAPServiceDTO struct {
-	Id                    *string                   `json:"id,omitempty"`
-	Name                  *string                   `json:"name,omitempty"`
-	AvailabilityMachineId *string                   `json:"availabilityMachineId,omitempty"`
-	TessellServiceId      *string                   `json:"tessellServiceId,omitempty"`
-	ServiceName           *string                   `json:"serviceName,omitempty"`
-	EngineType            *string                   `json:"engineType,omitempty"`
-	ContentType           *string                   `json:"contentType,omitempty"` // Content Type for the Data Access Policy
-	Status                *string                   `json:"status,omitempty"`      // Database Access Policy Status
+	Id                    *string                   `json:"id,omitempty"`                    // ID of the Access Policy
+	Name                  *string                   `json:"name,omitempty"`                  // Name of the Access Policy
+	AvailabilityMachineId *string                   `json:"availabilityMachineId,omitempty"` // ID of the Availability Machine
+	TessellServiceId      *string                   `json:"tessellServiceId,omitempty"`      // ID of the associated DB Service
+	ServiceName           *string                   `json:"serviceName,omitempty"`           // Name of the associated DB Service
+	EngineType            *string                   `json:"engineType,omitempty"`            // Database engine type of the associated DB Service
+	ContentType           *string                   `json:"contentType,omitempty"`           // Content Type for the Data Access Policy
+	Status                *string                   `json:"status,omitempty"`                // Database Access Policy Status
 	ContentInfo           *DAPContentInfo           `json:"contentInfo,omitempty"`
-	CloudAvailability     *[]CloudRegionInfo        `json:"cloudAvailability,omitempty"`
+	CloudAvailability     *[]CloudRegionInfo        `json:"cloudAvailability,omitempty"` // The cloud and region information where the data is being managed by this Access Policy
 	DataAccessConfig      *RetentionAndScheduleInfo `json:"dataAccessConfig,omitempty"`
-	Owner                 *string                   `json:"owner,omitempty"`
+	Owner                 *string                   `json:"owner,omitempty"`            // Owner of the Access Policy
 	LoggedInUserRole      *string                   `json:"loggedInUserRole,omitempty"` // The role of the logged in user for accessing the Availability Machine
 	SharedWith            *EntityAclSharingInfo     `json:"sharedWith,omitempty"`
-	DateCreated           *string                   `json:"dateCreated,omitempty"`
-	DateModified          *string                   `json:"dateModified,omitempty"`
+	DateCreated           *string                   `json:"dateCreated,omitempty"`  // Timestamp when this Access Policy was created at
+	DateModified          *string                   `json:"dateModified,omitempty"` // Timestamp when this Access Policy was last updated at
 }
 
 type DAPContentInfo struct {
@@ -104,23 +104,23 @@ type BackupDownloadConfig struct {
 }
 
 type TessellDMMServiceConsumerDTO struct {
-	Id                   *string                            `json:"id,omitempty"`
-	TessellServiceId     *string                            `json:"tessellServiceId,omitempty"`
-	ServiceName          *string                            `json:"serviceName,omitempty"`
-	Tenant               *string                            `json:"tenant,omitempty"`              // Dmm&#39;s tenancy details
-	Subscription         *string                            `json:"subscription,omitempty"`        // Dmm&#39;s subscription name
+	Id                   *string                            `json:"id,omitempty"`                  // ID of the Availability Machine
+	TessellServiceId     *string                            `json:"tessellServiceId,omitempty"`    // ID of the DB Service that is associated with the Availability Machine
+	ServiceName          *string                            `json:"serviceName,omitempty"`         // Name of the DB Service that is associated with the Availability Machine
+	Tenant               *string                            `json:"tenant,omitempty"`              // ID of the tenant under which this Availability Machine is effective
+	Subscription         *string                            `json:"subscription,omitempty"`        // Name of the subscription under which the associated DB Service is hosted
 	EngineType           *string                            `json:"engineType,omitempty"`          // Database Engine Type
 	DataIngestionStatus  *string                            `json:"dataIngestionStatus,omitempty"` // Availability Machine&#39;s data ingestion status
-	UserId               *string                            `json:"userId,omitempty"`              // Data Management Machine&#39;s user
-	Owner                *string                            `json:"owner,omitempty"`               // Availability Machine&#39;s owner
-	LoggedInUserRole     *string                            `json:"loggedInUserRole,omitempty"`    // The role of the logged in user for accessing the Availability Machine
+	UserId               *string                            `json:"userId,omitempty"`              // User details representing the owner for the Availability Machine
+	Owner                *string                            `json:"owner,omitempty"`               // User details representing the owner for the Availability Machine
+	LoggedInUserRole     *string                            `json:"loggedInUserRole,omitempty"`    // The role of the logged in user for accessing this Availability Machine
 	SharedWith           *EntityAclSharingInfo              `json:"sharedWith,omitempty"`
-	CloudAvailability    *[]CloudRegionInfo                 `json:"cloudAvailability,omitempty"`
+	CloudAvailability    *[]CloudRegionInfo                 `json:"cloudAvailability,omitempty"` // Availability Machine manages data across multiple regions within a cloud. This sections provides information about the cloud and regions where this Availability Machine is managing the data.
 	RPOSLA               *TessellDMMAvailabilityServiceView `json:"rpoSla,omitempty"`
-	DAPs                 *[]TessellDAPServiceDTO            `json:"daps,omitempty"`
-	Clones               *[]TessellCloneSummaryInfo         `json:"clones,omitempty"` // Clone databases that are created from this Availability Machine
-	DateCreated          *string                            `json:"dateCreated,omitempty"`
-	DateModified         *string                            `json:"dateModified,omitempty"`
+	DAPs                 *[]TessellDAPServiceDTO            `json:"daps,omitempty"`         // The Access Policies (DAP) that have configured for this Availability Machine
+	Clones               *[]TessellCloneSummaryInfo         `json:"clones,omitempty"`       // The clone DB Services that have been created using contents (snapshots, Sanitized Snapshots, PITR, backups) from this Availability Machine
+	DateCreated          *string                            `json:"dateCreated,omitempty"`  // The timestamp when the Availability Machine was incarnated
+	DateModified         *string                            `json:"dateModified,omitempty"` // The timestamp when the Availability Machine was last updated
 	BackupDownloadConfig *BackupDownloadConfig              `json:"backupDownloadConfig,omitempty"`
 }
 
