@@ -403,6 +403,10 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 	parsedInfrastructure["storage"] = infrastructure.Storage
 	parsedInfrastructure["additional_storage"] = infrastructure.AdditionalStorage
 	parsedInfrastructure["enable_compute_sharing"] = infrastructure.EnableComputeSharing
+	parsedInfrastructure["timezone"] = infrastructure.Timezone
+	parsedInfrastructure["multi_disk"] = infrastructure.MultiDisk
+	parsedInfrastructure["iops"] = infrastructure.Iops
+	parsedInfrastructure["throughput"] = infrastructure.Throughput
 
 	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
@@ -434,6 +438,10 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	parsedInfrastructure["storage"] = infrastructure.Storage
 	parsedInfrastructure["additional_storage"] = infrastructure.AdditionalStorage
 	parsedInfrastructure["enable_compute_sharing"] = infrastructure.EnableComputeSharing
+	parsedInfrastructure["timezone"] = infrastructure.Timezone
+	parsedInfrastructure["multi_disk"] = infrastructure.MultiDisk
+	parsedInfrastructure["iops"] = infrastructure.Iops
+	parsedInfrastructure["throughput"] = infrastructure.Throughput
 
 	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
@@ -602,6 +610,11 @@ func parseTessellServiceEngineInfoWithResData(engineConfiguration *model.Tessell
 		parsedEngineConfiguration["mongodb_config"] = []interface{}{parseTessellServiceMongoDBEngineConfig(engineConfiguration.MongoDBConfig)}
 	}
 
+	var milvusConfig *model.TessellServiceMilvusEngineConfig
+	if engineConfiguration.MilvusConfig != milvusConfig {
+		parsedEngineConfiguration["milvus_config"] = []interface{}{parseTessellServiceMilvusEngineConfig(engineConfiguration.MilvusConfig)}
+	}
+
 	var preScriptInfo *model.ScriptInfo
 	if engineConfiguration.PreScriptInfo != preScriptInfo {
 		parsedEngineConfiguration["pre_script_info"] = []interface{}{parseScriptInfo(engineConfiguration.PreScriptInfo)}
@@ -649,6 +662,11 @@ func parseTessellServiceEngineInfo(engineConfiguration *model.TessellServiceEngi
 	var mongoDBConfig *model.TessellServiceMongoDBEngineConfig
 	if engineConfiguration.MongoDBConfig != mongoDBConfig {
 		parsedEngineConfiguration["mongodb_config"] = []interface{}{parseTessellServiceMongoDBEngineConfig(engineConfiguration.MongoDBConfig)}
+	}
+
+	var milvusConfig *model.TessellServiceMilvusEngineConfig
+	if engineConfiguration.MilvusConfig != milvusConfig {
+		parsedEngineConfiguration["milvus_config"] = []interface{}{parseTessellServiceMilvusEngineConfig(engineConfiguration.MilvusConfig)}
 	}
 
 	var preScriptInfo *model.ScriptInfo
@@ -728,6 +746,16 @@ func parseTessellServiceMongoDBEngineConfig(tessellServiceMongodbEngineConfig *m
 	parsedTessellServiceMongodbEngineConfig["parameter_profile_id"] = tessellServiceMongodbEngineConfig.ParameterProfileId
 
 	return parsedTessellServiceMongodbEngineConfig
+}
+
+func parseTessellServiceMilvusEngineConfig(tessellServiceMilvusEngineConfig *model.TessellServiceMilvusEngineConfig) interface{} {
+	if tessellServiceMilvusEngineConfig == nil {
+		return nil
+	}
+	parsedTessellServiceMilvusEngineConfig := make(map[string]interface{})
+	parsedTessellServiceMilvusEngineConfig["parameter_profile_id"] = tessellServiceMilvusEngineConfig.ParameterProfileId
+
+	return parsedTessellServiceMilvusEngineConfig
 }
 
 func parseScriptInfo(scriptInfo *model.ScriptInfo) interface{} {
@@ -934,6 +962,7 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	parsedInstances["compute_name"] = instances.ComputeName
 	parsedInstances["storage"] = instances.Storage
 	parsedInstances["data_volume_iops"] = instances.DataVolumeIops
+	parsedInstances["throughput"] = instances.Throughput
 
 	parsedInstances["vpc"] = instances.VPC
 	parsedInstances["encryption_key"] = instances.EncryptionKey
@@ -952,6 +981,11 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	var parameterProfile *model.ParameterProfile
 	if instances.ParameterProfile != parameterProfile {
 		parsedInstances["parameter_profile"] = []interface{}{parseParameterProfile(instances.ParameterProfile)}
+	}
+
+	var monitoringConfig *model.MonitoringConfig
+	if instances.MonitoringConfig != monitoringConfig {
+		parsedInstances["monitoring_config"] = []interface{}{parseMonitoringConfig(instances.MonitoringConfig)}
 	}
 
 	var connectString *model.TessellServiceInstanceConnectString
@@ -978,6 +1012,31 @@ func parseParameterProfile(parameterProfile *model.ParameterProfile) interface{}
 	parsedParameterProfile["status"] = parameterProfile.Status
 
 	return parsedParameterProfile
+}
+
+func parseMonitoringConfig(monitoringConfig *model.MonitoringConfig) interface{} {
+	if monitoringConfig == nil {
+		return nil
+	}
+	parsedMonitoringConfig := make(map[string]interface{})
+
+	var perfInsights *model.PerfInsightsConfig
+	if monitoringConfig.PerfInsights != perfInsights {
+		parsedMonitoringConfig["perf_insights"] = []interface{}{parsePerfInsightsConfig(monitoringConfig.PerfInsights)}
+	}
+
+	return parsedMonitoringConfig
+}
+
+func parsePerfInsightsConfig(perfInsightsConfig *model.PerfInsightsConfig) interface{} {
+	if perfInsightsConfig == nil {
+		return nil
+	}
+	parsedPerfInsightsConfig := make(map[string]interface{})
+	parsedPerfInsightsConfig["perf_insights_enabled"] = perfInsightsConfig.PerfInsightsEnabled
+	parsedPerfInsightsConfig["monitoring_deployment_id"] = perfInsightsConfig.MonitoringDeploymentId
+
+	return parsedPerfInsightsConfig
 }
 
 func parseTessellServiceInstanceConnectString(tessellServiceInstanceConnectString *model.TessellServiceInstanceConnectString) interface{} {
@@ -1097,6 +1156,11 @@ func parseDatabaseConfiguration(databaseConfiguration *model.DatabaseConfigurati
 		parsedDatabaseConfiguration["mongodb_config"] = []interface{}{parseMongoDBDatabaseConfig(databaseConfiguration.MongoDBConfig)}
 	}
 
+	var milvusConfig *model.MilvusDatabaseConfig
+	if databaseConfiguration.MilvusConfig != milvusConfig {
+		parsedDatabaseConfiguration["milvus_config"] = []interface{}{parseMilvusDatabaseConfig(databaseConfiguration.MilvusConfig)}
+	}
+
 	return parsedDatabaseConfiguration
 }
 
@@ -1150,6 +1214,16 @@ func parseMongoDBDatabaseConfig(mongodbDatabaseConfig *model.MongoDBDatabaseConf
 	parsedMongodbDatabaseConfig["parameter_profile_id"] = mongodbDatabaseConfig.ParameterProfileId
 
 	return parsedMongodbDatabaseConfig
+}
+
+func parseMilvusDatabaseConfig(milvusDatabaseConfig *model.MilvusDatabaseConfig) interface{} {
+	if milvusDatabaseConfig == nil {
+		return nil
+	}
+	parsedMilvusDatabaseConfig := make(map[string]interface{})
+	parsedMilvusDatabaseConfig["parameter_profile_id"] = milvusDatabaseConfig.ParameterProfileId
+
+	return parsedMilvusDatabaseConfig
 }
 
 func parseTessellServiceDatabaseConnectString(tessellServiceDatabaseConnectString *model.TessellServiceDatabaseConnectString) interface{} {
@@ -1364,6 +1438,7 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		AutoMinorVersionUpdate:   helper.GetBoolPointer(d.Get("auto_minor_version_update")),
 		EnableDeletionProtection: helper.GetBoolPointer(d.Get("enable_deletion_protection")),
 		EnableStopProtection:     helper.GetBoolPointer(d.Get("enable_stop_protection")),
+		EnablePerfInsights:       helper.GetBoolPointer(d.Get("enable_perf_insights")),
 		Infrastructure:           formTessellServiceInfrastructurePayload(d.Get("infrastructure")),
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
@@ -1403,6 +1478,7 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		AutoMinorVersionUpdate:   helper.GetBoolPointer(d.Get("auto_minor_version_update")),
 		EnableDeletionProtection: helper.GetBoolPointer(d.Get("enable_deletion_protection")),
 		EnableStopProtection:     helper.GetBoolPointer(d.Get("enable_stop_protection")),
+		EnablePerfInsights:       helper.GetBoolPointer(d.Get("enable_perf_insights")),
 		Infrastructure:           formTessellServiceInfrastructurePayload(d.Get("infrastructure")),
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
@@ -1452,7 +1528,10 @@ func formTessellServiceInfrastructurePayload(tessellServiceInfrastructurePayload
 		AwsInfraConfig:       formAwsInfraConfig(tessellServiceInfrastructurePayloadData["aws_infra_config"]),
 		AdditionalStorage:    helper.GetIntPointer(tessellServiceInfrastructurePayloadData["additional_storage"]),
 		EnableComputeSharing: helper.GetBoolPointer(tessellServiceInfrastructurePayloadData["enable_compute_sharing"]),
+		Timezone:             helper.GetStringPointer(tessellServiceInfrastructurePayloadData["timezone"]),
 		Computes:             formProvisionComputePayloadList(tessellServiceInfrastructurePayloadData["computes"]),
+		Iops:                 helper.GetIntPointer(tessellServiceInfrastructurePayloadData["iops"]),
+		Throughput:           helper.GetIntPointer(tessellServiceInfrastructurePayloadData["throughput"]),
 	}
 
 	if tessellServiceInfrastructurePayloadData["compute_name_prefix"] != nil {
@@ -1504,6 +1583,7 @@ func formProvisionComputePayload(provisionComputePayloadRaw interface{}) *model.
 		VPC:              helper.GetStringPointer(provisionComputePayloadData["vpc"]),
 		ComputeType:      helper.GetStringPointer(provisionComputePayloadData["compute_type"]),
 		ComputeId:        helper.GetStringPointer(provisionComputePayloadData["compute_id"]),
+		Timezone:         helper.GetStringPointer(provisionComputePayloadData["timezone"]),
 	}
 
 	return &provisionComputePayloadFormed
@@ -1631,6 +1711,7 @@ func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurat
 		SqlServerConfig:   formSqlServerEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["sql_server_config"]),
 		ApacheKafkaConfig: formApacheKafkaEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["apache_kafka_config"]),
 		MongoDBConfig:     formMongoDBEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mongodb_config"]),
+		MilvusConfig:      formMilvusEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["milvus_config"]),
 	}
 
 	return &tessellServiceEngineConfigurationPayloadFormed
@@ -1741,6 +1822,20 @@ func formMongoDBEngineConfigPayload(mongoDBEngineConfigPayloadRaw interface{}) *
 	return &mongoDBEngineConfigPayloadFormed
 }
 
+func formMilvusEngineConfigPayload(milvusEngineConfigPayloadRaw interface{}) *model.MilvusEngineConfigPayload {
+	if milvusEngineConfigPayloadRaw == nil || len(milvusEngineConfigPayloadRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	milvusEngineConfigPayloadData := milvusEngineConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
+
+	milvusEngineConfigPayloadFormed := model.MilvusEngineConfigPayload{
+		ParameterProfileId: helper.GetStringPointer(milvusEngineConfigPayloadData["parameter_profile_id"]),
+	}
+
+	return &milvusEngineConfigPayloadFormed
+}
+
 func formCreateDatabasePayload(createDatabasePayloadRaw interface{}) *model.CreateDatabasePayload {
 	if createDatabasePayloadRaw == nil {
 		return nil
@@ -1752,6 +1847,7 @@ func formCreateDatabasePayload(createDatabasePayloadRaw interface{}) *model.Crea
 		DatabaseName:          helper.GetStringPointer(createDatabasePayloadData["database_name"]),
 		SourceDatabaseId:      helper.GetStringPointer(createDatabasePayloadData["source_database_id"]),
 		DatabaseConfiguration: formCreateDatabasePayloadDatabaseConfiguration(createDatabasePayloadData["database_configuration"]),
+		CollectionConfig:      formDBCollectionCreatePayload(createDatabasePayloadData["collection_config"]),
 	}
 
 	return &createDatabasePayloadFormed
@@ -1782,6 +1878,7 @@ func formCreateDatabasePayloadDatabaseConfiguration(createDatabasePayloadDatabas
 		MysqlConfig:      formMysqlDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["mysql_config"]),
 		SqlServerConfig:  formSqlServerDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["sql_server_config"]),
 		MongoDBConfig:    formMongoDBDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["mongodb_config"]),
+		MilvusConfig:     formMilvusDatabaseConfig(createDatabasePayloadDatabaseConfigurationData["milvus_config"]),
 	}
 
 	return &createDatabasePayloadDatabaseConfigurationFormed
@@ -1858,6 +1955,178 @@ func formMongoDBDatabaseConfig(mongoDBDatabaseConfigRaw interface{}) *model.Mong
 	}
 
 	return &mongoDBDatabaseConfigFormed
+}
+
+func formMilvusDatabaseConfig(milvusDatabaseConfigRaw interface{}) *model.MilvusDatabaseConfig {
+	if milvusDatabaseConfigRaw == nil || len(milvusDatabaseConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	milvusDatabaseConfigData := milvusDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	milvusDatabaseConfigFormed := model.MilvusDatabaseConfig{
+		ParameterProfileId: helper.GetStringPointer(milvusDatabaseConfigData["parameter_profile_id"]),
+	}
+
+	return &milvusDatabaseConfigFormed
+}
+
+func formDBCollectionCreatePayload(dbCollectionCreatePayloadRaw interface{}) *model.DBCollectionCreatePayload {
+	if dbCollectionCreatePayloadRaw == nil || len(dbCollectionCreatePayloadRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	dbCollectionCreatePayloadData := dbCollectionCreatePayloadRaw.([]interface{})[0].(map[string]interface{})
+
+	dbCollectionCreatePayloadFormed := model.DBCollectionCreatePayload{
+		Name:                   helper.GetStringPointer(dbCollectionCreatePayloadData["name"]),
+		MilvusCollectionConfig: formMilvusCreateCollectionConfig(dbCollectionCreatePayloadData["milvus_collection_config"]),
+	}
+
+	return &dbCollectionCreatePayloadFormed
+}
+
+func formMilvusCreateCollectionConfig(milvusCreateCollectionConfigRaw interface{}) *model.MilvusCreateCollectionConfig {
+	if milvusCreateCollectionConfigRaw == nil || len(milvusCreateCollectionConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	milvusCreateCollectionConfigData := milvusCreateCollectionConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	milvusCreateCollectionConfigFormed := model.MilvusCreateCollectionConfig{
+		Name:          helper.GetStringPointer(milvusCreateCollectionConfigData["name"]),
+		ShardNums:     helper.GetIntPointer(milvusCreateCollectionConfigData["shard_nums"]),
+		NumPartitions: helper.GetIntPointer(milvusCreateCollectionConfigData["num_partitions"]),
+		Schema:        formMilvusCreateCollectionConfigSchema(milvusCreateCollectionConfigData["schema"]),
+	}
+
+	return &milvusCreateCollectionConfigFormed
+}
+
+func formMilvusCreateCollectionConfigSchema(milvusCreateCollectionConfigSchemaRaw interface{}) *model.MilvusCreateCollectionConfigSchema {
+	if milvusCreateCollectionConfigSchemaRaw == nil || len(milvusCreateCollectionConfigSchemaRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	milvusCreateCollectionConfigSchemaData := milvusCreateCollectionConfigSchemaRaw.([]interface{})[0].(map[string]interface{})
+
+	milvusCreateCollectionConfigSchemaFormed := model.MilvusCreateCollectionConfigSchema{
+		Description:        helper.GetStringPointer(milvusCreateCollectionConfigSchemaData["description"]),
+		EnableDynamicField: helper.GetBoolPointer(milvusCreateCollectionConfigSchemaData["enable_dynamic_field"]),
+		Fields:             formMilvusCreateCollectionFieldList(milvusCreateCollectionConfigSchemaData["fields"]),
+	}
+
+	return &milvusCreateCollectionConfigSchemaFormed
+}
+
+func formMilvusCreateCollectionField(milvusCreateCollectionFieldRaw interface{}) *model.MilvusCreateCollectionField {
+	if milvusCreateCollectionFieldRaw == nil {
+		return nil
+	}
+
+	milvusCreateCollectionFieldData := milvusCreateCollectionFieldRaw.(map[string]interface{})
+
+	milvusCreateCollectionFieldFormed := model.MilvusCreateCollectionField{
+		Name:               helper.GetStringPointer(milvusCreateCollectionFieldData["name"]),
+		Description:        helper.GetStringPointer(milvusCreateCollectionFieldData["description"]),
+		Dtype:              helper.GetStringPointer(milvusCreateCollectionFieldData["dtype"]),
+		IsPrimary:          helper.GetBoolPointer(milvusCreateCollectionFieldData["is_primary"]),
+		AutoId:             helper.GetBoolPointer(milvusCreateCollectionFieldData["auto_id"]),
+		DefaultValue:       helper.GetStringPointer(milvusCreateCollectionFieldData["default_value"]),
+		IsPartitionKey:     helper.GetBoolPointer(milvusCreateCollectionFieldData["is_partition_key"]),
+		MaxLength:          helper.GetIntPointer(milvusCreateCollectionFieldData["max_length"]),
+		Dim:                helper.GetIntPointer(milvusCreateCollectionFieldData["dim"]),
+		IndexCreatePayload: formDBCollectionIndexPayload(milvusCreateCollectionFieldData["index_create_payload"]),
+	}
+
+	return &milvusCreateCollectionFieldFormed
+}
+func formMilvusCreateCollectionFieldList(milvusCreateCollectionFieldListRaw interface{}) *[]model.MilvusCreateCollectionField {
+	if milvusCreateCollectionFieldListRaw == nil || len(milvusCreateCollectionFieldListRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	MilvusCreateCollectionFieldListFormed := make([]model.MilvusCreateCollectionField, len(milvusCreateCollectionFieldListRaw.([]interface{})))
+
+	for i, milvusCreateCollectionField := range milvusCreateCollectionFieldListRaw.([]interface{}) {
+		MilvusCreateCollectionFieldListFormed[i] = *formMilvusCreateCollectionField(milvusCreateCollectionField)
+	}
+
+	return &MilvusCreateCollectionFieldListFormed
+}
+func formDBCollectionIndexPayload(dbCollectionIndexPayloadRaw interface{}) *model.DBCollectionIndexPayload {
+	if dbCollectionIndexPayloadRaw == nil || len(dbCollectionIndexPayloadRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	dbCollectionIndexPayloadData := dbCollectionIndexPayloadRaw.([]interface{})[0].(map[string]interface{})
+
+	dbCollectionIndexPayloadFormed := model.DBCollectionIndexPayload{
+		FieldName:         helper.GetStringPointer(dbCollectionIndexPayloadData["field_name"]),
+		IndexName:         helper.GetStringPointer(dbCollectionIndexPayloadData["index_name"]),
+		MilvusIndexConfig: formMilvusIndexConfig(dbCollectionIndexPayloadData["milvus_index_config"]),
+	}
+
+	return &dbCollectionIndexPayloadFormed
+}
+
+func formMilvusIndexConfig(milvusIndexConfigRaw interface{}) *model.MilvusIndexConfig {
+	if milvusIndexConfigRaw == nil || len(milvusIndexConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	milvusIndexConfigData := milvusIndexConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	milvusIndexConfigFormed := model.MilvusIndexConfig{
+		IndexSpecifications: formIndexSpecificationList(milvusIndexConfigData["index_specifications"]),
+	}
+
+	return &milvusIndexConfigFormed
+}
+
+func formIndexSpecification(indexSpecificationRaw interface{}) *model.IndexSpecification {
+	if indexSpecificationRaw == nil {
+		return nil
+	}
+
+	indexSpecificationData := indexSpecificationRaw.(map[string]interface{})
+
+	indexSpecificationFormed := model.IndexSpecification{
+		IndexType:  helper.GetStringPointer(indexSpecificationData["index_type"]),
+		MetricType: helper.GetStringPointer(indexSpecificationData["metric_type"]),
+		Parameters: formMilvusIndexParameters(indexSpecificationData["parameters"]),
+	}
+
+	return &indexSpecificationFormed
+}
+func formIndexSpecificationList(indexSpecificationListRaw interface{}) *[]model.IndexSpecification {
+	if indexSpecificationListRaw == nil || len(indexSpecificationListRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	IndexSpecificationListFormed := make([]model.IndexSpecification, len(indexSpecificationListRaw.([]interface{})))
+
+	for i, indexSpecification := range indexSpecificationListRaw.([]interface{}) {
+		IndexSpecificationListFormed[i] = *formIndexSpecification(indexSpecification)
+	}
+
+	return &IndexSpecificationListFormed
+}
+func formMilvusIndexParameters(milvusIndexParametersRaw interface{}) *model.MilvusIndexParameters {
+	if milvusIndexParametersRaw == nil || len(milvusIndexParametersRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	milvusIndexParametersData := milvusIndexParametersRaw.([]interface{})[0].(map[string]interface{})
+
+	milvusIndexParametersFormed := model.MilvusIndexParameters{
+		M:               helper.GetIntPointer(milvusIndexParametersData["m"]),
+		Nlist:           helper.GetIntPointer(milvusIndexParametersData["nlist"]),
+		Efconstructions: helper.GetIntPointer(milvusIndexParametersData["efconstructions"]),
+		Ntrees:          helper.GetIntPointer(milvusIndexParametersData["ntrees"]),
+	}
+
+	return &milvusIndexParametersFormed
 }
 
 func formTessellServiceIntegrationsPayload(tessellServiceIntegrationsPayloadRaw interface{}) *model.TessellServiceIntegrationsPayload {

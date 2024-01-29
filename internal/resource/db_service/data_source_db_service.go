@@ -22,7 +22,7 @@ func DataSourceDBService() *schema.Resource {
 			},
 			"availability_machine_id": {
 				Type:        schema.TypeString,
-				Description: "Unique id of the associated Availability Machine",
+				Description: "Unique ID of the associated Availability Machine",
 				Computed:    true,
 			},
 			"name": {
@@ -57,7 +57,7 @@ func DataSourceDBService() *schema.Resource {
 			},
 			"context_info": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "Provide more context of DB Service state",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -96,7 +96,7 @@ func DataSourceDBService() *schema.Resource {
 			},
 			"edition": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "Edition of the software image that has been used to create the DB Service (e.g. COMMUNITY/ENTERPRISE etc)",
 				Computed:    true,
 			},
 			"software_image": {
@@ -157,12 +157,12 @@ func DataSourceDBService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"tessell_service_id": {
 							Type:        schema.TypeString,
-							Description: "The DB Service Id using which this DB Service clone is created",
+							Description: "The DB Service ID using which this DB Service clone is created",
 							Computed:    true,
 						},
 						"availability_machine_id": {
 							Type:        schema.TypeString,
-							Description: "The Availability Machine Id using which this DB Service clone is created",
+							Description: "The Availability Machine ID using which this DB Service clone is created",
 							Computed:    true,
 						},
 						"tessell_service": {
@@ -172,7 +172,7 @@ func DataSourceDBService() *schema.Resource {
 						},
 						"availability_machine": {
 							Type:        schema.TypeString,
-							Description: "The Availaility Machine name using which this DB Service clone is created",
+							Description: "The Availability Machine name using which this DB Service clone is created",
 							Computed:    true,
 						},
 						"snapshot_name": {
@@ -182,7 +182,7 @@ func DataSourceDBService() *schema.Resource {
 						},
 						"snapshot_id": {
 							Type:        schema.TypeString,
-							Description: "The snapshot Id using which this DB Service clone is created",
+							Description: "The snapshot ID using which this DB Service clone is created",
 							Computed:    true,
 						},
 						"snapshot_time": {
@@ -197,7 +197,7 @@ func DataSourceDBService() *schema.Resource {
 						},
 						"maximum_recoverability": {
 							Type:        schema.TypeBool,
-							Description: "If the service was created using a maximum recoverablity from the parent service",
+							Description: "If the service was created using a maximum recoverability from the parent service",
 							Computed:    true,
 						},
 					},
@@ -211,17 +211,17 @@ func DataSourceDBService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"enable_ssl": {
 							Type:        schema.TypeBool,
-							Description: "",
+							Description: "Specify whether to enable SSL to the DB Service, default false",
 							Computed:    true,
 						},
 						"ca_cert_id": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "The CA certificate ID associated with the DB Service",
 							Computed:    true,
 						},
 						"dns_prefix": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "DNS Prefix associated with the DB Service",
 							Computed:    true,
 						},
 						"service_port": {
@@ -260,17 +260,17 @@ func DataSourceDBService() *schema.Resource {
 									},
 									"connect_descriptor": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The connection description for the DB Service",
 										Computed:    true,
 									},
 									"endpoint": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The connection end point for the DB Service",
 										Computed:    true,
 									},
 									"master_user": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The master user name for the DB Service",
 										Computed:    true,
 									},
 									"service_port": {
@@ -329,7 +329,7 @@ func DataSourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"dns_prefix": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The DNS prefix associated with the DB Service",
 										Computed:    true,
 									},
 									"enable_public_access": {
@@ -496,6 +496,26 @@ func DataSourceDBService() *schema.Resource {
 							Description: "Specify if the computes should be shared across DB Services",
 							Computed:    true,
 						},
+						"timezone": {
+							Type:        schema.TypeString,
+							Description: "The timezone detail",
+							Computed:    true,
+						},
+						"multi_disk": {
+							Type:        schema.TypeBool,
+							Description: "Specify whether the DB service uses multiple data disks",
+							Computed:    true,
+						},
+						"iops": {
+							Type:        schema.TypeInt,
+							Description: "IOPS requested for the DB Service",
+							Computed:    true,
+						},
+						"throughput": {
+							Type:        schema.TypeInt,
+							Description: "throughput requested for the DB Service",
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -517,7 +537,7 @@ func DataSourceDBService() *schema.Resource {
 						},
 						"duration": {
 							Type:        schema.TypeInt,
-							Description: "",
+							Description: "The duration during which the maintenance window will be allowed to trigger",
 							Computed:    true,
 						},
 					},
@@ -571,7 +591,7 @@ func DataSourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile id for the database",
+										Description: "The parameter profile ID for the database",
 										Computed:    true,
 									},
 								},
@@ -585,7 +605,7 @@ func DataSourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile id for the database",
+										Description: "The parameter profile ID for the database",
 										Computed:    true,
 									},
 								},
@@ -599,12 +619,12 @@ func DataSourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile id for the database",
+										Description: "The parameter profile ID for the database",
 										Computed:    true,
 									},
 									"ad_domain_id": {
 										Type:        schema.TypeString,
-										Description: "Active Directory Domain id",
+										Description: "Active Directory Domain ID",
 										Computed:    true,
 									},
 								},
@@ -637,7 +657,21 @@ func DataSourceDBService() *schema.Resource {
 									},
 									"parameter_profile_id": {
 										Type:        schema.TypeString,
-										Description: "The parameter profile id for the database",
+										Description: "The parameter profile ID for the database",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"milvus_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"parameter_profile_id": {
+										Type:        schema.TypeString,
+										Description: "The parameter profile ID for the database",
 										Computed:    true,
 									},
 								},
@@ -651,7 +685,7 @@ func DataSourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"script_id": {
 										Type:        schema.TypeString,
-										Description: "The Tessell Script Id",
+										Description: "The Tessell Script ID",
 										Computed:    true,
 									},
 									"script_version": {
@@ -670,7 +704,7 @@ func DataSourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"script_id": {
 										Type:        schema.TypeString,
-										Description: "The Tessell Script Id",
+										Description: "The Tessell Script ID",
 										Computed:    true,
 									},
 									"script_version": {
@@ -703,7 +737,7 @@ func DataSourceDBService() *schema.Resource {
 			},
 			"deletion_config": {
 				Type:        schema.TypeList,
-				Description: "If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
+				Description: "If the DB Service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -786,12 +820,12 @@ func DataSourceDBService() *schema.Resource {
 						},
 						"role": {
 							Type:        schema.TypeString,
-							Description: "DB Service Topology",
+							Description: "DB Service instance role",
 							Computed:    true,
 						},
 						"status": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "DB Service instance status",
 							Computed:    true,
 						},
 						"tessell_service_id": {
@@ -867,6 +901,11 @@ func DataSourceDBService() *schema.Resource {
 							Description: "",
 							Computed:    true,
 						},
+						"throughput": {
+							Type:        schema.TypeInt,
+							Description: "Throughput requested for this DB Service instance",
+							Computed:    true,
+						},
 						"parameter_profile": {
 							Type:        schema.TypeList,
 							Description: "",
@@ -875,23 +914,51 @@ func DataSourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"id": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "Tessell generated UUID for the the parameter profile",
 										Required:    true,
 									},
 									"name": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The name used to identify the parameter profile",
 										Computed:    true,
 									},
 									"version": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The version of the parameter profile assoiciated with the instance",
 										Computed:    true,
 									},
 									"status": {
 										Type:        schema.TypeString,
 										Description: "",
 										Computed:    true,
+									},
+								},
+							},
+						},
+						"monitoring_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"perf_insights": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"perf_insights_enabled": {
+													Type:        schema.TypeBool,
+													Description: "",
+													Computed:    true,
+												},
+												"monitoring_deployment_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1000,7 +1067,7 @@ func DataSourceDBService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Tessell generated UUID for the database",
 							Required:    true,
 						},
 						"database_name": {
@@ -1015,7 +1082,7 @@ func DataSourceDBService() *schema.Resource {
 						},
 						"tessell_service_id": {
 							Type:        schema.TypeString,
-							Description: "Associated DB Service Id",
+							Description: "Associated DB Service ID",
 							Computed:    true,
 						},
 						"engine_type": {
@@ -1085,7 +1152,7 @@ func DataSourceDBService() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile id for the database",
+													Description: "The parameter profile ID for the database",
 													Computed:    true,
 												},
 											},
@@ -1099,7 +1166,7 @@ func DataSourceDBService() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile id for the database",
+													Description: "The parameter profile ID for the database",
 													Computed:    true,
 												},
 											},
@@ -1113,7 +1180,7 @@ func DataSourceDBService() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile id for the database",
+													Description: "The parameter profile ID for the database",
 													Computed:    true,
 												},
 											},
@@ -1127,7 +1194,21 @@ func DataSourceDBService() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
-													Description: "The parameter profile id for the database",
+													Description: "The parameter profile ID for the database",
+													Computed:    true,
+												},
+											},
+										},
+									},
+									"milvus_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"parameter_profile_id": {
+													Type:        schema.TypeString,
+													Description: "The parameter profile ID for the database",
 													Computed:    true,
 												},
 											},
@@ -1198,18 +1279,18 @@ func DataSourceDBService() *schema.Resource {
 			},
 			"deletion_schedule": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "Details of the deletion schedule on a DB Service",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"delete_at": {
 							Type:        schema.TypeString,
-							Description: "DB Service deletion Time",
+							Description: "Time at which the DB Service should be deleted at",
 							Computed:    true,
 						},
 						"deletion_config": {
 							Type:        schema.TypeList,
-							Description: "If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
+							Description: "If the DB Service is to be deleted, this config would be honoured if no preference is provided during deleting the service",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -1243,7 +1324,7 @@ func DataSourceDBService() *schema.Resource {
 									},
 									"at": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The time at which the specified action is to be performed",
 										Computed:    true,
 									},
 								},
@@ -1257,12 +1338,12 @@ func DataSourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"at": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The updated time at which the specified action is to be performed",
 										Computed:    true,
 									},
 									"message": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "Details for the update",
 										Computed:    true,
 									},
 								},
@@ -1276,7 +1357,7 @@ func DataSourceDBService() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"at": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The scheduled time for the action to be deleted",
 										Computed:    true,
 									},
 								},

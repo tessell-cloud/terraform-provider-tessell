@@ -11,8 +11,8 @@ type EntityUserAclSharingInfo struct {
 }
 
 type DatabaseSnapshotRegionInfo struct {
-	Region *string `json:"region"`           // The cloud region name
-	Status *string `json:"status,omitempty"` // The cloud region name
+	Region *string `json:"region"`           // The region name
+	Status *string `json:"status,omitempty"` // The current status of the snapshot in the respective region
 }
 
 type SnapshotCloudAvailabilityInfo struct {
@@ -37,9 +37,18 @@ type TessellDataflixPITRInfoForRegion struct {
 	TimeRanges *[]TessellDataflixFromTimeInfo `json:"timeRanges,omitempty"`
 }
 
+type APIError struct {
+	Code           *string          `json:"code,omitempty"`    // Status code for the error response
+	Message        *string          `json:"message,omitempty"` // Error message for API response
+	Details        *APIErrorDetails `json:"details,omitempty"`
+	DefaultCodeSet *bool            `json:"defaultCodeSet,omitempty"`
+	ContextId      *string          `json:"contextId,omitempty"` // ContextId of API request
+	SessionId      *string          `json:"sessionId,omitempty"` // SessionId of API request
+}
+
 type TessellDataflixFromTimeInfo struct {
-	FromTime   *string                      `json:"fromTime,omitempty"` // PITR recovery from-time
-	ToTime     *string                      `json:"toTime,omitempty"`   // PITR recovery to-time
+	FromTime   *string                      `json:"fromTime,omitempty"` // Recoverability start timestamp
+	ToTime     *string                      `json:"toTime,omitempty"`   // Recoverability end timestamp
 	SharedWith *EntityAclSharingSummaryInfo `json:"sharedWith,omitempty"`
 }
 
@@ -78,13 +87,17 @@ type EntityAclSharingInfo struct {
 	Users *[]EntityUserAclSharingInfo `json:"users,omitempty"`
 }
 
+type APIErrorDetails struct {
+	Resolution *string `json:"resolution,omitempty"` // Resolution detail for API exception
+}
+
 type DatabaseSnapshotCloudRegionInfo struct {
 	Cloud   *string                       `json:"cloud"`
-	Regions *[]DatabaseSnapshotRegionInfo `json:"regions,omitempty"` // The regions details
+	Regions *[]DatabaseSnapshotRegionInfo `json:"regions,omitempty"` // Region specific availability details for the snapshot
 }
 
 type BackupDatabaseInfo struct {
-	Id     *string `json:"id,omitempty"`     // Databases Id
-	Name   *string `json:"name,omitempty"`   // Databases name
-	Status *string `json:"status,omitempty"` // Databases status
+	Id     *string `json:"id,omitempty"`     // ID of the database
+	Name   *string `json:"name,omitempty"`   // Name of the database
+	Status *string `json:"status,omitempty"` // Status of the database as of capture of this snapshot
 }

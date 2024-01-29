@@ -99,7 +99,7 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 						},
 						"parameters": {
 							Type:        schema.TypeList,
-							Description: "Database Parameter Profile's associated parameters",
+							Description: "Parameter Profile's associated parameters",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

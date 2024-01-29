@@ -1,12 +1,12 @@
 package model
 
 type TessellAmDataflixDTO struct {
-	AvailabilityMachineId *string                      `json:"availabilityMachineId,omitempty"`
-	TessellServiceId      *string                      `json:"tessellServiceId,omitempty"`
-	ServiceName           *string                      `json:"serviceName,omitempty"`
+	AvailabilityMachineId *string                      `json:"availabilityMachineId,omitempty"` // ID of the Availability Machine
+	TessellServiceId      *string                      `json:"tessellServiceId,omitempty"`      // ID of the associated DB Service
+	ServiceName           *string                      `json:"serviceName,omitempty"`           // Name of the associated DB Service
 	EngineType            *string                      `json:"engineType,omitempty"`
-	CloudAvailability     *[]CloudRegionInfo           `json:"cloudAvailability,omitempty"`
-	Owner                 *string                      `json:"owner,omitempty"` // Availability Machine&#39;s owner
+	CloudAvailability     *[]CloudRegionInfo           `json:"cloudAvailability,omitempty"` // The cloud and region information where the data is available for access
+	Owner                 *string                      `json:"owner,omitempty"`             // Owner of the Availability Machine
 	SharedWith            *EntityAclSharingSummaryInfo `json:"sharedWith,omitempty"`
 }
 

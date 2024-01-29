@@ -17,17 +17,17 @@ func DataSourceDataflix() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"availability_machine_id": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "ID of the Availability Machine",
 				Required:    true,
 			},
 			"tessell_service_id": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "ID of the associated DB Service",
 				Computed:    true,
 			},
 			"service_name": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "Name of the associated DB Service",
 				Computed:    true,
 			},
 			"engine_type": {
@@ -37,7 +37,7 @@ func DataSourceDataflix() *schema.Resource {
 			},
 			"cloud_availability": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "The cloud and region information where the data is available for access",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -73,7 +73,7 @@ func DataSourceDataflix() *schema.Resource {
 			},
 			"owner": {
 				Type:        schema.TypeString,
-				Description: "Availability Machine's owner",
+				Description: "Owner of the Availability Machine",
 				Computed:    true,
 			},
 			"shared_with": {

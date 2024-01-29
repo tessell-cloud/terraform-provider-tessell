@@ -17,27 +17,27 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "ID of the Availability Machine",
 				Required:    true,
 			},
 			"tessell_service_id": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "ID of the DB Service that is associated with the Availability Machine",
 				Computed:    true,
 			},
 			"service_name": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "Name of the DB Service that is associated with the Availability Machine",
 				Computed:    true,
 			},
 			"tenant": {
 				Type:        schema.TypeString,
-				Description: "Dmm's tenancy details",
+				Description: "ID of the tenant under which this Availability Machine is effective",
 				Computed:    true,
 			},
 			"subscription": {
 				Type:        schema.TypeString,
-				Description: "Dmm's subscription name",
+				Description: "Name of the subscription under which the associated DB Service is hosted",
 				Computed:    true,
 			},
 			"engine_type": {
@@ -52,17 +52,17 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 			},
 			"user_id": {
 				Type:        schema.TypeString,
-				Description: "Data Management Machine's user",
+				Description: "User details representing the owner for the Availability Machine",
 				Computed:    true,
 			},
 			"owner": {
 				Type:        schema.TypeString,
-				Description: "Availability Machine's owner",
+				Description: "User details representing the owner for the Availability Machine",
 				Computed:    true,
 			},
 			"logged_in_user_role": {
 				Type:        schema.TypeString,
-				Description: "The role of the logged in user for accessing the Availability Machine",
+				Description: "The role of the logged in user for accessing this Availability Machine",
 				Computed:    true,
 			},
 			"shared_with": {
@@ -95,7 +95,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 			},
 			"cloud_availability": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "Availability Machine manages data across multiple regions within a cloud. This sections provides information about the cloud and regions where this Availability Machine is managing the data.",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -253,38 +253,38 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 			},
 			"daps": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "The Access Policies (DAP) that have configured for this Availability Machine",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "ID of the Access Policy",
 							Required:    true,
 						},
 						"name": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Name of the Access Policy",
 							Computed:    true,
 						},
 						"availability_machine_id": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "ID of the Availability Machine",
 							Computed:    true,
 						},
 						"tessell_service_id": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "ID of the associated DB Service",
 							Computed:    true,
 						},
 						"service_name": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Name of the associated DB Service",
 							Computed:    true,
 						},
 						"engine_type": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Database engine type of the associated DB Service",
 							Computed:    true,
 						},
 						"content_type": {
@@ -446,7 +446,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 						},
 						"cloud_availability": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "The cloud and region information where the data is being managed by this Access Policy",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -496,7 +496,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 						},
 						"owner": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Owner of the Access Policy",
 							Computed:    true,
 						},
 						"logged_in_user_role": {
@@ -534,12 +534,12 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 						},
 						"date_created": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Timestamp when this Access Policy was created at",
 							Computed:    true,
 						},
 						"date_modified": {
 							Type:        schema.TypeString,
-							Description: "",
+							Description: "Timestamp when this Access Policy was last updated at",
 							Computed:    true,
 						},
 					},
@@ -547,7 +547,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 			},
 			"clones": {
 				Type:        schema.TypeList,
-				Description: "Clone databases that are created from this Availability Machine",
+				Description: "The clone DB Services that have been created using contents (snapshots, Sanitized Snapshots, PITR, backups) from this Availability Machine",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -632,12 +632,12 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 			},
 			"date_created": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "The timestamp when the Availability Machine was incarnated",
 				Computed:    true,
 			},
 			"date_modified": {
 				Type:        schema.TypeString,
-				Description: "",
+				Description: "The timestamp when the Availability Machine was last updated",
 				Computed:    true,
 			},
 			"backup_download_config": {

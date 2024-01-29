@@ -38,17 +38,17 @@ func DataSourceSanitizedDBSnapshots() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
-							Description: "DB Service snapshot Id",
+							Description: "ID of the sanitized snapshot",
 							Computed:    true,
 						},
 						"name": {
 							Type:        schema.TypeString,
-							Description: "DB Service snapshot name",
+							Description: "Name of the sanitized snapshot",
 							Computed:    true,
 						},
 						"snapshot_time": {
 							Type:        schema.TypeString,
-							Description: "DB Service snapshot capture time",
+							Description: "Capture time of the source snapshot from which this sanitized snapshot is created",
 							Computed:    true,
 						},
 						"status": {
@@ -58,17 +58,17 @@ func DataSourceSanitizedDBSnapshots() *schema.Resource {
 						},
 						"size": {
 							Type:        schema.TypeInt,
-							Description: "Snapshot size in bytes",
+							Description: "Size of this snapshot (in bytes)",
 							Computed:    true,
 						},
 						"manual": {
 							Type:        schema.TypeBool,
-							Description: "Specifies whether the snapshot is captured manually",
+							Description: "Specifies whether this snapshot is created based on a manual user request or through an automated schedule",
 							Computed:    true,
 						},
 						"cloud_availability": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "The cloud and region information where this snapshot has been made available at",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -79,18 +79,18 @@ func DataSourceSanitizedDBSnapshots() *schema.Resource {
 									},
 									"regions": {
 										Type:        schema.TypeList,
-										Description: "The regions details",
+										Description: "Region specific availability details for the snapshot",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"region": {
 													Type:        schema.TypeString,
-													Description: "The cloud region name",
+													Description: "The region name",
 													Computed:    true,
 												},
 												"status": {
 													Type:        schema.TypeString,
-													Description: "The cloud region name",
+													Description: "The current status of the snapshot in the respective region",
 													Computed:    true,
 												},
 											},
@@ -101,7 +101,7 @@ func DataSourceSanitizedDBSnapshots() *schema.Resource {
 						},
 						"availability_config": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "The config information for cloud and region availability for this snapshot",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -159,32 +159,32 @@ func DataSourceSanitizedDBSnapshots() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"source_snapshot_id": {
 										Type:        schema.TypeString,
-										Description: "The as-is snapshot from which it was sanitized",
+										Description: "ID of the as-is snapshot from which it was sanitized",
 										Computed:    true,
 									},
 									"sanitization_schedule_id": {
 										Type:        schema.TypeString,
-										Description: "Id of the sanitization schedule which has created this snapshot",
+										Description: "ID of the Sanitization Schedule which has created this snapshot",
 										Computed:    true,
 									},
 									"sanitization_schedule": {
 										Type:        schema.TypeString,
-										Description: "Name of the sanitization schedule which has created this snapshot",
+										Description: "Name of the Sanitization Schedule which has created this snapshot",
 										Computed:    true,
 									},
 									"sanitization_script_id": {
 										Type:        schema.TypeString,
-										Description: "Id of the script which was used to create this backup",
+										Description: "ID of the script which was used to create this snapshot",
 										Computed:    true,
 									},
 									"sanitization_script": {
 										Type:        schema.TypeString,
-										Description: "Name of the script which was used to create this backup",
+										Description: "Name of the script which was used to create this snapshot",
 										Computed:    true,
 									},
 									"script_version": {
 										Type:        schema.TypeString,
-										Description: "Version of the script which was used to create this backup",
+										Description: "Version of the script which was used to create this snapshot",
 										Computed:    true,
 									},
 								},
@@ -198,17 +198,17 @@ func DataSourceSanitizedDBSnapshots() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"id": {
 										Type:        schema.TypeString,
-										Description: "Databases Id",
+										Description: "ID of the database",
 										Computed:    true,
 									},
 									"name": {
 										Type:        schema.TypeString,
-										Description: "Databases name",
+										Description: "Name of the database",
 										Computed:    true,
 									},
 									"status": {
 										Type:        schema.TypeString,
-										Description: "Databases status",
+										Description: "Status of the database as of capture of this snapshot",
 										Computed:    true,
 									},
 								},
