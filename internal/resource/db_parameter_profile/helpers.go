@@ -63,6 +63,14 @@ func setResourceData(d *schema.ResourceData, databaseParameterProfileResponse *m
 		return err
 	}
 
+	if err := d.Set("metadata", parseDatabaseParameterProfileMetadataWithResData(databaseParameterProfileResponse.Metadata, d)); err != nil {
+		return err
+	}
+
+	if err := d.Set("driver_info", parseDatabaseParameterProfileDriverInfoWithResData(databaseParameterProfileResponse.DriverInfo, d)); err != nil {
+		return err
+	}
+
 	if err := d.Set("user_id", databaseParameterProfileResponse.UserId); err != nil {
 		return err
 	}
@@ -133,6 +141,58 @@ func parseDatabaseProfileParameterType(parameters *model.DatabaseProfileParamete
 	parsedParameters["is_formula_type"] = parameters.IsFormulaType
 
 	return parsedParameters
+}
+
+func parseDatabaseParameterProfileMetadataWithResData(metadata *model.DatabaseParameterProfileMetadata, d *schema.ResourceData) []interface{} {
+	if metadata == nil {
+		return nil
+	}
+	parsedMetadata := make(map[string]interface{})
+	if d.Get("metadata") != nil {
+		metadataResourceData := d.Get("metadata").([]interface{})
+		if len(metadataResourceData) > 0 {
+			parsedMetadata = (metadataResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedMetadata["data"] = metadata.Data
+
+	return []interface{}{parsedMetadata}
+}
+
+func parseDatabaseParameterProfileMetadata(metadata *model.DatabaseParameterProfileMetadata) interface{} {
+	if metadata == nil {
+		return nil
+	}
+	parsedMetadata := make(map[string]interface{})
+	parsedMetadata["data"] = metadata.Data
+
+	return parsedMetadata
+}
+
+func parseDatabaseParameterProfileDriverInfoWithResData(driverInfo *model.DatabaseParameterProfileDriverInfo, d *schema.ResourceData) []interface{} {
+	if driverInfo == nil {
+		return nil
+	}
+	parsedDriverInfo := make(map[string]interface{})
+	if d.Get("driver_info") != nil {
+		driverInfoResourceData := d.Get("driver_info").([]interface{})
+		if len(driverInfoResourceData) > 0 {
+			parsedDriverInfo = (driverInfoResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedDriverInfo["data"] = driverInfo.Data
+
+	return []interface{}{parsedDriverInfo}
+}
+
+func parseDatabaseParameterProfileDriverInfo(driverInfo *model.DatabaseParameterProfileDriverInfo) interface{} {
+	if driverInfo == nil {
+		return nil
+	}
+	parsedDriverInfo := make(map[string]interface{})
+	parsedDriverInfo["data"] = driverInfo.Data
+
+	return parsedDriverInfo
 }
 
 func parseEntityAclSharingInfoWithResData(sharedWith *model.EntityAclSharingInfo, d *schema.ResourceData) []interface{} {

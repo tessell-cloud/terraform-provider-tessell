@@ -133,7 +133,7 @@ func DataSourceDBSnapshots() *schema.Resource {
 												},
 												"regions": {
 													Type:        schema.TypeList,
-													Description: "The list of regions and respective avaoilability status",
+													Description: "The list of regions and respective availability status",
 													Computed:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{

@@ -20,11 +20,6 @@ type CreateDatabaseSnapshotTaskPayload struct {
 	Description *string `json:"description,omitempty"` // Description for the snapshot
 }
 
-type APIStatus struct {
-	Status  *string `json:"status,omitempty"`
-	Message *string `json:"message,omitempty"`
-}
-
 type GetDatabaseSnapshotsResponse struct {
 	AvailabilityMachineId *string                    `json:"availabilityMachineId,omitempty"` // ID of the Availability Machine
 	TessellServiceId      *string                    `json:"tessellServiceId,omitempty"`      // ID of the associated DB Service

@@ -1,40 +1,13 @@
 package model
 
-type APIPaginationInfo struct {
-	PageSize   *int `json:"pageSize,omitempty"`
-	PageOffset *int `json:"pageOffset,omitempty"`
+type WeeklySchedule struct {
+	Days *[]string `json:"days,omitempty"` // Days in a week to retain weekly backups for
 }
 
-type EntityUserAclSharingInfo struct {
-	EmailId *string `json:"emailId,omitempty"`
-	Role    *string `json:"role,omitempty"`
-}
-
-type DatabaseSnapshotRegionInfo struct {
-	Region *string `json:"region"`           // The region name
-	Status *string `json:"status,omitempty"` // The current status of the snapshot in the respective region
-}
-
-type SnapshotCloudAvailabilityInfo struct {
-	Cloud   *string                       `json:"cloud"`
-	Regions *[]SnapshotRegionAvailability `json:"regions,omitempty"` // The list of regions and respective avaoilability status
-}
-
-type TaskSummary struct {
-	TaskId     *string            `json:"taskId,omitempty"`
-	TaskType   *string            `json:"taskType,omitempty"`
-	ResourceId *string            `json:"resourceId,omitempty"`
-	Details    *map[string]string `json:"details,omitempty"`
-}
-
-type TessellDataflixPITRInfo struct {
-	Cloud   *string                             `json:"cloud,omitempty"`
-	Regions *[]TessellDataflixPITRInfoForRegion `json:"regions,omitempty"`
-}
-
-type TessellDataflixPITRInfoForRegion struct {
-	Region     *string                        `json:"region,omitempty"` // Region name
-	TimeRanges *[]TessellDataflixFromTimeInfo `json:"timeRanges,omitempty"`
+type CommonYearlySchedule struct {
+	Dates          *[]int32  `json:"dates,omitempty"` // Dates in a month to retain monthly backups
+	LastDayOfMonth *bool     `json:"lastDayOfMonth,omitempty"`
+	Months         *[]string `json:"months,omitempty"`
 }
 
 type APIError struct {
@@ -63,18 +36,12 @@ type SnapshotAvailabilityConfig struct {
 	CloudAvailabilityConfig        *[]SnapshotCloudAvailabilityInfo `json:"cloudAvailabilityConfig,omitempty"`
 }
 
-type RegionInfo struct {
-	Region            *string   `json:"region"` // The cloud region name
-	AvailabilityZones *[]string `json:"availabilityZones,omitempty"`
-}
-
-type CloudRegionInfo struct {
-	Cloud   *string       `json:"cloud"`
-	Regions *[]RegionInfo `json:"regions,omitempty"` // The regions details
-}
-
 type EntityAclSharingSummaryInfo struct {
 	Users *[]string `json:"users,omitempty"`
+}
+
+type MonthlySchedule struct {
+	CommonSchedule *DatesForEachMonth `json:"commonSchedule,omitempty"`
 }
 
 type APIMetadata struct {
@@ -87,8 +54,103 @@ type EntityAclSharingInfo struct {
 	Users *[]EntityUserAclSharingInfo `json:"users,omitempty"`
 }
 
+type TimeFormat struct {
+	Hour   *int `json:"hour,omitempty"`
+	Minute *int `json:"minute,omitempty"`
+}
+
 type APIErrorDetails struct {
 	Resolution *string `json:"resolution,omitempty"` // Resolution detail for API exception
+}
+
+type YearlySchedule struct {
+	CommonSchedule        *CommonYearlySchedule `json:"commonSchedule,omitempty"`
+	MonthSpecificSchedule *[]MonthWiseDates     `json:"monthSpecificSchedule,omitempty"`
+}
+
+type ScheduleInfo struct {
+	BackupStartTime *TimeFormat      `json:"backupStartTime,omitempty"`
+	DailySchedule   *DailySchedule   `json:"dailySchedule,omitempty"`
+	WeeklySchedule  *WeeklySchedule  `json:"weeklySchedule,omitempty"`
+	MonthlySchedule *MonthlySchedule `json:"monthlySchedule,omitempty"`
+	YearlySchedule  *YearlySchedule  `json:"yearlySchedule,omitempty"`
+}
+
+type APIPaginationInfo struct {
+	PageSize   *int `json:"pageSize,omitempty"`
+	PageOffset *int `json:"pageOffset,omitempty"`
+}
+
+type APIStatus struct {
+	Status  *string `json:"status,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
+type EntityUserAclSharingInfo struct {
+	EmailId *string `json:"emailId,omitempty"`
+	Role    *string `json:"role,omitempty"`
+}
+
+type MonthWiseDates struct {
+	Month *string  `json:"month"` // Name of a month
+	Dates *[]int32 `json:"dates"`
+}
+
+type DatesForEachMonth struct {
+	Dates          *[]int32 `json:"dates,omitempty"` // Dates in a month to retain monthly backups
+	LastDayOfMonth *bool    `json:"lastDayOfMonth,omitempty"`
+}
+
+type DatabaseSnapshotRegionInfo struct {
+	Region *string `json:"region"`           // The region name
+	Status *string `json:"status,omitempty"` // The current status of the snapshot in the respective region
+}
+
+type SnapshotCloudAvailabilityInfo struct {
+	Cloud   *string                       `json:"cloud"`
+	Regions *[]SnapshotRegionAvailability `json:"regions,omitempty"` // The list of regions and respective availability status
+}
+
+type TaskSummary struct {
+	TaskId                *string            `json:"taskId,omitempty"`
+	TaskType              *string            `json:"taskType,omitempty"`
+	ResourceId            *string            `json:"resourceId,omitempty"`
+	AssociatedResourceIds *[]string          `json:"associatedResourceIds,omitempty"`
+	Details               *map[string]string `json:"details,omitempty"`
+}
+
+type TessellDataflixPITRInfo struct {
+	Cloud   *string                             `json:"cloud,omitempty"`
+	Regions *[]TessellDataflixPITRInfoForRegion `json:"regions,omitempty"`
+}
+
+type DeletionScheduleDTO struct {
+	Id             *string                       `json:"id,omitempty"`
+	DeleteAt       *string                       `json:"deleteAt"` // Time at which the DB Service should be deleted at
+	DeletionConfig *TessellServiceDeletionConfig `json:"deletionConfig,omitempty"`
+}
+
+type TessellDataflixPITRInfoForRegion struct {
+	Region     *string                        `json:"region,omitempty"` // Region name
+	TimeRanges *[]TessellDataflixFromTimeInfo `json:"timeRanges,omitempty"`
+}
+
+type TessellServiceDeletionConfig struct {
+	RetainAvailabilityMachine *bool `json:"retainAvailabilityMachine,omitempty"` // If specified as true, the associated Availability Machine (snapshots, sanitized-snapshots, logs) would be retained
+}
+
+type RegionInfo struct {
+	Region            *string   `json:"region"` // The cloud region name
+	AvailabilityZones *[]string `json:"availabilityZones,omitempty"`
+}
+
+type CloudRegionInfo struct {
+	Cloud   *string       `json:"cloud"`
+	Regions *[]RegionInfo `json:"regions,omitempty"` // The regions details
+}
+
+type DailySchedule struct {
+	BackupsPerDay *int `json:"backupsPerDay,omitempty"` // The number of backups to be captured per day.
 }
 
 type DatabaseSnapshotCloudRegionInfo struct {

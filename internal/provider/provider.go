@@ -10,6 +10,8 @@ import (
 	"terraform-provider-tessell/internal/resource/db_backup"
 	"terraform-provider-tessell/internal/resource/db_parameter_profile"
 	"terraform-provider-tessell/internal/resource/db_service"
+	"terraform-provider-tessell/internal/resource/db_service_delete_schedule"
+	"terraform-provider-tessell/internal/resource/db_service_start_stop_schedule"
 	"terraform-provider-tessell/internal/resource/db_snapshot"
 	"terraform-provider-tessell/internal/resource/sanitized_db_snapshot"
 
@@ -59,22 +61,26 @@ func New(terraformVersion string) func() *schema.Provider {
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
-				"tessell_db_backups":             db_backup.DataSourceDBBackups(),
-				"tessell_db_service":             db_service.DataSourceDBService(),
-				"tessell_db_services":            db_service.DataSourceDBServices(),
-				"tessell_db_parameter_profiles":  db_parameter_profile.DataSourceDBParameterProfiles(),
-				"tessell_db_snapshot":            db_snapshot.DataSourceDBSnapshot(),
-				"tessell_db_snapshots":           db_snapshot.DataSourceDBSnapshots(),
-				"tessell_dataflix":               dataflix.DataSourceDataflix(),
-				"tessell_dataflixes":             dataflix.DataSourceDataflixes(),
-				"tessell_availability_machine":   availability_machine.DataSourceAvailabilityMachine(),
-				"tessell_availability_machines":  availability_machine.DataSourceAvailabilityMachines(),
-				"tessell_dataflix_catalog":       dataflix_catalog.DataSourceDataflixCatalog(),
-				"tessell_sanitized_db_snapshots": sanitized_db_snapshot.DataSourceSanitizedDBSnapshots(),
+				"tessell_db_backups":                     db_backup.DataSourceDBBackups(),
+				"tessell_db_service":                     db_service.DataSourceDBService(),
+				"tessell_db_services":                    db_service.DataSourceDBServices(),
+				"tessell_db_parameter_profiles":          db_parameter_profile.DataSourceDBParameterProfiles(),
+				"tessell_db_service_start_stop_schedule": db_service_start_stop_schedule.DataSourceDBServiceStartStopSchedule(),
+				"tessell_db_service_delete_schedule":     db_service_delete_schedule.DataSourceDBServiceDeleteSchedule(),
+				"tessell_db_snapshot":                    db_snapshot.DataSourceDBSnapshot(),
+				"tessell_db_snapshots":                   db_snapshot.DataSourceDBSnapshots(),
+				"tessell_dataflix":                       dataflix.DataSourceDataflix(),
+				"tessell_dataflixes":                     dataflix.DataSourceDataflixes(),
+				"tessell_availability_machine":           availability_machine.DataSourceAvailabilityMachine(),
+				"tessell_availability_machines":          availability_machine.DataSourceAvailabilityMachines(),
+				"tessell_dataflix_catalog":               dataflix_catalog.DataSourceDataflixCatalog(),
+				"tessell_sanitized_db_snapshots":         sanitized_db_snapshot.DataSourceSanitizedDBSnapshots(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
-				"tessell_db_service":  db_service.ResourceDBService(),
-				"tessell_db_snapshot": db_snapshot.ResourceDBSnapshot(),
+				"tessell_db_service":                     db_service.ResourceDBService(),
+				"tessell_db_service_start_stop_schedule": db_service_start_stop_schedule.ResourceDBServiceStartStopSchedule(),
+				"tessell_db_service_delete_schedule":     db_service_delete_schedule.ResourceDBServiceDeleteSchedule(),
+				"tessell_db_snapshot":                    db_snapshot.ResourceDBSnapshot(),
 			},
 		}
 

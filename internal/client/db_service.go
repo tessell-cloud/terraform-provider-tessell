@@ -196,6 +196,60 @@ func (c *Client) StopTessellService(id string, payload model.StopTessellServiceP
 	return &taskSummary, statusCode, nil
 }
 
+func (c *Client) UpdateTessellService(id string, payload model.UpdateTessellServicePayload) (*model.TessellServiceDTO, int, error) {
+	rb, err := json.Marshal(payload)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s", c.APIAddress, id), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	tessellServiceDTO := model.TessellServiceDTO{}
+	err = json.Unmarshal(body, &tessellServiceDTO)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &tessellServiceDTO, statusCode, nil
+}
+
+func (c *Client) UpdateTessellServiceCredentials(id string, payload model.ResetTessellServiceCredsPayload) (*model.TaskSummary, int, error) {
+	rb, err := json.Marshal(payload)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s/creds", c.APIAddress, id), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	taskSummary := model.TaskSummary{}
+	err = json.Unmarshal(body, &taskSummary)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &taskSummary, statusCode, nil
+}
+
 func (c *Client) DBServicePollForStatusCode(id string, statusCodeRequired int, timeout int, interval int) error {
 
 	loopCount := 0
@@ -256,6 +310,57 @@ func (c *Client) DBServicePollForStatus(id string, value string, timeout int, in
 			return nil
 		case "FAILED":
 			return fmt.Errorf("received status FAILED while polling")
+		}
+
+		loopCount = loopCount + 1
+		if loopCount > loops {
+			return fmt.Errorf("timed out while polling")
+		}
+		if loopCount > 6 {
+			time.Sleep(sleepCycleDuration)
+		} else {
+			time.Sleep(sleepCycleDurationSmall)
+		}
+	}
+}
+
+func (c *Client) DBServicePollForUpdateInProgress(id string, referenceId string, timeout int, interval int) error {
+
+	loopCount := 0
+	sleepCycleDurationSmall, err := time.ParseDuration("10s")
+	if err != nil {
+		return err
+	}
+	sleepCycleDuration, err := time.ParseDuration(fmt.Sprintf("%ds", interval))
+	if err != nil {
+		return err
+	}
+
+	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
+
+	errorCountWhilePolling := 0
+
+	for {
+		response, _, err := c.GetTessellService(id)
+		if err != nil {
+			errorCountWhilePolling += 1
+			if errorCountWhilePolling > 3 {
+				return fmt.Errorf("error while polling: %s", err.Error())
+			} else {
+				continue
+			}
+		}
+
+		updateStillInProgress := false
+
+		for _, resourceUpdateInfo := range *response.UpdatesInProgress {
+			if *resourceUpdateInfo.ReferenceId == referenceId {
+				updateStillInProgress = true
+			}
+		}
+
+		if !updateStillInProgress {
+			return nil
 		}
 
 		loopCount = loopCount + 1

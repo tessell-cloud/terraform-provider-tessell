@@ -1,6 +1,6 @@
 module terraform-provider-tessell
 
-go 1.19
+go 1.17
 
 require (
 	github.com/hashicorp/terraform-plugin-docs v0.13.0

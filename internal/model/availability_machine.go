@@ -6,6 +6,7 @@ type TessellDMMAvailabilityServiceView struct {
 	Topology              *[]DBServiceTopology `json:"topology,omitempty"`            // The availability location details: cloudAccount to region
 	RPOSLAStatus          *string              `json:"rpoSlaStatus,omitempty"`        // The availability status
 	SLA                   *string              `json:"sla,omitempty"`                 // Associated SLA
+	SLARetentionInfo      *TamRetentionInfo    `json:"slaRetentionInfo,omitempty"`
 	Schedule              *ScheduleInfo        `json:"schedule,omitempty"`
 }
 
@@ -16,19 +17,12 @@ type DBServiceTopology struct {
 	AvailabilityZones *[]string `json:"availabilityZones,omitempty"`
 }
 
-type ScheduleInfo struct {
-	BackupStartTime *ScheduleTimeFormat `json:"backupStartTime,omitempty"`
-	DailySchedule   *DailySchedule      `json:"dailySchedule,omitempty"`
-}
-
-type ScheduleTimeFormat struct {
-	Hour   *int `json:"hour,omitempty"`
-	Minute *int `json:"minute,omitempty"`
-}
-
-type DailySchedule struct {
-	BackupsPerDay    *int                  `json:"backupsPerDay,omitempty"`    // The number of backups to be captured per day, this is exclusive with &#39;backupStartTimes&#39;
-	BackupStartTimes *[]ScheduleTimeFormat `json:"backupStartTimes,omitempty"` // List of times when backup(s) has to be captured at. If this is specified, the &#39;backupStartTime&#39; (at top level) value would be overridern by the first entry in this list
+type TamRetentionInfo struct {
+	PITR    *int `json:"pitr,omitempty"`    // Retention time (in days) for Point-In-Time recoverability
+	Daily   *int `json:"daily,omitempty"`   // Retention time (in days) to retain daily snapshots
+	Weekly  *int `json:"weekly,omitempty"`  // Retention time (number of weeks) to retain weekly snapshots
+	Monthly *int `json:"monthly,omitempty"` // Retention time (number of months) to retain monthly snapshots
+	Yearly  *int `json:"yearly,omitempty"`  // Retention time (number of years) to retain yearly snapshots
 }
 
 type TessellDAPServiceDTO struct {
@@ -79,7 +73,7 @@ type SanitizationDAPContentAutomated struct {
 
 type BackupDAPContent struct {
 	Automated *bool            `json:"automated,omitempty"` // Share the automated backups. This is exclusive with manual specification.
-	Manual    *[]DAPManualInfo `json:"manual,omitempty"`    // The list of nackups that are to be shared as part of this access policy
+	Manual    *[]DAPManualInfo `json:"manual,omitempty"`    // The list of backups that are to be shared as part of this access policy
 }
 
 type RetentionAndScheduleInfo struct {
@@ -89,7 +83,7 @@ type RetentionAndScheduleInfo struct {
 type TessellCloneSummaryInfo struct {
 	Id                *string            `json:"id,omitempty"`
 	Name              *string            `json:"name"`                   // Name of the clone database
-	Subscription      *string            `json:"subscription,omitempty"` // Clone&#39;s subsription name
+	Subscription      *string            `json:"subscription,omitempty"` // Clone&#39;s subscription name
 	ComputeType       *string            `json:"computeType,omitempty"`  // Clone&#39;s compute type
 	Status            *string            `json:"status,omitempty"`       // Status of the clone database
 	CloudAvailability *[]CloudRegionInfo `json:"cloudAvailability,omitempty"`
@@ -121,6 +115,7 @@ type TessellDMMServiceConsumerDTO struct {
 	Clones               *[]TessellCloneSummaryInfo         `json:"clones,omitempty"`       // The clone DB Services that have been created using contents (snapshots, Sanitized Snapshots, PITR, backups) from this Availability Machine
 	DateCreated          *string                            `json:"dateCreated,omitempty"`  // The timestamp when the Availability Machine was incarnated
 	DateModified         *string                            `json:"dateModified,omitempty"` // The timestamp when the Availability Machine was last updated
+	Tsm                  *bool                              `json:"tsm,omitempty"`          // Specify whether the associated DB Service is created using TSM compute type
 	BackupDownloadConfig *BackupDownloadConfig              `json:"backupDownloadConfig,omitempty"`
 }
 

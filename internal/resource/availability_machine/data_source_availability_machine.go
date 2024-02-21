@@ -131,7 +131,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 			},
 			"rpo_sla": {
 				Type:        schema.TypeList,
-				Description: "This is a definition for Tessell Availability Machine's cloud and region availability details",
+				Description: "This is a definition for Tessell Availability Machine's sla and schedule details",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -187,15 +187,49 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 							Description: "Associated SLA",
 							Computed:    true,
 						},
+						"sla_retention_info": {
+							Type:        schema.TypeList,
+							Description: "Retention details of the data that is being governed by the SLA",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pitr": {
+										Type:        schema.TypeInt,
+										Description: "Retention time (in days) for Point-In-Time recoverability",
+										Computed:    true,
+									},
+									"daily": {
+										Type:        schema.TypeInt,
+										Description: "Retention time (in days) to retain daily snapshots",
+										Computed:    true,
+									},
+									"weekly": {
+										Type:        schema.TypeInt,
+										Description: "Retention time (number of weeks) to retain weekly snapshots",
+										Computed:    true,
+									},
+									"monthly": {
+										Type:        schema.TypeInt,
+										Description: "Retention time (number of months) to retain monthly snapshots",
+										Computed:    true,
+									},
+									"yearly": {
+										Type:        schema.TypeInt,
+										Description: "Retention time (number of years) to retain yearly snapshots",
+										Computed:    true,
+									},
+								},
+							},
+						},
 						"schedule": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "Schedule Information",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"backup_start_time": {
 										Type:        schema.TypeList,
-										Description: "",
+										Description: "Clock time format value in hour and minute.",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -220,24 +254,114 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"backups_per_day": {
 													Type:        schema.TypeInt,
-													Description: "The number of backups to be captured per day, this is exclusive with 'backupStartTimes'",
+													Description: "The number of backups to be captured per day.",
 													Computed:    true,
 												},
-												"backup_start_times": {
+											},
+										},
+									},
+									"weekly_schedule": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"days": {
 													Type:        schema.TypeList,
-													Description: "List of times when backup(s) has to be captured at. If this is specified, the 'backupStartTime' (at top level) value would be overridern by the first entry in this list",
+													Description: "Days in a week to retain weekly backups for",
+													Computed:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+									"monthly_schedule": {
+										Type:        schema.TypeList,
+										Description: "Definition for taking month specific schedule.",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"common_schedule": {
+													Type:        schema.TypeList,
+													Description: "",
 													Computed:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"hour": {
-																Type:        schema.TypeInt,
+															"dates": {
+																Type:        schema.TypeList,
+																Description: "Dates in a month to retain monthly backups",
+																Computed:    true,
+																Elem: &schema.Schema{
+																	Type: schema.TypeInt,
+																},
+															},
+															"last_day_of_month": {
+																Type:        schema.TypeBool,
 																Description: "",
 																Computed:    true,
 															},
-															"minute": {
-																Type:        schema.TypeInt,
+														},
+													},
+												},
+											},
+										},
+									},
+									"yearly_schedule": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"common_schedule": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"dates": {
+																Type:        schema.TypeList,
+																Description: "Dates in a month to retain monthly backups",
+																Computed:    true,
+																Elem: &schema.Schema{
+																	Type: schema.TypeInt,
+																},
+															},
+															"last_day_of_month": {
+																Type:        schema.TypeBool,
 																Description: "",
 																Computed:    true,
+															},
+															"months": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
+												"month_specific_schedule": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"month": {
+																Type:        schema.TypeString,
+																Description: "Name of a month",
+																Computed:    true,
+															},
+															"dates": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Schema{
+																	Type: schema.TypeInt,
+																},
 															},
 														},
 													},
@@ -411,7 +535,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 												},
 												"manual": {
 													Type:        schema.TypeList,
-													Description: "The list of nackups that are to be shared as part of this access policy",
+													Description: "The list of backups that are to be shared as part of this access policy",
 													Computed:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -563,7 +687,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 						},
 						"subscription": {
 							Type:        schema.TypeString,
-							Description: "Clone's subsription name",
+							Description: "Clone's subscription name",
 							Computed:    true,
 						},
 						"compute_type": {
@@ -638,6 +762,11 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 			"date_modified": {
 				Type:        schema.TypeString,
 				Description: "The timestamp when the Availability Machine was last updated",
+				Computed:    true,
+			},
+			"tsm": {
+				Type:        schema.TypeBool,
+				Description: "Specify whether the associated DB Service is created using TSM compute type",
 				Computed:    true,
 			},
 			"backup_download_config": {

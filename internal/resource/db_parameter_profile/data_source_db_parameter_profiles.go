@@ -146,6 +146,34 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 								},
 							},
 						},
+						"metadata": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"data": {
+										Type:        schema.TypeMap,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"driver_info": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"data": {
+										Type:        schema.TypeMap,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
 						"user_id": {
 							Type:        schema.TypeString,
 							Description: "Database Parameter Profile's user id",
@@ -244,6 +272,8 @@ func setDataSourceValues(d *schema.ResourceData, DBParameterProfileList *[]model
 				"tenant_id":            DBParameterProfile.TenantId,
 				"logged_in_user_role":  DBParameterProfile.LoggedInUserRole,
 				"parameters":           parseDatabaseProfileParameterTypeList(DBParameterProfile.Parameters),
+				"metadata":             []interface{}{parseDatabaseParameterProfileMetadata(DBParameterProfile.Metadata)},
+				"driver_info":          []interface{}{parseDatabaseParameterProfileDriverInfo(DBParameterProfile.DriverInfo)},
 				"user_id":              DBParameterProfile.UserId,
 				"shared_with":          []interface{}{parseEntityAclSharingInfo(DBParameterProfile.SharedWith)},
 				"db_version":           DBParameterProfile.DBVersion,
