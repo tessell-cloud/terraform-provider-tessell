@@ -418,12 +418,24 @@ func ResourceDBService() *schema.Resource {
 							Description: "IOPS requested for the DB Service",
 							Optional:    true,
 							ForceNew:    true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								if old != "0" && new == "0" && !d.GetRawState().IsNull() {
+									return true
+								}
+								return false
+							},
 						},
 						"throughput": {
 							Type:        schema.TypeInt,
 							Description: "throughput requested for the DB Service",
 							Optional:    true,
 							ForceNew:    true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								if old != "0" && new == "0" && !d.GetRawState().IsNull() {
+									return true
+								}
+								return false
+							},
 						},
 						"compute_name_prefix": {
 							Type:        schema.TypeString,
@@ -858,6 +870,18 @@ func ResourceDBService() *schema.Resource {
 										Description: "The parameter profile ID for the database",
 										Optional:    true,
 										ForceNew:    true,
+									},
+									"proxy_port": {
+										Type:        schema.TypeInt,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+										DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+											if old != "0" && new == "0" && !d.GetRawState().IsNull() {
+												return true
+											}
+											return false
+										},
 									},
 								},
 							},

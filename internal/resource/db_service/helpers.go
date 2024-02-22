@@ -252,7 +252,7 @@ func parseTessellServiceConnectivityInfoWithResData(serviceConnectivity *model.T
 			parsedServiceConnectivity = (serviceConnectivityResourceData[0]).(map[string]interface{})
 		}
 	}
-	parsedServiceConnectivity["enable_ssl"] = serviceConnectivity.EnableSsl
+	parsedServiceConnectivity["enable_ssl"] = serviceConnectivity.EnableSSL
 	parsedServiceConnectivity["ca_cert_id"] = serviceConnectivity.CaCertId
 	parsedServiceConnectivity["dns_prefix"] = serviceConnectivity.DNSPrefix
 	parsedServiceConnectivity["service_port"] = serviceConnectivity.ServicePort
@@ -282,7 +282,7 @@ func parseTessellServiceConnectivityInfo(serviceConnectivity *model.TessellServi
 		return nil
 	}
 	parsedServiceConnectivity := make(map[string]interface{})
-	parsedServiceConnectivity["enable_ssl"] = serviceConnectivity.EnableSsl
+	parsedServiceConnectivity["enable_ssl"] = serviceConnectivity.EnableSSL
 	parsedServiceConnectivity["ca_cert_id"] = serviceConnectivity.CaCertId
 	parsedServiceConnectivity["dns_prefix"] = serviceConnectivity.DNSPrefix
 	parsedServiceConnectivity["service_port"] = serviceConnectivity.ServicePort
@@ -702,6 +702,7 @@ func parseTessellServicePostgresqlEngineConfig(tessellServicePostgresqlEngineCon
 	}
 	parsedTessellServicePostgresqlEngineConfig := make(map[string]interface{})
 	parsedTessellServicePostgresqlEngineConfig["parameter_profile_id"] = tessellServicePostgresqlEngineConfig.ParameterProfileId
+	parsedTessellServicePostgresqlEngineConfig["proxy_port"] = tessellServicePostgresqlEngineConfig.ProxyPort
 
 	return parsedTessellServicePostgresqlEngineConfig
 }
@@ -1609,7 +1610,7 @@ func formTessellServiceConnectivityInfoPayload(tessellServiceConnectivityInfoPay
 	tessellServiceConnectivityInfoPayloadData := tessellServiceConnectivityInfoPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	tessellServiceConnectivityInfoPayloadFormed := model.TessellServiceConnectivityInfoPayload{
-		EnableSsl:          helper.GetBoolPointer(tessellServiceConnectivityInfoPayloadData["enable_ssl"]),
+		EnableSSL:          helper.GetBoolPointer(tessellServiceConnectivityInfoPayloadData["enable_ssl"]),
 		DNSPrefix:          helper.GetStringPointer(tessellServiceConnectivityInfoPayloadData["dns_prefix"]),
 		ServicePort:        helper.GetIntPointer(tessellServiceConnectivityInfoPayloadData["service_port"]),
 		EnablePublicAccess: helper.GetBoolPointer(tessellServiceConnectivityInfoPayloadData["enable_public_access"]),
@@ -1759,6 +1760,7 @@ func formPostgresqlEngineConfigPayload(postgresqlEngineConfigPayloadRaw interfac
 
 	postgresqlEngineConfigPayloadFormed := model.PostgresqlEngineConfigPayload{
 		ParameterProfileId: helper.GetStringPointer(postgresqlEngineConfigPayloadData["parameter_profile_id"]),
+		ProxyPort:          helper.GetIntPointer(postgresqlEngineConfigPayloadData["proxy_port"]),
 	}
 
 	return &postgresqlEngineConfigPayloadFormed

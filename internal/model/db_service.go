@@ -57,7 +57,7 @@ type ProvisionComputePayload struct {
 }
 
 type TessellServiceConnectivityInfo struct {
-	EnableSsl            *bool                                           `json:"enableSSL,omitempty"`          // Specify whether to enable SSL to the DB Service, default false
+	EnableSSL            *bool                                           `json:"enableSSL,omitempty"`          // Specify whether to enable SSL to the DB Service, default false
 	CaCertId             *string                                         `json:"caCertId,omitempty"`           // The CA certificate ID associated with the DB Service
 	DNSPrefix            *string                                         `json:"dnsPrefix,omitempty"`          // DNS Prefix associated with the DB Service
 	ServicePort          *int                                            `json:"servicePort,omitempty"`        // The connection port for the DB Service
@@ -141,6 +141,7 @@ type TessellServiceOracleEngineConfig struct {
 
 type TessellServicePostgresqlEngineConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
+	ProxyPort          *int    `json:"proxyPort,omitempty"`
 }
 
 type TessellServiceMysqlEngineConfig struct {
@@ -422,7 +423,7 @@ type TessellServiceInfrastructurePayload struct {
 }
 
 type TessellServiceConnectivityInfoPayload struct {
-	EnableSsl          *bool     `json:"enableSSL,omitempty"`
+	EnableSSL          *bool     `json:"enableSSL,omitempty"`
 	DNSPrefix          *string   `json:"dnsPrefix,omitempty"`          // If not specified, Tessell will use a randomly generated prefix
 	ServicePort        *int      `json:"servicePort"`                  // The connection port for the DB Service
 	EnablePublicAccess *bool     `json:"enablePublicAccess,omitempty"` // Specify whether to enable public access to the DB Service, default false
@@ -451,6 +452,7 @@ type OracleEngineConfigPayload struct {
 
 type PostgresqlEngineConfigPayload struct {
 	ParameterProfileId *string `json:"parameterProfileId"` // The parameter profile id for the database
+	ProxyPort          *int    `json:"proxyPort,omitempty"`
 }
 
 type MysqlEngineConfigPayload struct {

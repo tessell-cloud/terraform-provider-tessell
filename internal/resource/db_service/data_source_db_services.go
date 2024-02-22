@@ -601,6 +601,11 @@ func DataSourceDBServices() *schema.Resource {
 													Description: "The parameter profile ID for the database",
 													Computed:    true,
 												},
+												"proxy_port": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Computed:    true,
+												},
 											},
 										},
 									},
