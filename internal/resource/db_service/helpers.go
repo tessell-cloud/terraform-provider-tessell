@@ -1879,7 +1879,7 @@ func formDatesForEachMonth(datesForEachMonthRaw interface{}) *model.DatesForEach
 	datesForEachMonthData := datesForEachMonthRaw.([]interface{})[0].(map[string]interface{})
 
 	datesForEachMonthFormed := model.DatesForEachMonth{
-		Dates:          helper.InterfaceToInt32Slice(datesForEachMonthData["dates"]),
+		Dates:          helper.InterfaceToIntSlice(datesForEachMonthData["dates"]),
 		LastDayOfMonth: helper.GetBoolPointer(datesForEachMonthData["last_day_of_month"]),
 	}
 
@@ -1909,7 +1909,7 @@ func formCommonYearlySchedule(commonYearlyScheduleRaw interface{}) *model.Common
 	commonYearlyScheduleData := commonYearlyScheduleRaw.([]interface{})[0].(map[string]interface{})
 
 	commonYearlyScheduleFormed := model.CommonYearlySchedule{
-		Dates:          helper.InterfaceToInt32Slice(commonYearlyScheduleData["dates"]),
+		Dates:          helper.InterfaceToIntSlice(commonYearlyScheduleData["dates"]),
 		LastDayOfMonth: helper.GetBoolPointer(commonYearlyScheduleData["last_day_of_month"]),
 		Months:         helper.InterfaceToStringSlice(commonYearlyScheduleData["months"]),
 	}
