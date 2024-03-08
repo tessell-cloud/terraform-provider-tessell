@@ -35,6 +35,10 @@ func setResourceData(d *schema.ResourceData, tessellAmDataflixDTO *model.Tessell
 		return err
 	}
 
+	if err := d.Set("tsm", tessellAmDataflixDTO.Tsm); err != nil {
+		return err
+	}
+
 	if err := d.Set("shared_with", parseEntityAclSharingSummaryInfoWithResData(tessellAmDataflixDTO.SharedWith, d)); err != nil {
 		return err
 	}

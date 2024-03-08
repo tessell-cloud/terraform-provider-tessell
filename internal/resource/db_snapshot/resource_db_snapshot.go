@@ -125,7 +125,7 @@ func ResourceDBSnapshot() *schema.Resource {
 									},
 									"regions": {
 										Type:        schema.TypeList,
-										Description: "The list of regions and respective avaoilability status",
+										Description: "The list of regions and respective availability status",
 										Optional:    true,
 										ForceNew:    true,
 										Elem: &schema.Resource{

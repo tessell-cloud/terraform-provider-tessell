@@ -146,6 +146,34 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 								},
 							},
 						},
+						"metadata": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"data": {
+										Type:        schema.TypeMap,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"driver_info": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"data": {
+										Type:        schema.TypeMap,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
 						"user_id": {
 							Type:        schema.TypeString,
 							Description: "Database Parameter Profile's user id",
@@ -206,11 +234,20 @@ func dataSourceDBParameterProfilesRead(ctx context.Context, d *schema.ResourceDa
 
 	var diags diag.Diagnostics
 
-	name := d.Get("name").(string)
-	engineType := d.Get("engine_type").(string)
-	status := d.Get("status").(string)
+	var name string
+	if !d.GetRawConfig().GetAttr("name").IsNull() {
+		name = d.Get("name").(string)
+	}
+	var engineType string
+	if !d.GetRawConfig().GetAttr("engine_type").IsNull() {
+		engineType = d.Get("engine_type").(string)
+	}
+	var status string
+	if !d.GetRawConfig().GetAttr("status").IsNull() {
+		status = d.Get("status").(string)
+	}
 
-	response, _, err := client.GetDatabaseParameterProfilesForConsumers(status, engineType, name)
+	response, _, err := client.GetDatabaseParameterProfilesForConsumers(&status, &engineType, &name)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -244,6 +281,8 @@ func setDataSourceValues(d *schema.ResourceData, DBParameterProfileList *[]model
 				"tenant_id":            DBParameterProfile.TenantId,
 				"logged_in_user_role":  DBParameterProfile.LoggedInUserRole,
 				"parameters":           parseDatabaseProfileParameterTypeList(DBParameterProfile.Parameters),
+				"metadata":             []interface{}{parseDatabaseParameterProfileMetadata(DBParameterProfile.Metadata)},
+				"driver_info":          []interface{}{parseDatabaseParameterProfileDriverInfo(DBParameterProfile.DriverInfo)},
 				"user_id":              DBParameterProfile.UserId,
 				"shared_with":          []interface{}{parseEntityAclSharingInfo(DBParameterProfile.SharedWith)},
 				"db_version":           DBParameterProfile.DBVersion,

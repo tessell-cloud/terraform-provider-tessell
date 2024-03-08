@@ -128,7 +128,7 @@ func DataSourceSanitizedDBSnapshots() *schema.Resource {
 												},
 												"regions": {
 													Type:        schema.TypeList,
-													Description: "The list of regions and respective avaoilability status",
+													Description: "The list of regions and respective availability status",
 													Computed:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -248,11 +248,17 @@ func dataSourceSanitizedDBSnapshotsRead(ctx context.Context, d *schema.ResourceD
 
 	var diags diag.Diagnostics
 
-	name := d.Get("name").(string)
 	availabilityMachineId := d.Get("availability_machine_id").(string)
-	manual := d.Get("manual").(bool)
+	var name string
+	if !d.GetRawConfig().GetAttr("name").IsNull() {
+		name = d.Get("name").(string)
+	}
+	var manual bool
+	if !d.GetRawConfig().GetAttr("manual").IsNull() {
+		manual = d.Get("manual").(bool)
+	}
 
-	response, _, err := client.GetSanitizedDatabaseSnapshots(availabilityMachineId, name, manual)
+	response, _, err := client.GetSanitizedDatabaseSnapshots(availabilityMachineId, &name, &manual)
 	if err != nil {
 		return diag.FromErr(err)
 	}

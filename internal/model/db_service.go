@@ -65,6 +65,7 @@ type TessellServiceConnectivityInfo struct {
 	AllowedIpAddresses   *[]string                                       `json:"allowedIpAddresses,omitempty"` // The list of allowed ipv4 addresses that can connect to the DB Service
 	ConnectStrings       *[]TessellServiceConnectString                  `json:"connectStrings,omitempty"`     // The list of connect strings for the DB Service
 	PrivateLink          *ServiceConnectivityPrivateLink                 `json:"privateLink,omitempty"`
+	ComputesConnectivity *[]ComputeConnectivityConfig                    `json:"computesConnectivity,omitempty"` // The Genie endpoint to connect to your DB service.
 	UpdateInProgressInfo *TessellServiceConnectivityUpdateInProgressInfo `json:"updateInProgressInfo,omitempty"`
 }
 
@@ -80,16 +81,28 @@ type TessellServiceConnectString struct {
 type ServiceConnectivityPrivateLink struct {
 	Status                     *string   `json:"status,omitempty"`
 	ServicePrincipals          *[]string `json:"servicePrincipals,omitempty"`          // The list of AWS account principals that are currently enabled
-	EndpointServiceName        *string   `json:"endpointServiceName,omitempty"`        // The configured endpoint as a result of configuring the service-pricipals
+	EndpointServiceName        *string   `json:"endpointServiceName,omitempty"`        // The configured endpoint as a result of configuring the service-principals
 	ClientAzureSubscriptionIds *[]string `json:"clientAzureSubscriptionIds,omitempty"` // The list of Azure subscription Ids
 	PrivateLinkServiceAlias    *string   `json:"privateLinkServiceAlias,omitempty"`    // The Azure private link service alias
 }
 
+type ComputeConnectivityConfig struct {
+	ComputeResourceId *string             `json:"computeResourceId,omitempty"`
+	PortAccessConfig  *[]PortAccessConfig `json:"portAccessConfig,omitempty"`
+}
+
+type PortAccessConfig struct {
+	Port               *int      `json:"port,omitempty"`               // The connection port for the DB Service
+	EnablePublicAccess *bool     `json:"enablePublicAccess,omitempty"` // Enable public access to database (true/false)
+	AllowedIpAddresses *[]string `json:"allowedIpAddresses,omitempty"` // Set allowed IP address if enablePublicAccess is true.
+}
+
 type TessellServiceConnectivityUpdateInProgressInfo struct {
-	DNSPrefix          *string                                  `json:"dnsPrefix,omitempty"`          // The DNS prefix associated with the DB Service
-	EnablePublicAccess *bool                                    `json:"enablePublicAccess,omitempty"` // Specify whether to enable public access to the DB Service, default false
-	AllowedIpAddresses *[]string                                `json:"allowedIpAddresses,omitempty"` // The list of allowed ipv4 addresses that can connect to the DB Service
-	PrivateLink        *ServiceConnectivityUpdateInProgressInfo `json:"privateLink,omitempty"`
+	DNSPrefix            *string                                  `json:"dnsPrefix,omitempty"`          // The DNS prefix associated with the DB Service
+	EnablePublicAccess   *bool                                    `json:"enablePublicAccess,omitempty"` // Specify whether to enable public access to the DB Service, default false
+	AllowedIpAddresses   *[]string                                `json:"allowedIpAddresses,omitempty"` // The list of allowed ipv4 addresses that can connect to the DB Service
+	PrivateLink          *ServiceConnectivityUpdateInProgressInfo `json:"privateLink,omitempty"`
+	ComputesConnectivity *[]ComputeConnectivityConfig             `json:"computesConnectivity,omitempty"` // The Genie endpoint to connect to your DB service.
 }
 
 type ServiceConnectivityUpdateInProgressInfo struct {
@@ -108,15 +121,19 @@ type TessellServiceMaintenanceWindow struct {
 	Duration *int    `json:"duration"` // The duration during which the maintenance window will be allowed to trigger
 }
 
-type TessellServiceBackupConfigurationPayload struct {
-	AutoSnapshot   *bool                                                   `json:"autoSnapshot,omitempty"` // Specify whether to capture automated snapshots for the DB Service, default true.
-	SLA            *string                                                 `json:"sla,omitempty"`          // The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service
-	SnapshotWindow *TessellServiceBackupConfigurationPayloadSnapshotWindow `json:"snapshotWindow,omitempty"`
+type SnapshotConfigurationPayload struct {
+	SnapshotWindow     *SnapshotConfigurationPayloadSnapshotWindow `json:"snapshotWindow,omitempty"`
+	SLA                *string                                     `json:"sla,omitempty"` // The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service
+	Schedule           *ScheduleInfo                               `json:"schedule,omitempty"`
+	FullBackupSchedule *FullBackupSchedule                         `json:"fullBackupSchedule,omitempty"`
 }
 
-type TessellServiceBackupConfigurationPayloadSnapshotWindow struct {
-	Time     *string `json:"time,omitempty"`     // Time value in (hh:mm) format. ex. &#39;02:00&#39;
-	Duration *int    `json:"duration,omitempty"` // The allowed duration for capturing the DB Service backup
+type SnapshotConfigurationPayloadSnapshotWindow struct {
+	Time *string `json:"time,omitempty"` // Time value in (hh:mm) format. ex. &#39;02:00&#39;. Deprecated, please use backupStartTime in schedule.
+}
+
+type FullBackupSchedule struct {
+	WeeklySchedule *WeeklySchedule `json:"weeklySchedule,omitempty"`
 }
 
 type TessellServiceEngineInfo struct {
@@ -137,15 +154,18 @@ type TessellServiceOracleEngineConfig struct {
 	OptionsProfile       *string `json:"optionsProfile,omitempty"`       // The options profile for the database
 	CharacterSet         *string `json:"characterSet,omitempty"`         // The character-set for the database
 	NationalCharacterSet *string `json:"nationalCharacterSet,omitempty"` // The national-character-set for the database
+	EnableArchiveMode    *bool   `json:"enableArchiveMode,omitempty"`    // To explicitly enable archive mode, when PITR is disabled
 }
 
 type TessellServicePostgresqlEngineConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
+	AdDomainId         *string `json:"adDomainId,omitempty"`         // Active Directory Domain ID
 	ProxyPort          *int    `json:"proxyPort,omitempty"`
 }
 
 type TessellServiceMysqlEngineConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
+	AdDomainId         *string `json:"adDomainId,omitempty"`         // Active Directory Domain ID
 }
 
 type TessellServiceSqlServerEngineConfig struct {
@@ -241,9 +261,9 @@ type TessellTag struct {
 }
 
 type TessellServiceInstanceDTO struct {
-	Id                   *string                              `json:"id,omitempty"`   // Tessell generated UUID for the DB Service Instance
-	Name                 *string                              `json:"name,omitempty"` // Name of the DB Service Instance
-	Type                 *string                              `json:"type,omitempty"`
+	Id                   *string                              `json:"id,omitempty"`               // Tessell generated UUID for the DB Service Instance
+	Name                 *string                              `json:"name,omitempty"`             // Name of the DB Service Instance
+	Type                 *string                              `json:"type,omitempty"`             // DB Service instance type
 	Role                 *string                              `json:"role,omitempty"`             // DB Service instance role
 	Status               *string                              `json:"status,omitempty"`           // DB Service instance status
 	TessellServiceId     *string                              `json:"tessellServiceId,omitempty"` // DB Service Instance&#39;s associated DB Service id
@@ -258,6 +278,7 @@ type TessellServiceInstanceDTO struct {
 	Storage              *int                                 `json:"storage,omitempty"`     // The storage (in bytes) that has been provisioned for the DB Service instance.
 	DataVolumeIops       *int                                 `json:"dataVolumeIops,omitempty"`
 	Throughput           *int                                 `json:"throughput,omitempty"` // Throughput requested for this DB Service instance
+	EnablePerfInsights   *bool                                `json:"enablePerfInsights,omitempty"`
 	ParameterProfile     *ParameterProfile                    `json:"parameterProfile,omitempty"`
 	MonitoringConfig     *MonitoringConfig                    `json:"monitoringConfig,omitempty"`
 	VPC                  *string                              `json:"vpc,omitempty"`                  // The VPC used for creation of the DB Service Instance
@@ -274,7 +295,7 @@ type TessellServiceInstanceDTO struct {
 type ParameterProfile struct {
 	Id      *string `json:"id,omitempty"`      // Tessell generated UUID for the the parameter profile
 	Name    *string `json:"name,omitempty"`    // The name used to identify the parameter profile
-	Version *string `json:"version,omitempty"` // The version of the parameter profile assoiciated with the instance
+	Version *string `json:"version,omitempty"` // The version of the parameter profile associated with the instance
 	Status  *string `json:"status,omitempty"`
 }
 
@@ -321,59 +342,50 @@ type ServiceUpcomingScheduledActionsDelete struct {
 	At *string `json:"at,omitempty"` // The scheduled time for the action to be deleted
 }
 
-type TessellServiceDeletionConfig struct {
-	RetainAvailabilityMachine *bool `json:"retainAvailabilityMachine,omitempty"` // If specified as true, the associated Availability Machine (snapshots, sanitized-snapshots, logs) would be retained
-}
-
-type DeletionScheduleDTO struct {
-	DeleteAt       *string                       `json:"deleteAt"` // Time at which the DB Service should be deleted at
-	DeletionConfig *TessellServiceDeletionConfig `json:"deletionConfig,omitempty"`
-}
-
 type TerraformTessellServiceDTO struct {
-	Id                         *string                                   `json:"id,omitempty"`                    // Tessell generated UUID for the DB Service. This is the unique identifier for the DB Service.
-	AvailabilityMachineId      *string                                   `json:"availabilityMachineId,omitempty"` // Associated Availability Machine Id
-	SnapshotId                 *string                                   `json:"snapshotId,omitempty"`            // Tessell service snapshot Id, using which the clone is to be created
-	PITR                       *string                                   `json:"pitr,omitempty"`                  // PITR Timestamp, using which the clone is to be created
-	Name                       *string                                   `json:"name"`                            // Name of the DB Service
-	Description                *string                                   `json:"description,omitempty"`           // DB Service&#39;s description
-	TenantId                   *string                                   `json:"tenantId,omitempty"`              // The tenant-id for the DB Service
-	Subscription               *string                                   `json:"subscription"`                    // Tessell Subscription in which the DB Service is to be created
-	EngineType                 *string                                   `json:"engineType"`
-	Topology                   *string                                   `json:"topology"`
-	NumOfInstances             *int                                      `json:"numOfInstances,omitempty"` // Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.
-	Status                     *string                                   `json:"status,omitempty"`         // The current status of the DB Service
-	ContextInfo                *TessellServiceContextInfo                `json:"contextInfo,omitempty"`
-	LicenseType                *string                                   `json:"licenseType,omitempty"` // DB Service License Type
-	Edition                    *string                                   `json:"edition,omitempty"`
-	SoftwareImage              *string                                   `json:"softwareImage"`                        // Software Image to be used to create the DB Service
-	SoftwareImageVersion       *string                                   `json:"softwareImageVersion"`                 // Software Image Version to be used to create the DB Service
-	SoftwareImageVersionFamily *string                                   `json:"softwareImageVersionFamily,omitempty"` // Software Image Family DB Service belongs to
-	AutoMinorVersionUpdate     *bool                                     `json:"autoMinorVersionUpdate,omitempty"`     // Specify whether to automatically update minor version for DB Service
-	EnableDeletionProtection   *bool                                     `json:"enableDeletionProtection,omitempty"`   // Specify whether to enable deletion protection for the DB Service
-	EnableStopProtection       *bool                                     `json:"enableStopProtection,omitempty"`       // This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
-	Owner                      *string                                   `json:"owner,omitempty"`                      // DB Service owner email address
-	LoggedInUserRole           *string                                   `json:"loggedInUserRole,omitempty"`           // Access role for the currently logged in user
-	DateCreated                *string                                   `json:"dateCreated,omitempty"`                // Timestamp when the DB Service was created at
-	StartedAt                  *string                                   `json:"startedAt,omitempty"`                  // Timestamp when the DB Service was last started at
-	StoppedAt                  *string                                   `json:"stoppedAt,omitempty"`                  // Timestamp when the DB Service was last stopped at
-	ClonedFromInfo             *TessellServiceClonedFromInfo             `json:"clonedFromInfo,omitempty"`
-	Infrastructure             *TfTessellServiceInfrastructureInfo       `json:"infrastructure"`
-	ServiceConnectivity        *TessellServiceConnectivityInfo           `json:"serviceConnectivity"`
-	TessellGenieStatus         *string                                   `json:"tessellGenieStatus,omitempty"` // DB Service&#39;s Genie status
-	Creds                      *TessellServiceCredsPayload               `json:"creds"`
-	MaintenanceWindow          *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
-	SnapshotConfiguration      *TessellServiceBackupConfigurationPayload `json:"snapshotConfiguration,omitempty"`
-	EngineConfiguration        *TessellServiceEngineInfo                 `json:"engineConfiguration"`
-	Databases                  *[]TerraformTessellDatabaseDTO            `json:"databases,omitempty"` // Databases that are part of this DB Service
-	IntegrationsConfig         *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`
-	Tags                       *[]TessellTag                             `json:"tags,omitempty"`      // The tags to be associated with the DB Service
-	Instances                  *[]TessellServiceInstanceDTO              `json:"instances,omitempty"` // Instances associated with this DB Service
-	SharedWith                 *EntityAclSharingInfo                     `json:"sharedWith,omitempty"`
-	UpcomingScheduledActions   *ServiceUpcomingScheduledActions          `json:"upcomingScheduledActions,omitempty"`
-	DeletionConfig             *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
-	DeletionSchedule           *DeletionScheduleDTO                      `json:"deletionSchedule,omitempty"`
-	UpdatesInProgress          *[]TessellResourceUpdateInfo              `json:"updatesInProgress,omitempty"` // The updates that are in progress for this resource
+	Id                         *string                             `json:"id,omitempty"`                    // Tessell generated UUID for the DB Service. This is the unique identifier for the DB Service.
+	AvailabilityMachineId      *string                             `json:"availabilityMachineId,omitempty"` // Associated Availability Machine Id
+	SnapshotId                 *string                             `json:"snapshotId,omitempty"`            // Tessell service snapshot Id, using which the clone is to be created
+	PITR                       *string                             `json:"pitr,omitempty"`                  // PITR Timestamp, using which the clone is to be created
+	Name                       *string                             `json:"name"`                            // Name of the DB Service
+	Description                *string                             `json:"description,omitempty"`           // DB Service&#39;s description
+	TenantId                   *string                             `json:"tenantId,omitempty"`              // The tenant-id for the DB Service
+	Subscription               *string                             `json:"subscription"`                    // Tessell Subscription in which the DB Service is to be created
+	EngineType                 *string                             `json:"engineType"`
+	Topology                   *string                             `json:"topology"`
+	NumOfInstances             *int                                `json:"numOfInstances,omitempty"` // Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.
+	Status                     *string                             `json:"status,omitempty"`         // The current status of the DB Service
+	ContextInfo                *TessellServiceContextInfo          `json:"contextInfo,omitempty"`
+	LicenseType                *string                             `json:"licenseType,omitempty"` // DB Service License Type
+	Edition                    *string                             `json:"edition,omitempty"`
+	SoftwareImage              *string                             `json:"softwareImage"`                        // Software Image to be used to create the DB Service
+	SoftwareImageVersion       *string                             `json:"softwareImageVersion"`                 // Software Image Version to be used to create the DB Service
+	SoftwareImageVersionFamily *string                             `json:"softwareImageVersionFamily,omitempty"` // Software Image Family DB Service belongs to
+	AutoMinorVersionUpdate     *bool                               `json:"autoMinorVersionUpdate,omitempty"`     // Specify whether to automatically update minor version for DB Service
+	EnableDeletionProtection   *bool                               `json:"enableDeletionProtection,omitempty"`   // Specify whether to enable deletion protection for the DB Service
+	EnableStopProtection       *bool                               `json:"enableStopProtection,omitempty"`       // This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
+	Owner                      *string                             `json:"owner,omitempty"`                      // DB Service owner email address
+	LoggedInUserRole           *string                             `json:"loggedInUserRole,omitempty"`           // Access role for the currently logged in user
+	DateCreated                *string                             `json:"dateCreated,omitempty"`                // Timestamp when the DB Service was created at
+	StartedAt                  *string                             `json:"startedAt,omitempty"`                  // Timestamp when the DB Service was last started at
+	StoppedAt                  *string                             `json:"stoppedAt,omitempty"`                  // Timestamp when the DB Service was last stopped at
+	ClonedFromInfo             *TessellServiceClonedFromInfo       `json:"clonedFromInfo,omitempty"`
+	Infrastructure             *TfTessellServiceInfrastructureInfo `json:"infrastructure"`
+	ServiceConnectivity        *TessellServiceConnectivityInfo     `json:"serviceConnectivity"`
+	TessellGenieStatus         *string                             `json:"tessellGenieStatus,omitempty"` // DB Service&#39;s Genie status
+	Creds                      *TessellServiceCredsPayload         `json:"creds"`
+	MaintenanceWindow          *TessellServiceMaintenanceWindow    `json:"maintenanceWindow,omitempty"`
+	SnapshotConfiguration      *SnapshotConfigurationPayload       `json:"snapshotConfiguration,omitempty"`
+	EngineConfiguration        *TessellServiceEngineInfo           `json:"engineConfiguration"`
+	Databases                  *[]TerraformTessellDatabaseDTO      `json:"databases,omitempty"` // Databases that are part of this DB Service
+	IntegrationsConfig         *TessellServiceIntegrationsPayload  `json:"integrationsConfig,omitempty"`
+	Tags                       *[]TessellTag                       `json:"tags,omitempty"`      // The tags to be associated with the DB Service
+	Instances                  *[]TessellServiceInstanceDTO        `json:"instances,omitempty"` // Instances associated with this DB Service
+	SharedWith                 *EntityAclSharingInfo               `json:"sharedWith,omitempty"`
+	UpcomingScheduledActions   *ServiceUpcomingScheduledActions    `json:"upcomingScheduledActions,omitempty"`
+	DeletionConfig             *TessellServiceDeletionConfig       `json:"deletionConfig,omitempty"`
+	DeletionSchedule           *DeletionScheduleDTO                `json:"deletionSchedule,omitempty"`
+	UpdatesInProgress          *[]TessellResourceUpdateInfo        `json:"updatesInProgress,omitempty"` // The updates that are in progress for this resource
 }
 
 type CloneTessellServicePayload struct {
@@ -397,7 +409,7 @@ type CloneTessellServicePayload struct {
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
 	DeletionConfig           *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
-	SnapshotConfiguration    *TessellServiceBackupConfigurationPayload `json:"snapshotConfiguration,omitempty"`
+	SnapshotConfiguration    *SnapshotConfigurationPayload             `json:"snapshotConfiguration,omitempty"`
 	EngineConfiguration      *TessellServiceEngineConfigurationPayload `json:"engineConfiguration"`
 	Databases                *[]CreateDatabasePayload                  `json:"databases,omitempty"` // Specify the databases to be created in the DB Service
 	IntegrationsConfig       *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`
@@ -443,20 +455,23 @@ type TessellServiceEngineConfigurationPayload struct {
 }
 
 type OracleEngineConfigPayload struct {
-	MultiTenant          *bool   `json:"multiTenant,omitempty"` // Specify whether the DB Service is multi-tenant.
-	ParameterProfileId   *string `json:"parameterProfileId"`    // The parameter profile id for the database
-	OptionsProfile       *string `json:"optionsProfile"`        // The options profile for the database
-	CharacterSet         *string `json:"characterSet"`          // The character-set for the database
-	NationalCharacterSet *string `json:"nationalCharacterSet"`  // The national-character-set for the database
+	MultiTenant          *bool   `json:"multiTenant,omitempty"`       // Specify whether the DB Service is multi-tenant.
+	ParameterProfileId   *string `json:"parameterProfileId"`          // The parameter profile id for the database
+	OptionsProfile       *string `json:"optionsProfile"`              // The options profile for the database
+	CharacterSet         *string `json:"characterSet"`                // The character-set for the database
+	NationalCharacterSet *string `json:"nationalCharacterSet"`        // The national-character-set for the database
+	EnableArchiveMode    *bool   `json:"enableArchiveMode,omitempty"` // To explicitly enable archive mode, when PITR is disabled
 }
 
 type PostgresqlEngineConfigPayload struct {
-	ParameterProfileId *string `json:"parameterProfileId"` // The parameter profile id for the database
+	ParameterProfileId *string `json:"parameterProfileId"`   // The parameter profile id for the database
+	AdDomainId         *string `json:"adDomainId,omitempty"` // Active Directory Domain id
 	ProxyPort          *int    `json:"proxyPort,omitempty"`
 }
 
 type MysqlEngineConfigPayload struct {
-	ParameterProfileId *string `json:"parameterProfileId"` // The parameter profile id for the database
+	ParameterProfileId *string `json:"parameterProfileId"`   // The parameter profile id for the database
+	AdDomainId         *string `json:"adDomainId,omitempty"` // Active Directory Domain id
 }
 
 type SqlServerEngineConfigPayload struct {
@@ -662,7 +677,7 @@ type ProvisionTessellServicePayload struct {
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
 	DeletionConfig           *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
-	SnapshotConfiguration    *TessellServiceBackupConfigurationPayload `json:"snapshotConfiguration,omitempty"`
+	SnapshotConfiguration    *SnapshotConfigurationPayload             `json:"snapshotConfiguration,omitempty"`
 	EngineConfiguration      *TessellServiceEngineConfigurationPayload `json:"engineConfiguration"`
 	Databases                *[]CreateDatabasePayload                  `json:"databases,omitempty"` // Specify the databases to be created in the DB Service
 	IntegrationsConfig       *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`
@@ -675,4 +690,21 @@ type StartTessellServicePayload struct {
 
 type StopTessellServicePayload struct {
 	Comment *string `json:"comment,omitempty"` // Comment for the action
+}
+
+type UpdateTessellServicePayload struct {
+	Name                     *string `json:"name,omitempty"`                     // If not specified, this field will be ignored and the existing value will be assumed.
+	Description              *string `json:"description,omitempty"`              // If not specified, this field will be ignored and the existing value will be assumed.
+	EnableDeletionProtection *bool   `json:"enableDeletionProtection,omitempty"` // If not specified, this field will be ignored and the existing setting will be assumed.
+	EnableStopProtection     *bool   `json:"enableStopProtection,omitempty"`     // Whether stop operation is allowed on the service or not.
+	AutoMinorVersionUpdate   *bool   `json:"autoMinorVersionUpdate,omitempty"`   // If not specified, this field will be ignored and the existing setting will be assumed.
+}
+
+type ResetTessellServiceCredsPayload struct {
+	Creds *[]ResetTessellServiceCredsPayloadCreds `json:"creds"`
+}
+
+type ResetTessellServiceCredsPayloadCreds struct {
+	UserName    *string `json:"userName"`    // Username
+	NewPassword *string `json:"newPassword"` // New password (which is to be reset)
 }

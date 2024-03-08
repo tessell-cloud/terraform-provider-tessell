@@ -7,6 +7,7 @@ type TessellAmDataflixDTO struct {
 	EngineType            *string                      `json:"engineType,omitempty"`
 	CloudAvailability     *[]CloudRegionInfo           `json:"cloudAvailability,omitempty"` // The cloud and region information where the data is available for access
 	Owner                 *string                      `json:"owner,omitempty"`             // Owner of the Availability Machine
+	Tsm                   *bool                        `json:"tsm,omitempty"`               // Specify whether the associated DB Service is created using TSM compute type
 	SharedWith            *EntityAclSharingSummaryInfo `json:"sharedWith,omitempty"`
 }
 

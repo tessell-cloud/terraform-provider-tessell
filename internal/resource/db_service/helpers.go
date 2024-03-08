@@ -269,6 +269,11 @@ func parseTessellServiceConnectivityInfoWithResData(serviceConnectivity *model.T
 		parsedServiceConnectivity["private_link"] = []interface{}{parseServiceConnectivityPrivateLink(serviceConnectivity.PrivateLink)}
 	}
 
+	var computesConnectivity *[]model.ComputeConnectivityConfig
+	if serviceConnectivity.ComputesConnectivity != computesConnectivity {
+		parsedServiceConnectivity["computes_connectivity"] = parseComputeConnectivityConfigList(serviceConnectivity.ComputesConnectivity)
+	}
+
 	var updateInProgressInfo *model.TessellServiceConnectivityUpdateInProgressInfo
 	if serviceConnectivity.UpdateInProgressInfo != updateInProgressInfo {
 		parsedServiceConnectivity["update_in_progress_info"] = []interface{}{parseTessellServiceConnectivityUpdateInProgressInfo(serviceConnectivity.UpdateInProgressInfo)}
@@ -297,6 +302,11 @@ func parseTessellServiceConnectivityInfo(serviceConnectivity *model.TessellServi
 	var privateLink *model.ServiceConnectivityPrivateLink
 	if serviceConnectivity.PrivateLink != privateLink {
 		parsedServiceConnectivity["private_link"] = []interface{}{parseServiceConnectivityPrivateLink(serviceConnectivity.PrivateLink)}
+	}
+
+	var computesConnectivity *[]model.ComputeConnectivityConfig
+	if serviceConnectivity.ComputesConnectivity != computesConnectivity {
+		parsedServiceConnectivity["computes_connectivity"] = parseComputeConnectivityConfigList(serviceConnectivity.ComputesConnectivity)
 	}
 
 	var updateInProgressInfo *model.TessellServiceConnectivityUpdateInProgressInfo
@@ -352,6 +362,65 @@ func parseServiceConnectivityPrivateLink(serviceConnectivityPrivateLink *model.S
 	return parsedServiceConnectivityPrivateLink
 }
 
+func parseComputeConnectivityConfigList(computeConnectivityConfig *[]model.ComputeConnectivityConfig) []interface{} {
+	if computeConnectivityConfig == nil {
+		return nil
+	}
+	computeConnectivityConfigList := make([]interface{}, 0)
+
+	if computeConnectivityConfig != nil {
+		computeConnectivityConfigList = make([]interface{}, len(*computeConnectivityConfig))
+		for i, computeConnectivityConfigItem := range *computeConnectivityConfig {
+			computeConnectivityConfigList[i] = parseComputeConnectivityConfig(&computeConnectivityConfigItem)
+		}
+	}
+
+	return computeConnectivityConfigList
+}
+
+func parseComputeConnectivityConfig(computeConnectivityConfig *model.ComputeConnectivityConfig) interface{} {
+	if computeConnectivityConfig == nil {
+		return nil
+	}
+	parsedComputeConnectivityConfig := make(map[string]interface{})
+	parsedComputeConnectivityConfig["compute_resource_id"] = computeConnectivityConfig.ComputeResourceId
+
+	var portAccessConfig *[]model.PortAccessConfig
+	if computeConnectivityConfig.PortAccessConfig != portAccessConfig {
+		parsedComputeConnectivityConfig["port_access_config"] = parsePortAccessConfigList(computeConnectivityConfig.PortAccessConfig)
+	}
+
+	return parsedComputeConnectivityConfig
+}
+
+func parsePortAccessConfigList(portAccessConfig *[]model.PortAccessConfig) []interface{} {
+	if portAccessConfig == nil {
+		return nil
+	}
+	portAccessConfigList := make([]interface{}, 0)
+
+	if portAccessConfig != nil {
+		portAccessConfigList = make([]interface{}, len(*portAccessConfig))
+		for i, portAccessConfigItem := range *portAccessConfig {
+			portAccessConfigList[i] = parsePortAccessConfig(&portAccessConfigItem)
+		}
+	}
+
+	return portAccessConfigList
+}
+
+func parsePortAccessConfig(portAccessConfig *model.PortAccessConfig) interface{} {
+	if portAccessConfig == nil {
+		return nil
+	}
+	parsedPortAccessConfig := make(map[string]interface{})
+	parsedPortAccessConfig["port"] = portAccessConfig.Port
+	parsedPortAccessConfig["enable_public_access"] = portAccessConfig.EnablePublicAccess
+	parsedPortAccessConfig["allowed_ip_addresses"] = portAccessConfig.AllowedIpAddresses
+
+	return parsedPortAccessConfig
+}
+
 func parseTessellServiceConnectivityUpdateInProgressInfo(tessellServiceConnectivityUpdateInProgressInfo *model.TessellServiceConnectivityUpdateInProgressInfo) interface{} {
 	if tessellServiceConnectivityUpdateInProgressInfo == nil {
 		return nil
@@ -364,6 +433,11 @@ func parseTessellServiceConnectivityUpdateInProgressInfo(tessellServiceConnectiv
 	var privateLink *model.ServiceConnectivityUpdateInProgressInfo
 	if tessellServiceConnectivityUpdateInProgressInfo.PrivateLink != privateLink {
 		parsedTessellServiceConnectivityUpdateInProgressInfo["private_link"] = []interface{}{parseServiceConnectivityUpdateInProgressInfo(tessellServiceConnectivityUpdateInProgressInfo.PrivateLink)}
+	}
+
+	var computesConnectivity *[]model.ComputeConnectivityConfig
+	if tessellServiceConnectivityUpdateInProgressInfo.ComputesConnectivity != computesConnectivity {
+		parsedTessellServiceConnectivityUpdateInProgressInfo["computes_connectivity"] = parseComputeConnectivityConfigList(tessellServiceConnectivityUpdateInProgressInfo.ComputesConnectivity)
 	}
 
 	return parsedTessellServiceConnectivityUpdateInProgressInfo
@@ -692,6 +766,7 @@ func parseTessellServiceOracleEngineConfig(tessellServiceOracleEngineConfig *mod
 	parsedTessellServiceOracleEngineConfig["options_profile"] = tessellServiceOracleEngineConfig.OptionsProfile
 	parsedTessellServiceOracleEngineConfig["character_set"] = tessellServiceOracleEngineConfig.CharacterSet
 	parsedTessellServiceOracleEngineConfig["national_character_set"] = tessellServiceOracleEngineConfig.NationalCharacterSet
+	parsedTessellServiceOracleEngineConfig["enable_archive_mode"] = tessellServiceOracleEngineConfig.EnableArchiveMode
 
 	return parsedTessellServiceOracleEngineConfig
 }
@@ -702,6 +777,7 @@ func parseTessellServicePostgresqlEngineConfig(tessellServicePostgresqlEngineCon
 	}
 	parsedTessellServicePostgresqlEngineConfig := make(map[string]interface{})
 	parsedTessellServicePostgresqlEngineConfig["parameter_profile_id"] = tessellServicePostgresqlEngineConfig.ParameterProfileId
+	parsedTessellServicePostgresqlEngineConfig["ad_domain_id"] = tessellServicePostgresqlEngineConfig.AdDomainId
 	parsedTessellServicePostgresqlEngineConfig["proxy_port"] = tessellServicePostgresqlEngineConfig.ProxyPort
 
 	return parsedTessellServicePostgresqlEngineConfig
@@ -713,6 +789,7 @@ func parseTessellServiceMysqlEngineConfig(tessellServiceMySqlEngineConfig *model
 	}
 	parsedTessellServiceMySqlEngineConfig := make(map[string]interface{})
 	parsedTessellServiceMySqlEngineConfig["parameter_profile_id"] = tessellServiceMySqlEngineConfig.ParameterProfileId
+	parsedTessellServiceMySqlEngineConfig["ad_domain_id"] = tessellServiceMySqlEngineConfig.AdDomainId
 
 	return parsedTessellServiceMySqlEngineConfig
 }
@@ -964,6 +1041,7 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	parsedInstances["storage"] = instances.Storage
 	parsedInstances["data_volume_iops"] = instances.DataVolumeIops
 	parsedInstances["throughput"] = instances.Throughput
+	parsedInstances["enable_perf_insights"] = instances.EnablePerfInsights
 
 	parsedInstances["vpc"] = instances.VPC
 	parsedInstances["encryption_key"] = instances.EncryptionKey
@@ -1312,6 +1390,7 @@ func parseDeletionScheduleDTOWithResData(deletionSchedule *model.DeletionSchedul
 			parsedDeletionSchedule = (deletionScheduleResourceData[0]).(map[string]interface{})
 		}
 	}
+	parsedDeletionSchedule["id"] = deletionSchedule.Id
 	parsedDeletionSchedule["delete_at"] = deletionSchedule.DeleteAt
 
 	var deletionConfig *model.TessellServiceDeletionConfig
@@ -1327,6 +1406,7 @@ func parseDeletionScheduleDTO(deletionSchedule *model.DeletionScheduleDTO) inter
 		return nil
 	}
 	parsedDeletionSchedule := make(map[string]interface{})
+	parsedDeletionSchedule["id"] = deletionSchedule.Id
 	parsedDeletionSchedule["delete_at"] = deletionSchedule.DeleteAt
 
 	var deletionConfig *model.TessellServiceDeletionConfig
@@ -1445,7 +1525,7 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
 		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
-		SnapshotConfiguration:    formTessellServiceBackupConfigurationPayload(d.Get("snapshot_configuration")),
+		SnapshotConfiguration:    formSnapshotConfigurationPayload(d.Get("snapshot_configuration")),
 		EngineConfiguration:      formTessellServiceEngineConfigurationPayload(d.Get("engine_configuration")),
 		Databases:                formCreateDatabasePayloadList(d.Get("databases")),
 		IntegrationsConfig:       formTessellServiceIntegrationsPayload(d.Get("integrations_config")),
@@ -1485,7 +1565,7 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
 		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
-		SnapshotConfiguration:    formTessellServiceBackupConfigurationPayload(d.Get("snapshot_configuration")),
+		SnapshotConfiguration:    formSnapshotConfigurationPayload(d.Get("snapshot_configuration")),
 		EngineConfiguration:      formTessellServiceEngineConfigurationPayload(d.Get("engine_configuration")),
 		Databases:                formCreateDatabasePayloadList(d.Get("databases")),
 		IntegrationsConfig:       formTessellServiceIntegrationsPayload(d.Get("integrations_config")),
@@ -1509,6 +1589,26 @@ func formPayloadForStopTessellService(d *schema.ResourceData) model.StopTessellS
 	}
 
 	return stopTessellServicePayloadFormed
+}
+
+func formPayloadForUpdateTessellService(d *schema.ResourceData) model.UpdateTessellServicePayload {
+	updateTessellServicePayloadFormed := model.UpdateTessellServicePayload{
+		Name:                     helper.GetStringPointer(d.Get("name")),
+		Description:              helper.GetStringPointer(d.Get("description")),
+		EnableDeletionProtection: helper.GetBoolPointer(d.Get("enable_deletion_protection")),
+		EnableStopProtection:     helper.GetBoolPointer(d.Get("enable_stop_protection")),
+		AutoMinorVersionUpdate:   helper.GetBoolPointer(d.Get("auto_minor_version_update")),
+	}
+
+	return updateTessellServicePayloadFormed
+}
+
+func formPayloadForUpdateTessellServiceCredentials(d *schema.ResourceData) model.ResetTessellServiceCredsPayload {
+	resetTessellServiceCredsPayloadFormed := model.ResetTessellServiceCredsPayload{
+		Creds: formResetTessellServiceCredsPayloadCredsList(d.Get("creds")),
+	}
+
+	return resetTessellServiceCredsPayloadFormed
 }
 
 func formTessellServiceInfrastructurePayload(tessellServiceInfrastructurePayloadRaw interface{}) *model.TessellServiceInfrastructurePayload {
@@ -1665,35 +1765,197 @@ func formTessellServiceDeletionConfig(tessellServiceDeletionConfigRaw interface{
 	return &tessellServiceDeletionConfigFormed
 }
 
-func formTessellServiceBackupConfigurationPayload(tessellServiceBackupConfigurationPayloadRaw interface{}) *model.TessellServiceBackupConfigurationPayload {
-	if tessellServiceBackupConfigurationPayloadRaw == nil || len(tessellServiceBackupConfigurationPayloadRaw.([]interface{})) == 0 {
+func formSnapshotConfigurationPayload(snapshotConfigurationPayloadRaw interface{}) *model.SnapshotConfigurationPayload {
+	if snapshotConfigurationPayloadRaw == nil || len(snapshotConfigurationPayloadRaw.([]interface{})) == 0 {
 		return nil
 	}
 
-	tessellServiceBackupConfigurationPayloadData := tessellServiceBackupConfigurationPayloadRaw.([]interface{})[0].(map[string]interface{})
+	snapshotConfigurationPayloadData := snapshotConfigurationPayloadRaw.([]interface{})[0].(map[string]interface{})
 
-	tessellServiceBackupConfigurationPayloadFormed := model.TessellServiceBackupConfigurationPayload{
-		AutoSnapshot:   helper.GetBoolPointer(tessellServiceBackupConfigurationPayloadData["auto_snapshot"]),
-		SLA:            helper.GetStringPointer(tessellServiceBackupConfigurationPayloadData["sla"]),
-		SnapshotWindow: formTessellServiceBackupConfigurationPayloadSnapshotWindow(tessellServiceBackupConfigurationPayloadData["snapshot_window"]),
+	snapshotConfigurationPayloadFormed := model.SnapshotConfigurationPayload{
+		SnapshotWindow:     formSnapshotConfigurationPayloadSnapshotWindow(snapshotConfigurationPayloadData["snapshot_window"]),
+		SLA:                helper.GetStringPointer(snapshotConfigurationPayloadData["sla"]),
+		Schedule:           formScheduleInfo(snapshotConfigurationPayloadData["schedule"]),
+		FullBackupSchedule: formFullBackupSchedule(snapshotConfigurationPayloadData["full_backup_schedule"]),
 	}
 
-	return &tessellServiceBackupConfigurationPayloadFormed
+	return &snapshotConfigurationPayloadFormed
 }
 
-func formTessellServiceBackupConfigurationPayloadSnapshotWindow(tessellServiceBackupConfigurationPayloadSnapshotWindowRaw interface{}) *model.TessellServiceBackupConfigurationPayloadSnapshotWindow {
-	if tessellServiceBackupConfigurationPayloadSnapshotWindowRaw == nil || len(tessellServiceBackupConfigurationPayloadSnapshotWindowRaw.([]interface{})) == 0 {
+func formSnapshotConfigurationPayloadSnapshotWindow(snapshotConfigurationPayloadSnapshotWindowRaw interface{}) *model.SnapshotConfigurationPayloadSnapshotWindow {
+	if snapshotConfigurationPayloadSnapshotWindowRaw == nil || len(snapshotConfigurationPayloadSnapshotWindowRaw.([]interface{})) == 0 {
 		return nil
 	}
 
-	tessellServiceBackupConfigurationPayloadSnapshotWindowData := tessellServiceBackupConfigurationPayloadSnapshotWindowRaw.([]interface{})[0].(map[string]interface{})
+	snapshotConfigurationPayloadSnapshotWindowData := snapshotConfigurationPayloadSnapshotWindowRaw.([]interface{})[0].(map[string]interface{})
 
-	tessellServiceBackupConfigurationPayloadSnapshotWindowFormed := model.TessellServiceBackupConfigurationPayloadSnapshotWindow{
-		Time:     helper.GetStringPointer(tessellServiceBackupConfigurationPayloadSnapshotWindowData["time"]),
-		Duration: helper.GetIntPointer(tessellServiceBackupConfigurationPayloadSnapshotWindowData["duration"]),
+	snapshotConfigurationPayloadSnapshotWindowFormed := model.SnapshotConfigurationPayloadSnapshotWindow{
+		Time: helper.GetStringPointer(snapshotConfigurationPayloadSnapshotWindowData["time"]),
 	}
 
-	return &tessellServiceBackupConfigurationPayloadSnapshotWindowFormed
+	return &snapshotConfigurationPayloadSnapshotWindowFormed
+}
+
+func formScheduleInfo(scheduleInfoRaw interface{}) *model.ScheduleInfo {
+	if scheduleInfoRaw == nil || len(scheduleInfoRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	scheduleInfoData := scheduleInfoRaw.([]interface{})[0].(map[string]interface{})
+
+	scheduleInfoFormed := model.ScheduleInfo{
+		BackupStartTime: formTimeFormat(scheduleInfoData["backup_start_time"]),
+		DailySchedule:   formDailySchedule(scheduleInfoData["daily_schedule"]),
+		WeeklySchedule:  formWeeklySchedule(scheduleInfoData["weekly_schedule"]),
+		MonthlySchedule: formMonthlySchedule(scheduleInfoData["monthly_schedule"]),
+		YearlySchedule:  formYearlySchedule(scheduleInfoData["yearly_schedule"]),
+	}
+
+	return &scheduleInfoFormed
+}
+
+func formTimeFormat(timeFormatRaw interface{}) *model.TimeFormat {
+	if timeFormatRaw == nil || len(timeFormatRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	timeFormatData := timeFormatRaw.([]interface{})[0].(map[string]interface{})
+
+	timeFormatFormed := model.TimeFormat{
+		Hour:   helper.GetIntPointer(timeFormatData["hour"]),
+		Minute: helper.GetIntPointer(timeFormatData["minute"]),
+	}
+
+	return &timeFormatFormed
+}
+
+func formDailySchedule(dailyScheduleRaw interface{}) *model.DailySchedule {
+	if dailyScheduleRaw == nil || len(dailyScheduleRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	dailyScheduleData := dailyScheduleRaw.([]interface{})[0].(map[string]interface{})
+
+	dailyScheduleFormed := model.DailySchedule{
+		BackupsPerDay: helper.GetIntPointer(dailyScheduleData["backups_per_day"]),
+	}
+
+	return &dailyScheduleFormed
+}
+
+func formWeeklySchedule(weeklyScheduleRaw interface{}) *model.WeeklySchedule {
+	if weeklyScheduleRaw == nil || len(weeklyScheduleRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	weeklyScheduleData := weeklyScheduleRaw.([]interface{})[0].(map[string]interface{})
+
+	weeklyScheduleFormed := model.WeeklySchedule{
+		Days: helper.InterfaceToStringSlice(weeklyScheduleData["days"]),
+	}
+
+	return &weeklyScheduleFormed
+}
+
+func formMonthlySchedule(monthlyScheduleRaw interface{}) *model.MonthlySchedule {
+	if monthlyScheduleRaw == nil || len(monthlyScheduleRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	monthlyScheduleData := monthlyScheduleRaw.([]interface{})[0].(map[string]interface{})
+
+	monthlyScheduleFormed := model.MonthlySchedule{
+		CommonSchedule: formDatesForEachMonth(monthlyScheduleData["common_schedule"]),
+	}
+
+	return &monthlyScheduleFormed
+}
+
+func formDatesForEachMonth(datesForEachMonthRaw interface{}) *model.DatesForEachMonth {
+	if datesForEachMonthRaw == nil || len(datesForEachMonthRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	datesForEachMonthData := datesForEachMonthRaw.([]interface{})[0].(map[string]interface{})
+
+	datesForEachMonthFormed := model.DatesForEachMonth{
+		Dates:          helper.InterfaceToInt32Slice(datesForEachMonthData["dates"]),
+		LastDayOfMonth: helper.GetBoolPointer(datesForEachMonthData["last_day_of_month"]),
+	}
+
+	return &datesForEachMonthFormed
+}
+
+func formYearlySchedule(yearlyScheduleRaw interface{}) *model.YearlySchedule {
+	if yearlyScheduleRaw == nil || len(yearlyScheduleRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	yearlyScheduleData := yearlyScheduleRaw.([]interface{})[0].(map[string]interface{})
+
+	yearlyScheduleFormed := model.YearlySchedule{
+		CommonSchedule:        formCommonYearlySchedule(yearlyScheduleData["common_schedule"]),
+		MonthSpecificSchedule: formMonthWiseDatesList(yearlyScheduleData["month_specific_schedule"]),
+	}
+
+	return &yearlyScheduleFormed
+}
+
+func formCommonYearlySchedule(commonYearlyScheduleRaw interface{}) *model.CommonYearlySchedule {
+	if commonYearlyScheduleRaw == nil || len(commonYearlyScheduleRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	commonYearlyScheduleData := commonYearlyScheduleRaw.([]interface{})[0].(map[string]interface{})
+
+	commonYearlyScheduleFormed := model.CommonYearlySchedule{
+		Dates:          helper.InterfaceToInt32Slice(commonYearlyScheduleData["dates"]),
+		LastDayOfMonth: helper.GetBoolPointer(commonYearlyScheduleData["last_day_of_month"]),
+		Months:         helper.InterfaceToStringSlice(commonYearlyScheduleData["months"]),
+	}
+
+	return &commonYearlyScheduleFormed
+}
+
+func formMonthWiseDates(monthWiseDatesRaw interface{}) *model.MonthWiseDates {
+	if monthWiseDatesRaw == nil {
+		return nil
+	}
+
+	monthWiseDatesData := monthWiseDatesRaw.(map[string]interface{})
+
+	monthWiseDatesFormed := model.MonthWiseDates{
+		Month: helper.GetStringPointer(monthWiseDatesData["month"]),
+		Dates: helper.InterfaceToInt32Slice(monthWiseDatesData["dates"]),
+	}
+
+	return &monthWiseDatesFormed
+}
+func formMonthWiseDatesList(monthWiseDatesListRaw interface{}) *[]model.MonthWiseDates {
+	if monthWiseDatesListRaw == nil || len(monthWiseDatesListRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	MonthWiseDatesListFormed := make([]model.MonthWiseDates, len(monthWiseDatesListRaw.([]interface{})))
+
+	for i, monthWiseDates := range monthWiseDatesListRaw.([]interface{}) {
+		MonthWiseDatesListFormed[i] = *formMonthWiseDates(monthWiseDates)
+	}
+
+	return &MonthWiseDatesListFormed
+}
+func formFullBackupSchedule(fullBackupScheduleRaw interface{}) *model.FullBackupSchedule {
+	if fullBackupScheduleRaw == nil || len(fullBackupScheduleRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	fullBackupScheduleData := fullBackupScheduleRaw.([]interface{})[0].(map[string]interface{})
+
+	fullBackupScheduleFormed := model.FullBackupSchedule{
+		WeeklySchedule: formWeeklySchedule(fullBackupScheduleData["weekly_schedule"]),
+	}
+
+	return &fullBackupScheduleFormed
 }
 
 func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurationPayloadRaw interface{}) *model.TessellServiceEngineConfigurationPayload {
@@ -1746,6 +2008,7 @@ func formOracleEngineConfigPayload(oracleEngineConfigPayloadRaw interface{}) *mo
 		OptionsProfile:       helper.GetStringPointer(oracleEngineConfigPayloadData["options_profile"]),
 		CharacterSet:         helper.GetStringPointer(oracleEngineConfigPayloadData["character_set"]),
 		NationalCharacterSet: helper.GetStringPointer(oracleEngineConfigPayloadData["national_character_set"]),
+		EnableArchiveMode:    helper.GetBoolPointer(oracleEngineConfigPayloadData["enable_archive_mode"]),
 	}
 
 	return &oracleEngineConfigPayloadFormed
@@ -1760,6 +2023,7 @@ func formPostgresqlEngineConfigPayload(postgresqlEngineConfigPayloadRaw interfac
 
 	postgresqlEngineConfigPayloadFormed := model.PostgresqlEngineConfigPayload{
 		ParameterProfileId: helper.GetStringPointer(postgresqlEngineConfigPayloadData["parameter_profile_id"]),
+		AdDomainId:         helper.GetStringPointer(postgresqlEngineConfigPayloadData["ad_domain_id"]),
 		ProxyPort:          helper.GetIntPointer(postgresqlEngineConfigPayloadData["proxy_port"]),
 	}
 
@@ -1775,6 +2039,7 @@ func formMysqlEngineConfigPayload(mysqlEngineConfigPayloadRaw interface{}) *mode
 
 	mysqlEngineConfigPayloadFormed := model.MysqlEngineConfigPayload{
 		ParameterProfileId: helper.GetStringPointer(mysqlEngineConfigPayloadData["parameter_profile_id"]),
+		AdDomainId:         helper.GetStringPointer(mysqlEngineConfigPayloadData["ad_domain_id"]),
 	}
 
 	return &mysqlEngineConfigPayloadFormed
@@ -2171,4 +2436,31 @@ func formTessellTagList(tessellTagListRaw interface{}) *[]model.TessellTag {
 	}
 
 	return &TessellTagListFormed
+}
+func formResetTessellServiceCredsPayloadCreds(credsRaw interface{}) *model.ResetTessellServiceCredsPayloadCreds {
+	if credsRaw == nil {
+		return nil
+	}
+
+	credsData := credsRaw.(map[string]interface{})
+
+	resetTessellServiceCredsPayloadCredsFormed := model.ResetTessellServiceCredsPayloadCreds{
+		UserName:    helper.GetStringPointer(credsData["master_user"]),
+		NewPassword: helper.GetStringPointer(credsData["master_password"]),
+	}
+
+	return &resetTessellServiceCredsPayloadCredsFormed
+}
+func formResetTessellServiceCredsPayloadCredsList(credsListRaw interface{}) *[]model.ResetTessellServiceCredsPayloadCreds {
+	if credsListRaw == nil || len(credsListRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	CredsListFormed := make([]model.ResetTessellServiceCredsPayloadCreds, len(credsListRaw.([]interface{})))
+
+	for i, creds := range credsListRaw.([]interface{}) {
+		CredsListFormed[i] = *formResetTessellServiceCredsPayloadCreds(creds)
+	}
+
+	return &CredsListFormed
 }

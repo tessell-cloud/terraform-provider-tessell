@@ -79,6 +79,10 @@ func setResourceData(d *schema.ResourceData, tessellDMMServiceConsumerDTO *model
 		return err
 	}
 
+	if err := d.Set("tsm", tessellDMMServiceConsumerDTO.Tsm); err != nil {
+		return err
+	}
+
 	if err := d.Set("backup_download_config", parseBackupDownloadConfigWithResData(tessellDMMServiceConsumerDTO.BackupDownloadConfig, d)); err != nil {
 		return err
 	}
@@ -243,6 +247,11 @@ func parseTessellDMMAvailabilityServiceViewWithResData(rpoSla *model.TessellDMMA
 		parsedRpoSla["topology"] = parseDBServiceTopologyList(rpoSla.Topology)
 	}
 
+	var slaRetentionInfo *model.TamRetentionInfo
+	if rpoSla.SLARetentionInfo != slaRetentionInfo {
+		parsedRpoSla["sla_retention_info"] = []interface{}{parseTamRetentionInfo(rpoSla.SLARetentionInfo)}
+	}
+
 	var schedule *model.ScheduleInfo
 	if rpoSla.Schedule != schedule {
 		parsedRpoSla["schedule"] = []interface{}{parseScheduleInfo(rpoSla.Schedule)}
@@ -265,6 +274,11 @@ func parseTessellDMMAvailabilityServiceView(rpoSla *model.TessellDMMAvailability
 	var topology *[]model.DBServiceTopology
 	if rpoSla.Topology != topology {
 		parsedRpoSla["topology"] = parseDBServiceTopologyList(rpoSla.Topology)
+	}
+
+	var slaRetentionInfo *model.TamRetentionInfo
+	if rpoSla.SLARetentionInfo != slaRetentionInfo {
+		parsedRpoSla["sla_retention_info"] = []interface{}{parseTamRetentionInfo(rpoSla.SLARetentionInfo)}
 	}
 
 	var schedule *model.ScheduleInfo
@@ -304,15 +318,29 @@ func parseDBServiceTopology(dbServiceTopology *model.DBServiceTopology) interfac
 	return parsedDbServiceTopology
 }
 
+func parseTamRetentionInfo(tamRetentionInfo *model.TamRetentionInfo) interface{} {
+	if tamRetentionInfo == nil {
+		return nil
+	}
+	parsedTamRetentionInfo := make(map[string]interface{})
+	parsedTamRetentionInfo["pitr"] = tamRetentionInfo.PITR
+	parsedTamRetentionInfo["daily"] = tamRetentionInfo.Daily
+	parsedTamRetentionInfo["weekly"] = tamRetentionInfo.Weekly
+	parsedTamRetentionInfo["monthly"] = tamRetentionInfo.Monthly
+	parsedTamRetentionInfo["yearly"] = tamRetentionInfo.Yearly
+
+	return parsedTamRetentionInfo
+}
+
 func parseScheduleInfo(scheduleInfo *model.ScheduleInfo) interface{} {
 	if scheduleInfo == nil {
 		return nil
 	}
 	parsedScheduleInfo := make(map[string]interface{})
 
-	var backupStartTime *model.ScheduleTimeFormat
+	var backupStartTime *model.TimeFormat
 	if scheduleInfo.BackupStartTime != backupStartTime {
-		parsedScheduleInfo["backup_start_time"] = []interface{}{parseScheduleTimeFormat(scheduleInfo.BackupStartTime)}
+		parsedScheduleInfo["backup_start_time"] = []interface{}{parseTimeFormat(scheduleInfo.BackupStartTime)}
 	}
 
 	var dailySchedule *model.DailySchedule
@@ -320,34 +348,33 @@ func parseScheduleInfo(scheduleInfo *model.ScheduleInfo) interface{} {
 		parsedScheduleInfo["daily_schedule"] = []interface{}{parseDailySchedule(scheduleInfo.DailySchedule)}
 	}
 
+	var weeklySchedule *model.WeeklySchedule
+	if scheduleInfo.WeeklySchedule != weeklySchedule {
+		parsedScheduleInfo["weekly_schedule"] = []interface{}{parseWeeklySchedule(scheduleInfo.WeeklySchedule)}
+	}
+
+	var monthlySchedule *model.MonthlySchedule
+	if scheduleInfo.MonthlySchedule != monthlySchedule {
+		parsedScheduleInfo["monthly_schedule"] = []interface{}{parseMonthlySchedule(scheduleInfo.MonthlySchedule)}
+	}
+
+	var yearlySchedule *model.YearlySchedule
+	if scheduleInfo.YearlySchedule != yearlySchedule {
+		parsedScheduleInfo["yearly_schedule"] = []interface{}{parseYearlySchedule(scheduleInfo.YearlySchedule)}
+	}
+
 	return parsedScheduleInfo
 }
 
-func parseScheduleTimeFormatList(scheduleTimeFormat *[]model.ScheduleTimeFormat) []interface{} {
-	if scheduleTimeFormat == nil {
+func parseTimeFormat(timeFormat *model.TimeFormat) interface{} {
+	if timeFormat == nil {
 		return nil
 	}
-	scheduleTimeFormatList := make([]interface{}, 0)
+	parsedTimeFormat := make(map[string]interface{})
+	parsedTimeFormat["hour"] = timeFormat.Hour
+	parsedTimeFormat["minute"] = timeFormat.Minute
 
-	if scheduleTimeFormat != nil {
-		scheduleTimeFormatList = make([]interface{}, len(*scheduleTimeFormat))
-		for i, scheduleTimeFormatItem := range *scheduleTimeFormat {
-			scheduleTimeFormatList[i] = parseScheduleTimeFormat(&scheduleTimeFormatItem)
-		}
-	}
-
-	return scheduleTimeFormatList
-}
-
-func parseScheduleTimeFormat(scheduleTimeFormat *model.ScheduleTimeFormat) interface{} {
-	if scheduleTimeFormat == nil {
-		return nil
-	}
-	parsedScheduleTimeFormat := make(map[string]interface{})
-	parsedScheduleTimeFormat["hour"] = scheduleTimeFormat.Hour
-	parsedScheduleTimeFormat["minute"] = scheduleTimeFormat.Minute
-
-	return parsedScheduleTimeFormat
+	return parsedTimeFormat
 }
 
 func parseDailySchedule(dailySchedule *model.DailySchedule) interface{} {
@@ -357,12 +384,100 @@ func parseDailySchedule(dailySchedule *model.DailySchedule) interface{} {
 	parsedDailySchedule := make(map[string]interface{})
 	parsedDailySchedule["backups_per_day"] = dailySchedule.BackupsPerDay
 
-	var backupStartTimes *[]model.ScheduleTimeFormat
-	if dailySchedule.BackupStartTimes != backupStartTimes {
-		parsedDailySchedule["backup_start_times"] = parseScheduleTimeFormatList(dailySchedule.BackupStartTimes)
+	return parsedDailySchedule
+}
+
+func parseWeeklySchedule(weeklySchedule *model.WeeklySchedule) interface{} {
+	if weeklySchedule == nil {
+		return nil
+	}
+	parsedWeeklySchedule := make(map[string]interface{})
+	parsedWeeklySchedule["days"] = weeklySchedule.Days
+
+	return parsedWeeklySchedule
+}
+
+func parseMonthlySchedule(monthlySchedule *model.MonthlySchedule) interface{} {
+	if monthlySchedule == nil {
+		return nil
+	}
+	parsedMonthlySchedule := make(map[string]interface{})
+
+	var commonSchedule *model.DatesForEachMonth
+	if monthlySchedule.CommonSchedule != commonSchedule {
+		parsedMonthlySchedule["common_schedule"] = []interface{}{parseDatesForEachMonth(monthlySchedule.CommonSchedule)}
 	}
 
-	return parsedDailySchedule
+	return parsedMonthlySchedule
+}
+
+func parseDatesForEachMonth(datesForEachMonth *model.DatesForEachMonth) interface{} {
+	if datesForEachMonth == nil {
+		return nil
+	}
+	parsedDatesForEachMonth := make(map[string]interface{})
+	parsedDatesForEachMonth["dates"] = datesForEachMonth.Dates
+	parsedDatesForEachMonth["last_day_of_month"] = datesForEachMonth.LastDayOfMonth
+
+	return parsedDatesForEachMonth
+}
+
+func parseYearlySchedule(yearlySchedule *model.YearlySchedule) interface{} {
+	if yearlySchedule == nil {
+		return nil
+	}
+	parsedYearlySchedule := make(map[string]interface{})
+
+	var commonSchedule *model.CommonYearlySchedule
+	if yearlySchedule.CommonSchedule != commonSchedule {
+		parsedYearlySchedule["common_schedule"] = []interface{}{parseCommonYearlySchedule(yearlySchedule.CommonSchedule)}
+	}
+
+	var monthSpecificSchedule *[]model.MonthWiseDates
+	if yearlySchedule.MonthSpecificSchedule != monthSpecificSchedule {
+		parsedYearlySchedule["month_specific_schedule"] = parseMonthWiseDatesList(yearlySchedule.MonthSpecificSchedule)
+	}
+
+	return parsedYearlySchedule
+}
+
+func parseCommonYearlySchedule(commonYearlySchedule *model.CommonYearlySchedule) interface{} {
+	if commonYearlySchedule == nil {
+		return nil
+	}
+	parsedCommonYearlySchedule := make(map[string]interface{})
+	parsedCommonYearlySchedule["dates"] = commonYearlySchedule.Dates
+	parsedCommonYearlySchedule["last_day_of_month"] = commonYearlySchedule.LastDayOfMonth
+	parsedCommonYearlySchedule["months"] = commonYearlySchedule.Months
+
+	return parsedCommonYearlySchedule
+}
+
+func parseMonthWiseDatesList(monthWiseDates *[]model.MonthWiseDates) []interface{} {
+	if monthWiseDates == nil {
+		return nil
+	}
+	monthWiseDatesList := make([]interface{}, 0)
+
+	if monthWiseDates != nil {
+		monthWiseDatesList = make([]interface{}, len(*monthWiseDates))
+		for i, monthWiseDatesItem := range *monthWiseDates {
+			monthWiseDatesList[i] = parseMonthWiseDates(&monthWiseDatesItem)
+		}
+	}
+
+	return monthWiseDatesList
+}
+
+func parseMonthWiseDates(monthWiseDates *model.MonthWiseDates) interface{} {
+	if monthWiseDates == nil {
+		return nil
+	}
+	parsedMonthWiseDates := make(map[string]interface{})
+	parsedMonthWiseDates["month"] = monthWiseDates.Month
+	parsedMonthWiseDates["dates"] = monthWiseDates.Dates
+
+	return parsedMonthWiseDates
 }
 
 func parseTessellDAPServiceDTOListWithResData(daps *[]model.TessellDAPServiceDTO, d *schema.ResourceData) []interface{} {

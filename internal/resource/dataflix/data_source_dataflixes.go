@@ -83,6 +83,11 @@ func DataSourceDataflixes() *schema.Resource {
 							Description: "Owner of the Availability Machine",
 							Computed:    true,
 						},
+						"tsm": {
+							Type:        schema.TypeBool,
+							Description: "Specify whether the associated DB Service is created using TSM compute type",
+							Computed:    true,
+						},
 						"shared_with": {
 							Type:        schema.TypeList,
 							Description: "Tessell Entity ACL Sharing Summary Info",
@@ -162,6 +167,7 @@ func setDataSourceValues(d *schema.ResourceData, DataflixList *[]model.TessellAm
 				"engine_type":             Dataflix.EngineType,
 				"cloud_availability":      parseCloudRegionInfoList(Dataflix.CloudAvailability),
 				"owner":                   Dataflix.Owner,
+				"tsm":                     Dataflix.Tsm,
 				"shared_with":             []interface{}{parseEntityAclSharingSummaryInfo(Dataflix.SharedWith)},
 			}
 		}

@@ -309,7 +309,7 @@ func DataSourceDBServices() *schema.Resource {
 												},
 												"endpoint_service_name": {
 													Type:        schema.TypeString,
-													Description: "The configured endpoint as a result of configuring the service-pricipals",
+													Description: "The configured endpoint as a result of configuring the service-principals",
 													Computed:    true,
 												},
 												"client_azure_subscription_ids": {
@@ -324,6 +324,47 @@ func DataSourceDBServices() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "The Azure private link service alias",
 													Computed:    true,
+												},
+											},
+										},
+									},
+									"computes_connectivity": {
+										Type:        schema.TypeList,
+										Description: "The Genie endpoint to connect to your DB service.",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"compute_resource_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"port_access_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"port": {
+																Type:        schema.TypeInt,
+																Description: "The connection port for the DB Service",
+																Computed:    true,
+															},
+															"enable_public_access": {
+																Type:        schema.TypeBool,
+																Description: "Enable public access to database (true/false)",
+																Computed:    true,
+															},
+															"allowed_ip_addresses": {
+																Type:        schema.TypeList,
+																Description: "Set allowed IP address if enablePublicAccess is true.",
+																Computed:    true,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
 												},
 											},
 										},
@@ -372,6 +413,47 @@ func DataSourceDBServices() *schema.Resource {
 																Computed:    true,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
+												"computes_connectivity": {
+													Type:        schema.TypeList,
+													Description: "The Genie endpoint to connect to your DB service.",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"compute_resource_id": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"port_access_config": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"port": {
+																			Type:        schema.TypeInt,
+																			Description: "The connection port for the DB Service",
+																			Computed:    true,
+																		},
+																		"enable_public_access": {
+																			Type:        schema.TypeBool,
+																			Description: "Enable public access to database (true/false)",
+																			Computed:    true,
+																		},
+																		"allowed_ip_addresses": {
+																			Type:        schema.TypeList,
+																			Description: "Set allowed IP address if enablePublicAccess is true.",
+																			Computed:    true,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																		},
+																	},
 																},
 															},
 														},
@@ -587,6 +669,11 @@ func DataSourceDBServices() *schema.Resource {
 													Description: "The national-character-set for the database",
 													Computed:    true,
 												},
+												"enable_archive_mode": {
+													Type:        schema.TypeBool,
+													Description: "To explicitly enable archive mode, when PITR is disabled",
+													Computed:    true,
+												},
 											},
 										},
 									},
@@ -599,6 +686,11 @@ func DataSourceDBServices() *schema.Resource {
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
 													Description: "The parameter profile ID for the database",
+													Computed:    true,
+												},
+												"ad_domain_id": {
+													Type:        schema.TypeString,
+													Description: "Active Directory Domain ID",
 													Computed:    true,
 												},
 												"proxy_port": {
@@ -618,6 +710,11 @@ func DataSourceDBServices() *schema.Resource {
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
 													Description: "The parameter profile ID for the database",
+													Computed:    true,
+												},
+												"ad_domain_id": {
+													Type:        schema.TypeString,
+													Description: "Active Directory Domain ID",
 													Computed:    true,
 												},
 											},
@@ -827,7 +924,7 @@ func DataSourceDBServices() *schema.Resource {
 									},
 									"type": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "DB Service instance type",
 										Computed:    true,
 									},
 									"role": {
@@ -918,6 +1015,11 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "Throughput requested for this DB Service instance",
 										Computed:    true,
 									},
+									"enable_perf_insights": {
+										Type:        schema.TypeBool,
+										Description: "",
+										Computed:    true,
+									},
 									"parameter_profile": {
 										Type:        schema.TypeList,
 										Description: "",
@@ -936,7 +1038,7 @@ func DataSourceDBServices() *schema.Resource {
 												},
 												"version": {
 													Type:        schema.TypeString,
-													Description: "The version of the parameter profile assoiciated with the instance",
+													Description: "The version of the parameter profile associated with the instance",
 													Computed:    true,
 												},
 												"status": {
@@ -1295,6 +1397,11 @@ func DataSourceDBServices() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
 									"delete_at": {
 										Type:        schema.TypeString,
 										Description: "Time at which the DB Service should be deleted at",

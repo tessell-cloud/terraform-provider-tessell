@@ -38,17 +38,32 @@ func InterfaceSliceToStringSlice(arr []interface{}) *[]string {
 	return &strArray
 }
 
-func InterfaceToIntSlice(arr interface{}) []int {
+func InterfaceToIntSlice(arr interface{}) *[]int {
 	if arr != nil {
 		return InterfaceSliceToIntSlice(arr.([]interface{}))
 	}
 	return nil
 }
 
-func InterfaceSliceToIntSlice(arr []interface{}) []int {
+func InterfaceSliceToIntSlice(arr []interface{}) *[]int {
 	intArray := make([]int, len(arr))
 	for i, v := range arr {
 		intArray[i] = v.(int)
 	}
-	return intArray
+	return &intArray
+}
+
+func InterfaceToInt32Slice(arr interface{}) *[]int32 {
+	if arr != nil {
+		return InterfaceSliceToInt32Slice(arr.([]interface{}))
+	}
+	return nil
+}
+
+func InterfaceSliceToInt32Slice(arr []interface{}) *[]int32 {
+	intArray := make([]int32, len(arr))
+	for i, v := range arr {
+		intArray[i] = v.(int32)
+	}
+	return &intArray
 }
