@@ -53,6 +53,9 @@ func (c *Client) doRequest(req *http.Request) ([]byte, int, error) {
 	if req.Method == "POST" {
 		req.Header.Set("Content-Type", "application/json")
 	}
+	if req.Method == "DELETE" {
+		req.Header.Set("Content-Type", "application/json")
+	}
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
