@@ -53,7 +53,7 @@ func (c *Client) doRequest(req *http.Request) ([]byte, int, error) {
 	if req.Method == "POST" {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	if req.Method == "DELETE" {
+	if req.Method == "DELETE" && req.ContentLength > 0 {
 		req.Header.Set("Content-Type", "application/json")
 	}
 
