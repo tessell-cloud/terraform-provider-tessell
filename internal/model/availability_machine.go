@@ -26,22 +26,22 @@ type TamRetentionInfo struct {
 }
 
 type TessellDAPServiceDTO struct {
-	Id                    *string                   `json:"id,omitempty"`                    // ID of the Access Policy
-	Name                  *string                   `json:"name,omitempty"`                  // Name of the Access Policy
-	AvailabilityMachineId *string                   `json:"availabilityMachineId,omitempty"` // ID of the Availability Machine
-	TessellServiceId      *string                   `json:"tessellServiceId,omitempty"`      // ID of the associated DB Service
-	ServiceName           *string                   `json:"serviceName,omitempty"`           // Name of the associated DB Service
-	EngineType            *string                   `json:"engineType,omitempty"`            // Database engine type of the associated DB Service
-	ContentType           *string                   `json:"contentType,omitempty"`           // Content Type for the Data Access Policy
-	Status                *string                   `json:"status,omitempty"`                // Database Access Policy Status
-	ContentInfo           *DAPContentInfo           `json:"contentInfo,omitempty"`
-	CloudAvailability     *[]CloudRegionInfo        `json:"cloudAvailability,omitempty"` // The cloud and region information where the data is being managed by this Access Policy
-	DataAccessConfig      *RetentionAndScheduleInfo `json:"dataAccessConfig,omitempty"`
-	Owner                 *string                   `json:"owner,omitempty"`            // Owner of the Access Policy
-	LoggedInUserRole      *string                   `json:"loggedInUserRole,omitempty"` // The role of the logged in user for accessing the Availability Machine
-	SharedWith            *EntityAclSharingInfo     `json:"sharedWith,omitempty"`
-	DateCreated           *string                   `json:"dateCreated,omitempty"`  // Timestamp when this Access Policy was created at
-	DateModified          *string                   `json:"dateModified,omitempty"` // Timestamp when this Access Policy was last updated at
+	Id                    *string               `json:"id,omitempty"`                    // ID of the Access Policy
+	Name                  *string               `json:"name,omitempty"`                  // Name of the Access Policy
+	AvailabilityMachineId *string               `json:"availabilityMachineId,omitempty"` // ID of the Availability Machine
+	TessellServiceId      *string               `json:"tessellServiceId,omitempty"`      // ID of the associated DB Service
+	ServiceName           *string               `json:"serviceName,omitempty"`           // Name of the associated DB Service
+	EngineType            *string               `json:"engineType,omitempty"`            // Database engine type of the associated DB Service
+	ContentType           *string               `json:"contentType,omitempty"`           // Content Type for the Data Access Policy
+	Status                *string               `json:"status,omitempty"`                // Database Access Policy Status
+	ContentInfo           *DAPContentInfo       `json:"contentInfo,omitempty"`
+	CloudAvailability     *[]CloudRegionInfo    `json:"cloudAvailability,omitempty"` // The cloud and region information where the data is being managed by this Access Policy
+	DataAccessConfig      *DAPRetentionInfo     `json:"dataAccessConfig,omitempty"`
+	Owner                 *string               `json:"owner,omitempty"`            // Owner of the Access Policy
+	LoggedInUserRole      *string               `json:"loggedInUserRole,omitempty"` // The role of the logged in user for accessing the Availability Machine
+	SharedWith            *EntityAclSharingInfo `json:"sharedWith,omitempty"`
+	DateCreated           *string               `json:"dateCreated,omitempty"`  // Timestamp when this Access Policy was created at
+	DateModified          *string               `json:"dateModified,omitempty"` // Timestamp when this Access Policy was last updated at
 }
 
 type DAPContentInfo struct {
@@ -76,8 +76,9 @@ type BackupDAPContent struct {
 	Manual    *[]DAPManualInfo `json:"manual,omitempty"`    // The list of backups that are to be shared as part of this access policy
 }
 
-type RetentionAndScheduleInfo struct {
-	DailyBackups *int `json:"dailyBackups,omitempty"` // Number of daily backups to replicate
+type DAPRetentionInfo struct {
+	PITR         *int `json:"pitr,omitempty"`         // Retention time (in days) for Point-In-Time recoverability
+	DailyBackups *int `json:"dailyBackups,omitempty"` // Retention time (in days) to retain daily snapshots
 }
 
 type TessellCloneSummaryInfo struct {

@@ -4,11 +4,39 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
 	"terraform-provider-tessell/internal/model"
 )
+
+func (c *Client) AddTessellServiceInstances(id string, payload *model.AddDBServiceInstancesPayload) (*model.TaskSummary, int, error) {
+	rb, err := json.Marshal(*payload)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/services/%s/service-instances", c.APIAddress, id), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	taskSummary := model.TaskSummary{}
+	err = json.Unmarshal(body, &taskSummary)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &taskSummary, statusCode, nil
+}
 
 func (c *Client) CloneTessellService(parentAvailabilityMachineId string, payload model.CloneTessellServicePayload) (*model.TaskSummary, int, error) {
 	rb, err := json.Marshal(payload)
@@ -64,6 +92,33 @@ func (c *Client) DeleteTessellService(id string, payload model.DeleteTessellServ
 	return &taskSummary, statusCode, nil
 }
 
+func (c *Client) DeleteTessellServiceInstances(id string, payload *model.DeleteTessellServiceInstancePayload) (*model.TaskSummary, int, error) {
+	rb, err := json.Marshal(*payload)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/services/%s/service-instances", c.APIAddress, id), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	taskSummary := model.TaskSummary{}
+	err = json.Unmarshal(body, &taskSummary)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &taskSummary, statusCode, nil
+}
+
 func (c *Client) GetTessellService(id string) (*model.TessellServiceDTO, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/services/%s", c.APIAddress, id), nil)
 	if err != nil {
@@ -81,7 +136,69 @@ func (c *Client) GetTessellService(id string) (*model.TessellServiceDTO, int, er
 		return nil, statusCode, err
 	}
 
+	// ordering support for arrays
+	tessellServiceDTO.Instances = sortInstancesByCreationDate(tessellServiceDTO.Instances)
+	tessellServiceDTO.Databases = sortDatabasesByCreationDate(tessellServiceDTO.Databases)
+
 	return &tessellServiceDTO, statusCode, nil
+}
+
+func sortInstancesByCreationDate(instances *[]model.TessellServiceInstanceDTO) *[]model.TessellServiceInstanceDTO {
+	if instances == nil || len(*instances) == 0 {
+		return nil
+	}
+	sort.SliceStable(*instances, func(i, j int) bool {
+		if (*instances)[i].DateCreated == nil {
+			return true
+		}
+		if (*instances)[j].DateCreated == nil {
+			return false
+		}
+
+		const layout = "2006-01-02T15:04:05.000-07:00"
+		dateI, errI := time.Parse(layout, *(*instances)[i].DateCreated)
+		dateJ, errJ := time.Parse(layout, *(*instances)[j].DateCreated)
+
+		if errI != nil {
+			return true
+		}
+		if errJ != nil {
+			return false
+		}
+
+		return dateI.Before(dateJ)
+	})
+
+	return instances
+}
+
+func sortDatabasesByCreationDate(databases *[]model.TessellDatabaseDTO) *[]model.TessellDatabaseDTO {
+	if databases == nil || len(*databases) == 0 {
+		return nil
+	}
+	sort.SliceStable(*databases, func(i, j int) bool {
+		if (*databases)[i].DateCreated == nil {
+			return true
+		}
+		if (*databases)[j].DateCreated == nil {
+			return false
+		}
+
+		const layout = "2006-01-02T15:04:05.000-07:00"
+		dateI, errI := time.Parse(layout, *(*databases)[i].DateCreated)
+		dateJ, errJ := time.Parse(layout, *(*databases)[j].DateCreated)
+
+		if errI != nil {
+			return true
+		}
+		if errJ != nil {
+			return false
+		}
+
+		return dateI.Before(dateJ)
+	})
+
+	return databases
 }
 
 func (c *Client) GetTessellServices(name string, statuses []string, engineTypes []string, clonedFromServiceId string, clonedFromAvailabilityMachineId string, loadInstances bool, loadDatabases bool, owners []string, loadAcls bool) (*model.TessellServicesResponse, int, error) {
@@ -176,6 +293,33 @@ func (c *Client) StopTessellService(id string, payload model.StopTessellServiceP
 	}
 
 	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s/stop", c.APIAddress, id), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	taskSummary := model.TaskSummary{}
+	err = json.Unmarshal(body, &taskSummary)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &taskSummary, statusCode, nil
+}
+
+func (c *Client) SwitchoverTessellService(id string, payload *model.SwitchOverTessellServicePayload) (*model.TaskSummary, int, error) {
+	rb, err := json.Marshal(*payload)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s/switchover", c.APIAddress, id), strings.NewReader(string(rb)))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -361,6 +505,190 @@ func (c *Client) DBServicePollForUpdateInProgress(id string, referenceId string,
 
 		if !updateStillInProgress {
 			return nil
+		}
+
+		loopCount = loopCount + 1
+		if loopCount > loops {
+			return fmt.Errorf("timed out while polling")
+		}
+		if loopCount > 6 {
+			time.Sleep(sleepCycleDuration)
+		} else {
+			time.Sleep(sleepCycleDurationSmall)
+		}
+	}
+}
+
+func (c *Client) DBServicePollForInstanceAddition(id string, instanceName string, timeout int, interval int) error {
+	loopCount := 0
+	sleepCycleDurationSmall, err := time.ParseDuration("10s")
+	if err != nil {
+		return err
+	}
+	sleepCycleDuration, err := time.ParseDuration(fmt.Sprintf("%ds", interval))
+	if err != nil {
+		return err
+	}
+
+	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
+
+	errorCountWhilePolling := 0
+
+	for {
+		response, _, err := c.GetTessellService(id)
+		if err != nil {
+			errorCountWhilePolling += 1
+			if errorCountWhilePolling > 3 {
+				return fmt.Errorf("error while polling: %s", err.Error())
+			} else {
+				continue
+			}
+		}
+
+		updateStillInProgress := false
+
+		for _, instance := range *response.Instances {
+			if *instance.Name == instanceName {
+				if *instance.Status == "CREATING" {
+					updateStillInProgress = true
+				} else if *instance.Status == "UP" {
+					return nil
+				} else {
+					return fmt.Errorf("instance creation failed")
+				}
+				break
+			}
+		}
+
+		if !updateStillInProgress {
+			return nil
+		}
+
+		loopCount = loopCount + 1
+		if loopCount > loops {
+			return fmt.Errorf("timed out while polling")
+		}
+		if loopCount > 6 {
+			time.Sleep(sleepCycleDuration)
+		} else {
+			time.Sleep(sleepCycleDurationSmall)
+		}
+	}
+}
+
+func (c *Client) DBServicePollForInstanceSwitchover(id string, instanceId string, timeout int, interval int) error {
+	loopCount := 0
+	sleepCycleDurationSmall, err := time.ParseDuration("10s")
+	if err != nil {
+		return err
+	}
+	sleepCycleDuration, err := time.ParseDuration(fmt.Sprintf("%ds", interval))
+	if err != nil {
+		return err
+	}
+
+	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
+
+	errorCountWhilePolling := 0
+
+	for {
+		response, _, err := c.GetTessellService(id)
+		if err != nil {
+			errorCountWhilePolling += 1
+			if errorCountWhilePolling > 3 {
+				return fmt.Errorf("error while polling: %s", err.Error())
+			} else {
+				continue
+			}
+		}
+
+		switchoverStillInProgress := false
+
+		if *response.Status == "SWITCHOVER" {
+			switchoverStillInProgress = true
+		} else if *response.Status == "DOWN" {
+			return fmt.Errorf("instance switchover failed")
+		} else {
+			// check instance status
+			for _, instance := range *response.Instances {
+				if *instance.Id == instanceId {
+					if *instance.Role == "primary" {
+						return nil
+					} else {
+						switchoverStillInProgress = true
+						break
+					}
+				}
+			}
+		}
+
+		if !switchoverStillInProgress {
+			return nil
+		}
+
+		loopCount = loopCount + 1
+		if loopCount > loops {
+			return fmt.Errorf("timed out while polling")
+		}
+		if loopCount > 6 {
+			time.Sleep(sleepCycleDuration)
+		} else {
+			time.Sleep(sleepCycleDurationSmall)
+		}
+	}
+}
+
+func (c *Client) GetTessellServiceInstance(id string, instanceId string) (*model.TessellServiceInstanceDTO, int, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/services/%s/service-instances/%s", c.APIAddress, id, instanceId), nil)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	tessellServiceInstanceDTO := model.TessellServiceInstanceDTO{}
+	err = json.Unmarshal(body, &tessellServiceInstanceDTO)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &tessellServiceInstanceDTO, statusCode, nil
+}
+
+func (c *Client) DBServicePollForInstanceDeletion(id string, instanceId string, timeout int, interval int) error {
+	loopCount := 0
+	sleepCycleDurationSmall, err := time.ParseDuration("10s")
+	if err != nil {
+		return err
+	}
+	sleepCycleDuration, err := time.ParseDuration(fmt.Sprintf("%ds", interval))
+	if err != nil {
+		return err
+	}
+
+	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
+
+	errorCountWhilePolling := 0
+
+	for {
+		response, statusCode, err := c.GetTessellServiceInstance(id, instanceId)
+		if statusCode == 404 {
+			return nil
+		}
+		if err != nil {
+			errorCountWhilePolling += 1
+			if errorCountWhilePolling > 3 {
+				return fmt.Errorf("error while polling: %s", err.Error())
+			} else {
+				continue
+			}
+		}
+
+		if *response.Status != "DELETING" {
+			return fmt.Errorf("instance deletion failed")
 		}
 
 		loopCount = loopCount + 1

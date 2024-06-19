@@ -542,9 +542,9 @@ func parseTessellDAPServiceDTO(daps *model.TessellDAPServiceDTO) interface{} {
 		parsedDaps["cloud_availability"] = parseCloudRegionInfoList(daps.CloudAvailability)
 	}
 
-	var dataAccessConfig *model.RetentionAndScheduleInfo
+	var dataAccessConfig *model.DAPRetentionInfo
 	if daps.DataAccessConfig != dataAccessConfig {
-		parsedDaps["data_access_config"] = []interface{}{parseRetentionAndScheduleInfo(daps.DataAccessConfig)}
+		parsedDaps["data_access_config"] = []interface{}{parseDAPRetentionInfo(daps.DataAccessConfig)}
 	}
 
 	var sharedWith *model.EntityAclSharingInfo
@@ -667,14 +667,15 @@ func parseBackupDAPContent(backupDapContent *model.BackupDAPContent) interface{}
 	return parsedBackupDapContent
 }
 
-func parseRetentionAndScheduleInfo(retentionAndScheduleInfo *model.RetentionAndScheduleInfo) interface{} {
-	if retentionAndScheduleInfo == nil {
+func parseDAPRetentionInfo(dapRetentionInfo *model.DAPRetentionInfo) interface{} {
+	if dapRetentionInfo == nil {
 		return nil
 	}
-	parsedRetentionAndScheduleInfo := make(map[string]interface{})
-	parsedRetentionAndScheduleInfo["daily_backups"] = retentionAndScheduleInfo.DailyBackups
+	parsedDapRetentionInfo := make(map[string]interface{})
+	parsedDapRetentionInfo["pitr"] = dapRetentionInfo.PITR
+	parsedDapRetentionInfo["daily_backups"] = dapRetentionInfo.DailyBackups
 
-	return parsedRetentionAndScheduleInfo
+	return parsedDapRetentionInfo
 }
 
 func parseTessellCloneSummaryInfoListWithResData(clones *[]model.TessellCloneSummaryInfo, d *schema.ResourceData) []interface{} {

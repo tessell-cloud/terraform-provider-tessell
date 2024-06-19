@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	apiClient "terraform-provider-tessell/internal/client"
@@ -1409,6 +1410,12 @@ func ResourceDBService() *schema.Resource {
 							Description: "Timestamp when the entity was created",
 							Computed:    true,
 						},
+						"tessell_created": {
+							Type:        schema.TypeBool,
+							Description: "Database created from Tessell platform",
+							Optional:    true,
+							Computed:    true,
+						},
 						"cloned_from_info": {
 							Type:        schema.TypeList,
 							Description: "If a database is created as a clone from some other DB Service's database, this section describes the original database details",
@@ -1660,7 +1667,7 @@ func ResourceDBService() *schema.Resource {
 			"instances": {
 				Type:        schema.TypeList,
 				Description: "Instances associated with this DB Service",
-				Computed:    true,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -1671,17 +1678,23 @@ func ResourceDBService() *schema.Resource {
 						"name": {
 							Type:        schema.TypeString,
 							Description: "Name of the DB Service Instance",
-							Computed:    true,
+							Required:    true,
+						},
+						"instance_group_name": {
+							Type:        schema.TypeString,
+							Description: "Name of the instance group",
+							Required:    true,
 						},
 						"type": {
 							Type:        schema.TypeString,
 							Description: "DB Service instance type",
 							Computed:    true,
+							Optional:    true,
 						},
 						"role": {
 							Type:        schema.TypeString,
 							Description: "DB Service instance role",
-							Computed:    true,
+							Required:    true,
 						},
 						"status": {
 							Type:        schema.TypeString,
@@ -1701,12 +1714,12 @@ func ResourceDBService() *schema.Resource {
 						"region": {
 							Type:        schema.TypeString,
 							Description: "DB Service Instance's cloud region",
-							Computed:    true,
+							Required:    true,
 						},
 						"availability_zone": {
 							Type:        schema.TypeString,
 							Description: "DB Service Instance's cloud availability zone",
-							Computed:    true,
+							Required:    true,
 						},
 						"instance_group_id": {
 							Type:        schema.TypeString,
@@ -1716,12 +1729,12 @@ func ResourceDBService() *schema.Resource {
 						"compute_type": {
 							Type:        schema.TypeString,
 							Description: "The compute used for creation of the Tessell Service Instance",
-							Computed:    true,
+							Optional:    true,
 						},
 						"aws_infra_config": {
 							Type:        schema.TypeList,
 							Description: "",
-							Computed:    true,
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"aws_cpu_options": {
@@ -1744,6 +1757,7 @@ func ResourceDBService() *schema.Resource {
 						"compute_id": {
 							Type:        schema.TypeString,
 							Description: "The associated compute identifier",
+							Optional:    true,
 							Computed:    true,
 						},
 						"compute_name": {
@@ -1764,12 +1778,13 @@ func ResourceDBService() *schema.Resource {
 						"throughput": {
 							Type:        schema.TypeInt,
 							Description: "Throughput requested for this DB Service instance",
+							Optional:    true,
 							Computed:    true,
 						},
 						"enable_perf_insights": {
 							Type:        schema.TypeBool,
 							Description: "",
-							Computed:    true,
+							Optional:    true,
 						},
 						"parameter_profile": {
 							Type:        schema.TypeList,
@@ -1840,12 +1855,12 @@ func ResourceDBService() *schema.Resource {
 						"vpc": {
 							Type:        schema.TypeString,
 							Description: "The VPC used for creation of the DB Service Instance",
-							Computed:    true,
+							Required:    true,
 						},
 						"encryption_key": {
 							Type:        schema.TypeString,
 							Description: "The encryption key name which is used to encrypt the data at rest",
-							Computed:    true,
+							Optional:    true,
 						},
 						"software_image": {
 							Type:        schema.TypeString,
@@ -2148,6 +2163,32 @@ func ResourceDBService() *schema.Resource {
 				Default:     "READY",
 			},
 		},
+		CustomizeDiff: customdiff.All(
+			customdiff.ValidateChange("instances", func(ctx context.Context, oldInstances, newInstances, meta interface{}) error {
+				instances := newInstances.([]interface{})
+				names := make(map[string]bool)
+				primaryCount := 0
+				for _, instanceRaw := range instances {
+					instance := instanceRaw.(map[string]interface{})
+					name := instance["name"].(string)
+					role := instance["role"].(string)
+					if names[name] {
+						return fmt.Errorf("duplicate instance name: %s", name)
+					}
+					names[name] = true
+					if role == "primary" {
+						primaryCount++
+						if primaryCount > 1 {
+							return fmt.Errorf("more than one instance has 'primary' role")
+						}
+					}
+				}
+				if primaryCount == 0 {
+					return fmt.Errorf("no instance is marked as 'primary'")
+				}
+				return nil
+			}),
+		),
 	}
 }
 
@@ -2171,6 +2212,7 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 		id = *response.ResourceId
 	} else {
 		payload := formPayloadForProvisionTessellService(d)
+		fmt.Println(payload)
 
 		response, _, err := client.ProvisionTessellService(payload)
 		if err != nil {
@@ -2259,6 +2301,67 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 		if err := client.DBServicePollForUpdateInProgress(d.Get("id").(string), *taskSummary.TaskId, d.Get("timeout").(int), 30); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	// Updates in instance
+	if d.HasChanges("instances") {
+		// Add Instance
+		tessellServiceResponse, _, err := client.GetTessellService(id)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		newTFInstances := getNewTFInstances(d, tessellServiceResponse.Instances)
+		if newTFInstances != nil && len(*newTFInstances) != 0 {
+			for _, newTfInstance := range *newTFInstances {
+				instanceAddPayload := formPayloadForAddTessellServiceInstances(d, &newTfInstance)
+				if instanceAddPayload != nil {
+					_, _, err := client.AddTessellServiceInstances(id, instanceAddPayload)
+					if err != nil {
+						return diag.FromErr(err)
+					}
+					// poll for instance addition
+					if err := client.DBServicePollForInstanceAddition(d.Get("id").(string), *newTfInstance.Name, d.Get("timeout").(int), 30); err != nil {
+						return diag.FromErr(err)
+					}
+				}
+			}
+		}
+
+		// Switchover Instance
+		tessellServiceResponse, _, err = client.GetTessellService(id)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		switchoverPayload := formPayloadForSwitchoverTessellService(d, tessellServiceResponse.Instances)
+		if switchoverPayload != nil {
+			_, _, err := client.SwitchoverTessellService(id, switchoverPayload)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			// poll for instance switchover
+			if err := client.DBServicePollForInstanceSwitchover(d.Get("id").(string), *switchoverPayload.SwitchToInstanceId, d.Get("timeout").(int), 30); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		// Remove Instance
+		tessellServiceResponse, _, err = client.GetTessellService(id)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		deleteInstancePayload := formPayloadForDeleteTessellServiceInstances(d, tessellServiceResponse.Instances)
+		if deleteInstancePayload != nil && len(*deleteInstancePayload.InstanceIds) != 0 {
+			_, _, err := client.DeleteTessellServiceInstances(id, deleteInstancePayload)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			// poll for instance removal
+			for _, instanceId := range *deleteInstancePayload.InstanceIds {
+				if err := client.DBServicePollForInstanceDeletion(d.Get("id").(string), instanceId, d.Get("timeout").(int), 30); err != nil {
+					return diag.FromErr(err)
+				}
+			}
 		}
 	}
 

@@ -1026,6 +1026,7 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	parsedInstances := make(map[string]interface{})
 	parsedInstances["id"] = instances.Id
 	parsedInstances["name"] = instances.Name
+	parsedInstances["instance_group_name"] = instances.InstanceGroupName
 	parsedInstances["type"] = instances.Type
 	parsedInstances["role"] = instances.Role
 	parsedInstances["status"] = instances.Status
@@ -1175,6 +1176,7 @@ func parseTessellDatabaseDTO(databases *model.TessellDatabaseDTO) interface{} {
 	parsedDatabases["engine_type"] = databases.EngineType
 	parsedDatabases["status"] = databases.Status
 	parsedDatabases["date_created"] = databases.DateCreated
+	parsedDatabases["tessell_created"] = databases.TessellCreated
 
 	var clonedFromInfo *model.TessellDatabaseClonedFromInfo
 	if databases.ClonedFromInfo != clonedFromInfo {
@@ -1503,6 +1505,68 @@ func parseServiceUpcomingScheduledActionsDelete(serviceUpcomingScheduledActions_
 	return parsedServiceUpcomingScheduledActions_delete
 }
 
+func formatTfInputInstances(d *schema.ResourceData) *[]model.AddDBServiceInstancePayloadV2 {
+	tfInstances := d.Get("instances")
+	instanceMaps, _ := tfInstances.([]interface{})
+
+	// parse tf instance input
+	instances := make([]model.AddDBServiceInstancePayloadV2, 0)
+	for _, instanceMap := range instanceMaps {
+		inputInstance := instanceMap.(map[string]interface{})
+		instances = append(instances, model.AddDBServiceInstancePayloadV2{
+			InstanceGroupName:  helper.GetStringPointer(inputInstance["instance_group_name"]),
+			Name:               helper.GetStringPointer(inputInstance["name"]),
+			Region:             helper.GetStringPointer(inputInstance["region"]),
+			VPC:                helper.GetStringPointer(inputInstance["vpc"]),
+			ComputeType:        helper.GetStringPointer(inputInstance["compute_type"]),
+			ComputeId:          helper.GetStringPointer(inputInstance["compute_id"]),
+			EnablePerfInsights: helper.GetBoolPointer(inputInstance["enable_perf_insights"]),
+			AwsInfraConfig:     formAwsInfraConfig(inputInstance["aws_infra_config"]),
+			Role:               helper.GetStringPointer(inputInstance["role"]),
+			AvailabilityZone:   helper.GetStringPointer(inputInstance["availability_zone"]),
+			ParameterProfileId: helper.GetStringPointer(inputInstance["parameter_profile_id"]),
+			Iops:               helper.GetIntPointer(inputInstance["iops"]),
+			Throughput:         helper.GetIntPointer(inputInstance["throughput"]),
+		})
+	}
+	return &instances
+}
+
+func getNewTFInstances(d *schema.ResourceData, remoteInstances *[]model.TessellServiceInstanceDTO) *[]model.AddDBServiceInstancePayloadV2 {
+	// parse tf instance input
+	tfInstances := formatTfInputInstances(d)
+
+	// create map for name of remote instances
+	remoteNames := make(map[string]struct{})
+	for _, ri := range *remoteInstances {
+		remoteNames[*ri.Name] = struct{}{}
+	}
+
+	// filter out new tf instance
+	var newInstances []model.AddDBServiceInstancePayloadV2
+	for _, inst := range *tfInstances {
+		if _, found := remoteNames[*inst.Name]; !found {
+			newInstances = append(newInstances, inst)
+		}
+	}
+	return &newInstances
+}
+
+func formPayloadForAddTessellServiceInstances(d *schema.ResourceData, tfInstancePayload *model.AddDBServiceInstancePayloadV2) *model.AddDBServiceInstancesPayload {
+	addDBServiceInstancesPayloadFormed := model.AddDBServiceInstancesPayload{
+		InstanceNamePrefix: tfInstancePayload.InstanceGroupName,
+		Cloud:              helper.GetStringPointer(d.Get("infrastructure.0.cloud")),
+		Region:             tfInstancePayload.Region,
+		VPC:                tfInstancePayload.VPC,
+		ComputeType:        tfInstancePayload.ComputeType,
+		EnablePerfInsights: tfInstancePayload.EnablePerfInsights,
+		AwsInfraConfig:     tfInstancePayload.AwsInfraConfig,
+		Instances:          formAddDBServiceInstancePayloadList(tfInstancePayload),
+	}
+
+	return &addDBServiceInstancesPayloadFormed
+}
+
 func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessellServicePayload {
 	cloneTessellServicePayloadFormed := model.CloneTessellServicePayload{
 		SnapshotId:               helper.GetStringPointer(d.Get("snapshot_id")),
@@ -1521,6 +1585,7 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		EnableStopProtection:     helper.GetBoolPointer(d.Get("enable_stop_protection")),
 		EnablePerfInsights:       helper.GetBoolPointer(d.Get("enable_perf_insights")),
 		Infrastructure:           formTessellServiceInfrastructurePayload(d.Get("infrastructure")),
+		Instances:                formAddDBServiceInstancePayloadV2List(d.Get("instances")),
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
@@ -1561,6 +1626,7 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		EnableStopProtection:     helper.GetBoolPointer(d.Get("enable_stop_protection")),
 		EnablePerfInsights:       helper.GetBoolPointer(d.Get("enable_perf_insights")),
 		Infrastructure:           formTessellServiceInfrastructurePayload(d.Get("infrastructure")),
+		Instances:                formAddDBServiceInstancePayloadV2List(d.Get("instances")),
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
@@ -1573,6 +1639,30 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 	}
 
 	return provisionTessellServicePayloadFormed
+}
+
+func formPayloadForDeleteTessellServiceInstances(d *schema.ResourceData, remoteInstances *[]model.TessellServiceInstanceDTO) *model.DeleteTessellServiceInstancePayload {
+	// parse tf instance input
+	tfInstances := formatTfInputInstances(d)
+
+	// create map for name of remote instances
+	tfInstanceNames := make(map[string]struct{})
+	for _, ri := range *tfInstances {
+		tfInstanceNames[*ri.Name] = struct{}{}
+	}
+
+	// Get instanceIds from remote instances whose name is not present in tfInstances
+	var instanceIds []string
+	for _, inst := range *remoteInstances {
+		if _, found := tfInstanceNames[*inst.Name]; !found {
+			instanceIds = append(instanceIds, *inst.Id)
+		}
+	}
+	deleteTessellServiceInstancePayloadFormed := model.DeleteTessellServiceInstancePayload{
+		InstanceIds: &instanceIds,
+	}
+
+	return &deleteTessellServiceInstancePayloadFormed
 }
 
 func formPayloadForStartTessellService(d *schema.ResourceData) model.StartTessellServicePayload {
@@ -1589,6 +1679,36 @@ func formPayloadForStopTessellService(d *schema.ResourceData) model.StopTessellS
 	}
 
 	return stopTessellServicePayloadFormed
+}
+
+func formPayloadForSwitchoverTessellService(d *schema.ResourceData, remoteInstances *[]model.TessellServiceInstanceDTO) *model.SwitchOverTessellServicePayload {
+	// parse tf instance input
+	tfInstances := formatTfInputInstances(d)
+
+	// Get instance name of primary instance from input
+	var tfPrimaryInstanceName string
+	for _, tfInstance := range *tfInstances {
+		if *tfInstance.Role == "primary" {
+			tfPrimaryInstanceName = *tfInstance.Name
+		}
+	}
+
+	// Get instanceId of input primary instance
+	// And Switchover
+	for _, rmInstance := range *remoteInstances {
+		if *rmInstance.Name == tfPrimaryInstanceName {
+			if *rmInstance.Role != "primary" {
+				switchOverTessellServicePayloadFormed := model.SwitchOverTessellServicePayload{
+					SwitchToInstanceId: rmInstance.Id,
+				}
+				return &switchOverTessellServicePayloadFormed
+			} else { // if same instance is already primary
+				return nil
+			}
+		}
+	}
+
+	return nil
 }
 
 func formPayloadForUpdateTessellService(d *schema.ResourceData) model.UpdateTessellServicePayload {
@@ -1670,6 +1790,41 @@ func formAwsCpuOptions(awsCpuOptionsRaw interface{}) *model.AwsCpuOptions {
 	return &awsCpuOptionsFormed
 }
 
+func formAddDBServiceInstancePayload(instancesRaw interface{}) *model.AddDBServiceInstancePayload {
+	if instancesRaw == nil {
+		return nil
+	}
+
+	instancesData := instancesRaw.(map[string]interface{})
+
+	addDBServiceInstancePayloadFormed := model.AddDBServiceInstancePayload{
+		Name:               helper.GetStringPointer(instancesData["name"]),
+		Role:               helper.GetStringPointer(instancesData["role"]),
+		AvailabilityZone:   helper.GetStringPointer(instancesData["availability_zone"]),
+		ComputeId:          helper.GetStringPointer(instancesData["compute_id"]),
+		ParameterProfileId: helper.GetStringPointer(instancesData["parameter_profile_id"]),
+	}
+
+	return &addDBServiceInstancePayloadFormed
+}
+func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceInstancePayloadV2) *[]model.AddDBServiceInstancePayload {
+	if tfInstancePayload == nil {
+		return nil
+	}
+
+	InstancesListFormed := []model.AddDBServiceInstancePayload{
+		{
+			Name:               tfInstancePayload.Name,
+			Role:               tfInstancePayload.Role,
+			AvailabilityZone:   tfInstancePayload.AvailabilityZone,
+			ComputeId:          tfInstancePayload.ComputeId,
+			ParameterProfileId: tfInstancePayload.ParameterProfileId,
+		},
+	}
+
+	return &InstancesListFormed
+}
+
 func formProvisionComputePayload(provisionComputePayloadRaw interface{}) *model.ProvisionComputePayload {
 	if provisionComputePayloadRaw == nil {
 		return nil
@@ -1701,6 +1856,45 @@ func formProvisionComputePayloadList(provisionComputePayloadListRaw interface{})
 	}
 
 	return &ProvisionComputePayloadListFormed
+}
+func formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2Raw interface{}) *model.AddDBServiceInstancePayloadV2 {
+	if addDBServiceInstancePayloadV2Raw == nil {
+		return nil
+	}
+
+	addDBServiceInstancePayloadV2Data := addDBServiceInstancePayloadV2Raw.(map[string]interface{})
+
+	addDBServiceInstancePayloadV2Formed := model.AddDBServiceInstancePayloadV2{
+		InstanceGroupName:  helper.GetStringPointer(addDBServiceInstancePayloadV2Data["instance_group_name"]),
+		Name:               helper.GetStringPointer(addDBServiceInstancePayloadV2Data["name"]),
+		Region:             helper.GetStringPointer(addDBServiceInstancePayloadV2Data["region"]),
+		VPC:                helper.GetStringPointer(addDBServiceInstancePayloadV2Data["vpc"]),
+		ComputeType:        helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_type"]),
+		ComputeId:          helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_id"]),
+		EnablePerfInsights: helper.GetBoolPointer(addDBServiceInstancePayloadV2Data["enable_perf_insights"]),
+		AwsInfraConfig:     formAwsInfraConfig(addDBServiceInstancePayloadV2Data["aws_infra_config"]),
+		Role:               helper.GetStringPointer(addDBServiceInstancePayloadV2Data["role"]),
+		AvailabilityZone:   helper.GetStringPointer(addDBServiceInstancePayloadV2Data["availability_zone"]),
+		ParameterProfileId: helper.GetStringPointer(addDBServiceInstancePayloadV2Data["parameter_profile_id"]),
+		EncryptionKey:      helper.GetStringPointer(addDBServiceInstancePayloadV2Data["encryption_key"]),
+		Iops:               helper.GetIntPointer(addDBServiceInstancePayloadV2Data["iops"]),
+		Throughput:         helper.GetIntPointer(addDBServiceInstancePayloadV2Data["throughput"]),
+	}
+
+	return &addDBServiceInstancePayloadV2Formed
+}
+func formAddDBServiceInstancePayloadV2List(addDBServiceInstancePayloadV2ListRaw interface{}) *[]model.AddDBServiceInstancePayloadV2 {
+	if addDBServiceInstancePayloadV2ListRaw == nil || len(addDBServiceInstancePayloadV2ListRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	AddDBServiceInstancePayloadV2ListFormed := make([]model.AddDBServiceInstancePayloadV2, len(addDBServiceInstancePayloadV2ListRaw.([]interface{})))
+
+	for i, addDBServiceInstancePayloadV2 := range addDBServiceInstancePayloadV2ListRaw.([]interface{}) {
+		AddDBServiceInstancePayloadV2ListFormed[i] = *formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2)
+	}
+
+	return &AddDBServiceInstancePayloadV2ListFormed
 }
 func formTessellServiceConnectivityInfoPayload(tessellServiceConnectivityInfoPayloadRaw interface{}) *model.TessellServiceConnectivityInfoPayload {
 	if tessellServiceConnectivityInfoPayloadRaw == nil || len(tessellServiceConnectivityInfoPayloadRaw.([]interface{})) == 0 {

@@ -617,6 +617,11 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"pitr": {
+													Type:        schema.TypeInt,
+													Description: "Retention time (in days) for Point-In-Time recoverability",
+													Computed:    true,
+												},
 												"daily_backups": {
 													Type:        schema.TypeInt,
 													Description: "Number of daily backups to replicate",
