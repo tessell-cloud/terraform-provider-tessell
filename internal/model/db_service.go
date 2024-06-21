@@ -425,7 +425,7 @@ type CloneTessellServicePayload struct {
 	EnableDeletionProtection *bool                                     `json:"enableDeletionProtection,omitempty"` // Specify whether to enable deletion protection for the DB Service
 	EnableStopProtection     *bool                                     `json:"enableStopProtection,omitempty"`     // Specify whether to enable stop protection for the DB Service
 	EnablePerfInsights       *bool                                     `json:"enablePerfInsights,omitempty"`       // Specify whether to enable perf insights for the DB Service
-	Infrastructure           *TessellServiceInfrastructurePayload      `json:"infrastructure,omitempty"`
+	Infrastructure           *TessellServiceInfrastructurePayload      `json:"infrastructure"`
 	Instances                *[]AddDBServiceInstancePayloadV2          `json:"instances"` // The instances (nodes) for this DB Service
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
@@ -466,12 +466,7 @@ type AddDBServiceInstancePayloadV2 struct {
 	EnablePerfInsights *bool           `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
 	AwsInfraConfig     *AwsInfraConfig `json:"awsInfraConfig,omitempty"`
 	Role               *string         `json:"role"`
-	AvailabilityZone   *string         `json:"availabilityZone,omitempty"`   // The availability-zone in which the instance is to be provisioned
-	ParameterProfileId *string         `json:"parameterProfileId,omitempty"` // ID of the Parameter Profile to be used for instance
-	EnableEncryption   *bool           `json:"enableEncryption,omitempty"`
-	EncryptionKey      *string         `json:"encryptionKey,omitempty"`
-	Iops               *int            `json:"iops,omitempty"`       // IOPS required for the DB Service
-	Throughput         *int            `json:"throughput,omitempty"` // Throughput in MB/s required for the DB Service
+	AvailabilityZone   *string         `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
 }
 
 type TessellServiceConnectivityInfoPayload struct {

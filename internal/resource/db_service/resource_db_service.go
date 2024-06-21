@@ -265,13 +265,13 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The region in which the DB Service provisioned",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 						},
 						"availability_zone": {
 							Type:        schema.TypeString,
 							Description: "The availability-zone in which the DB Service is provisioned",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 						},
 						"cloud_availability": {
 							Type:        schema.TypeList,
@@ -317,7 +317,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The VPC to be used for provisioning the DB Service",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 						},
 						"enable_encryption": {
 							Type:        schema.TypeBool,
@@ -351,7 +351,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The compute-type to be used for provisioning the DB Service",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 						},
 						"aws_infra_config": {
 							Type:        schema.TypeList,
@@ -1383,7 +1383,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Database name",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true, // in case of oracle
 						},
 						"description": {
 							Type:        schema.TypeString,
@@ -1735,6 +1735,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"aws_cpu_options": {
@@ -2183,7 +2184,7 @@ func ResourceDBService() *schema.Resource {
 						}
 					}
 				}
-				if primaryCount == 0 {
+				if primaryCount == 0 && len(instances) != 0 {
 					return fmt.Errorf("no instance is marked as 'primary'")
 				}
 				return nil
@@ -2212,7 +2213,6 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 		id = *response.ResourceId
 	} else {
 		payload := formPayloadForProvisionTessellService(d)
-		fmt.Println(payload)
 
 		response, _, err := client.ProvisionTessellService(payload)
 		if err != nil {

@@ -1524,9 +1524,6 @@ func formatTfInputInstances(d *schema.ResourceData) *[]model.AddDBServiceInstanc
 			AwsInfraConfig:     formAwsInfraConfig(inputInstance["aws_infra_config"]),
 			Role:               helper.GetStringPointer(inputInstance["role"]),
 			AvailabilityZone:   helper.GetStringPointer(inputInstance["availability_zone"]),
-			ParameterProfileId: helper.GetStringPointer(inputInstance["parameter_profile_id"]),
-			Iops:               helper.GetIntPointer(inputInstance["iops"]),
-			Throughput:         helper.GetIntPointer(inputInstance["throughput"]),
 		})
 	}
 	return &instances
@@ -1814,11 +1811,10 @@ func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceIn
 
 	InstancesListFormed := []model.AddDBServiceInstancePayload{
 		{
-			Name:               tfInstancePayload.Name,
-			Role:               tfInstancePayload.Role,
-			AvailabilityZone:   tfInstancePayload.AvailabilityZone,
-			ComputeId:          tfInstancePayload.ComputeId,
-			ParameterProfileId: tfInstancePayload.ParameterProfileId,
+			Name:             tfInstancePayload.Name,
+			Role:             tfInstancePayload.Role,
+			AvailabilityZone: tfInstancePayload.AvailabilityZone,
+			ComputeId:        tfInstancePayload.ComputeId,
 		},
 	}
 
@@ -1875,10 +1871,6 @@ func formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2Raw interfac
 		AwsInfraConfig:     formAwsInfraConfig(addDBServiceInstancePayloadV2Data["aws_infra_config"]),
 		Role:               helper.GetStringPointer(addDBServiceInstancePayloadV2Data["role"]),
 		AvailabilityZone:   helper.GetStringPointer(addDBServiceInstancePayloadV2Data["availability_zone"]),
-		ParameterProfileId: helper.GetStringPointer(addDBServiceInstancePayloadV2Data["parameter_profile_id"]),
-		EncryptionKey:      helper.GetStringPointer(addDBServiceInstancePayloadV2Data["encryption_key"]),
-		Iops:               helper.GetIntPointer(addDBServiceInstancePayloadV2Data["iops"]),
-		Throughput:         helper.GetIntPointer(addDBServiceInstancePayloadV2Data["throughput"]),
 	}
 
 	return &addDBServiceInstancePayloadV2Formed
