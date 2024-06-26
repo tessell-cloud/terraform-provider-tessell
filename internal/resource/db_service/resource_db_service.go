@@ -1774,13 +1774,12 @@ func ResourceDBService() *schema.Resource {
 						"data_volume_iops": {
 							Type:        schema.TypeInt,
 							Description: "",
-							Computed:    true,
+							Optional:    true,
 						},
 						"throughput": {
 							Type:        schema.TypeInt,
 							Description: "Throughput requested for this DB Service instance",
 							Optional:    true,
-							Computed:    true,
 						},
 						"enable_perf_insights": {
 							Type:        schema.TypeBool,

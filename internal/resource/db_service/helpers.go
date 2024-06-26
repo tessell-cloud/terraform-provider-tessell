@@ -1524,6 +1524,8 @@ func formatTfInputInstances(d *schema.ResourceData) *[]model.AddDBServiceInstanc
 			AwsInfraConfig:     formAwsInfraConfig(inputInstance["aws_infra_config"]),
 			Role:               helper.GetStringPointer(inputInstance["role"]),
 			AvailabilityZone:   helper.GetStringPointer(inputInstance["availability_zone"]),
+			Iops:               helper.GetIntPointer(inputInstance["data_volume_iops"]),
+			Throughput:         helper.GetIntPointer(inputInstance["throughput"]),
 		})
 	}
 	return &instances
@@ -1787,35 +1789,26 @@ func formAwsCpuOptions(awsCpuOptionsRaw interface{}) *model.AwsCpuOptions {
 	return &awsCpuOptionsFormed
 }
 
-func formAddDBServiceInstancePayload(instancesRaw interface{}) *model.AddDBServiceInstancePayload {
-	if instancesRaw == nil {
-		return nil
-	}
-
-	instancesData := instancesRaw.(map[string]interface{})
-
-	addDBServiceInstancePayloadFormed := model.AddDBServiceInstancePayload{
-		Name:               helper.GetStringPointer(instancesData["name"]),
-		Role:               helper.GetStringPointer(instancesData["role"]),
-		AvailabilityZone:   helper.GetStringPointer(instancesData["availability_zone"]),
-		ComputeId:          helper.GetStringPointer(instancesData["compute_id"]),
-		ParameterProfileId: helper.GetStringPointer(instancesData["parameter_profile_id"]),
-	}
-
-	return &addDBServiceInstancePayloadFormed
-}
 func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceInstancePayloadV2) *[]model.AddDBServiceInstancePayload {
 	if tfInstancePayload == nil {
 		return nil
 	}
+	newInstance := model.AddDBServiceInstancePayload{
+		Name:             tfInstancePayload.Name,
+		Role:             tfInstancePayload.Role,
+		AvailabilityZone: tfInstancePayload.AvailabilityZone,
+		ComputeId:        tfInstancePayload.ComputeId,
+	}
+
+	if tfInstancePayload.Iops != nil && *tfInstancePayload.Iops != 0 {
+		newInstance.Iops = tfInstancePayload.Iops
+	}
+	if tfInstancePayload.Throughput != nil && *tfInstancePayload.Throughput != 0 {
+		newInstance.Throughput = tfInstancePayload.Throughput
+	}
 
 	InstancesListFormed := []model.AddDBServiceInstancePayload{
-		{
-			Name:             tfInstancePayload.Name,
-			Role:             tfInstancePayload.Role,
-			AvailabilityZone: tfInstancePayload.AvailabilityZone,
-			ComputeId:        tfInstancePayload.ComputeId,
-		},
+		newInstance,
 	}
 
 	return &InstancesListFormed

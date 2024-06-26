@@ -407,6 +407,8 @@ type AddDBServiceInstancePayload struct {
 	AvailabilityZone   *string `json:"availabilityZone,omitempty"`   // The availability-zone in which the instance is to be provisioned
 	ComputeId          *string `json:"computeId,omitempty"`          // ID of the Compute Resource
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // ID of the Parameter Profile to be used for instance
+	Iops               *int    `json:"iops,omitempty"`
+	Throughput         *int    `json:"throughput,omitempty"`
 }
 
 type CloneTessellServicePayload struct {
@@ -467,6 +469,8 @@ type AddDBServiceInstancePayloadV2 struct {
 	AwsInfraConfig     *AwsInfraConfig `json:"awsInfraConfig,omitempty"`
 	Role               *string         `json:"role"`
 	AvailabilityZone   *string         `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
+	Iops               *int            `json:"iops,omitempty"`
+	Throughput         *int            `json:"throughput,omitempty"`
 }
 
 type TessellServiceConnectivityInfoPayload struct {
