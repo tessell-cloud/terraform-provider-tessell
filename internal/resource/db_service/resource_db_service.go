@@ -78,7 +78,6 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "",
 				Required:    true,
-				ForceNew:    true,
 			},
 			"num_of_instances": {
 				Type:        schema.TypeInt,
