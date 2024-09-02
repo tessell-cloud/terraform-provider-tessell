@@ -200,6 +200,7 @@ type TerraformTessellDatabaseDTO struct {
 	EngineType            *string                              `json:"engineType,omitempty"`       // Database Engine Type
 	Status                *string                              `json:"status,omitempty"`           // Database status
 	DateCreated           *string                              `json:"dateCreated,omitempty"`      // Timestamp when the entity was created
+	TessellCreated        *bool                                `json:"tessellCreated,omitempty"`   // Database created from Tessell platform
 	ClonedFromInfo        *TessellDatabaseClonedFromInfo       `json:"clonedFromInfo,omitempty"`
 	DatabaseConfiguration *DatabaseConfiguration               `json:"databaseConfiguration,omitempty"`
 	ConnectString         *TessellServiceDatabaseConnectString `json:"connectString,omitempty"`
@@ -262,13 +263,14 @@ type TessellTag struct {
 
 type TessellServiceInstanceDTO struct {
 	Id                   *string                              `json:"id,omitempty"`               // Tessell generated UUID for the DB Service Instance
-	Name                 *string                              `json:"name,omitempty"`             // Name of the DB Service Instance
+	Name                 *string                              `json:"name"`                       // Name of the DB Service Instance
+	InstanceGroupName    *string                              `json:"instanceGroupName"`          // Name of the instance group
 	Type                 *string                              `json:"type,omitempty"`             // DB Service instance type
-	Role                 *string                              `json:"role,omitempty"`             // DB Service instance role
+	Role                 *string                              `json:"role"`                       // DB Service instance role
 	Status               *string                              `json:"status,omitempty"`           // DB Service instance status
 	TessellServiceId     *string                              `json:"tessellServiceId,omitempty"` // DB Service Instance&#39;s associated DB Service id
 	Cloud                *string                              `json:"cloud,omitempty"`            // DB Service Instance&#39;s cloud type
-	Region               *string                              `json:"region,omitempty"`           // DB Service Instance&#39;s cloud region
+	Region               *string                              `json:"region"`                     // DB Service Instance&#39;s cloud region
 	AvailabilityZone     *string                              `json:"availabilityZone,omitempty"` // DB Service Instance&#39;s cloud availability zone
 	InstanceGroupId      *string                              `json:"instanceGroupId,omitempty"`  // The instance groupd Id
 	ComputeType          *string                              `json:"computeType,omitempty"`      // The compute used for creation of the Tessell Service Instance
@@ -388,6 +390,27 @@ type TerraformTessellServiceDTO struct {
 	UpdatesInProgress          *[]TessellResourceUpdateInfo        `json:"updatesInProgress,omitempty"` // The updates that are in progress for this resource
 }
 
+type AddDBServiceInstancesPayload struct {
+	InstanceNamePrefix *string                        `json:"instanceNamePrefix"`
+	Cloud              *string                        `json:"cloud"`                        // The cloud-type in which the instance is to be provisioned (ex. aws, azure)
+	Region             *string                        `json:"region"`                       // The region in which the instance is to be provisioned
+	VPC                *string                        `json:"vpc,omitempty"`                // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
+	ComputeType        *string                        `json:"computeType,omitempty"`        // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
+	EnablePerfInsights *bool                          `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
+	AwsInfraConfig     *AwsInfraConfig                `json:"awsInfraConfig,omitempty"`
+	Instances          *[]AddDBServiceInstancePayload `json:"instances"`
+}
+
+type AddDBServiceInstancePayload struct {
+	Name               *string `json:"name"` // Name of the instance
+	Role               *string `json:"role"`
+	AvailabilityZone   *string `json:"availabilityZone,omitempty"`   // The availability-zone in which the instance is to be provisioned
+	ComputeId          *string `json:"computeId,omitempty"`          // ID of the Compute Resource
+	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // ID of the Parameter Profile to be used for instance
+	Iops               *int    `json:"iops,omitempty"`
+	Throughput         *int    `json:"throughput,omitempty"`
+}
+
 type CloneTessellServicePayload struct {
 	SnapshotId               *string                                   `json:"snapshotId,omitempty"`  // Tessell service snapshot Id, using which the clone is to be created
 	PITR                     *string                                   `json:"pitr,omitempty"`        // PITR Timestamp, using which the clone is to be created
@@ -405,6 +428,7 @@ type CloneTessellServicePayload struct {
 	EnableStopProtection     *bool                                     `json:"enableStopProtection,omitempty"`     // Specify whether to enable stop protection for the DB Service
 	EnablePerfInsights       *bool                                     `json:"enablePerfInsights,omitempty"`       // Specify whether to enable perf insights for the DB Service
 	Infrastructure           *TessellServiceInfrastructurePayload      `json:"infrastructure"`
+	Instances                *[]AddDBServiceInstancePayloadV2          `json:"instances"` // The instances (nodes) for this DB Service
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
@@ -432,6 +456,21 @@ type TessellServiceInfrastructurePayload struct {
 	Computes             *[]ProvisionComputePayload `json:"computes,omitempty"`
 	Iops                 *int                       `json:"iops,omitempty"`       // IOPS required for the DB Service
 	Throughput           *int                       `json:"throughput,omitempty"` // Throughput in MB/s required for the DB Service
+}
+
+type AddDBServiceInstancePayloadV2 struct {
+	InstanceGroupName  *string         `json:"instanceGroupName"`
+	Name               *string         `json:"name"`                  // Name of the instance to be created, should be unique for a dbservice
+	Region             *string         `json:"region"`                // The region in which the instance is to be provisioned
+	VPC                *string         `json:"vpc,omitempty"`         // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
+	ComputeType        *string         `json:"computeType,omitempty"` // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
+	ComputeId          *string         `json:"computeId,omitempty"`
+	EnablePerfInsights *bool           `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
+	AwsInfraConfig     *AwsInfraConfig `json:"awsInfraConfig,omitempty"`
+	Role               *string         `json:"role"`
+	AvailabilityZone   *string         `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
+	Iops               *int            `json:"iops,omitempty"`
+	Throughput         *int            `json:"throughput,omitempty"`
 }
 
 type TessellServiceConnectivityInfoPayload struct {
@@ -575,6 +614,10 @@ type DeleteTessellServicePayload struct {
 	PublishEventLog *bool                         `json:"publishEventLog,omitempty"`
 }
 
+type DeleteTessellServiceInstancePayload struct {
+	InstanceIds *[]string `json:"instanceIds"` // The id of the instances that are to be deleted
+}
+
 type TessellServiceDTO struct {
 	Id                         *string                           `json:"id,omitempty"`                    // Tessell generated UUID for the DB Service. This is the unique identifier for the DB Service.
 	AvailabilityMachineId      *string                           `json:"availabilityMachineId,omitempty"` // Unique ID of the associated Availability Machine
@@ -648,6 +691,7 @@ type TessellDatabaseDTO struct {
 	EngineType            *string                              `json:"engineType,omitempty"`       // Database Engine Type
 	Status                *string                              `json:"status,omitempty"`           // Database status
 	DateCreated           *string                              `json:"dateCreated,omitempty"`      // Timestamp when the entity was created
+	TessellCreated        *bool                                `json:"tessellCreated,omitempty"`   // Database created from Tessell platform
 	ClonedFromInfo        *TessellDatabaseClonedFromInfo       `json:"clonedFromInfo,omitempty"`
 	DatabaseConfiguration *DatabaseConfiguration               `json:"databaseConfiguration,omitempty"`
 	ConnectString         *TessellServiceDatabaseConnectString `json:"connectString,omitempty"`
@@ -672,7 +716,8 @@ type ProvisionTessellServicePayload struct {
 	EnableDeletionProtection *bool                                     `json:"enableDeletionProtection,omitempty"` // Specify whether to enable deletion protection for the DB Service
 	EnableStopProtection     *bool                                     `json:"enableStopProtection,omitempty"`     // Specify whether to enable stop protection for the DB Service
 	EnablePerfInsights       *bool                                     `json:"enablePerfInsights,omitempty"`       // Specify whether to enable perf insights for the DB Service
-	Infrastructure           *TessellServiceInfrastructurePayload      `json:"infrastructure"`
+	Infrastructure           *TessellServiceInfrastructurePayload      `json:"infrastructure,omitempty"`
+	Instances                *[]AddDBServiceInstancePayloadV2          `json:"instances"` // The instances (nodes) for this DB Service
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
@@ -690,6 +735,11 @@ type StartTessellServicePayload struct {
 
 type StopTessellServicePayload struct {
 	Comment *string `json:"comment,omitempty"` // Comment for the action
+}
+
+type SwitchOverTessellServicePayload struct {
+	SwitchToInstanceId *string `json:"switchToInstanceId"` // The ID of the service instance to switch to
+	Comment            *string `json:"comment,omitempty"`  // Comment for the action
 }
 
 type UpdateTessellServicePayload struct {

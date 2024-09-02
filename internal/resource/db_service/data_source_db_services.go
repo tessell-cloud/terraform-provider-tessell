@@ -922,6 +922,11 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "Name of the DB Service Instance",
 										Computed:    true,
 									},
+									"instance_group_name": {
+										Type:        schema.TypeString,
+										Description: "Name of the instance group",
+										Computed:    true,
+									},
 									"type": {
 										Type:        schema.TypeString,
 										Description: "DB Service instance type",
@@ -1212,6 +1217,11 @@ func DataSourceDBServices() *schema.Resource {
 									"date_created": {
 										Type:        schema.TypeString,
 										Description: "Timestamp when the entity was created",
+										Computed:    true,
+									},
+									"tessell_created": {
+										Type:        schema.TypeBool,
+										Description: "Database created from Tessell platform",
 										Computed:    true,
 									},
 									"cloned_from_info": {
