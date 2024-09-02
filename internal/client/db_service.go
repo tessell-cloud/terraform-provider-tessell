@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sort"
 	"strings"
 	"time"
 
+	"terraform-provider-tessell/internal/helper"
 	"terraform-provider-tessell/internal/model"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func (c *Client) AddTessellServiceInstances(id string, payload *model.AddDBServiceInstancesPayload) (*model.TaskSummary, int, error) {
@@ -119,11 +121,14 @@ func (c *Client) DeleteTessellServiceInstances(id string, payload *model.DeleteT
 	return &taskSummary, statusCode, nil
 }
 
-func (c *Client) GetTessellService(id string) (*model.TessellServiceDTO, int, error) {
+func (c *Client) GetTessellService(id string, d *schema.ResourceData) (*model.TessellServiceDTO, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/services/%s", c.APIAddress, id), nil)
 	if err != nil {
 		return nil, 0, err
 	}
+
+	instanceNames := getInstanceNames(d)
+	databaseNames := getDatabaseNames(d)
 
 	body, statusCode, err := c.doRequest(req)
 	if err != nil {
@@ -137,68 +142,102 @@ func (c *Client) GetTessellService(id string) (*model.TessellServiceDTO, int, er
 	}
 
 	// ordering support for arrays
-	tessellServiceDTO.Instances = sortInstancesByCreationDate(tessellServiceDTO.Instances)
-	tessellServiceDTO.Databases = sortDatabasesByCreationDate(tessellServiceDTO.Databases)
+	tessellServiceDTO.Instances = orderInstancesByName(tessellServiceDTO.Instances, instanceNames)
+	tessellServiceDTO.Databases = orderDatabasesByName(tessellServiceDTO.Databases, databaseNames)
 
 	return &tessellServiceDTO, statusCode, nil
 }
 
-func sortInstancesByCreationDate(instances *[]model.TessellServiceInstanceDTO) *[]model.TessellServiceInstanceDTO {
-	if instances == nil || len(*instances) == 0 {
+func getInstanceNames(d *schema.ResourceData) *[]string {
+	if d == nil {
 		return nil
 	}
-	sort.SliceStable(*instances, func(i, j int) bool {
-		if (*instances)[i].DateCreated == nil {
-			return true
-		}
-		if (*instances)[j].DateCreated == nil {
-			return false
-		}
 
-		const layout = "2006-01-02T15:04:05.000-07:00"
-		dateI, errI := time.Parse(layout, *(*instances)[i].DateCreated)
-		dateJ, errJ := time.Parse(layout, *(*instances)[j].DateCreated)
+	tfInstances := d.Get("instances")
+	if tfInstances == nil {
+		return nil
+	}
 
-		if errI != nil {
-			return true
-		}
-		if errJ != nil {
-			return false
-		}
-
-		return dateI.Before(dateJ)
-	})
-
-	return instances
+	instanceMaps, _ := tfInstances.([]interface{})
+	instanceNames := []string{}
+	for _, instanceMap := range instanceMaps {
+		inputInstance := instanceMap.(map[string]interface{})
+		instanceNames = append(instanceNames, *helper.GetStringPointer(inputInstance["name"]))
+	}
+	return &instanceNames
 }
 
-func sortDatabasesByCreationDate(databases *[]model.TessellDatabaseDTO) *[]model.TessellDatabaseDTO {
-	if databases == nil || len(*databases) == 0 {
+func getDatabaseNames(d *schema.ResourceData) *[]string {
+	if d == nil {
 		return nil
 	}
-	sort.SliceStable(*databases, func(i, j int) bool {
-		if (*databases)[i].DateCreated == nil {
-			return true
-		}
-		if (*databases)[j].DateCreated == nil {
-			return false
-		}
 
-		const layout = "2006-01-02T15:04:05.000-07:00"
-		dateI, errI := time.Parse(layout, *(*databases)[i].DateCreated)
-		dateJ, errJ := time.Parse(layout, *(*databases)[j].DateCreated)
+	tfDatabases := d.Get("databases")
+	if tfDatabases == nil {
+		return nil
+	}
 
-		if errI != nil {
-			return true
+	databaseMaps, _ := tfDatabases.([]interface{})
+	databaseNames := []string{}
+	for _, databaseMap := range databaseMaps {
+		inputDatabase := databaseMap.(map[string]interface{})
+		databaseNames = append(databaseNames, *helper.GetStringPointer(inputDatabase["database_name"]))
+	}
+	return &databaseNames
+}
+
+func orderInstancesByName(instances *[]model.TessellServiceInstanceDTO, instanceNames *[]string) *[]model.TessellServiceInstanceDTO {
+	if instanceNames == nil {
+		return instances
+	}
+	instanceMap := make(map[string]model.TessellServiceInstanceDTO)
+	for _, instance := range *instances {
+		instanceMap[*instance.Name] = instance
+	}
+
+	orderedInstances := make([]model.TessellServiceInstanceDTO, 0, len(*instances))
+
+	for _, name := range *instanceNames {
+		if instance, exists := instanceMap[name]; exists {
+			orderedInstances = append(orderedInstances, instance)
+			delete(instanceMap, name)
 		}
-		if errJ != nil {
-			return false
+	}
+
+	for _, instance := range *instances {
+		if _, exists := instanceMap[*instance.Name]; exists {
+			orderedInstances = append(orderedInstances, instance)
 		}
+	}
 
-		return dateI.Before(dateJ)
-	})
+	return &orderedInstances
+}
 
-	return databases
+func orderDatabasesByName(databases *[]model.TessellDatabaseDTO, databaseNames *[]string) *[]model.TessellDatabaseDTO {
+	if databaseNames == nil {
+		return databases
+	}
+	databaseMap := make(map[string]model.TessellDatabaseDTO)
+	for _, database := range *databases {
+		databaseMap[*database.DatabaseName] = database
+	}
+
+	orderedDatabases := make([]model.TessellDatabaseDTO, 0, len(*databases))
+
+	for _, name := range *databaseNames {
+		if database, exists := databaseMap[name]; exists {
+			orderedDatabases = append(orderedDatabases, database)
+			delete(databaseMap, name)
+		}
+	}
+
+	for _, database := range *databases {
+		if _, exists := databaseMap[*database.DatabaseName]; exists {
+			orderedDatabases = append(orderedDatabases, database)
+		}
+	}
+
+	return &orderedDatabases
 }
 
 func (c *Client) GetTessellServices(name string, statuses []string, engineTypes []string, clonedFromServiceId string, clonedFromAvailabilityMachineId string, loadInstances bool, loadDatabases bool, owners []string, loadAcls bool) (*model.TessellServicesResponse, int, error) {
@@ -409,7 +448,7 @@ func (c *Client) DBServicePollForStatusCode(id string, statusCodeRequired int, t
 	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
 
 	for {
-		_, statusCode, err := c.GetTessellService(id)
+		_, statusCode, err := c.GetTessellService(id, nil)
 		if err != nil {
 			if statusCode == statusCodeRequired {
 				return nil
@@ -444,7 +483,7 @@ func (c *Client) DBServicePollForStatus(id string, value string, timeout int, in
 	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
 
 	for {
-		response, _, err := c.GetTessellService(id)
+		response, _, err := c.GetTessellService(id, nil)
 		if err != nil {
 			return fmt.Errorf("error while polling: %s", err.Error())
 		}
@@ -485,7 +524,7 @@ func (c *Client) DBServicePollForUpdateInProgress(id string, referenceId string,
 	errorCountWhilePolling := 0
 
 	for {
-		response, _, err := c.GetTessellService(id)
+		response, _, err := c.GetTessellService(id, nil)
 		if err != nil {
 			errorCountWhilePolling += 1
 			if errorCountWhilePolling > 3 {
@@ -535,7 +574,7 @@ func (c *Client) DBServicePollForInstanceAddition(id string, instanceName string
 	errorCountWhilePolling := 0
 
 	for {
-		response, _, err := c.GetTessellService(id)
+		response, _, err := c.GetTessellService(id, nil)
 		if err != nil {
 			errorCountWhilePolling += 1
 			if errorCountWhilePolling > 3 {
@@ -592,7 +631,7 @@ func (c *Client) DBServicePollForInstanceSwitchover(id string, instanceId string
 	errorCountWhilePolling := 0
 
 	for {
-		response, _, err := c.GetTessellService(id)
+		response, _, err := c.GetTessellService(id, nil)
 		if err != nil {
 			errorCountWhilePolling += 1
 			if errorCountWhilePolling > 3 {

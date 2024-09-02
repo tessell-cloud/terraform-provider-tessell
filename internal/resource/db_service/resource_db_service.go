@@ -1718,7 +1718,8 @@ func ResourceDBService() *schema.Resource {
 						"availability_zone": {
 							Type:        schema.TypeString,
 							Description: "DB Service Instance's cloud availability zone",
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 						},
 						"instance_group_id": {
 							Type:        schema.TypeString,
@@ -1740,12 +1741,14 @@ func ResourceDBService() *schema.Resource {
 									"aws_cpu_options": {
 										Type:        schema.TypeList,
 										Description: "",
+										Optional:    true,
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"vcpus": {
 													Type:        schema.TypeInt,
 													Description: "Number of vcpus for aws cpu options",
+													Optional:    true,
 													Computed:    true,
 												},
 											},
@@ -2239,7 +2242,7 @@ func resourceDBServiceRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	id := d.Get("id").(string)
 
-	response, _, err := client.GetTessellService(id)
+	response, _, err := client.GetTessellService(id, d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -2305,7 +2308,7 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	// Updates in instance
 	if d.HasChanges("instances") {
 		// Add Instance
-		tessellServiceResponse, _, err := client.GetTessellService(id)
+		tessellServiceResponse, _, err := client.GetTessellService(id, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2327,7 +2330,7 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 
 		// Switchover Instance
-		tessellServiceResponse, _, err = client.GetTessellService(id)
+		tessellServiceResponse, _, err = client.GetTessellService(id, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2344,7 +2347,7 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 
 		// Remove Instance
-		tessellServiceResponse, _, err = client.GetTessellService(id)
+		tessellServiceResponse, _, err = client.GetTessellService(id, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}

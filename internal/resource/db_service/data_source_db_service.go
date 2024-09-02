@@ -1499,7 +1499,7 @@ func dataSourceDBServiceRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	id := d.Get("id").(string)
 
-	response, _, err := client.GetTessellService(id)
+	response, _, err := client.GetTessellService(id, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
