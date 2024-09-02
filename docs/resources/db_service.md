@@ -422,6 +422,105 @@ Optional:
 - `data_volume_iops` (Number) iops
 - `throughput` (Number) Required throughput
 
+### Notes
+1. instance names should be unique for a service
+    i) If an already existing instance is not found in .tf file by its name, then it will be deleted
+    ii) If some new name is found for the instance block in the config file, then it will be created
+2. Instances blocks should be added in order i.e. new blocks should be listed below older instances.
+### Operations on Instances
+#### Instances Addition while provisioning
+Add instances blocks while provisioning
+```terraform
+ instances {
+    name = "default-node-0"
+      role = "primary"
+      region = "ap-south-1"
+      instance_group_name = "default"
+      availability_zone = "ap-south-1a"
+      vpc = "tessell-vpc-4jd48"
+      compute_type = "tesl_2h_a_p"
+    }
+     instances {
+       name = "default-node-1"
+       role = "failover_replica"
+       region = "ap-south-1"
+       instance_group_name = "default"
+       availability_zone = "ap-south-1b"
+       vpc = "tessell-vpc-4jd48"
+       compute_type = "tesl_2h_a_p"
+     }
+   instances {
+       name = "default-node-2"
+       role = "failover_replica"
+       region = "ap-south-1"
+       instance_group_name = "default"
+       availability_zone = "ap-south-1b"
+       vpc = "tessell-vpc-4jd48"
+       compute_type = "tesl_2h_a_p"
+     }
+
+```
+#### Instances Addition after provisioning
+Add new instance blocks at the end of instances block series
+```terraform
+instances {
+       name = "new-ig-node-0"
+       role = "dr"
+       region = "ap-south-1"
+       instance_group_name = "new-ig"
+       availability_zone = "ap-south-1b"
+       vpc = "tessell-vpc-4jd48"
+       compute_type = "tesl_2h_a_p"
+     }
+```
+
+#### Instance Removal
+Remove any instance blocks and run terraform plan then terraform apply
+
+#### Instance Switchover
+Swap the role of the instances which need to be switchover
+Before
+```terraform
+    instances {
+      name = "default-node-0"
+      role = "primary"
+      region = "ap-south-1"
+      instance_group_name = "default"
+      availability_zone = "ap-south-1a"
+      vpc = "tessell-vpc-4jd48"
+      compute_type = "tesl_2h_a_p"
+    }
+     instances {
+       name = "default-node-1"
+       role = "failover_replica"
+       region = "ap-south-1"
+       instance_group_name = "default"
+       availability_zone = "ap-south-1b"
+       vpc = "tessell-vpc-4jd48"
+       compute_type = "tesl_2h_a_p"
+     }
+```
+After
+```terraform
+     instances {
+      name = "default-node-0"
+      role = "failover_replica" # check here
+      region = "ap-south-1"
+      instance_group_name = "default"
+      availability_zone = "ap-south-1a"
+      vpc = "tessell-vpc-4jd48"
+      compute_type = "tesl_2h_a_p"
+    }
+     instances {
+       name = "default-node-1"
+       role = "primary" # check here
+       region = "ap-south-1"
+       instance_group_name = "default"
+       availability_zone = "ap-south-1b"
+       vpc = "tessell-vpc-4jd48"
+       compute_type = "tesl_2h_a_p"
+     }
+```
 <a id="nestedatt--infrastructure--cloud_availability"></a>
 ### Nested Schema for `infrastructure.cloud_availability`
 
