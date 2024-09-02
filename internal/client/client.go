@@ -50,7 +50,10 @@ func (c *Client) doRequest(req *http.Request) ([]byte, int, error) {
 	if c.AuthorizationToken != "" {
 		req.Header.Set("Authorization", c.AuthorizationToken)
 	}
-	if req.Method == "POST" {
+	if req.Method == "POST" || req.Method == "PATCH" {
+		req.Header.Set("Content-Type", "application/json")
+	}
+	if req.Method == "DELETE" && req.ContentLength > 0 {
 		req.Header.Set("Content-Type", "application/json")
 	}
 

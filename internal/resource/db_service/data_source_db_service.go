@@ -913,7 +913,12 @@ func DataSourceDBService() *schema.Resource {
 						"name": {
 							Type:        schema.TypeString,
 							Description: "Name of the DB Service Instance",
-							Computed:    true,
+							Required:    true,
+						},
+						"instance_group_name": {
+							Type:        schema.TypeString,
+							Description: "Name of the instance group",
+							Required:    true,
 						},
 						"type": {
 							Type:        schema.TypeString,
@@ -1207,6 +1212,11 @@ func DataSourceDBService() *schema.Resource {
 							Description: "Timestamp when the entity was created",
 							Computed:    true,
 						},
+						"tessell_created": {
+							Type:        schema.TypeBool,
+							Description: "Database created from Tessell platform",
+							Computed:    true,
+						},
 						"cloned_from_info": {
 							Type:        schema.TypeList,
 							Description: "If a database is created as a clone from some other DB Service's database, this section describes the original database details",
@@ -1489,7 +1499,7 @@ func dataSourceDBServiceRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	id := d.Get("id").(string)
 
-	response, _, err := client.GetTessellService(id)
+	response, _, err := client.GetTessellService(id, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
