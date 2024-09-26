@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"terraform-provider-tessell/internal/helper"
 	"terraform-provider-tessell/internal/model"
 )
 
@@ -77,14 +78,18 @@ func (c *Client) GetDatabaseSnapshot(availabilityMachineId string, id string) (*
 	return &databaseSnapshot, statusCode, nil
 }
 
-func (c *Client) GetDatabaseSnapshots(availabilityMachineId string, name string, manual bool) (*model.GetDatabaseSnapshotsResponse, int, error) {
+func (c *Client) GetDatabaseSnapshots(availabilityMachineId string, name *string, manual *bool) (*model.GetDatabaseSnapshotsResponse, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/availability-machines/%s/snapshots", c.APIAddress, availabilityMachineId), nil)
 	if err != nil {
 		return nil, 0, err
 	}
 	q := req.URL.Query()
-	q.Add("name", fmt.Sprintf("%v", name))
-	q.Add("manual", fmt.Sprintf("%v", manual))
+	if !helper.IsNilString(name) {
+		q.Add("name", fmt.Sprintf("%v", *name))
+	}
+	if !helper.IsNilBool(manual) {
+		q.Add("manual", fmt.Sprintf("%v", *manual))
+	}
 	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)

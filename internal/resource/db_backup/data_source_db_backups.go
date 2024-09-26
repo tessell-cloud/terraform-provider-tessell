@@ -261,11 +261,17 @@ func dataSourceDBBackupsRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	var diags diag.Diagnostics
 
-	name := d.Get("name").(string)
 	availabilityMachineId := d.Get("availability_machine_id").(string)
-	manual := d.Get("manual").(bool)
+	var name string
+	if !d.GetRawConfig().GetAttr("name").IsNull() {
+		name = d.Get("name").(string)
+	}
+	var manual bool
+	if !d.GetRawConfig().GetAttr("manual").IsNull() {
+		manual = d.Get("manual").(bool)
+	}
 
-	response, _, err := client.GetDatabaseBackups(availabilityMachineId, name, manual)
+	response, _, err := client.GetDatabaseBackups(availabilityMachineId, &name, &manual)
 	if err != nil {
 		return diag.FromErr(err)
 	}

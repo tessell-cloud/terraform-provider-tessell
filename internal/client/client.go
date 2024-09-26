@@ -12,7 +12,6 @@ type Client struct {
 	HTTPClient         *http.Client
 	AuthorizationToken string
 	TenantId           string
-	TerraformVersion   string
 }
 
 func (c *Client) renewTokenInBackground(apiKey *string) {
@@ -29,12 +28,11 @@ func (c *Client) renewTokenInBackground(apiKey *string) {
 	}
 }
 
-func NewClient(apiAddress *string, apiKey *string, tenantId *string, terraformVersion *string) (*Client, error) {
+func NewClient(apiAddress *string, apiKey *string, tenantId *string) (*Client, error) {
 	c := Client{
-		HTTPClient:       &http.Client{Timeout: 30 * time.Second},
-		APIAddress:       *apiAddress,
-		TenantId:         *tenantId,
-		TerraformVersion: *terraformVersion,
+		HTTPClient: &http.Client{Timeout: 30 * time.Second},
+		APIAddress: *apiAddress,
+		TenantId:   *tenantId,
 	}
 
 	ar, err := c.SignIn(*apiKey)
@@ -49,8 +47,6 @@ func NewClient(apiAddress *string, apiKey *string, tenantId *string, terraformVe
 
 func (c *Client) doRequest(req *http.Request) ([]byte, int, error) {
 	req.Header.Set("tenant-id", c.TenantId)
-	req.Header.Set("X-terraform-version", c.TerraformVersion)
-	req.Header.Set("caller-type", "terraform")
 	if c.AuthorizationToken != "" {
 		req.Header.Set("Authorization", c.AuthorizationToken)
 	}

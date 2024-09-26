@@ -3,7 +3,7 @@
 page_title: "tessell_db_service Resource - terraform-provider-tessell"
 subcategory: ""
 description: |-
-
+  
 ---
 
 # tessell_db_service (Resource)
@@ -308,6 +308,7 @@ Required:
 Optional:
 
 - `apache_kafka_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--apache_kafka_config))
+- `mongodb_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--mongodb_config))
 - `mysql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--mysql_config))
 - `oracle_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--oracle_config))
 - `post_script_info` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--post_script_info))
@@ -320,6 +321,15 @@ Optional:
 
 Optional:
 
+- `parameter_profile_id` (String) The parameter profile id for the database
+
+
+<a id="nestedblock--engine_configuration--mongodb_config"></a>
+### Nested Schema for `engine_configuration.mongodb_config`
+
+Optional:
+
+- `cluster_name` (String) The MongoDB Cluster name
 - `parameter_profile_id` (String) The parameter profile id for the database
 
 
@@ -412,6 +422,106 @@ Optional:
 - `data_volume_iops` (Number) iops
 - `throughput` (Number) Required throughput
 
+### Notes
+1. instance names should be unique for a service
+    i. If an already existing instance is not found in .tf file by its name, then it will be deleted
+    ii. If some new name is found for the instance block in the config file, then it will be created
+2. Instances blocks should be added in order i.e. new blocks should be listed below older instances.
+
+### Operations on Instances
+#### Instances Addition while provisioning
+Add instances blocks while provisioning
+```terraform
+ instances {
+    name = "default-node-0"
+      role = "primary"
+      region = "ap-south-1"
+      instance_group_name = "default"
+      availability_zone = "ap-south-1a"
+      vpc = "tessell-vpc-4jd48"
+      compute_type = "tesl_2h_a_p"
+    }
+     instances {
+       name = "default-node-1"
+       role = "failover_replica"
+       region = "ap-south-1"
+       instance_group_name = "default"
+       availability_zone = "ap-south-1b"
+       vpc = "tessell-vpc-4jd48"
+       compute_type = "tesl_2h_a_p"
+     }
+   instances {
+       name = "default-node-2"
+       role = "failover_replica"
+       region = "ap-south-1"
+       instance_group_name = "default"
+       availability_zone = "ap-south-1b"
+       vpc = "tessell-vpc-4jd48"
+       compute_type = "tesl_2h_a_p"
+     }
+
+```
+#### Instances Addition after provisioning
+Add new instance blocks at the end of instances block series
+```terraform
+instances {
+       name = "new-ig-node-0"
+       role = "dr"
+       region = "ap-south-1"
+       instance_group_name = "new-ig"
+       availability_zone = "ap-south-1b"
+       vpc = "tessell-vpc-4jd48"
+       compute_type = "tesl_2h_a_p"
+     }
+```
+
+#### Instance Removal
+Remove any instance blocks and run terraform plan then terraform apply
+
+#### Instance Switchover
+Swap the role of the instances which need to be switchover
+Before
+```terraform
+    instances {
+      name = "default-node-0"
+      role = "primary"
+      region = "ap-south-1"
+      instance_group_name = "default"
+      availability_zone = "ap-south-1a"
+      vpc = "tessell-vpc-4jd48"
+      compute_type = "tesl_2h_a_p"
+    }
+     instances {
+       name = "default-node-1"
+       role = "failover_replica"
+       region = "ap-south-1"
+       instance_group_name = "default"
+       availability_zone = "ap-south-1b"
+       vpc = "tessell-vpc-4jd48"
+       compute_type = "tesl_2h_a_p"
+     }
+```
+After
+```terraform
+     instances {
+      name = "default-node-0"
+      role = "failover_replica" # check here
+      region = "ap-south-1"
+      instance_group_name = "default"
+      availability_zone = "ap-south-1a"
+      vpc = "tessell-vpc-4jd48"
+      compute_type = "tesl_2h_a_p"
+    }
+     instances {
+       name = "default-node-1"
+       role = "primary" # check here
+       region = "ap-south-1"
+       instance_group_name = "default"
+       availability_zone = "ap-south-1b"
+       vpc = "tessell-vpc-4jd48"
+       compute_type = "tesl_2h_a_p"
+     }
+```
 <a id="nestedatt--infrastructure--cloud_availability"></a>
 ### Nested Schema for `infrastructure.cloud_availability`
 
@@ -519,10 +629,19 @@ Read-Only:
 
 Optional:
 
+- `mongodb_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--mongodb_config))
 - `mysql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--mysql_config))
 - `oracle_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--oracle_config))
 - `postgresql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--postgresql_config))
 - `sql_server_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--sql_server_config))
+
+<a id="nestedblock--databases--database_configuration--mongodb_config"></a>
+### Nested Schema for `databases.database_configuration.mongodb_config`
+
+Optional:
+
+- `parameter_profile_id` (String) The parameter profile id for the database
+
 
 <a id="nestedblock--databases--database_configuration--mysql_config"></a>
 ### Nested Schema for `databases.database_configuration.mysql_config`
@@ -697,6 +816,7 @@ Read-Only:
 Read-Only:
 
 - `availability_zone` (String)
+- `aws_infra_config` (List of Object) (see [below for nested schema](#nestedobjatt--instances--aws_infra_config))
 - `cloud` (String)
 - `compute_type` (String)
 - `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--instances--connect_string))
@@ -719,6 +839,22 @@ Read-Only:
 - `type` (String)
 - `updates_in_progress` (List of Object) (see [below for nested schema](#nestedobjatt--instances--updates_in_progress))
 - `vpc` (String)
+
+<a id="nestedobjatt--instances--aws_infra_config"></a>
+### Nested Schema for `instances.aws_infra_config`
+
+Read-Only:
+
+- `aws_cpu_options` (List of Object) (see [below for nested schema](#nestedobjatt--instances--aws_infra_config--aws_cpu_options))
+
+<a id="nestedobjatt--instances--aws_infra_config--aws_cpu_options"></a>
+### Nested Schema for `instances.aws_infra_config.aws_cpu_options`
+
+Read-Only:
+
+- `vcpus` (Number)
+
+
 
 <a id="nestedobjatt--instances--connect_string"></a>
 ### Nested Schema for `instances.connect_string`
@@ -803,118 +939,192 @@ Read-Only:
 
 <a id="nestedblock--migrate_old_to_new"></a>
 ### Migrate Terraform Configuration: Old to New
+### Old Config
+```terraform
+terraform {
+	required_providers {
+		tessell = {
+			source  = "tessell-cloud/tessell" # pre version 0.0.18
+		}
+	}
+}
 
-| **Old Config Style**                                   | **New Config Style**                                         |
-|--------------------------------------------------------|--------------------------------------------------------------|
-| terraform                                              | terraform                                                    |
-| terraform {                                            | terraform {                                                  |
-| required_providers {                                   | required_providers {                                         |
-| tessell = {                                            | tessell = {                                                  |
-| source  = "tessell-cloud/tessell" # pre version 0.0.19 | source  = "tessell-cloud/tessell" # post version 0.0.19      |
-| }                                                      | }                                                            |
-| }                                                      | }                                                            |
-| }                                                      | }                                                            |
-| provider "tessell" {                                   | provider "tessell" {                                         |
-| api_address = "https://api.clonrerefresh001.tsl-terls.cloud" | api_address = "https://api.clonrerefresh001.tsl-terls.cloud" |
-| tenant_id = "238c5c14-7fee-47f8-98c2-788555914712"     | tenant_id = "238c5c14-7fee-47f8-98c2-788555914712"           |
-| api_key = <API_KEY>                                    | api_key = ""                                                 |
-| }                                                      | }                                                            |
-| resource "tessell_db_service" "my_service_1e1d0a7e" {  | resource "tessell_db_service" "my_service_42a768d0-TF-3" {   |
-| name = "my-service-1e1d0a7e"                           | name = "my-service-42a768d0-TF-3"                            |
-| description = ""                                       | description = ""                                             |
-| subscription = "AWS-BYOA-18729402847"                  | subscription = "AWS-BYOA-18729402847"                        |
-| edition = "COMMUNITY"                                  | edition = "COMMUNITY"                                        |
-| engine_type = "MYSQL"                                  | engine_type = "MYSQL"                                        |
-| topology = "high_availability"                         | topology = "high_availability"                               |
-| software_image = "MySQL 8.0"                           | software_image = "MySQL 8.0"                                 |
-| software_image_version = "MySQL 8.0.36"                | software_image_version = "MySQL 8.0.36"                      |
-| auto_minor_version_update = true                       | auto_minor_version_update = true                             |
-| enable_deletion_protection = false                     | enable_deletion_protection = false                           |
-| enable_stop_protection = false                         | enable_stop_protection = false                               |
-| infrastructure {                                       | infrastructure {                                             |
-| cloud = "aws"                                          | cloud = "aws"                                                |
-| region = "ap-south-1"                                  |                                                              |
-| availability_zone = "ap-south-1a"                      |                                                              |
-| vpc = "tessell-vpc-4jd48"                              |                                                              |
-| compute_type = "tesl_2_a"                              |                                                              |
-| enable_encryption = false                              |                                                              |
-| encryption_key = null                                  |                                                              |
-| additional_storage = 0                                 |                                                              |
-| compute_name_prefix = "server1"                        |                                                              |
-| computes {                                             |                                                              |
-| role = "primary"                                       |                                                              |
-| }                                                      |                                                              |
-| computes {                                             |                                                              |
-| role = "failover_replica"                              |                                                              |
-| }                                                      |                                                              |
-| computes {                                             |                                                              |
-| role = "failover_replica"                              |                                                              |
-| }                                                      |                                                              |
-| }                                                      | }                                                            |
-| service_connectivity {                                 | service_connectivity {                                       |
-| service_port = "3306"                                  | service_port = "3306"                                        |
-| enable_public_access = false                           | enable_public_access = false                                 |
-| allowed_ip_addresses = [                               | allowed_ip_addresses = [                                     |
-| "49.36.xxx.xxx",                                       | "49.36.xxx.xxx",                                             |
-| ]                                                      | ]                                                            |
-| enable_ssl = false                                     | enable_ssl = false                                           |
-| }                                                      | }                                                            |
-| creds {                                                | creds {                                                      |
-| master_user = "master"                                 | master_user = "master"                                       |
-| master_password = "Password@123#"                      | master_password = "Password@123#"                            |
-| }                                                      | }                                                            |
-| maintenance_window {                                   | maintenance_window {                                         |
-| day = "Sunday"                                         | day = "Sunday"                                               |
-| time = "02:00"                                         | time = "02:00"                                               |
-| duration = 30                                          | duration = 30                                                |
-| }                                                      | }                                                            |
-| snapshot_configuration {                               | snapshot_configuration {                                     |
-| sla = "2-days-pitr"                                    | sla = "2-days-pitr"                                          |
-| schedule {                                             | schedule {                                                   |
-| backup_start_time {                                    | backup_start_time {                                          |
-| hour = 19                                              | hour = 19                                                    |
-| minute = 30                                            | minute = 30                                                  |
-| }                                                      | }                                                            |
-| }                                                      | }                                                            |
-| }                                                      | }                                                            |
-| engine_configuration {                                 | engine_configuration {                                       |
-| mysql_config {                                         | mysql_config {                                               |
-| parameter_profile_id = "pmx"                           | parameter_profile_id = "pmx"                                 |
-| }                                                      | }                                                            |
-| }                                                      | }                                                            |
-| databases {                                            | databases {                                                  |
-| database_name = "db1"                                  | database_name = "db1"                                        |
-| database_configuration {                               | database_configuration {                                     |
-| mysql_config {                                         | mysql_config {                                               |
-| parameter_profile_id = "pmx"                           | parameter_profile_id = "pmx"                                 |
-| }                                                      | }                                                            |
-| }                                                      | }                                                            |
-| }                                                      | }                                                            |
-| }                                                      | instances {                                                  |
-|                                                        | name = "default-node-0"                                      |
-|                                                        | role = "primary"                                             |
-|                                                        | region = "ap-south-1"                                        |
-|                                                        | instance_group_name = "default"                              |
-|                                                        | availability_zone = "ap-south-1a"                            |
-|                                                        | vpc = "tessell-vpc-4jd48"                                    |
-|                                                        | compute_type = "tesl_2h_a_p"                                 |
-|                                                        | }                                                            |
-|                                                        | instances {                                                  |
-|                                                        | name = "default-node-1"                                      |
-|                                                        | role = "failover_replica"                                    |
-|                                                        | region = "ap-south-1"                                        |
-|                                                        | instance_group_name = "default"                              |
-|                                                        | availability_zone = "ap-south-1b"                            |
-|                                                        | vpc = "tessell-vpc-4jd48"                                    |
-|                                                        | compute_type = "tesl_2h_a_p"                                 |
-|                                                        | }                                                            |
-|                                                        | instances {                                                  |
-|                                                        | name = "default-node-2"                                      |
-|                                                        | role = "failover_replica"                                    |
-|                                                        | region = "ap-south-1"                                        |
-|                                                        | instance_group_name = "default"                              |
-|                                                        | availability_zone = "ap-south-1b"                            |
-|                                                        | vpc = "tessell-vpc-4jd48"                                    |
-|                                                        | compute_type = "tesl_2h_a_p"                                 |
-|                                                        | }                                                            |
-| }                                                      | }                                                            |
+provider "tessell" {
+	api_address = "https://api.mytessell.tsl-terls.cloud"
+	tenant_id = "238c5c14-7fee-47f8-98c2-788555914712"
+	api_key = <API_KEY>
+}
+
+resource "tessell_db_service" "my_service_1e1d0a7e" {
+	name = "my-service-1e1d0a7e"
+	description = ""
+	subscription = "AWS-BYOA-18729402847"
+	edition = "COMMUNITY"
+	engine_type = "MYSQL"
+	topology = "high_availability"
+	software_image = "MySQL 8.0"
+	software_image_version = "MySQL 8.0.36"
+	auto_minor_version_update = true
+	enable_deletion_protection = false
+	enable_stop_protection = false
+	infrastructure {
+		cloud = "aws"
+		region = "ap-south-1"
+		availability_zone = "ap-south-1a"
+		vpc = "tessell-vpc-4jd48"
+		compute_type = "tesl_2_a"
+		enable_encryption = false
+		encryption_key = null
+		additional_storage = 0
+		compute_name_prefix = "server1"
+		computes {
+			role = "primary"
+		}
+		computes {
+			role = "failover_replica"
+		}
+		computes {
+			role = "failover_replica"
+		}
+	}
+	service_connectivity {
+		service_port = "3306"
+		enable_public_access = false
+		allowed_ip_addresses = [
+			"49.36.xxx.xxx",
+		]
+		enable_ssl = false
+	}
+	creds {
+		master_user = "master"
+		master_password = "Password@123#"
+	}
+	maintenance_window {
+		day = "Sunday"
+		time = "02:00"
+		duration = 30
+	}
+	snapshot_configuration {
+		sla = "2-days-pitr"
+		schedule {
+			backup_start_time {
+				hour = 19
+				minute = 30
+			}
+		}
+	}
+	engine_configuration {
+		mysql_config {
+			parameter_profile_id = "pmx"
+		}
+	}
+	databases {
+		database_name = "db1"
+		database_configuration {
+			mysql_config {
+				parameter_profile_id = "pmx"
+			}
+		}
+	}
+}
+```
+
+### New Config
+```terraform
+terraform {
+    required_providers {
+        tessell = {
+            source  = "tessell-cloud/tessell" # post version 0.0.19
+        }
+    }
+}
+
+provider "tessell" {
+    api_address = "https://api.mytessell.tsl-terls.cloud"
+    tenant_id = "238c5c14-7fee-47f8-98c2-788555914712"
+    api_key = ""
+}
+
+resource "tessell_db_service" "my_service_42a768d0-TF-3" {
+    name = "my-service-42a768d0-TF-3"
+    description = ""
+    subscription = "AWS-BYOA-18729402847"
+    edition = "COMMUNITY"
+    engine_type = "MYSQL"
+    topology = "high_availability"
+    software_image = "MySQL 8.0"
+    software_image_version = "MySQL 8.0.36"
+    auto_minor_version_update = true
+    enable_deletion_protection = false
+    enable_stop_protection = false
+    infrastructure {
+        cloud = "aws"
+    }
+    service_connectivity {
+        service_port = "3306"
+        enable_public_access = false
+        allowed_ip_addresses = [
+            "49.36.xxx.xxx",
+        ]
+        enable_ssl = false
+    }
+    creds {
+        master_user = "master"
+        master_password = "Password@123#"
+    }
+    maintenance_window {
+        day = "Sunday"
+        time = "02:00"
+        duration = 30
+    }
+    snapshot_configuration {
+        sla = "2-days-pitr"
+        schedule {
+            backup_start_time {
+                hour = 19
+                minute = 30
+            }
+        }
+    }
+    engine_configuration {
+        mysql_config {
+            parameter_profile_id = "pmx"
+        }
+    }
+    databases {
+        database_name = "db1"
+        database_configuration {
+            mysql_config {
+                parameter_profile_id = "pmx"
+            }
+        }
+    }
+  instances {
+      name = "default-node-0"
+      role = "primary"
+      region = "ap-south-1"
+      instance_group_name = "default"
+      availability_zone = "ap-south-1a"
+      vpc = "tessell-vpc-4jd48"
+      compute_type = "tesl_2h_a_p"
+    }
+    instances {
+      name = "default-node-1"
+      role = "failover_replica"
+      region = "ap-south-1"
+      instance_group_name = "default"
+      availability_zone = "ap-south-1b"
+      vpc = "tessell-vpc-4jd48"
+      compute_type = "tesl_2h_a_p"
+    }
+  instances {
+      name = "default-node-2"
+      role = "failover_replica"
+      region = "ap-south-1"
+      instance_group_name = "default"
+      availability_zone = "ap-south-1b"
+      vpc = "tessell-vpc-4jd48"
+      compute_type = "tesl_2h_a_p"
+    }
+}
+```

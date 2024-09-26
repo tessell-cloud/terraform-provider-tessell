@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"terraform-provider-tessell/internal/helper"
 	"terraform-provider-tessell/internal/model"
 )
 
@@ -28,14 +29,18 @@ func (c *Client) GetBackupRequest(availabilityMachineId string, id string) (*mod
 	return &databaseBackup, statusCode, nil
 }
 
-func (c *Client) GetDatabaseBackups(availabilityMachineId string, name string, manual bool) (*model.GetDatabaseBackupsResponse, int, error) {
+func (c *Client) GetDatabaseBackups(availabilityMachineId string, name *string, manual *bool) (*model.GetDatabaseBackupsResponse, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/availability-machines/%s/backups", c.APIAddress, availabilityMachineId), nil)
 	if err != nil {
 		return nil, 0, err
 	}
 	q := req.URL.Query()
-	q.Add("name", fmt.Sprintf("%v", name))
-	q.Add("manual", fmt.Sprintf("%v", manual))
+	if !helper.IsNilString(name) {
+		q.Add("name", fmt.Sprintf("%v", *name))
+	}
+	if !helper.IsNilBool(manual) {
+		q.Add("manual", fmt.Sprintf("%v", *manual))
+	}
 	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)

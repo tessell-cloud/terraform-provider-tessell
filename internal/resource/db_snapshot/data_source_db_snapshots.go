@@ -214,11 +214,17 @@ func dataSourceDBSnapshotsRead(ctx context.Context, d *schema.ResourceData, meta
 
 	var diags diag.Diagnostics
 
-	name := d.Get("name").(string)
 	availabilityMachineId := d.Get("availability_machine_id").(string)
-	manual := d.Get("manual").(bool)
+	var name string
+	if !d.GetRawConfig().GetAttr("name").IsNull() {
+		name = d.Get("name").(string)
+	}
+	var manual bool
+	if !d.GetRawConfig().GetAttr("manual").IsNull() {
+		manual = d.Get("manual").(bool)
+	}
 
-	response, _, err := client.GetDatabaseSnapshots(availabilityMachineId, name, manual)
+	response, _, err := client.GetDatabaseSnapshots(availabilityMachineId, &name, &manual)
 	if err != nil {
 		return diag.FromErr(err)
 	}

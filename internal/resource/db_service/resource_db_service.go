@@ -2226,7 +2226,6 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	if d.Get("block_until_complete").(bool) {
 		if err := client.DBServicePollForStatus(id, "READY", d.Get("timeout").(int), 60); err != nil {
-			d.SetId("")
 			return diag.FromErr(err)
 		}
 	}

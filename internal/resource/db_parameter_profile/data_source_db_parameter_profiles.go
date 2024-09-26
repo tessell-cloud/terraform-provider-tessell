@@ -234,11 +234,20 @@ func dataSourceDBParameterProfilesRead(ctx context.Context, d *schema.ResourceDa
 
 	var diags diag.Diagnostics
 
-	name := d.Get("name").(string)
-	engineType := d.Get("engine_type").(string)
-	status := d.Get("status").(string)
+	var name string
+	if !d.GetRawConfig().GetAttr("name").IsNull() {
+		name = d.Get("name").(string)
+	}
+	var engineType string
+	if !d.GetRawConfig().GetAttr("engine_type").IsNull() {
+		engineType = d.Get("engine_type").(string)
+	}
+	var status string
+	if !d.GetRawConfig().GetAttr("status").IsNull() {
+		status = d.Get("status").(string)
+	}
 
-	response, _, err := client.GetDatabaseParameterProfilesForConsumers(status, engineType, name)
+	response, _, err := client.GetDatabaseParameterProfilesForConsumers(&status, &engineType, &name)
 	if err != nil {
 		return diag.FromErr(err)
 	}
