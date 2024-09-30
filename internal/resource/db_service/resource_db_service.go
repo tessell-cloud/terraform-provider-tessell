@@ -187,6 +187,16 @@ func ResourceDBService() *schema.Resource {
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"clone_type": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"content_type": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
 						"tessell_service_id": {
 							Type:        schema.TypeString,
 							Description: "The DB Service ID using which this DB Service clone is created",
@@ -389,7 +399,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"additional_storage": {
 							Type:        schema.TypeInt,
-							Description: "Size in GB. This is maintained for backward compatibility and would be deprecated soon.",
+							Description: "Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.",
 							Optional:    true,
 							ForceNew:    true,
 							Default:     0,
@@ -450,6 +460,16 @@ func ResourceDBService() *schema.Resource {
 							ForceNew:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+									},
+									"instance_group_name": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+									},
 									"region": {
 										Type:        schema.TypeString,
 										Description: "The region in which the compute is to be provisioned",
@@ -492,6 +512,48 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 										Default:     "UTC",
+									},
+									"storage_config": {
+										Type:        schema.TypeList,
+										Description: "The storage details to be provisioned.",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"provider": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"fsx_net_app_config": {
+													Type:        schema.TypeList,
+													Description: "The FSx NetApp details to be provisioned",
+													Optional:    true,
+													ForceNew:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"file_system_id": {
+																Type:        schema.TypeString,
+																Description: "File System Id of the FSx NetApp registered with Tessell",
+																Required:    true,
+																ForceNew:    true,
+															},
+															"svm_id": {
+																Type:        schema.TypeString,
+																Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+																Required:    true,
+																ForceNew:    true,
+															},
+														},
+													},
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1135,6 +1197,11 @@ func ResourceDBService() *schema.Resource {
 										Description: "The options profile for the database",
 										Optional:    true,
 										ForceNew:    true,
+									},
+									"sid": {
+										Type:        schema.TypeString,
+										Description: "SID for oracle database",
+										Optional:    true,
 									},
 									"character_set": {
 										Type:        schema.TypeString,
@@ -1947,6 +2014,82 @@ func ResourceDBService() *schema.Resource {
 							Description: "Timestamp when the Service Instance was last stopped at",
 							Computed:    true,
 						},
+						"sync_mode": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"engine_configuration": {
+							Type:        schema.TypeList,
+							Description: "This field details the DB Service Instance engine configuration details like - access mode",
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"oracle_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"access_mode": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"storage_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"provider": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+									},
+									"fsx_net_app_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"file_system_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+												},
+												"svm_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+												},
+												"volume_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+												},
+												"file_system_id": {
+													Type:        schema.TypeString,
+													Description: "File System Id of the FSx NetApp registered with Tessell",
+													Optional:    true,
+												},
+												"svm_id": {
+													Type:        schema.TypeString,
+													Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+													Optional:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -2226,6 +2369,7 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	if d.Get("block_until_complete").(bool) {
 		if err := client.DBServicePollForStatus(id, "READY", d.Get("timeout").(int), 60); err != nil {
+			d.SetId("")
 			return diag.FromErr(err)
 		}
 	}

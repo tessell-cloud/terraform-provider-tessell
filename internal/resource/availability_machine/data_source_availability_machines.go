@@ -624,7 +624,7 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 												},
 												"daily_backups": {
 													Type:        schema.TypeInt,
-													Description: "Number of daily backups to replicate",
+													Description: "Retention time (in days) to retain daily snapshots",
 													Computed:    true,
 												},
 											},
@@ -800,6 +800,39 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 								},
 							},
 						},
+						"storage_config": {
+							Type:        schema.TypeList,
+							Description: "The storage details to be provisioned.",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"provider": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"fsx_net_app_config": {
+										Type:        schema.TypeList,
+										Description: "The FSx NetApp details to be provisioned",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"file_system_id": {
+													Type:        schema.TypeString,
+													Description: "File System Id of the FSx NetApp registered with Tessell",
+													Computed:    true,
+												},
+												"svm_id": {
+													Type:        schema.TypeString,
+													Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -887,6 +920,7 @@ func setDataSourceValues(d *schema.ResourceData, AvailabilityMachineList *[]mode
 				"date_modified":          AvailabilityMachine.DateModified,
 				"tsm":                    AvailabilityMachine.Tsm,
 				"backup_download_config": []interface{}{parseBackupDownloadConfig(AvailabilityMachine.BackupDownloadConfig)},
+				"storage_config":         []interface{}{parseStorageConfigPayload(AvailabilityMachine.StorageConfig)},
 			}
 		}
 	}

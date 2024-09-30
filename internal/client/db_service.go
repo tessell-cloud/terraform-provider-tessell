@@ -271,7 +271,7 @@ func (c *Client) GetTessellServices(name string, statuses []string, engineTypes 
 	return &tessellServicesResponse, statusCode, nil
 }
 
-func (c *Client) ProvisionTessellService(payload model.ProvisionTessellServicePayload) (*model.TaskSummary, int, error) {
+func (c *Client) ProvisionTessellService(payload model.ProvisionServicePayload) (*model.TaskSummary, int, error) {
 	rb, err := json.Marshal(payload)
 	if err != nil {
 		return nil, 0, err
