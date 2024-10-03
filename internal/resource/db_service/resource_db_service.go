@@ -259,7 +259,6 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "This field contains DB Service's infrastructure related information, like, where the service is hosted - cloud, region; what compute shape, or network is is configured with.",
 				Required:    true,
-				ForceNew:    true,
 				MaxItems:    1,
 				MinItems:    1,
 				Elem: &schema.Resource{
@@ -427,7 +426,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeInt,
 							Description: "IOPS requested for the DB Service",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								if old != "0" && new == "0" && !d.GetRawState().IsNull() {
 									return true
@@ -439,7 +438,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeInt,
 							Description: "throughput requested for the DB Service",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								if old != "0" && new == "0" && !d.GetRawState().IsNull() {
 									return true
@@ -457,7 +456,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
@@ -557,6 +556,97 @@ func ResourceDBService() *schema.Resource {
 									},
 								},
 							},
+						},
+						"storage_provider": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+					},
+				},
+			},
+			"refresh_info": {
+				Type:        schema.TypeList,
+				Description: "Service refresh details",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"content_type": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+						"snapshot_name": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+						"snapshot_time": {
+							Type:        schema.TypeString,
+							Description: "Time at which snapshot is created.",
+							Computed:    true,
+						},
+						"pitr": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+						"script_info": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pre_script_info": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"script_id": {
+													Type:        schema.TypeString,
+													Description: "The Tessell Script ID",
+													Computed:    true,
+												},
+												"script_version": {
+													Type:        schema.TypeString,
+													Description: "The Tessell Script version",
+													Computed:    true,
+												},
+											},
+										},
+									},
+									"post_script_info": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"script_id": {
+													Type:        schema.TypeString,
+													Description: "The Tessell Script ID",
+													Computed:    true,
+												},
+												"script_version": {
+													Type:        schema.TypeString,
+													Description: "The Tessell Script version",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"schedule_id": {
+							Type:        schema.TypeString,
+							Description: "If refreshed using schedule then schedule id, else null",
+							Computed:    true,
+						},
+						"last_successful_refresh_time": {
+							Type:        schema.TypeString,
+							Description: "Time at which refresh would be successfully completed.",
+							Computed:    true,
 						},
 					},
 				},
@@ -1202,6 +1292,7 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "SID for oracle database",
 										Optional:    true,
+										Computed:    true,
 									},
 									"character_set": {
 										Type:        schema.TypeString,
@@ -1734,6 +1825,7 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Instances associated with this DB Service",
 				Optional:    true,
+				Computed:    true, // TODO: remove this once instances computes are removed from infra
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -1844,11 +1936,13 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeInt,
 							Description: "",
 							Optional:    true,
+							Computed:    true,
 						},
 						"throughput": {
 							Type:        schema.TypeInt,
 							Description: "Throughput requested for this DB Service instance",
 							Optional:    true,
+							Computed:    true,
 						},
 						"enable_perf_insights": {
 							Type:        schema.TypeBool,

@@ -49,7 +49,7 @@ func NewClient(apiAddress *string, apiKey *string, tenantId *string, terraformVe
 
 func (c *Client) doRequest(req *http.Request) ([]byte, int, error) {
 	req.Header.Set("tenant-id", c.TenantId)
-	req.Header.Set("X-terraform-version", c.TerraformVersion)
+	req.Header.Set("client-version", c.TerraformVersion)
 	req.Header.Set("client-type", "terraform")
 	if c.AuthorizationToken != "" {
 		req.Header.Set("Authorization", c.AuthorizationToken)
