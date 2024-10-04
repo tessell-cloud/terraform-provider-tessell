@@ -57,9 +57,11 @@ Read-Only:
 - `rpo_sla` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla))
 - `service_name` (String)
 - `shared_with` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--shared_with))
+- `storage_config` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--storage_config))
 - `subscription` (String)
 - `tenant` (String)
 - `tessell_service_id` (String)
+- `tsm` (Boolean)
 - `user_id` (String)
 
 <a id="nestedobjatt--availability_machines--backup_download_config"></a>
@@ -247,6 +249,7 @@ Read-Only:
 Read-Only:
 
 - `daily_backups` (Number)
+- `pitr` (Number)
 
 
 <a id="nestedobjatt--availability_machines--daps--shared_with"></a>
@@ -277,6 +280,7 @@ Read-Only:
 - `rpo_sla_status` (String)
 - `schedule` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule))
 - `sla` (String)
+- `sla_retention_info` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--sla_retention_info))
 - `topology` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--topology))
 
 <a id="nestedobjatt--availability_machines--rpo_sla--schedule"></a>
@@ -286,9 +290,12 @@ Read-Only:
 
 - `backup_start_time` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--backup_start_time))
 - `daily_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--daily_schedule))
+- `monthly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--monthly_schedule))
+- `weekly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--weekly_schedule))
+- `yearly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--yearly_schedule))
 
 <a id="nestedobjatt--availability_machines--rpo_sla--schedule--backup_start_time"></a>
-### Nested Schema for `availability_machines.rpo_sla.schedule.daily_schedule`
+### Nested Schema for `availability_machines.rpo_sla.schedule.yearly_schedule`
 
 Read-Only:
 
@@ -297,22 +304,77 @@ Read-Only:
 
 
 <a id="nestedobjatt--availability_machines--rpo_sla--schedule--daily_schedule"></a>
-### Nested Schema for `availability_machines.rpo_sla.schedule.daily_schedule`
+### Nested Schema for `availability_machines.rpo_sla.schedule.yearly_schedule`
 
 Read-Only:
 
-- `backup_start_times` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--daily_schedule--backup_start_times))
 - `backups_per_day` (Number)
 
-<a id="nestedobjatt--availability_machines--rpo_sla--schedule--daily_schedule--backup_start_times"></a>
-### Nested Schema for `availability_machines.rpo_sla.schedule.daily_schedule.backup_start_times`
+
+<a id="nestedobjatt--availability_machines--rpo_sla--schedule--monthly_schedule"></a>
+### Nested Schema for `availability_machines.rpo_sla.schedule.yearly_schedule`
 
 Read-Only:
 
-- `hour` (Number)
-- `minute` (Number)
+- `common_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--yearly_schedule--common_schedule))
+
+<a id="nestedobjatt--availability_machines--rpo_sla--schedule--yearly_schedule--common_schedule"></a>
+### Nested Schema for `availability_machines.rpo_sla.schedule.yearly_schedule.common_schedule`
+
+Read-Only:
+
+- `dates` (List of Number)
+- `last_day_of_month` (Boolean)
 
 
+
+<a id="nestedobjatt--availability_machines--rpo_sla--schedule--weekly_schedule"></a>
+### Nested Schema for `availability_machines.rpo_sla.schedule.yearly_schedule`
+
+Read-Only:
+
+- `days` (List of String)
+
+
+<a id="nestedobjatt--availability_machines--rpo_sla--schedule--yearly_schedule"></a>
+### Nested Schema for `availability_machines.rpo_sla.schedule.yearly_schedule`
+
+Read-Only:
+
+- `common_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--yearly_schedule--common_schedule))
+- `month_specific_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--yearly_schedule--month_specific_schedule))
+
+<a id="nestedobjatt--availability_machines--rpo_sla--schedule--yearly_schedule--common_schedule"></a>
+### Nested Schema for `availability_machines.rpo_sla.schedule.yearly_schedule.common_schedule`
+
+Read-Only:
+
+- `dates` (List of Number)
+- `last_day_of_month` (Boolean)
+- `months` (List of String)
+
+
+<a id="nestedobjatt--availability_machines--rpo_sla--schedule--yearly_schedule--month_specific_schedule"></a>
+### Nested Schema for `availability_machines.rpo_sla.schedule.yearly_schedule.month_specific_schedule`
+
+Read-Only:
+
+- `dates` (List of Number)
+- `month` (String)
+
+
+
+
+<a id="nestedobjatt--availability_machines--rpo_sla--sla_retention_info"></a>
+### Nested Schema for `availability_machines.rpo_sla.sla_retention_info`
+
+Read-Only:
+
+- `daily` (Number)
+- `monthly` (Number)
+- `pitr` (Number)
+- `weekly` (Number)
+- `yearly` (Number)
 
 
 <a id="nestedobjatt--availability_machines--rpo_sla--topology"></a>
@@ -341,5 +403,23 @@ Read-Only:
 
 - `email_id` (String)
 - `role` (String)
+
+
+
+<a id="nestedobjatt--availability_machines--storage_config"></a>
+### Nested Schema for `availability_machines.storage_config`
+
+Read-Only:
+
+- `fsx_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--storage_config--fsx_net_app_config))
+- `provider` (String)
+
+<a id="nestedobjatt--availability_machines--storage_config--fsx_net_app_config"></a>
+### Nested Schema for `availability_machines.storage_config.fsx_net_app_config`
+
+Read-Only:
+
+- `file_system_id` (String)
+- `svm_id` (String)
 
 

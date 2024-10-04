@@ -27,20 +27,20 @@ data_source "tessell_db_snapshot" "example" {
 ### Required
 
 - `availability_machine_id` (String) Id of the parent AvailabilityMachine, required when creating a clone
-- `id` (String) DB Service snapshot Id
+- `id` (String) ID of the snapshot
 
 ### Read-Only
 
-- `availability_config` (List of Object) (see [below for nested schema](#nestedatt--availability_config))
+- `availability_config` (List of Object) The config information for cloud and region availability for this snapshot (see [below for nested schema](#nestedatt--availability_config))
 - `backup_status` (String)
-- `cloud_availability` (List of Object) (see [below for nested schema](#nestedatt--cloud_availability))
-- `databases` (List of Object) The databases that are captured as part of the snapshot (see [below for nested schema](#nestedatt--databases))
-- `description` (String) Description for the snapshot
-- `manual` (Boolean) Specifies whether the backup is captured manually
-- `name` (String) DB Service snapshot name
+- `cloud_availability` (List of Object) The cloud and region information where this snapshot has been made available at (see [below for nested schema](#nestedatt--cloud_availability))
+- `databases` (List of Object) The databases that are captured as part of this snapshot (see [below for nested schema](#nestedatt--databases))
+- `description` (String) Description of the snapshot
+- `manual` (Boolean) Specifies whether this snapshot is captured as per manual user request or per automated schedule
+- `name` (String) Name of the snapshot
 - `shared_with` (List of Object) Tessell Entity ACL Sharing Summary Info (see [below for nested schema](#nestedatt--shared_with))
-- `size` (Number) Database Backup size in bytes
-- `snapshot_time` (String) DB Service snapshot capture time
+- `size` (Number) Size of this snapshot (in bytes)
+- `snapshot_time` (String) Capture time of the snapshot
 - `status` (String) Database Backup Status
 
 <a id="nestedatt--availability_config"></a>

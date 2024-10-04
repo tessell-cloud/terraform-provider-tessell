@@ -24,17 +24,18 @@ data_source "tessell_dataflix" "example" {
 
 ### Required
 
-- `availability_machine_id` (String)
+- `availability_machine_id` (String) ID of the Availability Machine
 
 ### Read-Only
 
-- `cloud_availability` (List of Object) (see [below for nested schema](#nestedatt--cloud_availability))
+- `cloud_availability` (List of Object) The cloud and region information where the data is available for access (see [below for nested schema](#nestedatt--cloud_availability))
 - `engine_type` (String)
 - `id` (String) The ID of this resource.
-- `owner` (String) Availability Machine's owner
-- `service_name` (String)
+- `owner` (String) Owner of the Availability Machine
+- `service_name` (String) Name of the associated DB Service
 - `shared_with` (List of Object) Tessell Entity ACL Sharing Summary Info (see [below for nested schema](#nestedatt--shared_with))
-- `tessell_service_id` (String)
+- `tessell_service_id` (String) ID of the associated DB Service
+- `tsm` (Boolean) Specify whether the associated DB Service is created using TSM compute type
 
 <a id="nestedatt--cloud_availability"></a>
 ### Nested Schema for `cloud_availability`

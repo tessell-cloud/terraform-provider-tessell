@@ -43,6 +43,7 @@ Read-Only:
 - `service_name` (String)
 - `shared_with` (List of Object) (see [below for nested schema](#nestedobjatt--dataflixes--shared_with))
 - `tessell_service_id` (String)
+- `tsm` (Boolean)
 
 <a id="nestedobjatt--dataflixes--cloud_availability"></a>
 ### Nested Schema for `dataflixes.cloud_availability`
