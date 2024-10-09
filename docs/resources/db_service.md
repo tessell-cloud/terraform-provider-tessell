@@ -268,7 +268,7 @@ resource "tessell_db_service" "example" {
 - `snapshot_configuration` (Block List, Max: 1) DB Service's snapshot retention configurations. If not specified, the default recommended retention configurations would be applied. (see [below for nested schema](#nestedblock--snapshot_configuration))
 - `snapshot_id` (String) Tessell service snapshot Id, using which the clone is to be created
 - `tags` (Block List) The tags to be associated with the DB Service (see [below for nested schema](#nestedblock--tags))
-- `timeout` (Number) If block_until_complete is true, how long it should block for. (In seconds)
+- `timeout` (Number) Timeout for terraform polling, when block_until_complete is true (default: true). (In seconds)
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only

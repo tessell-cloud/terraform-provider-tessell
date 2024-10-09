@@ -232,7 +232,7 @@ func ResourceDBSnapshot() *schema.Resource {
 			},
 			"timeout": {
 				Type:        schema.TypeInt,
-				Description: "If block_until_complete is true, how long it should block for. (In seconds)",
+				Description: "Timeout for terraform polling, when block_until_complete is true (default: true). (In seconds)",
 				Optional:    true,
 				Default:     1200,
 			},
