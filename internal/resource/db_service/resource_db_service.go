@@ -2393,7 +2393,7 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeInt,
 				Description: "If block_until_complete is true, how long it should block for. (In seconds)",
 				Optional:    true,
-				Default:     3600,
+				Default:     7200,
 			},
 			"expected_status": {
 				Type:        schema.TypeString,
