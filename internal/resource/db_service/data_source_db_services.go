@@ -1193,6 +1193,16 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "The VPC used for creation of the DB Service Instance",
 										Computed:    true,
 									},
+									"public_subnet": {
+										Type:        schema.TypeString,
+										Description: "The public subnet used for creation of the DB Service Instance",
+										Computed:    true,
+									},
+									"private_subnet": {
+										Type:        schema.TypeString,
+										Description: "The private subnet used for creation of the DB Service Instance",
+										Computed:    true,
+									},
 									"encryption_key": {
 										Type:        schema.TypeString,
 										Description: "The encryption key name which is used to encrypt the data at rest",

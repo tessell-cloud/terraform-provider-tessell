@@ -459,6 +459,7 @@ Optional:
 - `compute_type` (String) The compute-type to be used for provisioning the compute resource
 - `instance_group_name` (String)
 - `name` (String)
+- `private_subnet` (String) The private subnet to be used for provisioning the compute resource
 - `region` (String) The region in which the compute is to be provisioned
 - `role` (String)
 - `storage_config` (Block List, Max: 1) The storage details to be provisioned. (see [below for nested schema](#nestedblock--infrastructure--computes--storage_config))
@@ -760,6 +761,8 @@ Read-Only:
 - `last_stopped_at` (String) Timestamp when the Service Instance was last stopped at
 - `monitoring_config` (List of Object) (see [below for nested schema](#nestedatt--instances--monitoring_config))
 - `parameter_profile` (List of Object) (see [below for nested schema](#nestedatt--instances--parameter_profile))
+- `private_subnet` (String) The private subnet used for creation of the DB Service Instance
+- `public_subnet` (String) The public subnet used for creation of the DB Service Instance
 - `software_image` (String) Software Image to be used to create the instance
 - `software_image_version` (String) Software Image Version to be used to create the instance
 - `status` (String) DB Service instance status

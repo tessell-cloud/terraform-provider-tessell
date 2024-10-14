@@ -405,6 +405,8 @@ Read-Only:
 - `monitoring_config` (List of Object) (see [below for nested schema](#nestedobjatt--instances--monitoring_config))
 - `name` (String)
 - `parameter_profile` (List of Object) (see [below for nested schema](#nestedobjatt--instances--parameter_profile))
+- `private_subnet` (String)
+- `public_subnet` (String)
 - `region` (String)
 - `role` (String)
 - `software_image` (String)

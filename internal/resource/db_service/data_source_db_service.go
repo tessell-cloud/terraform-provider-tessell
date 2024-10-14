@@ -659,29 +659,9 @@ func DataSourceDBService() *schema.Resource {
 								},
 							},
 						},
-						"storage": {
-							Type:        schema.TypeInt,
-							Description: "The storage (in bytes) that has been provisioned for the DB Service",
-							Computed:    true,
-						},
-						"additional_storage": {
-							Type:        schema.TypeInt,
-							Description: "Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.",
-							Computed:    true,
-						},
 						"enable_compute_sharing": {
 							Type:        schema.TypeBool,
 							Description: "Specify if the computes should be shared across DB Services",
-							Computed:    true,
-						},
-						"timezone": {
-							Type:        schema.TypeString,
-							Description: "The timezone detail",
-							Computed:    true,
-						},
-						"multi_disk": {
-							Type:        schema.TypeBool,
-							Description: "Specify whether the DB service uses multiple data disks",
 							Computed:    true,
 						},
 						"iops": {
@@ -692,6 +672,26 @@ func DataSourceDBService() *schema.Resource {
 						"throughput": {
 							Type:        schema.TypeInt,
 							Description: "throughput requested for the DB Service",
+							Computed:    true,
+						},
+						"storage": {
+							Type:        schema.TypeInt,
+							Description: "The storage (in bytes) that has been provisioned for the DB Service",
+							Computed:    true,
+						},
+						"additional_storage": {
+							Type:        schema.TypeInt,
+							Description: "Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.",
+							Computed:    true,
+						},
+						"timezone": {
+							Type:        schema.TypeString,
+							Description: "The timezone detail",
+							Computed:    true,
+						},
+						"multi_disk": {
+							Type:        schema.TypeBool,
+							Description: "Specify whether the DB service uses multiple data disks",
 							Computed:    true,
 						},
 						"storage_provider": {
@@ -1184,6 +1184,16 @@ func DataSourceDBService() *schema.Resource {
 						"vpc": {
 							Type:        schema.TypeString,
 							Description: "The VPC used for creation of the DB Service Instance",
+							Computed:    true,
+						},
+						"public_subnet": {
+							Type:        schema.TypeString,
+							Description: "The public subnet used for creation of the DB Service Instance",
+							Computed:    true,
+						},
+						"private_subnet": {
+							Type:        schema.TypeString,
+							Description: "The private subnet used for creation of the DB Service Instance",
 							Computed:    true,
 						},
 						"encryption_key": {

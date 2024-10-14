@@ -54,10 +54,11 @@ type ProvisionComputePayload struct {
 	Region            *string               `json:"region,omitempty"`           // The region in which the compute is to be provisioned
 	AvailabilityZone  *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the compute is to be provisioned
 	Role              *string               `json:"role,omitempty"`
-	VPC               *string               `json:"vpc,omitempty"`         // The VPC to be used for provisioning the compute resource
-	ComputeType       *string               `json:"computeType,omitempty"` // The compute-type to be used for provisioning the compute resource
-	ComputeId         *string               `json:"computeId,omitempty"`   // Specify the compute resource if it has to be shared
-	Timezone          *string               `json:"timezone,omitempty"`    // The timezone detail
+	VPC               *string               `json:"vpc,omitempty"`           // The VPC to be used for provisioning the compute resource
+	PrivateSubnet     *string               `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the compute resource
+	ComputeType       *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the compute resource
+	ComputeId         *string               `json:"computeId,omitempty"`     // Specify the compute resource if it has to be shared
+	Timezone          *string               `json:"timezone,omitempty"`      // The timezone detail
 	StorageConfig     *StorageConfigPayload `json:"storageConfig,omitempty"`
 }
 
@@ -290,6 +291,8 @@ type TessellServiceInstanceDTO struct {
 	ParameterProfile     *ParameterProfile                    `json:"parameterProfile,omitempty"`
 	MonitoringConfig     *MonitoringConfig                    `json:"monitoringConfig,omitempty"`
 	VPC                  *string                              `json:"vpc,omitempty"`                  // The VPC used for creation of the DB Service Instance
+	PublicSubnet         *string                              `json:"publicSubnet,omitempty"`         // The public subnet used for creation of the DB Service Instance
+	PrivateSubnet        *string                              `json:"privateSubnet,omitempty"`        // The private subnet used for creation of the DB Service Instance
 	EncryptionKey        *string                              `json:"encryptionKey,omitempty"`        // The encryption key name which is used to encrypt the data at rest
 	SoftwareImage        *string                              `json:"softwareImage,omitempty"`        // Software Image to be used to create the instance
 	SoftwareImageVersion *string                              `json:"softwareImageVersion,omitempty"` // Software Image Version to be used to create the instance
@@ -435,6 +438,7 @@ type AddDBServiceInstancePayload struct {
 	Name                *string                    `json:"name"` // Name of the instance
 	Role                *string                    `json:"role"`
 	AvailabilityZone    *string                    `json:"availabilityZone,omitempty"`   // The availability-zone in which the instance is to be provisioned
+	PrivateSubnet       *string                    `json:"privateSubnet,omitempty"`      // The private subnet in which the instance is to be provisioned
 	ComputeId           *string                    `json:"computeId,omitempty"`          // ID of the Compute Resource
 	ParameterProfileId  *string                    `json:"parameterProfileId,omitempty"` // ID of the Parameter Profile to be used for instance
 	Iops                *int                       `json:"iops,omitempty"`               // IOPS required for the DB Service Instance
@@ -509,6 +513,7 @@ type ProvisionInfraPayload struct {
 	Region               *string                    `json:"region,omitempty"`           // The region in which the DB Service is to be provisioned
 	AvailabilityZone     *string                    `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is to be provisioned
 	VPC                  *string                    `json:"vpc,omitempty"`              // The VPC for compute to be used for provisioning the DB Service
+	PrivateSubnet        *string                    `json:"privateSubnet,omitempty"`    // The private subnet for compute to be used for provisioning the DB Service
 	EnableEncryption     *bool                      `json:"enableEncryption,omitempty"` // Specify whether to enable the encryption at rest for the DB Service.
 	EncryptionKey        *string                    `json:"encryptionKey,omitempty"`    // The encryption key name which is to be used to encrypt the data at rest. This is honoured only if &#39;enableEncryption&#39; is true. If this is not specified, Tessell will use a default out-of-the-box encryption key.
 	ComputeType          *string                    `json:"computeType,omitempty"`      // The compute-type to be used for provisioning the DB Service
@@ -524,10 +529,11 @@ type ProvisionInfraPayload struct {
 
 type AddDBServiceInstancePayloadV2 struct {
 	InstanceGroupName  *string               `json:"instanceGroupName"`
-	Name               *string               `json:"name"`                  // Name of the instance to be created, should be unique for a dbservice
-	Region             *string               `json:"region"`                // The region in which the instance is to be provisioned
-	VPC                *string               `json:"vpc,omitempty"`         // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
-	ComputeType        *string               `json:"computeType,omitempty"` // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
+	Name               *string               `json:"name"`                    // Name of the instance to be created, should be unique for a dbservice
+	Region             *string               `json:"region"`                  // The region in which the instance is to be provisioned
+	VPC                *string               `json:"vpc,omitempty"`           // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
+	PrivateSubnet      *string               `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the instance.
+	ComputeType        *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
 	ComputeId          *string               `json:"computeId,omitempty"`
 	EnablePerfInsights *bool                 `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
 	AwsInfraConfig     *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`

@@ -332,6 +332,17 @@ func parseScriptInfoList(scriptInfo *[]model.ScriptInfo) []interface{} {
 	return scriptInfoList
 }
 
+func parseScriptInfo(scriptInfo *model.ScriptInfo) interface{} {
+	if scriptInfo == nil {
+		return nil
+	}
+	parsedScriptInfo := make(map[string]interface{})
+	parsedScriptInfo["script_id"] = scriptInfo.ScriptId
+	parsedScriptInfo["script_version"] = scriptInfo.ScriptVersion
+
+	return parsedScriptInfo
+}
+
 func parseTessellServiceConnectivityInfoWithResData(serviceConnectivity *model.TessellServiceConnectivityInfo, d *schema.ResourceData) []interface{} {
 	if serviceConnectivity == nil {
 		return nil
@@ -930,17 +941,6 @@ func parseTessellServiceMilvusEngineConfig(tessellServiceMilvusEngineConfig *mod
 	return parsedTessellServiceMilvusEngineConfig
 }
 
-func parseScriptInfo(scriptInfo *model.ScriptInfo) interface{} {
-	if scriptInfo == nil {
-		return nil
-	}
-	parsedScriptInfo := make(map[string]interface{})
-	parsedScriptInfo["script_id"] = scriptInfo.ScriptId
-	parsedScriptInfo["script_version"] = scriptInfo.ScriptVersion
-
-	return parsedScriptInfo
-}
-
 func parseTessellServiceIntegrationsInfoWithResData(integrationsConfig *model.TessellServiceIntegrationsInfo, d *schema.ResourceData) []interface{} {
 	if integrationsConfig == nil {
 		return nil
@@ -1139,6 +1139,8 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	parsedInstances["enable_perf_insights"] = instances.EnablePerfInsights
 
 	parsedInstances["vpc"] = instances.VPC
+	parsedInstances["public_subnet"] = instances.PublicSubnet
+	parsedInstances["private_subnet"] = instances.PrivateSubnet
 	parsedInstances["encryption_key"] = instances.EncryptionKey
 	parsedInstances["software_image"] = instances.SoftwareImage
 	parsedInstances["software_image_version"] = instances.SoftwareImageVersion
@@ -1676,6 +1678,7 @@ func formatTfInputInstances(d *schema.ResourceData) *[]model.AddDBServiceInstanc
 			Name:               helper.GetStringPointer(inputInstance["name"]),
 			Region:             helper.GetStringPointer(inputInstance["region"]),
 			VPC:                helper.GetStringPointer(inputInstance["vpc"]),
+			PrivateSubnet:      helper.GetStringPointer(inputInstance["private_subnet"]),
 			ComputeType:        helper.GetStringPointer(inputInstance["compute_type"]),
 			ComputeId:          helper.GetStringPointer(inputInstance["compute_id"]),
 			EnablePerfInsights: helper.GetBoolPointer(inputInstance["enable_perf_insights"]),
@@ -1768,6 +1771,14 @@ func formPayloadForDeleteTessellService(d *schema.ResourceData) model.DeleteTess
 
 	return deleteTessellServicePayloadFormed
 }
+
+// func formPayloadForDeleteTessellServiceInstances(d *schema.ResourceData) model.DeleteTessellServiceInstancePayload {
+// 	deleteTessellServiceInstancePayloadFormed := model.DeleteTessellServiceInstancePayload{
+// 		InstanceIds: form(d.Get("instance_ids")),
+// 	}
+
+// 	return deleteTessellServiceInstancePayloadFormed
+// }
 
 func formPayloadForProvisionTessellService(d *schema.ResourceData) model.ProvisionServicePayload {
 	provisionServicePayloadFormed := model.ProvisionServicePayload{
@@ -1890,38 +1901,6 @@ func formPayloadForUpdateTessellServiceCredentials(d *schema.ResourceData) model
 	return resetTessellServiceCredsPayloadFormed
 }
 
-func formProvisionInfraPayload(provisionInfraPayloadRaw interface{}) *model.ProvisionInfraPayload {
-	if provisionInfraPayloadRaw == nil || len(provisionInfraPayloadRaw.([]interface{})) == 0 {
-		return nil
-	}
-
-	provisionInfraPayloadData := provisionInfraPayloadRaw.([]interface{})[0].(map[string]interface{})
-
-	provisionInfraPayloadFormed := model.ProvisionInfraPayload{
-		Cloud:                helper.GetStringPointer(provisionInfraPayloadData["cloud"]),
-		Region:               helper.GetStringPointer(provisionInfraPayloadData["region"]),
-		AvailabilityZone:     helper.GetStringPointer(provisionInfraPayloadData["availability_zone"]),
-		VPC:                  helper.GetStringPointer(provisionInfraPayloadData["vpc"]),
-		EnableEncryption:     helper.GetBoolPointer(provisionInfraPayloadData["enable_encryption"]),
-		EncryptionKey:        helper.GetStringPointer(provisionInfraPayloadData["encryption_key"]),
-		ComputeType:          helper.GetStringPointer(provisionInfraPayloadData["compute_type"]),
-		AwsInfraConfig:       formAwsInfraConfig(provisionInfraPayloadData["aws_infra_config"]),
-		AdditionalStorage:    helper.GetIntPointer(provisionInfraPayloadData["additional_storage"]),
-		EnableComputeSharing: helper.GetBoolPointer(provisionInfraPayloadData["enable_compute_sharing"]),
-		ComputeNamePrefix:    helper.GetStringPointer(provisionInfraPayloadData["compute_name_prefix"]),
-		Timezone:             helper.GetStringPointer(provisionInfraPayloadData["timezone"]),
-		Computes:             formProvisionComputePayloadList(provisionInfraPayloadData["computes"]),
-		Iops:                 helper.GetIntPointer(provisionInfraPayloadData["iops"]),
-		Throughput:           helper.GetIntPointer(provisionInfraPayloadData["throughput"]),
-	}
-
-	if provisionInfraPayloadData["compute_name_prefix"] != nil {
-		provisionInfraPayloadFormed.ComputeNamePrefix = helper.GetStringPointer(provisionInfraPayloadData["compute_name_prefix"])
-	}
-
-	return &provisionInfraPayloadFormed
-}
-
 func formAwsInfraConfig(awsInfraConfigRaw interface{}) *model.AwsInfraConfig {
 	if awsInfraConfigRaw == nil || len(awsInfraConfigRaw.([]interface{})) == 0 {
 		return nil
@@ -1960,6 +1939,7 @@ func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceIn
 		AvailabilityZone: tfInstancePayload.AvailabilityZone,
 		ComputeId:        tfInstancePayload.ComputeId,
 		StorageConfig:    tfInstancePayload.StorageConfig,
+		PrivateSubnet:    tfInstancePayload.PrivateSubnet,
 	}
 
 	if tfInstancePayload.Iops != nil && *tfInstancePayload.Iops != 0 {
@@ -2065,6 +2045,21 @@ func formPrePostScriptInfo(scriptInfoRaw interface{}) *model.PrePostScriptInfo {
 
 	return &prePostScriptInfoFormed
 }
+
+func formScriptInfo(scriptInfoRaw interface{}) *model.ScriptInfo {
+	if scriptInfoRaw == nil || len(scriptInfoRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	scriptInfoData := scriptInfoRaw.([]interface{})[0].(map[string]interface{})
+
+	scriptInfoFormed := model.ScriptInfo{
+		ScriptId:      helper.GetStringPointer(scriptInfoData["script_id"]),
+		ScriptVersion: helper.GetStringPointer(scriptInfoData["script_version"]),
+	}
+
+	return &scriptInfoFormed
+}
 func formScriptInfoList(scriptInfoListRaw interface{}) *[]model.ScriptInfo {
 	if scriptInfoListRaw == nil || len(scriptInfoListRaw.([]interface{})) == 0 {
 		return nil
@@ -2108,6 +2103,21 @@ func formRefreshScheduleRecurrenceInfo(recurringRaw interface{}) *model.RefreshS
 	return &refreshScheduleRecurrenceInfoFormed
 }
 
+func formTimeFormat(timeFormatRaw interface{}) *model.TimeFormat {
+	if timeFormatRaw == nil || len(timeFormatRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	timeFormatData := timeFormatRaw.([]interface{})[0].(map[string]interface{})
+
+	timeFormatFormed := model.TimeFormat{
+		Hour:   helper.GetIntPointer(timeFormatData["hour"]),
+		Minute: helper.GetIntPointer(timeFormatData["minute"]),
+	}
+
+	return &timeFormatFormed
+}
+
 func formRefreshScheduleRecurrenceInfoDailySchedule(dailyScheduleRaw interface{}) *model.RefreshScheduleRecurrenceInfoDailySchedule {
 	if dailyScheduleRaw == nil || len(dailyScheduleRaw.([]interface{})) == 0 {
 		return nil
@@ -2149,6 +2159,34 @@ func formWeekDayList(weekDaysListRaw interface{}) *[]string {
 
 	return &WeekDaysListFormed
 }
+func formProvisionInfraPayload(provisionInfraPayloadRaw interface{}) *model.ProvisionInfraPayload {
+	if provisionInfraPayloadRaw == nil || len(provisionInfraPayloadRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	provisionInfraPayloadData := provisionInfraPayloadRaw.([]interface{})[0].(map[string]interface{})
+
+	provisionInfraPayloadFormed := model.ProvisionInfraPayload{
+		Cloud:                helper.GetStringPointer(provisionInfraPayloadData["cloud"]),
+		Region:               helper.GetStringPointer(provisionInfraPayloadData["region"]),
+		AvailabilityZone:     helper.GetStringPointer(provisionInfraPayloadData["availability_zone"]),
+		VPC:                  helper.GetStringPointer(provisionInfraPayloadData["vpc"]),
+		PrivateSubnet:        helper.GetStringPointer(provisionInfraPayloadData["private_subnet"]),
+		EnableEncryption:     helper.GetBoolPointer(provisionInfraPayloadData["enable_encryption"]),
+		EncryptionKey:        helper.GetStringPointer(provisionInfraPayloadData["encryption_key"]),
+		ComputeType:          helper.GetStringPointer(provisionInfraPayloadData["compute_type"]),
+		AwsInfraConfig:       formAwsInfraConfig(provisionInfraPayloadData["aws_infra_config"]),
+		AdditionalStorage:    helper.GetIntPointer(provisionInfraPayloadData["additional_storage"]),
+		EnableComputeSharing: helper.GetBoolPointer(provisionInfraPayloadData["enable_compute_sharing"]),
+		ComputeNamePrefix:    helper.GetStringPointer(provisionInfraPayloadData["compute_name_prefix"]),
+		Timezone:             helper.GetStringPointer(provisionInfraPayloadData["timezone"]),
+		Computes:             formProvisionComputePayloadList(provisionInfraPayloadData["computes"]),
+		Iops:                 helper.GetIntPointer(provisionInfraPayloadData["iops"]),
+		Throughput:           helper.GetIntPointer(provisionInfraPayloadData["throughput"]),
+	}
+
+	return &provisionInfraPayloadFormed
+}
 
 func formProvisionComputePayload(provisionComputePayloadRaw interface{}) *model.ProvisionComputePayload {
 	if provisionComputePayloadRaw == nil {
@@ -2164,6 +2202,7 @@ func formProvisionComputePayload(provisionComputePayloadRaw interface{}) *model.
 		AvailabilityZone:  helper.GetStringPointer(provisionComputePayloadData["availability_zone"]),
 		Role:              helper.GetStringPointer(provisionComputePayloadData["role"]),
 		VPC:               helper.GetStringPointer(provisionComputePayloadData["vpc"]),
+		PrivateSubnet:     helper.GetStringPointer(provisionComputePayloadData["private_subnet"]),
 		ComputeType:       helper.GetStringPointer(provisionComputePayloadData["compute_type"]),
 		ComputeId:         helper.GetStringPointer(provisionComputePayloadData["compute_id"]),
 		Timezone:          helper.GetStringPointer(provisionComputePayloadData["timezone"]),
@@ -2197,6 +2236,7 @@ func formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2Raw interfac
 		Name:               helper.GetStringPointer(addDBServiceInstancePayloadV2Data["name"]),
 		Region:             helper.GetStringPointer(addDBServiceInstancePayloadV2Data["region"]),
 		VPC:                helper.GetStringPointer(addDBServiceInstancePayloadV2Data["vpc"]),
+		PrivateSubnet:      helper.GetStringPointer(addDBServiceInstancePayloadV2Data["private_subnet"]),
 		ComputeType:        helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_type"]),
 		ComputeId:          helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_id"]),
 		EnablePerfInsights: helper.GetBoolPointer(addDBServiceInstancePayloadV2Data["enable_perf_insights"]),
@@ -2331,21 +2371,6 @@ func formScheduleInfo(scheduleInfoRaw interface{}) *model.ScheduleInfo {
 	}
 
 	return &scheduleInfoFormed
-}
-
-func formTimeFormat(timeFormatRaw interface{}) *model.TimeFormat {
-	if timeFormatRaw == nil || len(timeFormatRaw.([]interface{})) == 0 {
-		return nil
-	}
-
-	timeFormatData := timeFormatRaw.([]interface{})[0].(map[string]interface{})
-
-	timeFormatFormed := model.TimeFormat{
-		Hour:   helper.GetIntPointer(timeFormatData["hour"]),
-		Minute: helper.GetIntPointer(timeFormatData["minute"]),
-	}
-
-	return &timeFormatFormed
 }
 
 func formDailySchedule(dailyScheduleRaw interface{}) *model.DailySchedule {
@@ -2497,21 +2522,6 @@ func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurat
 	}
 
 	return &tessellServiceEngineConfigurationPayloadFormed
-}
-
-func formScriptInfo(scriptInfoRaw interface{}) *model.ScriptInfo {
-	if scriptInfoRaw == nil || len(scriptInfoRaw.([]interface{})) == 0 {
-		return nil
-	}
-
-	scriptInfoData := scriptInfoRaw.([]interface{})[0].(map[string]interface{})
-
-	scriptInfoFormed := model.ScriptInfo{
-		ScriptId:      helper.GetStringPointer(scriptInfoData["script_id"]),
-		ScriptVersion: helper.GetStringPointer(scriptInfoData["script_version"]),
-	}
-
-	return &scriptInfoFormed
 }
 
 func formOracleEngineConfigPayload(oracleEngineConfigPayloadRaw interface{}) *model.OracleEngineConfigPayload {

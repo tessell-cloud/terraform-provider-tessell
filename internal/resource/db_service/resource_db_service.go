@@ -493,6 +493,11 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
+									"private_subnet": {
+										Type:        schema.TypeString,
+										Description: "The private subnet to be used for provisioning the compute resource",
+										Optional:    true,
+									},
 									"compute_type": {
 										Type:        schema.TypeString,
 										Description: "The compute-type to be used for provisioning the compute resource",
@@ -2019,6 +2024,16 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The VPC used for creation of the DB Service Instance",
 							Required:    true,
+						},
+						"public_subnet": {
+							Type:        schema.TypeString,
+							Description: "The public subnet used for creation of the DB Service Instance",
+							Computed:    true,
+						},
+						"private_subnet": {
+							Type:        schema.TypeString,
+							Description: "The private subnet used for creation of the DB Service Instance",
+							Computed:    true,
 						},
 						"encryption_key": {
 							Type:        schema.TypeString,
