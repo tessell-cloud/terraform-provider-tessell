@@ -327,6 +327,11 @@ func ResourceDBService() *schema.Resource {
 							Optional:    true,
 							Computed:    true,
 						},
+						"private_subnet": {
+							Type:        schema.TypeString,
+							Description: "The private subnet to be used for provisioning the compute resource",
+							Optional:    true,
+						},
 						"enable_encryption": {
 							Type:        schema.TypeBool,
 							Description: "",
@@ -1893,7 +1898,7 @@ func ResourceDBService() *schema.Resource {
 						"compute_type": {
 							Type:        schema.TypeString,
 							Description: "The compute used for creation of the Tessell Service Instance",
-							Optional:    true,
+							Required:    true,
 						},
 						"aws_infra_config": {
 							Type:        schema.TypeList,
@@ -2033,7 +2038,7 @@ func ResourceDBService() *schema.Resource {
 						"private_subnet": {
 							Type:        schema.TypeString,
 							Description: "The private subnet used for creation of the DB Service Instance",
-							Computed:    true,
+							Optional:    true,
 						},
 						"encryption_key": {
 							Type:        schema.TypeString,
