@@ -617,7 +617,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 									},
 									"daily_backups": {
 										Type:        schema.TypeInt,
-										Description: "Number of daily backups to replicate",
+										Description: "Retention time (in days) to retain daily snapshots",
 										Computed:    true,
 									},
 								},
@@ -789,6 +789,39 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 							Type:        schema.TypeBool,
 							Description: "Allow download of the backup for owner/co-owner of the AM",
 							Computed:    true,
+						},
+					},
+				},
+			},
+			"storage_config": {
+				Type:        schema.TypeList,
+				Description: "The storage details to be provisioned.",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"provider": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+						"fsx_net_app_config": {
+							Type:        schema.TypeList,
+							Description: "The FSx NetApp details to be provisioned",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"file_system_id": {
+										Type:        schema.TypeString,
+										Description: "File System Id of the FSx NetApp registered with Tessell",
+										Computed:    true,
+									},
+									"svm_id": {
+										Type:        schema.TypeString,
+										Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+										Computed:    true,
+									},
+								},
+							},
 						},
 					},
 				},

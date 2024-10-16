@@ -87,6 +87,10 @@ func setResourceData(d *schema.ResourceData, tessellDMMServiceConsumerDTO *model
 		return err
 	}
 
+	if err := d.Set("storage_config", parseStorageConfigPayloadWithResData(tessellDMMServiceConsumerDTO.StorageConfig, d)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -759,4 +763,51 @@ func parseBackupDownloadConfig(backupDownloadConfig *model.BackupDownloadConfig)
 	parsedBackupDownloadConfig["allow_backup_downloads"] = backupDownloadConfig.AllowBackupDownloads
 
 	return parsedBackupDownloadConfig
+}
+
+func parseStorageConfigPayloadWithResData(storageConfig *model.StorageConfigPayload, d *schema.ResourceData) []interface{} {
+	if storageConfig == nil {
+		return nil
+	}
+	parsedStorageConfig := make(map[string]interface{})
+	if d.Get("storage_config") != nil {
+		storageConfigResourceData := d.Get("storage_config").([]interface{})
+		if len(storageConfigResourceData) > 0 {
+			parsedStorageConfig = (storageConfigResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedStorageConfig["provider"] = storageConfig.Provider
+
+	var fsxNetAppConfig *model.FsxNetAppConfigPayload
+	if storageConfig.FsxNetAppConfig != fsxNetAppConfig {
+		parsedStorageConfig["fsx_net_app_config"] = []interface{}{parseFsxNetAppConfigPayload(storageConfig.FsxNetAppConfig)}
+	}
+
+	return []interface{}{parsedStorageConfig}
+}
+
+func parseStorageConfigPayload(storageConfig *model.StorageConfigPayload) interface{} {
+	if storageConfig == nil {
+		return nil
+	}
+	parsedStorageConfig := make(map[string]interface{})
+	parsedStorageConfig["provider"] = storageConfig.Provider
+
+	var fsxNetAppConfig *model.FsxNetAppConfigPayload
+	if storageConfig.FsxNetAppConfig != fsxNetAppConfig {
+		parsedStorageConfig["fsx_net_app_config"] = []interface{}{parseFsxNetAppConfigPayload(storageConfig.FsxNetAppConfig)}
+	}
+
+	return parsedStorageConfig
+}
+
+func parseFsxNetAppConfigPayload(fsxNetAppConfigPayload *model.FsxNetAppConfigPayload) interface{} {
+	if fsxNetAppConfigPayload == nil {
+		return nil
+	}
+	parsedFsxNetAppConfigPayload := make(map[string]interface{})
+	parsedFsxNetAppConfigPayload["file_system_id"] = fsxNetAppConfigPayload.FileSystemId
+	parsedFsxNetAppConfigPayload["svm_id"] = fsxNetAppConfigPayload.SvmId
+
+	return parsedFsxNetAppConfigPayload
 }

@@ -4,6 +4,11 @@ type WeeklySchedule struct {
 	Days *[]string `json:"days,omitempty"` // Days in a week to retain weekly backups for
 }
 
+type StorageConfigPayload struct {
+	Provider        *string                 `json:"provider"`
+	FsxNetAppConfig *FsxNetAppConfigPayload `json:"fsxNetAppConfig,omitempty"`
+}
+
 type CommonYearlySchedule struct {
 	Dates          *[]int    `json:"dates,omitempty"` // Dates in a month to retain monthly backups
 	LastDayOfMonth *bool     `json:"lastDayOfMonth,omitempty"`
@@ -11,12 +16,12 @@ type CommonYearlySchedule struct {
 }
 
 type APIError struct {
-	Code           *string          `json:"code,omitempty"`    // Status code for the error response
-	Message        *string          `json:"message,omitempty"` // Error message for API response
-	Details        *APIErrorDetails `json:"details,omitempty"`
-	DefaultCodeSet *bool            `json:"defaultCodeSet,omitempty"`
-	ContextId      *string          `json:"contextId,omitempty"` // ContextId of API request
-	SessionId      *string          `json:"sessionId,omitempty"` // SessionId of API request
+	Code       *string `json:"code,omitempty"`    // Status code for the error response
+	Message    *string `json:"message,omitempty"` // Error message for API response
+	Resolution *string `json:"resolution,omitempty"`
+	Timestamp  *string `json:"timestamp,omitempty"`
+	ContextId  *string `json:"contextId,omitempty"` // ContextId of API request
+	SessionId  *string `json:"sessionId,omitempty"` // SessionId of API request
 }
 
 type TessellDataflixFromTimeInfo struct {
@@ -57,10 +62,6 @@ type EntityAclSharingInfo struct {
 type TimeFormat struct {
 	Hour   *int `json:"hour,omitempty"`
 	Minute *int `json:"minute,omitempty"`
-}
-
-type APIErrorDetails struct {
-	Resolution *string `json:"resolution,omitempty"` // Resolution detail for API exception
 }
 
 type YearlySchedule struct {
@@ -133,6 +134,11 @@ type DeletionScheduleDTO struct {
 type TessellDataflixPITRInfoForRegion struct {
 	Region     *string                        `json:"region,omitempty"` // Region name
 	TimeRanges *[]TessellDataflixFromTimeInfo `json:"timeRanges,omitempty"`
+}
+
+type FsxNetAppConfigPayload struct {
+	FileSystemId *string `json:"fileSystemId"` // File System Id of the FSx NetApp registered with Tessell
+	SvmId        *string `json:"svmId"`        // Storage Virtual Machine Id of the FSx NetApp registered with Tessell
 }
 
 type TessellServiceDeletionConfig struct {

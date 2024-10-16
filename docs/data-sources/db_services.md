@@ -28,7 +28,7 @@ data_source "tessell_db_services" "example" {
 ### Optional
 
 - `cloned_from_availability_machine_id` (String) The id of the Availability Machine from which the services are cloned
-- `cloned_from_service_id` (String) The id of the DB Service from which the services are cloned
+- `cloned_from_service_id` (String) The ID of the DB Service from which the services are cloned
 - `engine_types` (List of String) DB Service's engine-types
 - `load_acls` (Boolean) Load ACL information
 - `load_databases` (Boolean) Load the databases that are part of the DB Service
@@ -71,6 +71,7 @@ Read-Only:
 - `name` (String)
 - `num_of_instances` (Number)
 - `owner` (String)
+- `refresh_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--refresh_info))
 - `service_connectivity` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity))
 - `shared_with` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--shared_with))
 - `software_image` (String)
@@ -94,6 +95,8 @@ Read-Only:
 
 - `availability_machine` (String)
 - `availability_machine_id` (String)
+- `clone_type` (String)
+- `content_type` (String)
 - `maximum_recoverability` (Boolean)
 - `pitr_time` (String)
 - `snapshot_id` (String)
@@ -118,6 +121,7 @@ Read-Only:
 Read-Only:
 
 - `cloned_from_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--cloned_from_info))
+- `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--connect_string))
 - `database_configuration` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--database_configuration))
 - `database_name` (String)
 - `date_created` (String)
@@ -125,6 +129,7 @@ Read-Only:
 - `engine_type` (String)
 - `id` (String)
 - `status` (String)
+- `tessell_created` (Boolean)
 - `tessell_service_id` (String)
 
 <a id="nestedobjatt--db_services--databases--cloned_from_info"></a>
@@ -135,16 +140,36 @@ Read-Only:
 - `database_id` (String)
 
 
+<a id="nestedobjatt--db_services--databases--connect_string"></a>
+### Nested Schema for `db_services.databases.connect_string`
+
+Read-Only:
+
+- `connect_descriptor` (String)
+- `endpoint` (String)
+- `master_user` (String)
+- `service_port` (String)
+
+
 <a id="nestedobjatt--db_services--databases--database_configuration"></a>
 ### Nested Schema for `db_services.databases.database_configuration`
 
 Read-Only:
 
+- `milvus_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--database_configuration--milvus_config))
 - `mongodb_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--database_configuration--mongodb_config))
 - `mysql_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--database_configuration--mysql_config))
 - `oracle_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--database_configuration--oracle_config))
 - `postgresql_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--database_configuration--postgresql_config))
 - `sql_server_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--database_configuration--sql_server_config))
+
+<a id="nestedobjatt--db_services--databases--database_configuration--milvus_config"></a>
+### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+
+Read-Only:
+
+- `parameter_profile_id` (String)
+
 
 <a id="nestedobjatt--db_services--databases--database_configuration--mongodb_config"></a>
 ### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
@@ -169,6 +194,7 @@ Read-Only:
 
 - `options_profile` (String)
 - `parameter_profile_id` (String)
+- `username` (String)
 
 
 <a id="nestedobjatt--db_services--databases--database_configuration--postgresql_config"></a>
@@ -204,6 +230,7 @@ Read-Only:
 
 - `delete_at` (String)
 - `deletion_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--deletion_schedule--deletion_config))
+- `id` (String)
 
 <a id="nestedobjatt--db_services--deletion_schedule--deletion_config"></a>
 ### Nested Schema for `db_services.deletion_schedule.deletion_config`
@@ -220,6 +247,7 @@ Read-Only:
 Read-Only:
 
 - `apache_kafka_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration--apache_kafka_config))
+- `milvus_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration--milvus_config))
 - `mongodb_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration--mongodb_config))
 - `mysql_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration--mysql_config))
 - `oracle_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration--oracle_config))
@@ -230,6 +258,14 @@ Read-Only:
 
 <a id="nestedobjatt--db_services--engine_configuration--apache_kafka_config"></a>
 ### Nested Schema for `db_services.engine_configuration.apache_kafka_config`
+
+Read-Only:
+
+- `parameter_profile_id` (String)
+
+
+<a id="nestedobjatt--db_services--engine_configuration--milvus_config"></a>
+### Nested Schema for `db_services.engine_configuration.milvus_config`
 
 Read-Only:
 
@@ -250,6 +286,7 @@ Read-Only:
 
 Read-Only:
 
+- `ad_domain_id` (String)
 - `parameter_profile_id` (String)
 
 
@@ -259,10 +296,12 @@ Read-Only:
 Read-Only:
 
 - `character_set` (String)
+- `enable_archive_mode` (Boolean)
 - `multi_tenant` (Boolean)
 - `national_character_set` (String)
 - `options_profile` (String)
 - `parameter_profile_id` (String)
+- `sid` (String)
 
 
 <a id="nestedobjatt--db_services--engine_configuration--post_script_info"></a>
@@ -279,7 +318,9 @@ Read-Only:
 
 Read-Only:
 
+- `ad_domain_id` (String)
 - `parameter_profile_id` (String)
+- `proxy_port` (Number)
 
 
 <a id="nestedobjatt--db_services--engine_configuration--pre_script_info"></a>
@@ -312,10 +353,16 @@ Read-Only:
 - `cloud` (String)
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--infrastructure--cloud_availability))
 - `compute_type` (String)
+- `enable_compute_sharing` (Boolean)
 - `enable_encryption` (Boolean)
 - `encryption_key` (String)
+- `iops` (Number)
+- `multi_disk` (Boolean)
 - `region` (String)
 - `storage` (Number)
+- `storage_provider` (String)
+- `throughput` (Number)
+- `timezone` (String)
 - `vpc` (String)
 
 <a id="nestedobjatt--db_services--infrastructure--aws_infra_config"></a>
@@ -361,24 +408,35 @@ Read-Only:
 - `availability_zone` (String)
 - `aws_infra_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--aws_infra_config))
 - `cloud` (String)
+- `compute_id` (String)
+- `compute_name` (String)
 - `compute_type` (String)
 - `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--connect_string))
 - `data_volume_iops` (Number)
 - `date_created` (String)
+- `enable_perf_insights` (Boolean)
 - `encryption_key` (String)
+- `engine_configuration` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--engine_configuration))
 - `id` (String)
 - `instance_group_id` (String)
+- `instance_group_name` (String)
 - `last_started_at` (String)
 - `last_stopped_at` (String)
+- `monitoring_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--monitoring_config))
 - `name` (String)
 - `parameter_profile` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--parameter_profile))
+- `private_subnet` (String)
+- `public_subnet` (String)
 - `region` (String)
 - `role` (String)
 - `software_image` (String)
 - `software_image_version` (String)
 - `status` (String)
 - `storage` (Number)
+- `storage_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--storage_config))
+- `sync_mode` (String)
 - `tessell_service_id` (String)
+- `throughput` (Number)
 - `type` (String)
 - `updates_in_progress` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--updates_in_progress))
 - `vpc` (String)
@@ -410,6 +468,39 @@ Read-Only:
 - `service_port` (String)
 
 
+<a id="nestedobjatt--db_services--instances--engine_configuration"></a>
+### Nested Schema for `db_services.instances.engine_configuration`
+
+Read-Only:
+
+- `oracle_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--engine_configuration--oracle_config))
+
+<a id="nestedobjatt--db_services--instances--engine_configuration--oracle_config"></a>
+### Nested Schema for `db_services.instances.engine_configuration.oracle_config`
+
+Read-Only:
+
+- `access_mode` (String)
+
+
+
+<a id="nestedobjatt--db_services--instances--monitoring_config"></a>
+### Nested Schema for `db_services.instances.monitoring_config`
+
+Read-Only:
+
+- `perf_insights` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--monitoring_config--perf_insights))
+
+<a id="nestedobjatt--db_services--instances--monitoring_config--perf_insights"></a>
+### Nested Schema for `db_services.instances.monitoring_config.perf_insights`
+
+Read-Only:
+
+- `monitoring_deployment_id` (String)
+- `perf_insights_enabled` (Boolean)
+
+
+
 <a id="nestedobjatt--db_services--instances--parameter_profile"></a>
 ### Nested Schema for `db_services.instances.parameter_profile`
 
@@ -419,6 +510,27 @@ Read-Only:
 - `name` (String)
 - `status` (String)
 - `version` (String)
+
+
+<a id="nestedobjatt--db_services--instances--storage_config"></a>
+### Nested Schema for `db_services.instances.storage_config`
+
+Read-Only:
+
+- `fsx_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--storage_config--fsx_net_app_config))
+- `provider` (String)
+
+<a id="nestedobjatt--db_services--instances--storage_config--fsx_net_app_config"></a>
+### Nested Schema for `db_services.instances.storage_config.provider`
+
+Read-Only:
+
+- `file_system_id` (String)
+- `file_system_name` (String)
+- `svm_id` (String)
+- `svm_name` (String)
+- `volume_name` (String)
+
 
 
 <a id="nestedobjatt--db_services--instances--updates_in_progress"></a>
@@ -451,6 +563,47 @@ Read-Only:
 - `time` (String)
 
 
+<a id="nestedobjatt--db_services--refresh_info"></a>
+### Nested Schema for `db_services.refresh_info`
+
+Read-Only:
+
+- `content_type` (String)
+- `last_successful_refresh_time` (String)
+- `pitr` (String)
+- `schedule_id` (String)
+- `script_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--refresh_info--script_info))
+- `snapshot_name` (String)
+- `snapshot_time` (String)
+
+<a id="nestedobjatt--db_services--refresh_info--script_info"></a>
+### Nested Schema for `db_services.refresh_info.script_info`
+
+Read-Only:
+
+- `post_script_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--refresh_info--script_info--post_script_info))
+- `pre_script_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--refresh_info--script_info--pre_script_info))
+
+<a id="nestedobjatt--db_services--refresh_info--script_info--post_script_info"></a>
+### Nested Schema for `db_services.refresh_info.script_info.pre_script_info`
+
+Read-Only:
+
+- `script_id` (String)
+- `script_version` (String)
+
+
+<a id="nestedobjatt--db_services--refresh_info--script_info--pre_script_info"></a>
+### Nested Schema for `db_services.refresh_info.script_info.pre_script_info`
+
+Read-Only:
+
+- `script_id` (String)
+- `script_version` (String)
+
+
+
+
 <a id="nestedobjatt--db_services--service_connectivity"></a>
 ### Nested Schema for `db_services.service_connectivity`
 
@@ -458,6 +611,7 @@ Read-Only:
 
 - `allowed_ip_addresses` (List of String)
 - `ca_cert_id` (String)
+- `computes_connectivity` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--computes_connectivity))
 - `connect_strings` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--connect_strings))
 - `dns_prefix` (String)
 - `enable_public_access` (Boolean)
@@ -465,6 +619,25 @@ Read-Only:
 - `private_link` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--private_link))
 - `service_port` (Number)
 - `update_in_progress_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info))
+
+<a id="nestedobjatt--db_services--service_connectivity--computes_connectivity"></a>
+### Nested Schema for `db_services.service_connectivity.computes_connectivity`
+
+Read-Only:
+
+- `compute_resource_id` (String)
+- `port_access_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--computes_connectivity--port_access_config))
+
+<a id="nestedobjatt--db_services--service_connectivity--computes_connectivity--port_access_config"></a>
+### Nested Schema for `db_services.service_connectivity.computes_connectivity.port_access_config`
+
+Read-Only:
+
+- `allowed_ip_addresses` (List of String)
+- `enable_public_access` (Boolean)
+- `port` (Number)
+
+
 
 <a id="nestedobjatt--db_services--service_connectivity--connect_strings"></a>
 ### Nested Schema for `db_services.service_connectivity.connect_strings`
@@ -497,9 +670,29 @@ Read-Only:
 Read-Only:
 
 - `allowed_ip_addresses` (List of String)
+- `computes_connectivity` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info--computes_connectivity))
 - `dns_prefix` (String)
 - `enable_public_access` (Boolean)
 - `private_link` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info--private_link))
+
+<a id="nestedobjatt--db_services--service_connectivity--update_in_progress_info--computes_connectivity"></a>
+### Nested Schema for `db_services.service_connectivity.update_in_progress_info.private_link`
+
+Read-Only:
+
+- `compute_resource_id` (String)
+- `port_access_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info--private_link--port_access_config))
+
+<a id="nestedobjatt--db_services--service_connectivity--update_in_progress_info--private_link--port_access_config"></a>
+### Nested Schema for `db_services.service_connectivity.update_in_progress_info.private_link.port_access_config`
+
+Read-Only:
+
+- `allowed_ip_addresses` (List of String)
+- `enable_public_access` (Boolean)
+- `port` (Number)
+
+
 
 <a id="nestedobjatt--db_services--service_connectivity--update_in_progress_info--private_link"></a>
 ### Nested Schema for `db_services.service_connectivity.update_in_progress_info.private_link`

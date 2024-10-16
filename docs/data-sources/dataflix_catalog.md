@@ -24,18 +24,18 @@ data_source "tessell_dataflix_catalog" "example" {
 
 ### Required
 
-- `availability_machine_id` (String)
+- `availability_machine_id` (String) ID of the Availability Machine
 
 ### Read-Only
 
 - `engine_type` (String) Database Engine Type
 - `id` (String) The ID of this resource.
 - `owner` (String) Owner of the Availability Machine
-- `pitr_catalog` (List of Object) PITR availability catalog (see [below for nested schema](#nestedatt--pitr_catalog))
-- `service_name` (String)
-- `snapshot_catalog` (List of Object) (see [below for nested schema](#nestedatt--snapshot_catalog))
-- `tessell_service_id` (String)
-- `time_zone` (String) Output timezone
+- `pitr_catalog` (List of Object) Catalog information for the point-in-time recoverability (see [below for nested schema](#nestedatt--pitr_catalog))
+- `service_name` (String) Name of the associated DB Service
+- `snapshot_catalog` (List of Object) Catalog information for the available snapshots (see [below for nested schema](#nestedatt--snapshot_catalog))
+- `tessell_service_id` (String) ID of the associated DB Service
+- `time_zone` (String) Timezone applicable for timestamps that are returned in this response
 
 <a id="nestedatt--pitr_catalog"></a>
 ### Nested Schema for `pitr_catalog`

@@ -30,20 +30,20 @@ resource "tessell_db_snapshot" "example" {
 - `availability_machine_id` (String) Id of the parent AvailabilityMachine, required when creating a clone
 - `backup_status` (String)
 - `block_until_complete` (Boolean) For any operation on this resource, block the flow until the action has completed successfully
-- `description` (String) Description for the snapshot
-- `name` (String) DB Service snapshot name
+- `description` (String) Description of the snapshot
+- `name` (String) Name of the snapshot
 - `shared_with` (Block List, Max: 1) Tessell Entity ACL Sharing Summary Info (see [below for nested schema](#nestedblock--shared_with))
-- `timeout` (Number) If block_until_complete is true, how long it should block for. (In seconds)
+- `timeout` (Number) Timeout for terraform polling, when block_until_complete is true (default: true). (In seconds)
 
 ### Read-Only
 
-- `availability_config` (List of Object) (see [below for nested schema](#nestedatt--availability_config))
-- `cloud_availability` (List of Object) (see [below for nested schema](#nestedatt--cloud_availability))
-- `databases` (List of Object) The databases that are captured as part of the snapshot (see [below for nested schema](#nestedatt--databases))
-- `id` (String) DB Service snapshot Id
-- `manual` (Boolean) Specifies whether the backup is captured manually
-- `size` (Number) Database Backup size in bytes
-- `snapshot_time` (String) DB Service snapshot capture time
+- `availability_config` (List of Object) The config information for cloud and region availability for this snapshot (see [below for nested schema](#nestedatt--availability_config))
+- `cloud_availability` (List of Object) The cloud and region information where this snapshot has been made available at (see [below for nested schema](#nestedatt--cloud_availability))
+- `databases` (List of Object) The databases that are captured as part of this snapshot (see [below for nested schema](#nestedatt--databases))
+- `id` (String) ID of the snapshot
+- `manual` (Boolean) Specifies whether this snapshot is captured as per manual user request or per automated schedule
+- `size` (Number) Size of this snapshot (in bytes)
+- `snapshot_time` (String) Capture time of the snapshot
 - `status` (String) Database Backup Status
 
 <a id="nestedblock--shared_with"></a>

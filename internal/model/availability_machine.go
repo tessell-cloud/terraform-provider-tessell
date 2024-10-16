@@ -118,6 +118,7 @@ type TessellDMMServiceConsumerDTO struct {
 	DateModified         *string                            `json:"dateModified,omitempty"` // The timestamp when the Availability Machine was last updated
 	Tsm                  *bool                              `json:"tsm,omitempty"`          // Specify whether the associated DB Service is created using TSM compute type
 	BackupDownloadConfig *BackupDownloadConfig              `json:"backupDownloadConfig,omitempty"`
+	StorageConfig        *StorageConfigPayload              `json:"storageConfig,omitempty"`
 }
 
 type GetDMMsServiceView struct {
