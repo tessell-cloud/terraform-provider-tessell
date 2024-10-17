@@ -2482,8 +2482,7 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 	d.SetId(id)
 
 	if d.Get("block_until_complete").(bool) {
-		if err := client.DBServicePollForStatus(id, "READY", d.Get("timeout").(int), 60); err != nil {
-			d.SetId("")
+		if err := client.DBServicePollForStatus(d, id, "READY", d.Get("timeout").(int), 60); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -2532,7 +2531,7 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.FromErr(err)
 		}
 
-		if err := client.DBServicePollForStatus(d.Get("id").(string), "READY", d.Get("timeout").(int), 30); err != nil {
+		if err := client.DBServicePollForStatus(d, d.Get("id").(string), "READY", d.Get("timeout").(int), 30); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -2633,7 +2632,7 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.FromErr(err)
 		}
 
-		if err := client.DBServicePollForStatus(d.Get("id").(string), "STOPPED", d.Get("timeout").(int), 30); err != nil {
+		if err := client.DBServicePollForStatus(d, d.Get("id").(string), "STOPPED", d.Get("timeout").(int), 30); err != nil {
 			return diag.FromErr(err)
 		}
 	}

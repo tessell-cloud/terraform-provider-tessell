@@ -468,7 +468,7 @@ func (c *Client) DBServicePollForStatusCode(id string, statusCodeRequired int, t
 	}
 }
 
-func (c *Client) DBServicePollForStatus(id string, value string, timeout int, interval int) error {
+func (c *Client) DBServicePollForStatus(d *schema.ResourceData, id string, value string, timeout int, interval int) error {
 
 	loopCount := 0
 	sleepCycleDurationSmall, err := time.ParseDuration("10s")
@@ -492,6 +492,7 @@ func (c *Client) DBServicePollForStatus(id string, value string, timeout int, in
 		case value:
 			return nil
 		case "FAILED":
+			d.SetId("")
 			return fmt.Errorf("received status FAILED while polling")
 		}
 
