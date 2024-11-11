@@ -8,7 +8,7 @@ description: |-
 
 # tessell_availability_machine (Data Source)
 
-
+The management of snapshot and data is abstracted as a construct called Availability Machine (AM). The 'snapshots' are made availale under the respective Availability Machine and the life-cycle-management (create, delete, replicate) for snapshots would happen under the Availability Mahchine.
 
 ## Example Usage
 
