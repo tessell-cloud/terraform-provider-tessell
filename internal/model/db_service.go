@@ -128,14 +128,58 @@ type TessellServiceMaintenanceWindow struct {
 }
 
 type SnapshotConfigurationPayload struct {
-	SnapshotWindow     *SnapshotConfigurationPayloadSnapshotWindow `json:"snapshotWindow,omitempty"`
-	SLA                *string                                     `json:"sla,omitempty"` // The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service
-	Schedule           *ScheduleInfo                               `json:"schedule,omitempty"`
-	FullBackupSchedule *FullBackupSchedule                         `json:"fullBackupSchedule,omitempty"`
+	SnapshotWindow         *SnapshotConfigurationPayloadAllOfSnapshotWindow `json:"snapshotWindow,omitempty"`
+	SLA                    *string                                          `json:"sla,omitempty"` // The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service
+	Schedule               *ScheduleInfo                                    `json:"schedule,omitempty"`
+	FullBackupSchedule     *FullBackupSchedule                              `json:"fullBackupSchedule,omitempty"`
+	RetentionDays          *int                                             `json:"retentionDays,omitempty"`          // Number of days for which the snapshot of DB Service would be retained
+	IncludeTransactionLogs *bool                                            `json:"includeTransactionLogs,omitempty"` // Flag to decide whether the transaction logs would be retained to support PITR (Point in time recoverability)
+	SnapshotStartTime      *TimeFormat                                      `json:"snapshotStartTime,omitempty"`
 }
 
-type SnapshotConfigurationPayloadSnapshotWindow struct {
+type SnapshotConfigurationPayloadAllOfSnapshotWindow struct {
 	Time *string `json:"time,omitempty"` // Time value in (hh:mm) format. ex. &#39;02:00&#39;. Deprecated, please use backupStartTime in schedule.
+}
+
+type ScheduleInfo struct {
+	BackupStartTime *TimeFormat      `json:"backupStartTime,omitempty"`
+	DailySchedule   *DailySchedule   `json:"dailySchedule,omitempty"`
+	WeeklySchedule  *WeeklySchedule  `json:"weeklySchedule,omitempty"`
+	MonthlySchedule *MonthlySchedule `json:"monthlySchedule,omitempty"`
+	YearlySchedule  *YearlySchedule  `json:"yearlySchedule,omitempty"`
+}
+
+type DailySchedule struct {
+	BackupsPerDay *int `json:"backupsPerDay,omitempty"` // The number of backups to be captured per day.
+}
+
+type WeeklySchedule struct {
+	Days *[]string `json:"days,omitempty"` // Days in a week to retain weekly backups for
+}
+
+type MonthlySchedule struct {
+	CommonSchedule *DatesForEachMonth `json:"commonSchedule,omitempty"`
+}
+
+type DatesForEachMonth struct {
+	Dates          *[]int `json:"dates,omitempty"` // Dates in a month to retain monthly backups
+	LastDayOfMonth *bool  `json:"lastDayOfMonth,omitempty"`
+}
+
+type YearlySchedule struct {
+	CommonSchedule        *CommonYearlySchedule `json:"commonSchedule,omitempty"`
+	MonthSpecificSchedule *[]MonthWiseDates     `json:"monthSpecificSchedule,omitempty"`
+}
+
+type CommonYearlySchedule struct {
+	Dates          *[]int    `json:"dates,omitempty"` // Dates in a month to retain monthly backups
+	LastDayOfMonth *bool     `json:"lastDayOfMonth,omitempty"`
+	Months         *[]string `json:"months,omitempty"`
+}
+
+type MonthWiseDates struct {
+	Month *string `json:"month"` // Name of a month
+	Dates *[]int  `json:"dates"`
 }
 
 type FullBackupSchedule struct {
@@ -320,6 +364,7 @@ type MonitoringConfig struct {
 type PerfInsightsConfig struct {
 	PerfInsightsEnabled    *bool   `json:"perfInsightsEnabled,omitempty"`
 	MonitoringDeploymentId *string `json:"monitoringDeploymentId,omitempty"`
+	Status                 *string `json:"status,omitempty"`
 }
 
 type TessellServiceInstanceConnectString struct {
@@ -399,6 +444,7 @@ type TerraformTessellServiceDTO struct {
 	AutoMinorVersionUpdate     *bool                               `json:"autoMinorVersionUpdate,omitempty"`     // Specify whether to automatically update minor version for DB Service
 	EnableDeletionProtection   *bool                               `json:"enableDeletionProtection,omitempty"`   // Specify whether to enable deletion protection for the DB Service
 	EnableStopProtection       *bool                               `json:"enableStopProtection,omitempty"`       // This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
+	EnablePerfInsights         *bool                               `json:"enablePerfInsights,omitempty"`         // This field specifies whether to enable performance insights for the DB Service.
 	Owner                      *string                             `json:"owner,omitempty"`                      // DB Service owner email address
 	LoggedInUserRole           *string                             `json:"loggedInUserRole,omitempty"`           // Access role for the currently logged in user
 	DateCreated                *string                             `json:"dateCreated,omitempty"`                // Timestamp when the DB Service was created at
@@ -704,6 +750,7 @@ type TessellServiceDTO struct {
 	AutoMinorVersionUpdate     *bool                             `json:"autoMinorVersionUpdate,omitempty"`     // This field specifies whether to automatically update minor version for the DB Service
 	EnableDeletionProtection   *bool                             `json:"enableDeletionProtection,omitempty"`   // This field specifies whether to enable deletion protection for the DB Service. If this is enabled, the deletion for the DB Service would be disallowed until this setting is disabled.
 	EnableStopProtection       *bool                             `json:"enableStopProtection,omitempty"`       // This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
+	EnablePerfInsights         *bool                             `json:"enablePerfInsights,omitempty"`         // This field specifies whether to enable performance insights for the DB Service.
 	Edition                    *string                           `json:"edition,omitempty"`                    // Edition of the software image that has been used to create the DB Service (e.g. COMMUNITY/ENTERPRISE etc)
 	SoftwareImage              *string                           `json:"softwareImage,omitempty"`              // The software image that has been used to create the DB Service
 	SoftwareImageVersion       *string                           `json:"softwareImageVersion,omitempty"`       // The software image version that is used to create the DB Service

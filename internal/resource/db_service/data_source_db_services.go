@@ -101,6 +101,11 @@ func DataSourceDBServices() *schema.Resource {
 							Description: "This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.",
 							Computed:    true,
 						},
+						"enable_perf_insights": {
+							Type:        schema.TypeBool,
+							Description: "This field specifies whether to enable performance insights for the DB Service.",
+							Computed:    true,
+						},
 						"edition": {
 							Type:        schema.TypeString,
 							Description: "Edition of the software image that has been used to create the DB Service (e.g. COMMUNITY/ENTERPRISE etc)",
@@ -1182,6 +1187,11 @@ func DataSourceDBServices() *schema.Resource {
 																Description: "",
 																Computed:    true,
 															},
+															"status": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
 														},
 													},
 												},
@@ -1800,6 +1810,7 @@ func setDataSourceValues(d *schema.ResourceData, DBServiceList *[]model.TessellS
 				"auto_minor_version_update":     DBService.AutoMinorVersionUpdate,
 				"enable_deletion_protection":    DBService.EnableDeletionProtection,
 				"enable_stop_protection":        DBService.EnableStopProtection,
+				"enable_perf_insights":          DBService.EnablePerfInsights,
 				"edition":                       DBService.Edition,
 				"software_image":                DBService.SoftwareImage,
 				"software_image_version":        DBService.SoftwareImageVersion,

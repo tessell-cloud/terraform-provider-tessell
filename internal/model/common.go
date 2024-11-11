@@ -1,27 +1,18 @@
 package model
 
-type WeeklySchedule struct {
-	Days *[]string `json:"days,omitempty"` // Days in a week to retain weekly backups for
-}
-
 type StorageConfigPayload struct {
 	Provider        *string                 `json:"provider"`
 	FsxNetAppConfig *FsxNetAppConfigPayload `json:"fsxNetAppConfig,omitempty"`
 }
 
-type CommonYearlySchedule struct {
-	Dates          *[]int    `json:"dates,omitempty"` // Dates in a month to retain monthly backups
-	LastDayOfMonth *bool     `json:"lastDayOfMonth,omitempty"`
-	Months         *[]string `json:"months,omitempty"`
-}
-
 type APIError struct {
-	Code       *string `json:"code,omitempty"`    // Status code for the error response
-	Message    *string `json:"message,omitempty"` // Error message for API response
-	Resolution *string `json:"resolution,omitempty"`
-	Timestamp  *string `json:"timestamp,omitempty"`
-	ContextId  *string `json:"contextId,omitempty"` // ContextId of API request
-	SessionId  *string `json:"sessionId,omitempty"` // SessionId of API request
+	Code             *string `json:"code,omitempty"`    // Status code for the error response
+	Message          *string `json:"message,omitempty"` // Error message for API response
+	Resolution       *string `json:"resolution,omitempty"`
+	Timestamp        *string `json:"timestamp,omitempty"`
+	ContextId        *string `json:"contextId,omitempty"`        // ContextId of API request
+	SessionId        *string `json:"sessionId,omitempty"`        // SessionId of API request
+	TessellErrorCode *string `json:"tessellErrorCode,omitempty"` // Unique error code specific to Tessell
 }
 
 type TessellDataflixFromTimeInfo struct {
@@ -45,10 +36,6 @@ type EntityAclSharingSummaryInfo struct {
 	Users *[]string `json:"users,omitempty"`
 }
 
-type MonthlySchedule struct {
-	CommonSchedule *DatesForEachMonth `json:"commonSchedule,omitempty"`
-}
-
 type APIMetadata struct {
 	TimeZone   *string            `json:"timeZone,omitempty"`
 	Records    *int               `json:"records,omitempty"`
@@ -64,19 +51,6 @@ type TimeFormat struct {
 	Minute *int `json:"minute,omitempty"`
 }
 
-type YearlySchedule struct {
-	CommonSchedule        *CommonYearlySchedule `json:"commonSchedule,omitempty"`
-	MonthSpecificSchedule *[]MonthWiseDates     `json:"monthSpecificSchedule,omitempty"`
-}
-
-type ScheduleInfo struct {
-	BackupStartTime *TimeFormat      `json:"backupStartTime,omitempty"`
-	DailySchedule   *DailySchedule   `json:"dailySchedule,omitempty"`
-	WeeklySchedule  *WeeklySchedule  `json:"weeklySchedule,omitempty"`
-	MonthlySchedule *MonthlySchedule `json:"monthlySchedule,omitempty"`
-	YearlySchedule  *YearlySchedule  `json:"yearlySchedule,omitempty"`
-}
-
 type APIPaginationInfo struct {
 	PageSize   *int `json:"pageSize,omitempty"`
 	PageOffset *int `json:"pageOffset,omitempty"`
@@ -90,16 +64,6 @@ type APIStatus struct {
 type EntityUserAclSharingInfo struct {
 	EmailId *string `json:"emailId,omitempty"`
 	Role    *string `json:"role,omitempty"`
-}
-
-type MonthWiseDates struct {
-	Month *string  `json:"month"` // Name of a month
-	Dates *[]int32 `json:"dates"`
-}
-
-type DatesForEachMonth struct {
-	Dates          *[]int `json:"dates,omitempty"` // Dates in a month to retain monthly backups
-	LastDayOfMonth *bool  `json:"lastDayOfMonth,omitempty"`
 }
 
 type DatabaseSnapshotRegionInfo struct {
@@ -153,10 +117,6 @@ type RegionInfo struct {
 type CloudRegionInfo struct {
 	Cloud   *string       `json:"cloud"`
 	Regions *[]RegionInfo `json:"regions,omitempty"` // The regions details
-}
-
-type DailySchedule struct {
-	BackupsPerDay *int `json:"backupsPerDay,omitempty"` // The number of backups to be captured per day.
 }
 
 type DatabaseSnapshotCloudRegionInfo struct {

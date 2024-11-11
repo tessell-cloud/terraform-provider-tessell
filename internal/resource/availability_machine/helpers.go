@@ -59,7 +59,11 @@ func setResourceData(d *schema.ResourceData, tessellDMMServiceConsumerDTO *model
 		return err
 	}
 
-	if err := d.Set("rpo_sla", parseTessellDMMAvailabilityServiceViewWithResData(tessellDMMServiceConsumerDTO.RPOSLA, d)); err != nil {
+	if err := d.Set("topology", parseDBServiceTopologyListWithResData(tessellDMMServiceConsumerDTO.Topology, d)); err != nil {
+		return err
+	}
+
+	if err := d.Set("snapshot_configuration", parseSnapshotConfigurationWithResData(tessellDMMServiceConsumerDTO.SnapshotConfiguration, d)); err != nil {
 		return err
 	}
 
@@ -229,79 +233,15 @@ func parseRegionInfo(regionInfo *model.RegionInfo) interface{} {
 	return parsedRegionInfo
 }
 
-func parseTessellDMMAvailabilityServiceViewWithResData(rpoSla *model.TessellDMMAvailabilityServiceView, d *schema.ResourceData) []interface{} {
-	if rpoSla == nil {
-		return nil
-	}
-	parsedRpoSla := make(map[string]interface{})
-	if d.Get("rpo_sla") != nil {
-		rpoSlaResourceData := d.Get("rpo_sla").([]interface{})
-		if len(rpoSlaResourceData) > 0 {
-			parsedRpoSla = (rpoSlaResourceData[0]).(map[string]interface{})
-		}
-	}
-	parsedRpoSla["availability_machine_id"] = rpoSla.AvailabilityMachineId
-	parsedRpoSla["availability_machine"] = rpoSla.AvailabilityMachine
-
-	parsedRpoSla["rpo_sla_status"] = rpoSla.RPOSLAStatus
-	parsedRpoSla["sla"] = rpoSla.SLA
-
-	var topology *[]model.DBServiceTopology
-	if rpoSla.Topology != topology {
-		parsedRpoSla["topology"] = parseDBServiceTopologyList(rpoSla.Topology)
-	}
-
-	var slaRetentionInfo *model.TamRetentionInfo
-	if rpoSla.SLARetentionInfo != slaRetentionInfo {
-		parsedRpoSla["sla_retention_info"] = []interface{}{parseTamRetentionInfo(rpoSla.SLARetentionInfo)}
-	}
-
-	var schedule *model.ScheduleInfo
-	if rpoSla.Schedule != schedule {
-		parsedRpoSla["schedule"] = []interface{}{parseScheduleInfo(rpoSla.Schedule)}
-	}
-
-	return []interface{}{parsedRpoSla}
-}
-
-func parseTessellDMMAvailabilityServiceView(rpoSla *model.TessellDMMAvailabilityServiceView) interface{} {
-	if rpoSla == nil {
-		return nil
-	}
-	parsedRpoSla := make(map[string]interface{})
-	parsedRpoSla["availability_machine_id"] = rpoSla.AvailabilityMachineId
-	parsedRpoSla["availability_machine"] = rpoSla.AvailabilityMachine
-
-	parsedRpoSla["rpo_sla_status"] = rpoSla.RPOSLAStatus
-	parsedRpoSla["sla"] = rpoSla.SLA
-
-	var topology *[]model.DBServiceTopology
-	if rpoSla.Topology != topology {
-		parsedRpoSla["topology"] = parseDBServiceTopologyList(rpoSla.Topology)
-	}
-
-	var slaRetentionInfo *model.TamRetentionInfo
-	if rpoSla.SLARetentionInfo != slaRetentionInfo {
-		parsedRpoSla["sla_retention_info"] = []interface{}{parseTamRetentionInfo(rpoSla.SLARetentionInfo)}
-	}
-
-	var schedule *model.ScheduleInfo
-	if rpoSla.Schedule != schedule {
-		parsedRpoSla["schedule"] = []interface{}{parseScheduleInfo(rpoSla.Schedule)}
-	}
-
-	return parsedRpoSla
-}
-
-func parseDBServiceTopologyList(dbServiceTopology *[]model.DBServiceTopology) []interface{} {
-	if dbServiceTopology == nil {
+func parseDBServiceTopologyListWithResData(topology *[]model.DBServiceTopology, d *schema.ResourceData) []interface{} {
+	if topology == nil {
 		return nil
 	}
 	dbServiceTopologyList := make([]interface{}, 0)
 
-	if dbServiceTopology != nil {
-		dbServiceTopologyList = make([]interface{}, len(*dbServiceTopology))
-		for i, dbServiceTopologyItem := range *dbServiceTopology {
+	if topology != nil {
+		dbServiceTopologyList = make([]interface{}, len(*topology))
+		for i, dbServiceTopologyItem := range *topology {
 			dbServiceTopologyList[i] = parseDBServiceTopology(&dbServiceTopologyItem)
 		}
 	}
@@ -309,65 +249,71 @@ func parseDBServiceTopologyList(dbServiceTopology *[]model.DBServiceTopology) []
 	return dbServiceTopologyList
 }
 
-func parseDBServiceTopology(dbServiceTopology *model.DBServiceTopology) interface{} {
-	if dbServiceTopology == nil {
+func parseDBServiceTopologyList(topology *[]model.DBServiceTopology) []interface{} {
+	if topology == nil {
 		return nil
 	}
-	parsedDbServiceTopology := make(map[string]interface{})
-	parsedDbServiceTopology["type"] = dbServiceTopology.Type
-	parsedDbServiceTopology["cloud_type"] = dbServiceTopology.CloudType
-	parsedDbServiceTopology["region"] = dbServiceTopology.Region
-	parsedDbServiceTopology["availability_zones"] = dbServiceTopology.AvailabilityZones
+	dbServiceTopologyList := make([]interface{}, 0)
 
-	return parsedDbServiceTopology
+	if topology != nil {
+		dbServiceTopologyList = make([]interface{}, len(*topology))
+		for i, dbServiceTopologyItem := range *topology {
+			dbServiceTopologyList[i] = parseDBServiceTopology(&dbServiceTopologyItem)
+		}
+	}
+
+	return dbServiceTopologyList
 }
 
-func parseTamRetentionInfo(tamRetentionInfo *model.TamRetentionInfo) interface{} {
-	if tamRetentionInfo == nil {
+func parseDBServiceTopology(topology *model.DBServiceTopology) interface{} {
+	if topology == nil {
 		return nil
 	}
-	parsedTamRetentionInfo := make(map[string]interface{})
-	parsedTamRetentionInfo["pitr"] = tamRetentionInfo.PITR
-	parsedTamRetentionInfo["daily"] = tamRetentionInfo.Daily
-	parsedTamRetentionInfo["weekly"] = tamRetentionInfo.Weekly
-	parsedTamRetentionInfo["monthly"] = tamRetentionInfo.Monthly
-	parsedTamRetentionInfo["yearly"] = tamRetentionInfo.Yearly
+	parsedTopology := make(map[string]interface{})
+	parsedTopology["type"] = topology.Type
+	parsedTopology["cloud_type"] = topology.CloudType
+	parsedTopology["region"] = topology.Region
+	parsedTopology["availability_zones"] = topology.AvailabilityZones
 
-	return parsedTamRetentionInfo
+	return parsedTopology
 }
 
-func parseScheduleInfo(scheduleInfo *model.ScheduleInfo) interface{} {
-	if scheduleInfo == nil {
+func parseSnapshotConfigurationWithResData(snapshotConfiguration *model.SnapshotConfiguration, d *schema.ResourceData) []interface{} {
+	if snapshotConfiguration == nil {
 		return nil
 	}
-	parsedScheduleInfo := make(map[string]interface{})
+	parsedSnapshotConfiguration := make(map[string]interface{})
+	if d.Get("snapshot_configuration") != nil {
+		snapshotConfigurationResourceData := d.Get("snapshot_configuration").([]interface{})
+		if len(snapshotConfigurationResourceData) > 0 {
+			parsedSnapshotConfiguration = (snapshotConfigurationResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedSnapshotConfiguration["retention_days"] = snapshotConfiguration.RetentionDays
+	parsedSnapshotConfiguration["include_transaction_logs"] = snapshotConfiguration.IncludeTransactionLogs
 
-	var backupStartTime *model.TimeFormat
-	if scheduleInfo.BackupStartTime != backupStartTime {
-		parsedScheduleInfo["backup_start_time"] = []interface{}{parseTimeFormat(scheduleInfo.BackupStartTime)}
+	var snapshotStartTime *model.TimeFormat
+	if snapshotConfiguration.SnapshotStartTime != snapshotStartTime {
+		parsedSnapshotConfiguration["snapshot_start_time"] = []interface{}{parseTimeFormat(snapshotConfiguration.SnapshotStartTime)}
 	}
 
-	var dailySchedule *model.DailySchedule
-	if scheduleInfo.DailySchedule != dailySchedule {
-		parsedScheduleInfo["daily_schedule"] = []interface{}{parseDailySchedule(scheduleInfo.DailySchedule)}
+	return []interface{}{parsedSnapshotConfiguration}
+}
+
+func parseSnapshotConfiguration(snapshotConfiguration *model.SnapshotConfiguration) interface{} {
+	if snapshotConfiguration == nil {
+		return nil
+	}
+	parsedSnapshotConfiguration := make(map[string]interface{})
+	parsedSnapshotConfiguration["retention_days"] = snapshotConfiguration.RetentionDays
+	parsedSnapshotConfiguration["include_transaction_logs"] = snapshotConfiguration.IncludeTransactionLogs
+
+	var snapshotStartTime *model.TimeFormat
+	if snapshotConfiguration.SnapshotStartTime != snapshotStartTime {
+		parsedSnapshotConfiguration["snapshot_start_time"] = []interface{}{parseTimeFormat(snapshotConfiguration.SnapshotStartTime)}
 	}
 
-	var weeklySchedule *model.WeeklySchedule
-	if scheduleInfo.WeeklySchedule != weeklySchedule {
-		parsedScheduleInfo["weekly_schedule"] = []interface{}{parseWeeklySchedule(scheduleInfo.WeeklySchedule)}
-	}
-
-	var monthlySchedule *model.MonthlySchedule
-	if scheduleInfo.MonthlySchedule != monthlySchedule {
-		parsedScheduleInfo["monthly_schedule"] = []interface{}{parseMonthlySchedule(scheduleInfo.MonthlySchedule)}
-	}
-
-	var yearlySchedule *model.YearlySchedule
-	if scheduleInfo.YearlySchedule != yearlySchedule {
-		parsedScheduleInfo["yearly_schedule"] = []interface{}{parseYearlySchedule(scheduleInfo.YearlySchedule)}
-	}
-
-	return parsedScheduleInfo
+	return parsedSnapshotConfiguration
 }
 
 func parseTimeFormat(timeFormat *model.TimeFormat) interface{} {
@@ -379,109 +325,6 @@ func parseTimeFormat(timeFormat *model.TimeFormat) interface{} {
 	parsedTimeFormat["minute"] = timeFormat.Minute
 
 	return parsedTimeFormat
-}
-
-func parseDailySchedule(dailySchedule *model.DailySchedule) interface{} {
-	if dailySchedule == nil {
-		return nil
-	}
-	parsedDailySchedule := make(map[string]interface{})
-	parsedDailySchedule["backups_per_day"] = dailySchedule.BackupsPerDay
-
-	return parsedDailySchedule
-}
-
-func parseWeeklySchedule(weeklySchedule *model.WeeklySchedule) interface{} {
-	if weeklySchedule == nil {
-		return nil
-	}
-	parsedWeeklySchedule := make(map[string]interface{})
-	parsedWeeklySchedule["days"] = weeklySchedule.Days
-
-	return parsedWeeklySchedule
-}
-
-func parseMonthlySchedule(monthlySchedule *model.MonthlySchedule) interface{} {
-	if monthlySchedule == nil {
-		return nil
-	}
-	parsedMonthlySchedule := make(map[string]interface{})
-
-	var commonSchedule *model.DatesForEachMonth
-	if monthlySchedule.CommonSchedule != commonSchedule {
-		parsedMonthlySchedule["common_schedule"] = []interface{}{parseDatesForEachMonth(monthlySchedule.CommonSchedule)}
-	}
-
-	return parsedMonthlySchedule
-}
-
-func parseDatesForEachMonth(datesForEachMonth *model.DatesForEachMonth) interface{} {
-	if datesForEachMonth == nil {
-		return nil
-	}
-	parsedDatesForEachMonth := make(map[string]interface{})
-	parsedDatesForEachMonth["dates"] = datesForEachMonth.Dates
-	parsedDatesForEachMonth["last_day_of_month"] = datesForEachMonth.LastDayOfMonth
-
-	return parsedDatesForEachMonth
-}
-
-func parseYearlySchedule(yearlySchedule *model.YearlySchedule) interface{} {
-	if yearlySchedule == nil {
-		return nil
-	}
-	parsedYearlySchedule := make(map[string]interface{})
-
-	var commonSchedule *model.CommonYearlySchedule
-	if yearlySchedule.CommonSchedule != commonSchedule {
-		parsedYearlySchedule["common_schedule"] = []interface{}{parseCommonYearlySchedule(yearlySchedule.CommonSchedule)}
-	}
-
-	var monthSpecificSchedule *[]model.MonthWiseDates
-	if yearlySchedule.MonthSpecificSchedule != monthSpecificSchedule {
-		parsedYearlySchedule["month_specific_schedule"] = parseMonthWiseDatesList(yearlySchedule.MonthSpecificSchedule)
-	}
-
-	return parsedYearlySchedule
-}
-
-func parseCommonYearlySchedule(commonYearlySchedule *model.CommonYearlySchedule) interface{} {
-	if commonYearlySchedule == nil {
-		return nil
-	}
-	parsedCommonYearlySchedule := make(map[string]interface{})
-	parsedCommonYearlySchedule["dates"] = commonYearlySchedule.Dates
-	parsedCommonYearlySchedule["last_day_of_month"] = commonYearlySchedule.LastDayOfMonth
-	parsedCommonYearlySchedule["months"] = commonYearlySchedule.Months
-
-	return parsedCommonYearlySchedule
-}
-
-func parseMonthWiseDatesList(monthWiseDates *[]model.MonthWiseDates) []interface{} {
-	if monthWiseDates == nil {
-		return nil
-	}
-	monthWiseDatesList := make([]interface{}, 0)
-
-	if monthWiseDates != nil {
-		monthWiseDatesList = make([]interface{}, len(*monthWiseDates))
-		for i, monthWiseDatesItem := range *monthWiseDates {
-			monthWiseDatesList[i] = parseMonthWiseDates(&monthWiseDatesItem)
-		}
-	}
-
-	return monthWiseDatesList
-}
-
-func parseMonthWiseDates(monthWiseDates *model.MonthWiseDates) interface{} {
-	if monthWiseDates == nil {
-		return nil
-	}
-	parsedMonthWiseDates := make(map[string]interface{})
-	parsedMonthWiseDates["month"] = monthWiseDates.Month
-	parsedMonthWiseDates["dates"] = monthWiseDates.Dates
-
-	return parsedMonthWiseDates
 }
 
 func parseTessellDAPServiceDTOListWithResData(daps *[]model.TessellDAPServiceDTO, d *schema.ResourceData) []interface{} {
