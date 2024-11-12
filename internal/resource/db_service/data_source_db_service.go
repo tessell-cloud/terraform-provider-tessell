@@ -94,6 +94,11 @@ func DataSourceDBService() *schema.Resource {
 				Description: "This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.",
 				Computed:    true,
 			},
+			"enable_perf_insights": {
+				Type:        schema.TypeBool,
+				Description: "This field specifies whether to enable performance insights for the DB Service.",
+				Computed:    true,
+			},
 			"edition": {
 				Type:        schema.TypeString,
 				Description: "Edition of the software image that has been used to create the DB Service (e.g. COMMUNITY/ENTERPRISE etc)",
@@ -1171,6 +1176,11 @@ func DataSourceDBService() *schema.Resource {
 													Computed:    true,
 												},
 												"monitoring_deployment_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"status": {
 													Type:        schema.TypeString,
 													Description: "",
 													Computed:    true,

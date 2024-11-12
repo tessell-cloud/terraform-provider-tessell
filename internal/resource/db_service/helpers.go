@@ -64,6 +64,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("enable_perf_insights", tessellServiceDTO.EnablePerfInsights); err != nil {
+		return err
+	}
+
 	if err := d.Set("edition", tessellServiceDTO.Edition); err != nil {
 		return err
 	}
@@ -1222,6 +1226,7 @@ func parsePerfInsightsConfig(perfInsightsConfig *model.PerfInsightsConfig) inter
 	parsedPerfInsightsConfig := make(map[string]interface{})
 	parsedPerfInsightsConfig["perf_insights_enabled"] = perfInsightsConfig.PerfInsightsEnabled
 	parsedPerfInsightsConfig["monitoring_deployment_id"] = perfInsightsConfig.MonitoringDeploymentId
+	parsedPerfInsightsConfig["status"] = perfInsightsConfig.Status
 
 	return parsedPerfInsightsConfig
 }
@@ -2332,27 +2337,30 @@ func formSnapshotConfigurationPayload(snapshotConfigurationPayloadRaw interface{
 	snapshotConfigurationPayloadData := snapshotConfigurationPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	snapshotConfigurationPayloadFormed := model.SnapshotConfigurationPayload{
-		SnapshotWindow:     formSnapshotConfigurationPayloadSnapshotWindow(snapshotConfigurationPayloadData["snapshot_window"]),
-		SLA:                helper.GetStringPointer(snapshotConfigurationPayloadData["sla"]),
-		Schedule:           formScheduleInfo(snapshotConfigurationPayloadData["schedule"]),
-		FullBackupSchedule: formFullBackupSchedule(snapshotConfigurationPayloadData["full_backup_schedule"]),
+		SnapshotWindow:         formSnapshotConfigurationPayloadAllOfSnapshotWindow(snapshotConfigurationPayloadData["snapshot_window"]),
+		SLA:                    helper.GetStringPointer(snapshotConfigurationPayloadData["sla"]),
+		Schedule:               formScheduleInfo(snapshotConfigurationPayloadData["schedule"]),
+		FullBackupSchedule:     formFullBackupSchedule(snapshotConfigurationPayloadData["full_backup_schedule"]),
+		RetentionDays:          helper.GetIntPointer(snapshotConfigurationPayloadData["retention_days"]),
+		IncludeTransactionLogs: helper.GetBoolPointer(snapshotConfigurationPayloadData["include_transaction_logs"]),
+		SnapshotStartTime:      formTimeFormat(snapshotConfigurationPayloadData["snapshot_start_time"]),
 	}
 
 	return &snapshotConfigurationPayloadFormed
 }
 
-func formSnapshotConfigurationPayloadSnapshotWindow(snapshotConfigurationPayloadSnapshotWindowRaw interface{}) *model.SnapshotConfigurationPayloadSnapshotWindow {
-	if snapshotConfigurationPayloadSnapshotWindowRaw == nil || len(snapshotConfigurationPayloadSnapshotWindowRaw.([]interface{})) == 0 {
+func formSnapshotConfigurationPayloadAllOfSnapshotWindow(snapshotConfigurationPayloadAllOfSnapshotWindowRaw interface{}) *model.SnapshotConfigurationPayloadAllOfSnapshotWindow {
+	if snapshotConfigurationPayloadAllOfSnapshotWindowRaw == nil || len(snapshotConfigurationPayloadAllOfSnapshotWindowRaw.([]interface{})) == 0 {
 		return nil
 	}
 
-	snapshotConfigurationPayloadSnapshotWindowData := snapshotConfigurationPayloadSnapshotWindowRaw.([]interface{})[0].(map[string]interface{})
+	snapshotConfigurationPayloadAllOfSnapshotWindowData := snapshotConfigurationPayloadAllOfSnapshotWindowRaw.([]interface{})[0].(map[string]interface{})
 
-	snapshotConfigurationPayloadSnapshotWindowFormed := model.SnapshotConfigurationPayloadSnapshotWindow{
-		Time: helper.GetStringPointer(snapshotConfigurationPayloadSnapshotWindowData["time"]),
+	snapshotConfigurationPayloadAllOfSnapshotWindowFormed := model.SnapshotConfigurationPayloadAllOfSnapshotWindow{
+		Time: helper.GetStringPointer(snapshotConfigurationPayloadAllOfSnapshotWindowData["time"]),
 	}
 
-	return &snapshotConfigurationPayloadSnapshotWindowFormed
+	return &snapshotConfigurationPayloadAllOfSnapshotWindowFormed
 }
 
 func formScheduleInfo(scheduleInfoRaw interface{}) *model.ScheduleInfo {
@@ -2470,7 +2478,7 @@ func formMonthWiseDates(monthWiseDatesRaw interface{}) *model.MonthWiseDates {
 
 	monthWiseDatesFormed := model.MonthWiseDates{
 		Month: helper.GetStringPointer(monthWiseDatesData["month"]),
-		Dates: helper.InterfaceToInt32Slice(monthWiseDatesData["dates"]),
+		Dates: helper.InterfaceToIntSlice(monthWiseDatesData["dates"]),
 	}
 
 	return &monthWiseDatesFormed

@@ -64,13 +64,14 @@ type DatabaseParameterProfileDriverInfo struct {
 }
 
 type APIErrorOps struct {
-	Code       *string                   `json:"code,omitempty"`    // Status code for the error response
-	Message    *string                   `json:"message,omitempty"` // Error message for API response
-	Resolution *string                   `json:"resolution,omitempty"`
-	Timestamp  *string                   `json:"timestamp,omitempty"`
-	ContextId  *string                   `json:"contextId,omitempty"` // ContextId of API request
-	SessionId  *string                   `json:"sessionId,omitempty"` // SessionId of API request
-	UserView   *TessellExceptionUserView `json:"userView,omitempty"`
+	Code             *string                   `json:"code,omitempty"`    // Status code for the error response
+	Message          *string                   `json:"message,omitempty"` // Error message for API response
+	Resolution       *string                   `json:"resolution,omitempty"`
+	Timestamp        *string                   `json:"timestamp,omitempty"`
+	ContextId        *string                   `json:"contextId,omitempty"`        // ContextId of API request
+	SessionId        *string                   `json:"sessionId,omitempty"`        // SessionId of API request
+	TessellErrorCode *string                   `json:"tessellErrorCode,omitempty"` // Unique error code specific to Tessell
+	UserView         *TessellExceptionUserView `json:"userView,omitempty"`
 }
 
 type TessellExceptionUserView struct {

@@ -8,12 +8,7 @@ description: |-
 
 # tessell_db_service_start_stop_schedule (Data Source)
 
-## Example Usage
-```
-data_source "tessell_db_service_start_stop_schedule" "example" {
-	id = "705c6520-3901-84bf-ahgsaghgx"
-}
-```
+
 
 
 
