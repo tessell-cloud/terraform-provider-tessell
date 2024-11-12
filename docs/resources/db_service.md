@@ -41,6 +41,10 @@ resource "tessell_db_service" "example" {
 
   infrastructure {
     cloud              = "aws"
+    region             = "ap-south-1"
+    availability_zone  = "ap-south-1a"
+    vpc                = "default-vpc-1234"
+    compute_type       = "t2.small"
     additional_storage = 0
     encryption_key     = "finance-db-encyption-key-with-salt"
   }
@@ -142,6 +146,10 @@ resource "tessell_db_service" "example" {
 
   infrastructure {
     cloud              = "aws"
+    region             = "ap-south-1"
+    availability_zone  = "ap-south-1a"
+    vpc                = "default-vpc-1234"
+    compute_type       = "m5.large"
     additional_storage = 0
     encryption_key     = "finance-db-encyption-key-with-salt"
   }
@@ -258,6 +266,7 @@ resource "tessell_db_service" "example" {
 - `description` (String) DB Service's description
 - `edition` (String)
 - `enable_deletion_protection` (Boolean) Specify whether to enable deletion protection for the DB Service
+- `enable_perf_insights` (Boolean) This field specifies whether to enable performance insights for the DB Service.
 - `enable_stop_protection` (Boolean) This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
 - `expected_status` (String) If provided, invoke the DB Service start/stop API
 - `integrations_config` (Block List, Max: 1) Integrations to be enabled for the DB Service (see [below for nested schema](#nestedblock--integrations_config))
@@ -268,7 +277,7 @@ resource "tessell_db_service" "example" {
 - `snapshot_configuration` (Block List, Max: 1) DB Service's snapshot retention configurations. If not specified, the default recommended retention configurations would be applied. (see [below for nested schema](#nestedblock--snapshot_configuration))
 - `snapshot_id` (String) Tessell service snapshot Id, using which the clone is to be created
 - `tags` (Block List) The tags to be associated with the DB Service (see [below for nested schema](#nestedblock--tags))
-- `timeout` (Number) Timeout for terraform polling, when block_until_complete is true (default: true). (In seconds)
+- `timeout` (Number) Timeout for terraform polling, when block_until_complete is true (default true). (In seconds)
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
@@ -279,7 +288,6 @@ resource "tessell_db_service" "example" {
 - `date_created` (String) Timestamp when the DB Service was created at
 - `deletion_schedule` (List of Object) Details of the deletion schedule on a DB Service (see [below for nested schema](#nestedatt--deletion_schedule))
 - `id` (String) Tessell generated UUID for the DB Service. This is the unique identifier for the DB Service.
-- `instances` (List of Object) Instances associated with this DB Service (see [below for nested schema](#nestedatt--instances))
 - `license_type` (String) DB Service License Type
 - `logged_in_user_role` (String) Access role for the currently logged in user
 - `num_of_instances` (Number) Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.
@@ -420,6 +428,7 @@ Optional:
 - `enable_encryption` (Boolean) Specify whether to enable perf insights for the DB instances
 - `encryption_key` (String) The encryption key name which is used to encrypt the data at rest
 - `iops` (Number) IOPS requested for the DB Service
+- `private_subnet` (String) The private subnet to be used for provisioning the compute resource
 - `region` (String) The region in which the DB Service provisioned
 - `throughput` (Number) throughput requested for the DB Service
 - `timezone` (String) The timezone detail
@@ -430,7 +439,6 @@ Read-Only:
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedatt--infrastructure--cloud_availability))
 - `multi_disk` (Boolean) Specify whether the DB service uses multiple data disks
 - `storage` (Number) The storage (in bytes) that has been provisioned for the DB Service
-
 - `storage_provider` (String)
 
 <a id="nestedblock--infrastructure--aws_infra_config"></a>
@@ -728,6 +736,7 @@ Optional:
 
 Required:
 
+- `compute_type` (String) The compute used for creation of the Tessell Service Instance
 - `instance_group_name` (String) Name of the instance group
 - `name` (String) Name of the DB Service Instance
 - `region` (String) DB Service Instance's cloud region
@@ -739,12 +748,11 @@ Optional:
 - `availability_zone` (String) DB Service Instance's cloud availability zone
 - `aws_infra_config` (Block List) (see [below for nested schema](#nestedblock--instances--aws_infra_config))
 - `compute_id` (String) The associated compute identifier
-- `compute_type` (String) The compute used for creation of the Tessell Service Instance
 - `data_volume_iops` (Number)
 - `enable_perf_insights` (Boolean)
-- `private_subnet` (String) The private subnet used for creation of the DB Service Instance
 - `encryption_key` (String) The encryption key name which is used to encrypt the data at rest
 - `engine_configuration` (Block List) This field details the DB Service Instance engine configuration details like - access mode (see [below for nested schema](#nestedblock--instances--engine_configuration))
+- `private_subnet` (String) The private subnet used for creation of the DB Service Instance
 - `storage_config` (Block List) (see [below for nested schema](#nestedblock--instances--storage_config))
 - `sync_mode` (String)
 - `throughput` (Number) Throughput requested for this DB Service instance
@@ -949,6 +957,7 @@ Read-Only:
 
 - `monitoring_deployment_id` (String)
 - `perf_insights_enabled` (Boolean)
+- `status` (String)
 
 
 
@@ -1016,8 +1025,11 @@ Optional:
 Optional:
 
 - `full_backup_schedule` (Block List, Max: 1) The schedule at which full backups would be triggered (see [below for nested schema](#nestedblock--snapshot_configuration--full_backup_schedule))
+- `include_transaction_logs` (Boolean) Flag to decide whether the transaction logs would be retained to support PITR (Point in time recoverability)
+- `retention_days` (Number) Number of days for which the snapshot of DB Service would be retained
 - `schedule` (Block List, Max: 1) Schedule Information (see [below for nested schema](#nestedblock--snapshot_configuration--schedule))
 - `sla` (String) The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service
+- `snapshot_start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--snapshot_configuration--snapshot_start_time))
 - `snapshot_window` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--snapshot_window))
 
 <a id="nestedblock--snapshot_configuration--full_backup_schedule"></a>
@@ -1116,6 +1128,15 @@ Required:
 - `month` (String) Name of a month
 
 
+
+
+<a id="nestedblock--snapshot_configuration--snapshot_start_time"></a>
+### Nested Schema for `snapshot_configuration.snapshot_start_time`
+
+Optional:
+
+- `hour` (Number)
+- `minute` (Number)
 
 
 <a id="nestedblock--snapshot_configuration--snapshot_window"></a>

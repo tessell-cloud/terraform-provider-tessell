@@ -58,6 +58,7 @@ Read-Only:
 - `description` (String)
 - `edition` (String)
 - `enable_deletion_protection` (Boolean)
+- `enable_perf_insights` (Boolean)
 - `enable_stop_protection` (Boolean)
 - `engine_configuration` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration))
 - `engine_type` (String)
@@ -498,6 +499,7 @@ Read-Only:
 
 - `monitoring_deployment_id` (String)
 - `perf_insights_enabled` (Boolean)
+- `status` (String)
 
 
 

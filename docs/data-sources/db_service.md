@@ -39,6 +39,7 @@ data_source "tessell_db_service" "example" {
 - `description` (String) User specified description for the DB Service
 - `edition` (String) Edition of the software image that has been used to create the DB Service (e.g. COMMUNITY/ENTERPRISE etc)
 - `enable_deletion_protection` (Boolean) This field specifies whether to enable deletion protection for the DB Service. If this is enabled, the deletion for the DB Service would be disallowed until this setting is disabled.
+- `enable_perf_insights` (Boolean) This field specifies whether to enable performance insights for the DB Service.
 - `enable_stop_protection` (Boolean) This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
 - `engine_configuration` (List of Object) This field details the DB Service engine configuration details like - parameter profile, or options profile (if applicable) are used to configure the DB Service. (see [below for nested schema](#nestedatt--engine_configuration))
 - `engine_type` (String)
@@ -478,6 +479,7 @@ Read-Only:
 
 - `monitoring_deployment_id` (String)
 - `perf_insights_enabled` (Boolean)
+- `status` (String)
 
 
 

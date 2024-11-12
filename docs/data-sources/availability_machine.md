@@ -38,13 +38,14 @@ data_source "tessell_availability_machine" "example" {
 - `engine_type` (String) Database Engine Type
 - `logged_in_user_role` (String) The role of the logged in user for accessing this Availability Machine
 - `owner` (String) User details representing the owner for the Availability Machine
-- `rpo_sla` (List of Object) This is a definition for Tessell Availability Machine's sla and schedule details (see [below for nested schema](#nestedatt--rpo_sla))
 - `service_name` (String) Name of the DB Service that is associated with the Availability Machine
 - `shared_with` (List of Object) Tessell Entity ACL Sharing Info (see [below for nested schema](#nestedatt--shared_with))
+- `snapshot_configuration` (List of Object) This is a definition for Tessell Data Management Machine's Availability details (see [below for nested schema](#nestedatt--snapshot_configuration))
 - `storage_config` (List of Object) The storage details to be provisioned. (see [below for nested schema](#nestedatt--storage_config))
 - `subscription` (String) Name of the subscription under which the associated DB Service is hosted
 - `tenant` (String) ID of the tenant under which this Availability Machine is effective
 - `tessell_service_id` (String) ID of the DB Service that is associated with the Availability Machine
+- `topology` (List of Object) The availability location details: cloudAccount to region (see [below for nested schema](#nestedatt--topology))
 - `tsm` (Boolean) Specify whether the associated DB Service is created using TSM compute type
 - `user_id` (String) User details representing the owner for the Availability Machine
 
@@ -254,125 +255,6 @@ Read-Only:
 
 
 
-<a id="nestedatt--rpo_sla"></a>
-### Nested Schema for `rpo_sla`
-
-Read-Only:
-
-- `availability_machine` (String)
-- `availability_machine_id` (String)
-- `rpo_sla_status` (String)
-- `schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--schedule))
-- `sla` (String)
-- `sla_retention_info` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--sla_retention_info))
-- `topology` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--topology))
-
-<a id="nestedobjatt--rpo_sla--schedule"></a>
-### Nested Schema for `rpo_sla.schedule`
-
-Read-Only:
-
-- `backup_start_time` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--schedule--backup_start_time))
-- `daily_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--schedule--daily_schedule))
-- `monthly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--schedule--monthly_schedule))
-- `weekly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--schedule--weekly_schedule))
-- `yearly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--schedule--yearly_schedule))
-
-<a id="nestedobjatt--rpo_sla--schedule--backup_start_time"></a>
-### Nested Schema for `rpo_sla.schedule.backup_start_time`
-
-Read-Only:
-
-- `hour` (Number)
-- `minute` (Number)
-
-
-<a id="nestedobjatt--rpo_sla--schedule--daily_schedule"></a>
-### Nested Schema for `rpo_sla.schedule.daily_schedule`
-
-Read-Only:
-
-- `backups_per_day` (Number)
-
-
-<a id="nestedobjatt--rpo_sla--schedule--monthly_schedule"></a>
-### Nested Schema for `rpo_sla.schedule.monthly_schedule`
-
-Read-Only:
-
-- `common_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--schedule--monthly_schedule--common_schedule))
-
-<a id="nestedobjatt--rpo_sla--schedule--monthly_schedule--common_schedule"></a>
-### Nested Schema for `rpo_sla.schedule.monthly_schedule.common_schedule`
-
-Read-Only:
-
-- `dates` (List of Number)
-- `last_day_of_month` (Boolean)
-
-
-
-<a id="nestedobjatt--rpo_sla--schedule--weekly_schedule"></a>
-### Nested Schema for `rpo_sla.schedule.weekly_schedule`
-
-Read-Only:
-
-- `days` (List of String)
-
-
-<a id="nestedobjatt--rpo_sla--schedule--yearly_schedule"></a>
-### Nested Schema for `rpo_sla.schedule.yearly_schedule`
-
-Read-Only:
-
-- `common_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--schedule--yearly_schedule--common_schedule))
-- `month_specific_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_sla--schedule--yearly_schedule--month_specific_schedule))
-
-<a id="nestedobjatt--rpo_sla--schedule--yearly_schedule--common_schedule"></a>
-### Nested Schema for `rpo_sla.schedule.yearly_schedule.month_specific_schedule`
-
-Read-Only:
-
-- `dates` (List of Number)
-- `last_day_of_month` (Boolean)
-- `months` (List of String)
-
-
-<a id="nestedobjatt--rpo_sla--schedule--yearly_schedule--month_specific_schedule"></a>
-### Nested Schema for `rpo_sla.schedule.yearly_schedule.month_specific_schedule`
-
-Read-Only:
-
-- `dates` (List of Number)
-- `month` (String)
-
-
-
-
-<a id="nestedobjatt--rpo_sla--sla_retention_info"></a>
-### Nested Schema for `rpo_sla.sla_retention_info`
-
-Read-Only:
-
-- `daily` (Number)
-- `monthly` (Number)
-- `pitr` (Number)
-- `weekly` (Number)
-- `yearly` (Number)
-
-
-<a id="nestedobjatt--rpo_sla--topology"></a>
-### Nested Schema for `rpo_sla.topology`
-
-Read-Only:
-
-- `availability_zones` (List of String)
-- `cloud_type` (String)
-- `region` (String)
-- `type` (String)
-
-
-
 <a id="nestedatt--shared_with"></a>
 ### Nested Schema for `shared_with`
 
@@ -387,6 +269,25 @@ Read-Only:
 
 - `email_id` (String)
 - `role` (String)
+
+
+
+<a id="nestedatt--snapshot_configuration"></a>
+### Nested Schema for `snapshot_configuration`
+
+Read-Only:
+
+- `include_transaction_logs` (Boolean)
+- `retention_days` (Number)
+- `snapshot_start_time` (List of Object) (see [below for nested schema](#nestedobjatt--snapshot_configuration--snapshot_start_time))
+
+<a id="nestedobjatt--snapshot_configuration--snapshot_start_time"></a>
+### Nested Schema for `snapshot_configuration.snapshot_start_time`
+
+Read-Only:
+
+- `hour` (Number)
+- `minute` (Number)
 
 
 
@@ -405,5 +306,17 @@ Read-Only:
 
 - `file_system_id` (String)
 - `svm_id` (String)
+
+
+
+<a id="nestedatt--topology"></a>
+### Nested Schema for `topology`
+
+Read-Only:
+
+- `availability_zones` (List of String)
+- `cloud_type` (String)
+- `region` (String)
+- `type` (String)
 
 

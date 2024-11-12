@@ -33,7 +33,7 @@ resource "tessell_db_snapshot" "example" {
 - `description` (String) Description of the snapshot
 - `name` (String) Name of the snapshot
 - `shared_with` (Block List, Max: 1) Tessell Entity ACL Sharing Summary Info (see [below for nested schema](#nestedblock--shared_with))
-- `timeout` (Number) Timeout for terraform polling, when block_until_complete is true (default: true). (In seconds)
+- `timeout` (Number) If block_until_complete is true, how long it should block for. (In seconds)
 
 ### Read-Only
 
