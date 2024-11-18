@@ -109,7 +109,7 @@ func dataSourceDataflixRead(ctx context.Context, d *schema.ResourceData, meta in
 
 	availabilityMachineId := d.Get("availability_machine_id").(string)
 
-	response, _, err := client.GetDataflixByName(availabilityMachineId)
+	response, _, err := client.GetDataflixByAmId(availabilityMachineId)
 	if err != nil {
 		return diag.FromErr(err)
 	}

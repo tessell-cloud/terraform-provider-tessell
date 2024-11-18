@@ -101,6 +101,11 @@ func DataSourceDBServices() *schema.Resource {
 							Description: "This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.",
 							Computed:    true,
 						},
+						"enable_perf_insights": {
+							Type:        schema.TypeBool,
+							Description: "This field specifies whether to enable performance insights for the DB Service.",
+							Computed:    true,
+						},
 						"edition": {
 							Type:        schema.TypeString,
 							Description: "Edition of the software image that has been used to create the DB Service (e.g. COMMUNITY/ENTERPRISE etc)",
@@ -162,6 +167,16 @@ func DataSourceDBServices() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"clone_type": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"content_type": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
 									"tessell_service_id": {
 										Type:        schema.TypeString,
 										Description: "The DB Service ID using which this DB Service clone is created",
@@ -205,6 +220,92 @@ func DataSourceDBServices() *schema.Resource {
 									"maximum_recoverability": {
 										Type:        schema.TypeBool,
 										Description: "If the service was created using a maximum recoverability from the parent service",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"refresh_info": {
+							Type:        schema.TypeList,
+							Description: "Service refresh details",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"content_type": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"snapshot_name": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"snapshot_time": {
+										Type:        schema.TypeString,
+										Description: "Time at which snapshot is created.",
+										Computed:    true,
+									},
+									"pitr": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"script_info": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"pre_script_info": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"script_id": {
+																Type:        schema.TypeString,
+																Description: "The Tessell Script ID",
+																Computed:    true,
+															},
+															"script_version": {
+																Type:        schema.TypeString,
+																Description: "The Tessell Script version",
+																Computed:    true,
+															},
+														},
+													},
+												},
+												"post_script_info": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"script_id": {
+																Type:        schema.TypeString,
+																Description: "The Tessell Script ID",
+																Computed:    true,
+															},
+															"script_version": {
+																Type:        schema.TypeString,
+																Description: "The Tessell Script version",
+																Computed:    true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"schedule_id": {
+										Type:        schema.TypeString,
+										Description: "If refreshed using schedule then schedule id, else null",
+										Computed:    true,
+									},
+									"last_successful_refresh_time": {
+										Type:        schema.TypeString,
+										Description: "Time at which refresh would be successfully completed.",
 										Computed:    true,
 									},
 								},
@@ -570,6 +671,21 @@ func DataSourceDBServices() *schema.Resource {
 											},
 										},
 									},
+									"enable_compute_sharing": {
+										Type:        schema.TypeBool,
+										Description: "Specify if the computes should be shared across DB Services",
+										Computed:    true,
+									},
+									"iops": {
+										Type:        schema.TypeInt,
+										Description: "IOPS requested for the DB Service",
+										Computed:    true,
+									},
+									"throughput": {
+										Type:        schema.TypeInt,
+										Description: "throughput requested for the DB Service",
+										Computed:    true,
+									},
 									"storage": {
 										Type:        schema.TypeInt,
 										Description: "The storage (in bytes) that has been provisioned for the DB Service",
@@ -577,12 +693,7 @@ func DataSourceDBServices() *schema.Resource {
 									},
 									"additional_storage": {
 										Type:        schema.TypeInt,
-										Description: "Size in GB. This is maintained for backward compatibility and would be deprecated soon.",
-										Computed:    true,
-									},
-									"enable_compute_sharing": {
-										Type:        schema.TypeBool,
-										Description: "Specify if the computes should be shared across DB Services",
+										Description: "Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.",
 										Computed:    true,
 									},
 									"timezone": {
@@ -595,14 +706,9 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "Specify whether the DB service uses multiple data disks",
 										Computed:    true,
 									},
-									"iops": {
-										Type:        schema.TypeInt,
-										Description: "IOPS requested for the DB Service",
-										Computed:    true,
-									},
-									"throughput": {
-										Type:        schema.TypeInt,
-										Description: "throughput requested for the DB Service",
+									"storage_provider": {
+										Type:        schema.TypeString,
+										Description: "",
 										Computed:    true,
 									},
 								},
@@ -657,6 +763,11 @@ func DataSourceDBServices() *schema.Resource {
 												"options_profile": {
 													Type:        schema.TypeString,
 													Description: "The options profile for the database",
+													Computed:    true,
+												},
+												"sid": {
+													Type:        schema.TypeString,
+													Description: "SID for oracle database",
 													Computed:    true,
 												},
 												"character_set": {
@@ -1076,6 +1187,11 @@ func DataSourceDBServices() *schema.Resource {
 																Description: "",
 																Computed:    true,
 															},
+															"status": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
 														},
 													},
 												},
@@ -1085,6 +1201,16 @@ func DataSourceDBServices() *schema.Resource {
 									"vpc": {
 										Type:        schema.TypeString,
 										Description: "The VPC used for creation of the DB Service Instance",
+										Computed:    true,
+									},
+									"public_subnet": {
+										Type:        schema.TypeString,
+										Description: "The public subnet used for creation of the DB Service Instance",
+										Computed:    true,
+									},
+									"private_subnet": {
+										Type:        schema.TypeString,
+										Description: "The private subnet used for creation of the DB Service Instance",
 										Computed:    true,
 									},
 									"encryption_key": {
@@ -1174,6 +1300,82 @@ func DataSourceDBServices() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "Timestamp when the Service Instance was last stopped at",
 										Computed:    true,
+									},
+									"sync_mode": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"engine_configuration": {
+										Type:        schema.TypeList,
+										Description: "This field details the DB Service Instance engine configuration details like - access mode",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"oracle_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"access_mode": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"storage_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"provider": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"fsx_net_app_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"file_system_name": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"svm_name": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"volume_name": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"file_system_id": {
+																Type:        schema.TypeString,
+																Description: "File System Id of the FSx NetApp registered with Tessell",
+																Computed:    true,
+															},
+															"svm_id": {
+																Type:        schema.TypeString,
+																Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+																Computed:    true,
+															},
+														},
+													},
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1608,6 +1810,7 @@ func setDataSourceValues(d *schema.ResourceData, DBServiceList *[]model.TessellS
 				"auto_minor_version_update":     DBService.AutoMinorVersionUpdate,
 				"enable_deletion_protection":    DBService.EnableDeletionProtection,
 				"enable_stop_protection":        DBService.EnableStopProtection,
+				"enable_perf_insights":          DBService.EnablePerfInsights,
 				"edition":                       DBService.Edition,
 				"software_image":                DBService.SoftwareImage,
 				"software_image_version":        DBService.SoftwareImageVersion,
@@ -1620,6 +1823,7 @@ func setDataSourceValues(d *schema.ResourceData, DBServiceList *[]model.TessellS
 				"started_at":                    DBService.StartedAt,
 				"stopped_at":                    DBService.StoppedAt,
 				"cloned_from_info":              []interface{}{parseTessellServiceClonedFromInfo(DBService.ClonedFromInfo)},
+				"refresh_info":                  []interface{}{parseRefreshServiceInfo(DBService.RefreshInfo)},
 				"service_connectivity":          []interface{}{parseTessellServiceConnectivityInfo(DBService.ServiceConnectivity)},
 				"tessell_genie_status":          DBService.TessellGenieStatus,
 				"infrastructure":                []interface{}{parseTessellServiceInfrastructureInfo(DBService.Infrastructure)},

@@ -9,7 +9,7 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func (c *Client) GetDataflixByName(availabilityMachineId string) (*model.TessellAmDataflixDTO, int, error) {
+func (c *Client) GetDataflixByAmId(availabilityMachineId string) (*model.TessellAmDataflixDTO, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/dataflix/%s", c.APIAddress, availabilityMachineId), nil)
 	if err != nil {
 		return nil, 0, err

@@ -64,19 +64,25 @@ type DatabaseParameterProfileDriverInfo struct {
 }
 
 type APIErrorOps struct {
-	ErrorCode        *TessellErrorCode `json:"errorCode,omitempty"`
-	Message          *string           `json:"message,omitempty"` // Error message for API response
-	Details          *APIErrorDetails  `json:"details,omitempty"`
-	ServiceException *APIError         `json:"serviceException,omitempty"`
-	ContextId        *string           `json:"contextId,omitempty"` // ContextId of API request
-	SessionId        *string           `json:"sessionId,omitempty"` // SessionId of API request
+	Code             *string                   `json:"code,omitempty"`    // Status code for the error response
+	Message          *string                   `json:"message,omitempty"` // Error message for API response
+	Resolution       *string                   `json:"resolution,omitempty"`
+	Timestamp        *string                   `json:"timestamp,omitempty"`
+	ContextId        *string                   `json:"contextId,omitempty"`        // ContextId of API request
+	SessionId        *string                   `json:"sessionId,omitempty"`        // SessionId of API request
+	TessellErrorCode *string                   `json:"tessellErrorCode,omitempty"` // Unique error code specific to Tessell
+	UserView         *TessellExceptionUserView `json:"userView,omitempty"`
 }
 
-type TessellErrorCode struct {
-	HttpErrorCode *string `json:"httpErrorCode,omitempty"` // Standard http error code
-	ServiceCode   *string `json:"serviceCode,omitempty"`   // Service error code
-	OpCode        *string `json:"opCode,omitempty"`        // Operation error code
-	Description   *string `json:"description,omitempty"`   // Error code description
+type TessellExceptionUserView struct {
+	Message    *string               `json:"message,omitempty"`    // End-user representation of the message
+	Resolution *string               `json:"resolution,omitempty"` // End-user representation of resolution
+	ErrorCode  *TessellHttpErrorCode `json:"errorCode,omitempty"`
+}
+
+type TessellHttpErrorCode struct {
+	HttpCode *int    `json:"httpCode,omitempty"` // HTTP code
+	Code     *string `json:"code,omitempty"`     // Tessell&#39;s specific code with more context on error
 }
 
 type DatabaseParameterProfileListResponse struct {

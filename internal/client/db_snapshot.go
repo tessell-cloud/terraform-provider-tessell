@@ -85,10 +85,10 @@ func (c *Client) GetDatabaseSnapshots(availabilityMachineId string, name *string
 	}
 	q := req.URL.Query()
 	if !helper.IsNilString(name) {
-		q.Add("name", fmt.Sprintf("%v", *name))
+		q.Add("name", fmt.Sprintf("%v", name))
 	}
 	if !helper.IsNilBool(manual) {
-		q.Add("manual", fmt.Sprintf("%v", *manual))
+		q.Add("manual", fmt.Sprintf("%v", manual))
 	}
 	req.URL.RawQuery = q.Encode()
 

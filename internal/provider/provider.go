@@ -98,7 +98,7 @@ func configure(terraformVersion string, provider *schema.Provider) func(context.
 
 		var diags diag.Diagnostics
 
-		c, err := client.NewClient(&apiAddress, &apiKey, &tenantId)
+		c, err := client.NewClient(&apiAddress, &apiKey, &tenantId, &terraformVersion)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}

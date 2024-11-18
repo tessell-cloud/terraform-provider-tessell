@@ -6,6 +6,8 @@ type TessellServiceContextInfo struct {
 }
 
 type TessellServiceClonedFromInfo struct {
+	CloneType             *string `json:"cloneType,omitempty"`
+	ContentType           *string `json:"contentType,omitempty"`
 	TessellServiceId      *string `json:"tessellServiceId,omitempty"`      // The DB Service ID using which this DB Service clone is created
 	AvailabilityMachineId *string `json:"availabilityMachineId,omitempty"` // The Availability Machine ID using which this DB Service clone is created
 	TessellService        *string `json:"tessellService,omitempty"`        // The DB Service name using which this DB Service clone is created
@@ -28,7 +30,7 @@ type TfTessellServiceInfrastructureInfo struct {
 	ComputeType          *string                    `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
 	AwsInfraConfig       *AwsInfraConfig            `json:"awsInfraConfig,omitempty"`
 	Storage              *int                       `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
-	AdditionalStorage    *int                       `json:"additionalStorage,omitempty"`    // Size in GB. This is maintained for backward compatibility and would be deprecated soon.
+	AdditionalStorage    *int                       `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
 	EnableComputeSharing *bool                      `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
 	Timezone             *string                    `json:"timezone,omitempty"`             // The timezone detail
 	MultiDisk            *bool                      `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
@@ -47,13 +49,17 @@ type AwsCpuOptions struct {
 }
 
 type ProvisionComputePayload struct {
-	Region           *string `json:"region,omitempty"`           // The region in which the compute is to be provisioned
-	AvailabilityZone *string `json:"availabilityZone,omitempty"` // The availability-zone in which the compute is to be provisioned
-	Role             *string `json:"role,omitempty"`
-	VPC              *string `json:"vpc,omitempty"`         // The VPC to be used for provisioning the compute resource
-	ComputeType      *string `json:"computeType,omitempty"` // The compute-type to be used for provisioning the compute resource
-	ComputeId        *string `json:"computeId,omitempty"`   // Specify the compute resource if it has to be shared
-	Timezone         *string `json:"timezone,omitempty"`    // The timezone detail
+	Name              *string               `json:"name,omitempty"`
+	InstanceGroupName *string               `json:"instanceGroupName,omitempty"`
+	Region            *string               `json:"region,omitempty"`           // The region in which the compute is to be provisioned
+	AvailabilityZone  *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the compute is to be provisioned
+	Role              *string               `json:"role,omitempty"`
+	VPC               *string               `json:"vpc,omitempty"`           // The VPC to be used for provisioning the compute resource
+	PrivateSubnet     *string               `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the compute resource
+	ComputeType       *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the compute resource
+	ComputeId         *string               `json:"computeId,omitempty"`     // Specify the compute resource if it has to be shared
+	Timezone          *string               `json:"timezone,omitempty"`      // The timezone detail
+	StorageConfig     *StorageConfigPayload `json:"storageConfig,omitempty"`
 }
 
 type TessellServiceConnectivityInfo struct {
@@ -122,14 +128,58 @@ type TessellServiceMaintenanceWindow struct {
 }
 
 type SnapshotConfigurationPayload struct {
-	SnapshotWindow     *SnapshotConfigurationPayloadSnapshotWindow `json:"snapshotWindow,omitempty"`
-	SLA                *string                                     `json:"sla,omitempty"` // The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service
-	Schedule           *ScheduleInfo                               `json:"schedule,omitempty"`
-	FullBackupSchedule *FullBackupSchedule                         `json:"fullBackupSchedule,omitempty"`
+	SnapshotWindow         *SnapshotConfigurationPayloadAllOfSnapshotWindow `json:"snapshotWindow,omitempty"`
+	SLA                    *string                                          `json:"sla,omitempty"` // The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service
+	Schedule               *ScheduleInfo                                    `json:"schedule,omitempty"`
+	FullBackupSchedule     *FullBackupSchedule                              `json:"fullBackupSchedule,omitempty"`
+	RetentionDays          *int                                             `json:"retentionDays,omitempty"`          // Number of days for which the snapshot of DB Service would be retained
+	IncludeTransactionLogs *bool                                            `json:"includeTransactionLogs,omitempty"` // Flag to decide whether the transaction logs would be retained to support PITR (Point in time recoverability)
+	SnapshotStartTime      *TimeFormat                                      `json:"snapshotStartTime,omitempty"`
 }
 
-type SnapshotConfigurationPayloadSnapshotWindow struct {
+type SnapshotConfigurationPayloadAllOfSnapshotWindow struct {
 	Time *string `json:"time,omitempty"` // Time value in (hh:mm) format. ex. &#39;02:00&#39;. Deprecated, please use backupStartTime in schedule.
+}
+
+type ScheduleInfo struct {
+	BackupStartTime *TimeFormat      `json:"backupStartTime,omitempty"`
+	DailySchedule   *DailySchedule   `json:"dailySchedule,omitempty"`
+	WeeklySchedule  *WeeklySchedule  `json:"weeklySchedule,omitempty"`
+	MonthlySchedule *MonthlySchedule `json:"monthlySchedule,omitempty"`
+	YearlySchedule  *YearlySchedule  `json:"yearlySchedule,omitempty"`
+}
+
+type DailySchedule struct {
+	BackupsPerDay *int `json:"backupsPerDay,omitempty"` // The number of backups to be captured per day.
+}
+
+type WeeklySchedule struct {
+	Days *[]string `json:"days,omitempty"` // Days in a week to retain weekly backups for
+}
+
+type MonthlySchedule struct {
+	CommonSchedule *DatesForEachMonth `json:"commonSchedule,omitempty"`
+}
+
+type DatesForEachMonth struct {
+	Dates          *[]int `json:"dates,omitempty"` // Dates in a month to retain monthly backups
+	LastDayOfMonth *bool  `json:"lastDayOfMonth,omitempty"`
+}
+
+type YearlySchedule struct {
+	CommonSchedule        *CommonYearlySchedule `json:"commonSchedule,omitempty"`
+	MonthSpecificSchedule *[]MonthWiseDates     `json:"monthSpecificSchedule,omitempty"`
+}
+
+type CommonYearlySchedule struct {
+	Dates          *[]int    `json:"dates,omitempty"` // Dates in a month to retain monthly backups
+	LastDayOfMonth *bool     `json:"lastDayOfMonth,omitempty"`
+	Months         *[]string `json:"months,omitempty"`
+}
+
+type MonthWiseDates struct {
+	Month *string `json:"month"` // Name of a month
+	Dates *[]int  `json:"dates"`
 }
 
 type FullBackupSchedule struct {
@@ -152,6 +202,7 @@ type TessellServiceOracleEngineConfig struct {
 	MultiTenant          *bool   `json:"multiTenant,omitempty"`          // Specify whether the DB Service is multi-tenant.
 	ParameterProfileId   *string `json:"parameterProfileId,omitempty"`   // The parameter profile id for the database
 	OptionsProfile       *string `json:"optionsProfile,omitempty"`       // The options profile for the database
+	Sid                  *string `json:"sid,omitempty"`                  // SID for oracle database
 	CharacterSet         *string `json:"characterSet,omitempty"`         // The character-set for the database
 	NationalCharacterSet *string `json:"nationalCharacterSet,omitempty"` // The national-character-set for the database
 	EnableArchiveMode    *bool   `json:"enableArchiveMode,omitempty"`    // To explicitly enable archive mode, when PITR is disabled
@@ -284,6 +335,8 @@ type TessellServiceInstanceDTO struct {
 	ParameterProfile     *ParameterProfile                    `json:"parameterProfile,omitempty"`
 	MonitoringConfig     *MonitoringConfig                    `json:"monitoringConfig,omitempty"`
 	VPC                  *string                              `json:"vpc,omitempty"`                  // The VPC used for creation of the DB Service Instance
+	PublicSubnet         *string                              `json:"publicSubnet,omitempty"`         // The public subnet used for creation of the DB Service Instance
+	PrivateSubnet        *string                              `json:"privateSubnet,omitempty"`        // The private subnet used for creation of the DB Service Instance
 	EncryptionKey        *string                              `json:"encryptionKey,omitempty"`        // The encryption key name which is used to encrypt the data at rest
 	SoftwareImage        *string                              `json:"softwareImage,omitempty"`        // Software Image to be used to create the instance
 	SoftwareImageVersion *string                              `json:"softwareImageVersion,omitempty"` // Software Image Version to be used to create the instance
@@ -292,6 +345,9 @@ type TessellServiceInstanceDTO struct {
 	UpdatesInProgress    *[]TessellResourceUpdateInfo         `json:"updatesInProgress,omitempty"` // The updates that are in progress for this resource
 	LastStartedAt        *string                              `json:"lastStartedAt,omitempty"`     // Timestamp when the service instance was last started at
 	LastStoppedAt        *string                              `json:"lastStoppedAt,omitempty"`     // Timestamp when the Service Instance was last stopped at
+	SyncMode             *string                              `json:"syncMode,omitempty"`
+	EngineConfiguration  *ServiceInstanceEngineInfo           `json:"engineConfiguration,omitempty"`
+	StorageConfig        *InstanceStorageConfig               `json:"storageConfig,omitempty"`
 }
 
 type ParameterProfile struct {
@@ -308,6 +364,7 @@ type MonitoringConfig struct {
 type PerfInsightsConfig struct {
 	PerfInsightsEnabled    *bool   `json:"perfInsightsEnabled,omitempty"`
 	MonitoringDeploymentId *string `json:"monitoringDeploymentId,omitempty"`
+	Status                 *string `json:"status,omitempty"`
 }
 
 type TessellServiceInstanceConnectString struct {
@@ -322,6 +379,27 @@ type TessellResourceUpdateInfo struct {
 	ReferenceId *string                 `json:"referenceId,omitempty"` // The reference-id of the update request
 	SubmittedAt *string                 `json:"submittedAt,omitempty"` // Timestamp when the resource update was requested
 	UpdateInfo  *map[string]interface{} `json:"updateInfo,omitempty"`  // The specific details for a Tessell resource that are being updated
+}
+
+type ServiceInstanceEngineInfo struct {
+	OracleConfig *ServiceInstanceOracleEngineConfig `json:"oracleConfig,omitempty"`
+}
+
+type ServiceInstanceOracleEngineConfig struct {
+	AccessMode *string `json:"accessMode,omitempty"`
+}
+
+type InstanceStorageConfig struct {
+	Provider        *string                  `json:"provider,omitempty"`
+	FsxNetAppConfig *InstanceFsxNetAppConfig `json:"fsxNetAppConfig,omitempty"`
+}
+
+type InstanceFsxNetAppConfig struct {
+	FileSystemName *string `json:"fileSystemName,omitempty"`
+	SvmName        *string `json:"svmName,omitempty"`
+	VolumeName     *string `json:"volumeName,omitempty"`
+	FileSystemId   *string `json:"fileSystemId,omitempty"` // File System Id of the FSx NetApp registered with Tessell
+	SvmId          *string `json:"svmId,omitempty"`        // Storage Virtual Machine Id of the FSx NetApp registered with Tessell
 }
 
 type ServiceUpcomingScheduledActions struct {
@@ -366,6 +444,7 @@ type TerraformTessellServiceDTO struct {
 	AutoMinorVersionUpdate     *bool                               `json:"autoMinorVersionUpdate,omitempty"`     // Specify whether to automatically update minor version for DB Service
 	EnableDeletionProtection   *bool                               `json:"enableDeletionProtection,omitempty"`   // Specify whether to enable deletion protection for the DB Service
 	EnableStopProtection       *bool                               `json:"enableStopProtection,omitempty"`       // This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
+	EnablePerfInsights         *bool                               `json:"enablePerfInsights,omitempty"`         // This field specifies whether to enable performance insights for the DB Service.
 	Owner                      *string                             `json:"owner,omitempty"`                      // DB Service owner email address
 	LoggedInUserRole           *string                             `json:"loggedInUserRole,omitempty"`           // Access role for the currently logged in user
 	DateCreated                *string                             `json:"dateCreated,omitempty"`                // Timestamp when the DB Service was created at
@@ -402,18 +481,23 @@ type AddDBServiceInstancesPayload struct {
 }
 
 type AddDBServiceInstancePayload struct {
-	Name               *string `json:"name"` // Name of the instance
-	Role               *string `json:"role"`
-	AvailabilityZone   *string `json:"availabilityZone,omitempty"`   // The availability-zone in which the instance is to be provisioned
-	ComputeId          *string `json:"computeId,omitempty"`          // ID of the Compute Resource
-	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // ID of the Parameter Profile to be used for instance
-	Iops               *int    `json:"iops,omitempty"`
-	Throughput         *int    `json:"throughput,omitempty"`
+	Name                *string                    `json:"name"` // Name of the instance
+	Role                *string                    `json:"role"`
+	AvailabilityZone    *string                    `json:"availabilityZone,omitempty"`   // The availability-zone in which the instance is to be provisioned
+	PrivateSubnet       *string                    `json:"privateSubnet,omitempty"`      // The private subnet in which the instance is to be provisioned
+	ComputeId           *string                    `json:"computeId,omitempty"`          // ID of the Compute Resource
+	ParameterProfileId  *string                    `json:"parameterProfileId,omitempty"` // ID of the Parameter Profile to be used for instance
+	Iops                *int                       `json:"iops,omitempty"`               // IOPS required for the DB Service Instance
+	Throughput          *int                       `json:"throughput,omitempty"`         // Throughput in MB/s required for the DB Service Instance
+	SyncMode            *string                    `json:"syncMode,omitempty"`
+	EngineConfiguration *ServiceInstanceEngineInfo `json:"engineConfiguration,omitempty"`
+	StorageConfig       *StorageConfigPayload      `json:"storageConfig,omitempty"`
 }
 
 type CloneTessellServicePayload struct {
-	SnapshotId               *string                                   `json:"snapshotId,omitempty"`  // Tessell service snapshot Id, using which the clone is to be created
-	PITR                     *string                                   `json:"pitr,omitempty"`        // PITR Timestamp, using which the clone is to be created
+	SnapshotId               *string                                   `json:"snapshotId,omitempty"` // Tessell service snapshot Id, using which the clone is to be created
+	PITR                     *string                                   `json:"pitr,omitempty"`       // PITR Timestamp, using which the clone is to be created
+	RefreshSchedule          *CreateUpdateRefreshSchedulePayload       `json:"refreshSchedule,omitempty"`
 	Name                     *string                                   `json:"name"`                  // DB Service name
 	Description              *string                                   `json:"description,omitempty"` // DB Service&#39;s description
 	Subscription             *string                                   `json:"subscription"`          // Tessell Subscription in which the DB Service is to be created
@@ -427,8 +511,8 @@ type CloneTessellServicePayload struct {
 	EnableDeletionProtection *bool                                     `json:"enableDeletionProtection,omitempty"` // Specify whether to enable deletion protection for the DB Service
 	EnableStopProtection     *bool                                     `json:"enableStopProtection,omitempty"`     // Specify whether to enable stop protection for the DB Service
 	EnablePerfInsights       *bool                                     `json:"enablePerfInsights,omitempty"`       // Specify whether to enable perf insights for the DB Service
-	Infrastructure           *TessellServiceInfrastructurePayload      `json:"infrastructure"`
-	Instances                *[]AddDBServiceInstancePayloadV2          `json:"instances"` // The instances (nodes) for this DB Service
+	Infrastructure           *ProvisionInfraPayload                    `json:"infrastructure,omitempty"`
+	Instances                *[]AddDBServiceInstancePayloadV2          `json:"instances,omitempty"` // The instances (nodes) for this DB Service
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
@@ -440,16 +524,47 @@ type CloneTessellServicePayload struct {
 	Tags                     *[]TessellTag                             `json:"tags,omitempty"` // The tags to be associated with the DB Service
 }
 
-type TessellServiceInfrastructurePayload struct {
+type CreateUpdateRefreshSchedulePayload struct {
+	RefreshMode  *string              `json:"refreshMode,omitempty"`
+	ContentType  *string              `json:"contentType,omitempty"`
+	ScriptInfo   *PrePostScriptInfo   `json:"scriptInfo,omitempty"`
+	ScheduleInfo *RefreshScheduleInfo `json:"scheduleInfo,omitempty"`
+}
+
+type PrePostScriptInfo struct {
+	PreScriptInfo  *[]ScriptInfo `json:"preScriptInfo,omitempty"`
+	PostScriptInfo *[]ScriptInfo `json:"postScriptInfo,omitempty"`
+}
+
+type RefreshScheduleInfo struct {
+	Recurring *RefreshScheduleRecurrenceInfo `json:"recurring,omitempty"`
+}
+
+type RefreshScheduleRecurrenceInfo struct {
+	TriggerTime    *TimeFormat                                  `json:"triggerTime"`
+	DailySchedule  *RefreshScheduleRecurrenceInfoDailySchedule  `json:"dailySchedule,omitempty"`
+	WeeklySchedule *RefreshScheduleRecurrenceInfoWeeklySchedule `json:"weeklySchedule,omitempty"`
+}
+
+type RefreshScheduleRecurrenceInfoDailySchedule struct {
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
+type RefreshScheduleRecurrenceInfoWeeklySchedule struct {
+	WeekDays *[]string `json:"weekDays,omitempty"`
+}
+
+type ProvisionInfraPayload struct {
 	Cloud                *string                    `json:"cloud"`                      // The cloud-type in which the DB Service is to be provisioned (ex. aws, azure)
-	Region               *string                    `json:"region"`                     // The region in which the DB Service is to be provisioned
+	Region               *string                    `json:"region,omitempty"`           // The region in which the DB Service is to be provisioned
 	AvailabilityZone     *string                    `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is to be provisioned
-	VPC                  *string                    `json:"vpc"`                        // The VPC to be used for provisioning the DB Service
+	VPC                  *string                    `json:"vpc,omitempty"`              // The VPC for compute to be used for provisioning the DB Service
+	PrivateSubnet        *string                    `json:"privateSubnet,omitempty"`    // The private subnet for compute to be used for provisioning the DB Service
 	EnableEncryption     *bool                      `json:"enableEncryption,omitempty"` // Specify whether to enable the encryption at rest for the DB Service.
 	EncryptionKey        *string                    `json:"encryptionKey,omitempty"`    // The encryption key name which is to be used to encrypt the data at rest. This is honoured only if &#39;enableEncryption&#39; is true. If this is not specified, Tessell will use a default out-of-the-box encryption key.
-	ComputeType          *string                    `json:"computeType"`                // The compute-type to be used for provisioning the DB Service
+	ComputeType          *string                    `json:"computeType,omitempty"`      // The compute-type to be used for provisioning the DB Service
 	AwsInfraConfig       *AwsInfraConfig            `json:"awsInfraConfig,omitempty"`
-	AdditionalStorage    *int                       `json:"additionalStorage,omitempty"`    // The additional storage (in bytes) to be provisioned for the DB Service. This is in addition to what is specified in the compute type.
+	AdditionalStorage    *int                       `json:"additionalStorage,omitempty"`    // The additional storage (in bytes) to be provisioned for the DB Service for cloud native storages. \\nThis is in addition to what is specified in the compute type.\\n
 	EnableComputeSharing *bool                      `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
 	ComputeNamePrefix    *string                    `json:"computeNamePrefix,omitempty"`    // If not specified, it will be autogenerated
 	Timezone             *string                    `json:"timezone,omitempty"`             // The timezone detail
@@ -459,18 +574,20 @@ type TessellServiceInfrastructurePayload struct {
 }
 
 type AddDBServiceInstancePayloadV2 struct {
-	InstanceGroupName  *string         `json:"instanceGroupName"`
-	Name               *string         `json:"name"`                  // Name of the instance to be created, should be unique for a dbservice
-	Region             *string         `json:"region"`                // The region in which the instance is to be provisioned
-	VPC                *string         `json:"vpc,omitempty"`         // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
-	ComputeType        *string         `json:"computeType,omitempty"` // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
-	ComputeId          *string         `json:"computeId,omitempty"`
-	EnablePerfInsights *bool           `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
-	AwsInfraConfig     *AwsInfraConfig `json:"awsInfraConfig,omitempty"`
-	Role               *string         `json:"role"`
-	AvailabilityZone   *string         `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
-	Iops               *int            `json:"iops,omitempty"`
-	Throughput         *int            `json:"throughput,omitempty"`
+	InstanceGroupName  *string               `json:"instanceGroupName"`
+	Name               *string               `json:"name"`                    // Name of the instance to be created, should be unique for a dbservice
+	Region             *string               `json:"region"`                  // The region in which the instance is to be provisioned
+	VPC                *string               `json:"vpc,omitempty"`           // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
+	PrivateSubnet      *string               `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the instance.
+	ComputeType        *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
+	ComputeId          *string               `json:"computeId,omitempty"`
+	EnablePerfInsights *bool                 `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
+	AwsInfraConfig     *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`
+	Role               *string               `json:"role"`
+	AvailabilityZone   *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
+	Iops               *int                  `json:"iops,omitempty"`
+	Throughput         *int                  `json:"throughput,omitempty"`
+	StorageConfig      *StorageConfigPayload `json:"storageConfig,omitempty"`
 }
 
 type TessellServiceConnectivityInfoPayload struct {
@@ -494,7 +611,8 @@ type TessellServiceEngineConfigurationPayload struct {
 }
 
 type OracleEngineConfigPayload struct {
-	MultiTenant          *bool   `json:"multiTenant,omitempty"`       // Specify whether the DB Service is multi-tenant.
+	MultiTenant          *bool   `json:"multiTenant,omitempty"` // Specify whether the DB Service is multi-tenant.
+	Sid                  *string `json:"sid,omitempty"`
 	ParameterProfileId   *string `json:"parameterProfileId"`          // The parameter profile id for the database
 	OptionsProfile       *string `json:"optionsProfile"`              // The options profile for the database
 	CharacterSet         *string `json:"characterSet"`                // The character-set for the database
@@ -632,6 +750,7 @@ type TessellServiceDTO struct {
 	AutoMinorVersionUpdate     *bool                             `json:"autoMinorVersionUpdate,omitempty"`     // This field specifies whether to automatically update minor version for the DB Service
 	EnableDeletionProtection   *bool                             `json:"enableDeletionProtection,omitempty"`   // This field specifies whether to enable deletion protection for the DB Service. If this is enabled, the deletion for the DB Service would be disallowed until this setting is disabled.
 	EnableStopProtection       *bool                             `json:"enableStopProtection,omitempty"`       // This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
+	EnablePerfInsights         *bool                             `json:"enablePerfInsights,omitempty"`         // This field specifies whether to enable performance insights for the DB Service.
 	Edition                    *string                           `json:"edition,omitempty"`                    // Edition of the software image that has been used to create the DB Service (e.g. COMMUNITY/ENTERPRISE etc)
 	SoftwareImage              *string                           `json:"softwareImage,omitempty"`              // The software image that has been used to create the DB Service
 	SoftwareImageVersion       *string                           `json:"softwareImageVersion,omitempty"`       // The software image version that is used to create the DB Service
@@ -644,6 +763,7 @@ type TessellServiceDTO struct {
 	StartedAt                  *string                           `json:"startedAt,omitempty"`                  // This field specifies the timestamp when the DB Service was last started at
 	StoppedAt                  *string                           `json:"stoppedAt,omitempty"`                  // This field specifies the timestamp when the DB Service was last stopped at
 	ClonedFromInfo             *TessellServiceClonedFromInfo     `json:"clonedFromInfo,omitempty"`
+	RefreshInfo                *RefreshServiceInfo               `json:"refreshInfo,omitempty"`
 	ServiceConnectivity        *TessellServiceConnectivityInfo   `json:"serviceConnectivity,omitempty"`
 	TessellGenieStatus         *string                           `json:"tessellGenieStatus,omitempty"`
 	Infrastructure             *TessellServiceInfrastructureInfo `json:"infrastructure,omitempty"`
@@ -660,6 +780,16 @@ type TessellServiceDTO struct {
 	UpcomingScheduledActions   *ServiceUpcomingScheduledActions  `json:"upcomingScheduledActions,omitempty"`
 }
 
+type RefreshServiceInfo struct {
+	ContentType               *string            `json:"contentType,omitempty"`
+	SnapshotName              *string            `json:"snapshotName,omitempty"`
+	SnapshotTime              *string            `json:"snapshotTime,omitempty"` // Time at which snapshot is created.
+	PITR                      *string            `json:"pitr,omitempty"`
+	ScriptInfo                *PrePostScriptInfo `json:"scriptInfo,omitempty"`
+	ScheduleId                *string            `json:"scheduleId,omitempty"`                // If refreshed using schedule then schedule id, else null
+	LastSuccessfulRefreshTime *string            `json:"lastSuccessfulRefreshTime,omitempty"` // Time at which refresh would be successfully completed.
+}
+
 type TessellServiceInfrastructureInfo struct {
 	Cloud                *string            `json:"cloud,omitempty"`            // The cloud-type in which the DB Service is provisioned (ex. aws, azure)
 	Region               *string            `json:"region,omitempty"`           // The region in which the DB Service provisioned
@@ -670,13 +800,14 @@ type TessellServiceInfrastructureInfo struct {
 	EncryptionKey        *string            `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
 	ComputeType          *string            `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
 	AwsInfraConfig       *AwsInfraConfig    `json:"awsInfraConfig,omitempty"`
-	Storage              *int               `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
-	AdditionalStorage    *int               `json:"additionalStorage,omitempty"`    // Size in GB. This is maintained for backward compatibility and would be deprecated soon.
 	EnableComputeSharing *bool              `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
-	Timezone             *string            `json:"timezone,omitempty"`             // The timezone detail
-	MultiDisk            *bool              `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
 	Iops                 *int               `json:"iops,omitempty"`                 // IOPS requested for the DB Service
 	Throughput           *int               `json:"throughput,omitempty"`           // throughput requested for the DB Service
+	Storage              *int               `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
+	AdditionalStorage    *int               `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
+	Timezone             *string            `json:"timezone,omitempty"`             // The timezone detail
+	MultiDisk            *bool              `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
+	StorageProvider      *string            `json:"storageProvider,omitempty"`
 }
 
 type TessellServiceIntegrationsInfo struct {
@@ -702,7 +833,7 @@ type TessellServicesResponse struct {
 	Response *[]TessellServiceDTO `json:"response,omitempty"`
 }
 
-type ProvisionTessellServicePayload struct {
+type ProvisionServicePayload struct {
 	Name                     *string                                   `json:"name"`                  // DB Service name
 	Description              *string                                   `json:"description,omitempty"` // DB Service&#39;s description
 	Subscription             *string                                   `json:"subscription"`          // Tessell Subscription in which the DB Service is to be created
@@ -716,8 +847,8 @@ type ProvisionTessellServicePayload struct {
 	EnableDeletionProtection *bool                                     `json:"enableDeletionProtection,omitempty"` // Specify whether to enable deletion protection for the DB Service
 	EnableStopProtection     *bool                                     `json:"enableStopProtection,omitempty"`     // Specify whether to enable stop protection for the DB Service
 	EnablePerfInsights       *bool                                     `json:"enablePerfInsights,omitempty"`       // Specify whether to enable perf insights for the DB Service
-	Infrastructure           *TessellServiceInfrastructurePayload      `json:"infrastructure,omitempty"`
-	Instances                *[]AddDBServiceInstancePayloadV2          `json:"instances"` // The instances (nodes) for this DB Service
+	Infrastructure           *ProvisionInfraPayload                    `json:"infrastructure,omitempty"`
+	Instances                *[]AddDBServiceInstancePayloadV2          `json:"instances,omitempty"` // The instances (nodes) for this DB Service
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`

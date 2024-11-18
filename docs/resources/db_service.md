@@ -41,6 +41,10 @@ resource "tessell_db_service" "example" {
 
   infrastructure {
     cloud              = "aws"
+    region             = "ap-south-1"
+    availability_zone  = "ap-south-1a"
+    vpc                = "default-vpc-1234"
+    compute_type       = "t2.small"
     additional_storage = 0
     encryption_key     = "finance-db-encyption-key-with-salt"
   }
@@ -140,8 +144,12 @@ resource "tessell_db_service" "example" {
   auto_minor_version_update  = true
   enable_deletion_protection = false
 
-   infrastructure {
+  infrastructure {
     cloud              = "aws"
+    region             = "ap-south-1"
+    availability_zone  = "ap-south-1a"
+    vpc                = "default-vpc-1234"
+    compute_type       = "m5.large"
     additional_storage = 0
     encryption_key     = "finance-db-encyption-key-with-salt"
   }
@@ -246,7 +254,7 @@ resource "tessell_db_service" "example" {
 - `software_image_version` (String) Software Image Version to be used to create the DB Service
 - `subscription` (String) Tessell Subscription in which the DB Service is to be created
 - `topology` (String)
-- `instances` (Block List, Min: 1 ) (Required only if using new config style i.e. for instance Life Cycle Management) This field contains DB Service's instances info like, where the service is hosted, region; what compute shape, or network is is configured with (see [below for nested schema](#nestedblock--instances))
+- `instances` (Block List) Instances associated with this DB Service (see [below for nested schema](#nestedblock--instances))
 
 
 ### Optional
@@ -254,39 +262,40 @@ resource "tessell_db_service" "example" {
 - `auto_minor_version_update` (Boolean) Specify whether to automatically update minor version for DB Service
 - `block_until_complete` (Boolean) For any operation on this resource, block the flow until the action has completed successfully
 - `databases` (Block List) Databases that are part of this DB Service (see [below for nested schema](#nestedblock--databases))
-- `deletion_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--deletion_schedule))
+- `deletion_config` (Block List, Max: 1) If the DB Service is to be deleted, this config would be honoured if no preference is provided during deleting the service (see [below for nested schema](#nestedblock--deletion_config))
 - `description` (String) DB Service's description
 - `edition` (String)
 - `enable_deletion_protection` (Boolean) Specify whether to enable deletion protection for the DB Service
+- `enable_perf_insights` (Boolean) This field specifies whether to enable performance insights for the DB Service.
 - `enable_stop_protection` (Boolean) This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
-- `expected_status` (String) Field used to start/stop a DB service. Ignored during the initial resource creation. Set to "STOPPED" to stop a DB service. Set to "READY" to start a stopped DB service. Defaults to "READY".
+- `expected_status` (String) If provided, invoke the DB Service start/stop API
 - `integrations_config` (Block List, Max: 1) Integrations to be enabled for the DB Service (see [below for nested schema](#nestedblock--integrations_config))
 - `maintenance_window` (Block List, Max: 1) This field details the DB Service maintenance related details. (see [below for nested schema](#nestedblock--maintenance_window))
 - `parent_availability_machine_id` (String) Id of the parent AvailabilityMachine, required when creating a clone
 - `pitr` (String) PITR Timestamp, using which the clone is to be created
 - `shared_with` (Block List, Max: 1) Tessell Entity ACL Sharing Info (see [below for nested schema](#nestedblock--shared_with))
-- `snapshot_configuration` (Block List, Max: 1) DB Service's backup configurations. If not specified, the default recommended backup configurations would be applied. (see [below for nested schema](#nestedblock--snapshot_configuration))
+- `snapshot_configuration` (Block List, Max: 1) DB Service's snapshot retention configurations. If not specified, the default recommended retention configurations would be applied. (see [below for nested schema](#nestedblock--snapshot_configuration))
 - `snapshot_id` (String) Tessell service snapshot Id, using which the clone is to be created
 - `tags` (Block List) The tags to be associated with the DB Service (see [below for nested schema](#nestedblock--tags))
-- `timeout` (Number) If block_until_complete is true, how long it should block for. (In seconds)
+- `timeout` (Number) Timeout for terraform polling, when block_until_complete is true (default true). (In seconds)
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
 
 - `availability_machine_id` (String) Associated Availability Machine Id
 - `cloned_from_info` (List of Object) If the DB Service is created as a clone from some other DB Service, this section describes the parent DB Service and cloning details (see [below for nested schema](#nestedatt--cloned_from_info))
-- `context_info` (List of Object) (see [below for nested schema](#nestedatt--context_info))
+- `context_info` (List of Object) Provide more context of DB Service state (see [below for nested schema](#nestedatt--context_info))
 - `date_created` (String) Timestamp when the DB Service was created at
-- `deletion_config` (List of Object) If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service (see [below for nested schema](#nestedatt--deletion_config))
+- `deletion_schedule` (List of Object) Details of the deletion schedule on a DB Service (see [below for nested schema](#nestedatt--deletion_schedule))
 - `id` (String) Tessell generated UUID for the DB Service. This is the unique identifier for the DB Service.
-- `instances` (List of Object) Instances associated with this DB Service (see [below for nested schema](#nestedatt--instances))
 - `license_type` (String) DB Service License Type
 - `logged_in_user_role` (String) Access role for the currently logged in user
 - `num_of_instances` (Number) Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.
 - `owner` (String) DB Service owner email address
+- `refresh_info` (List of Object) Service refresh details (see [below for nested schema](#nestedatt--refresh_info))
 - `software_image_version_family` (String) Software Image Family DB Service belongs to
 - `started_at` (String) Timestamp when the DB Service was last started at
-- `status` (String)
+- `status` (String) The current status of the DB Service
 - `stopped_at` (String) Timestamp when the DB Service was last stopped at
 - `tenant_id` (String) The tenant-id for the DB Service
 - `tessell_genie_status` (String) DB Service's Genie status
@@ -308,6 +317,7 @@ Required:
 Optional:
 
 - `apache_kafka_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--apache_kafka_config))
+- `milvus_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--milvus_config))
 - `mongodb_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--mongodb_config))
 - `mysql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--mysql_config))
 - `oracle_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--oracle_config))
@@ -324,13 +334,21 @@ Optional:
 - `parameter_profile_id` (String) The parameter profile id for the database
 
 
+<a id="nestedblock--engine_configuration--milvus_config"></a>
+### Nested Schema for `engine_configuration.milvus_config`
+
+Optional:
+
+- `parameter_profile_id` (String) The parameter profile ID for the database
+
+
 <a id="nestedblock--engine_configuration--mongodb_config"></a>
 ### Nested Schema for `engine_configuration.mongodb_config`
 
 Optional:
 
 - `cluster_name` (String) The MongoDB Cluster name
-- `parameter_profile_id` (String) The parameter profile id for the database
+- `parameter_profile_id` (String) The parameter profile ID for the database
 
 
 <a id="nestedblock--engine_configuration--mysql_config"></a>
@@ -338,7 +356,8 @@ Optional:
 
 Optional:
 
-- `parameter_profile_id` (String) The parameter profile id for the database
+- `ad_domain_id` (String) Active Directory Domain ID
+- `parameter_profile_id` (String) The parameter profile ID for the database
 
 
 <a id="nestedblock--engine_configuration--oracle_config"></a>
@@ -347,10 +366,12 @@ Optional:
 Optional:
 
 - `character_set` (String) The character-set for the database
+- `enable_archive_mode` (Boolean) To explicitly enable archive mode, when PITR is disabled
 - `multi_tenant` (Boolean) Specify whether the DB Service is multi-tenant.
 - `national_character_set` (String) The national-character-set for the database
 - `options_profile` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile id for the database
+- `sid` (String) SID for oracle database
 
 
 <a id="nestedblock--engine_configuration--post_script_info"></a>
@@ -358,7 +379,7 @@ Optional:
 
 Optional:
 
-- `script_id` (String) The Tessell Script Id
+- `script_id` (String) The Tessell Script ID
 - `script_version` (String) The Tessell Script version
 
 
@@ -367,7 +388,9 @@ Optional:
 
 Optional:
 
-- `parameter_profile_id` (String) The parameter profile id for the database
+- `ad_domain_id` (String) Active Directory Domain ID
+- `parameter_profile_id` (String) The parameter profile ID for the database
+- `proxy_port` (Number)
 
 
 <a id="nestedblock--engine_configuration--pre_script_info"></a>
@@ -375,7 +398,7 @@ Optional:
 
 Optional:
 
-- `script_id` (String) The Tessell Script Id
+- `script_id` (String) The Tessell Script ID
 - `script_version` (String) The Tessell Script version
 
 
@@ -384,8 +407,8 @@ Optional:
 
 Optional:
 
-- `ad_domain_id` (String) Active Directory Domain id
-- `parameter_profile_id` (String) The parameter profile id for the database
+- `ad_domain_id` (String) Active Directory Domain ID
+- `parameter_profile_id` (String) The parameter profile ID for the database
 
 
 
@@ -394,33 +417,366 @@ Optional:
 
 Optional:
 
-- `additional_storage` (Number) Size in bytes. This should be in multiple of 1,073,741,824 bytes (=1GB). This is maintained for backward compatibility and would be deprecated soon.
+- `additional_storage` (Number) Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
+- `availability_zone` (String) The availability-zone in which the DB Service is provisioned
+- `aws_infra_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--infrastructure--aws_infra_config))
 - `cloud` (String) The cloud-type in which the DB Service is provisioned (ex. aws, azure)
+- `compute_name_prefix` (String) If not specified, it will be autogenerated
+- `compute_type` (String) The compute-type to be used for provisioning the DB Service
+- `computes` (Block List) (see [below for nested schema](#nestedblock--infrastructure--computes))
+- `enable_compute_sharing` (Boolean) Specify if the computes should be shared across DB Services
 - `enable_encryption` (Boolean) Specify whether to enable perf insights for the DB instances
 - `encryption_key` (String) The encryption key name which is used to encrypt the data at rest
+- `iops` (Number) IOPS requested for the DB Service
+- `private_subnet` (String) The private subnet to be used for provisioning the compute resource
+- `region` (String) The region in which the DB Service provisioned
+- `throughput` (Number) throughput requested for the DB Service
+- `timezone` (String) The timezone detail
+- `vpc` (String) The VPC to be used for provisioning the DB Service
 
 Read-Only:
 
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedatt--infrastructure--cloud_availability))
+- `multi_disk` (Boolean) Specify whether the DB service uses multiple data disks
 - `storage` (Number) The storage (in bytes) that has been provisioned for the DB Service
+- `storage_provider` (String)
 
-<a id="nestedblock--instances"></a>
-### Nested Schema for `instances`
-Requried:
-- `instance_group_name` (String) instance group name.
-- `name` (String) Name of the instance to be created, should be unique for a dbservice
-- `region` (String) The region in which the instance is to be provisioned
-- `role` (String) Role of the service it can be 'primary', 'failover_replica', 'dr' or 'read_only_replica'
+<a id="nestedblock--infrastructure--aws_infra_config"></a>
+### Nested Schema for `infrastructure.aws_infra_config`
 
 Optional:
 
-- `vpc` (String) The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
-- `compute_type` (String) The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
-- `compute_id` (String) compute id
-- `enable_perf_insights` (Boolean) Specify whether to enable perf insights for the DB instances
-- `availability_zone` (String) The availability-zone in which the instance is to be provisioned
-- `data_volume_iops` (Number) iops
-- `throughput` (Number) Required throughput
+- `aws_cpu_options` (Block List, Max: 1) (see [below for nested schema](#nestedblock--infrastructure--aws_infra_config--aws_cpu_options))
+
+<a id="nestedblock--infrastructure--aws_infra_config--aws_cpu_options"></a>
+### Nested Schema for `infrastructure.aws_infra_config.aws_cpu_options`
+
+Optional:
+
+- `vcpus` (Number) Number of vcpus for aws cpu options
+
+
+
+<a id="nestedblock--infrastructure--computes"></a>
+### Nested Schema for `infrastructure.computes`
+
+Optional:
+
+- `availability_zone` (String) The availability-zone in which the compute is to be provisioned
+- `compute_id` (String) Specify the compute resource if it has to be shared
+- `compute_type` (String) The compute-type to be used for provisioning the compute resource
+- `instance_group_name` (String)
+- `name` (String)
+- `private_subnet` (String) The private subnet to be used for provisioning the compute resource
+- `region` (String) The region in which the compute is to be provisioned
+- `role` (String)
+- `storage_config` (Block List, Max: 1) The storage details to be provisioned. (see [below for nested schema](#nestedblock--infrastructure--computes--storage_config))
+- `timezone` (String) The timezone detail
+- `vpc` (String) The VPC to be used for provisioning the compute resource
+
+<a id="nestedblock--infrastructure--computes--storage_config"></a>
+### Nested Schema for `infrastructure.computes.storage_config`
+
+Required:
+
+- `provider` (String)
+
+Optional:
+
+- `fsx_net_app_config` (Block List, Max: 1) The FSx NetApp details to be provisioned (see [below for nested schema](#nestedblock--infrastructure--computes--storage_config--fsx_net_app_config))
+
+<a id="nestedblock--infrastructure--computes--storage_config--fsx_net_app_config"></a>
+### Nested Schema for `infrastructure.computes.storage_config.fsx_net_app_config`
+
+Required:
+
+- `file_system_id` (String) File System Id of the FSx NetApp registered with Tessell
+- `svm_id` (String) Storage Virtual Machine Id of the FSx NetApp registered with Tessell
+
+
+
+
+<a id="nestedatt--infrastructure--cloud_availability"></a>
+### Nested Schema for `infrastructure.cloud_availability`
+
+Read-Only:
+
+- `cloud` (String)
+- `regions` (List of Object) (see [below for nested schema](#nestedobjatt--infrastructure--cloud_availability--regions))
+
+<a id="nestedobjatt--infrastructure--cloud_availability--regions"></a>
+### Nested Schema for `infrastructure.cloud_availability.regions`
+
+Read-Only:
+
+- `availability_zones` (List of String)
+- `region` (String)
+
+
+
+
+<a id="nestedblock--service_connectivity"></a>
+### Nested Schema for `service_connectivity`
+
+Optional:
+
+- `allowed_ip_addresses` (List of String) The list of allowed ipv4 addresses that can connect to the DB Service
+- `dns_prefix` (String) DNS Prefix associated with the DB Service
+- `enable_public_access` (Boolean) Specify whether to enable public access to the DB Service, default false
+- `enable_ssl` (Boolean) Specify whether to enable SSL to the DB Service, default false
+- `service_port` (Number) The connection port for the DB Service
+
+Read-Only:
+
+- `ca_cert_id` (String) The CA certificate ID associated with the DB Service
+- `computes_connectivity` (List of Object) The Genie endpoint to connect to your DB service. (see [below for nested schema](#nestedatt--service_connectivity--computes_connectivity))
+- `connect_strings` (List of Object) The list of connect strings for the DB Service (see [below for nested schema](#nestedatt--service_connectivity--connect_strings))
+- `private_link` (List of Object) The interface endpoint or Gateway Load Balancer endpoint to connect to your DB service. (see [below for nested schema](#nestedatt--service_connectivity--private_link))
+- `update_in_progress_info` (List of Object) DB Service connectivity update-in-progress details (see [below for nested schema](#nestedatt--service_connectivity--update_in_progress_info))
+
+<a id="nestedatt--service_connectivity--computes_connectivity"></a>
+### Nested Schema for `service_connectivity.computes_connectivity`
+
+Read-Only:
+
+- `compute_resource_id` (String)
+- `port_access_config` (List of Object) (see [below for nested schema](#nestedobjatt--service_connectivity--computes_connectivity--port_access_config))
+
+<a id="nestedobjatt--service_connectivity--computes_connectivity--port_access_config"></a>
+### Nested Schema for `service_connectivity.computes_connectivity.port_access_config`
+
+Read-Only:
+
+- `allowed_ip_addresses` (List of String)
+- `enable_public_access` (Boolean)
+- `port` (Number)
+
+
+
+<a id="nestedatt--service_connectivity--connect_strings"></a>
+### Nested Schema for `service_connectivity.connect_strings`
+
+Read-Only:
+
+- `connect_descriptor` (String)
+- `endpoint` (String)
+- `master_user` (String)
+- `service_port` (Number)
+- `type` (String)
+- `usage_type` (String)
+
+
+<a id="nestedatt--service_connectivity--private_link"></a>
+### Nested Schema for `service_connectivity.private_link`
+
+Read-Only:
+
+- `client_azure_subscription_ids` (List of String)
+- `endpoint_service_name` (String)
+- `private_link_service_alias` (String)
+- `service_principals` (List of String)
+- `status` (String)
+
+
+<a id="nestedatt--service_connectivity--update_in_progress_info"></a>
+### Nested Schema for `service_connectivity.update_in_progress_info`
+
+Read-Only:
+
+- `allowed_ip_addresses` (List of String)
+- `computes_connectivity` (List of Object) (see [below for nested schema](#nestedobjatt--service_connectivity--update_in_progress_info--computes_connectivity))
+- `dns_prefix` (String)
+- `enable_public_access` (Boolean)
+- `private_link` (List of Object) (see [below for nested schema](#nestedobjatt--service_connectivity--update_in_progress_info--private_link))
+
+<a id="nestedobjatt--service_connectivity--update_in_progress_info--computes_connectivity"></a>
+### Nested Schema for `service_connectivity.update_in_progress_info.computes_connectivity`
+
+Read-Only:
+
+- `compute_resource_id` (String)
+- `port_access_config` (List of Object) (see [below for nested schema](#nestedobjatt--service_connectivity--update_in_progress_info--computes_connectivity--port_access_config))
+
+<a id="nestedobjatt--service_connectivity--update_in_progress_info--computes_connectivity--port_access_config"></a>
+### Nested Schema for `service_connectivity.update_in_progress_info.computes_connectivity.port_access_config`
+
+Read-Only:
+
+- `allowed_ip_addresses` (List of String)
+- `enable_public_access` (Boolean)
+- `port` (Number)
+
+
+
+<a id="nestedobjatt--service_connectivity--update_in_progress_info--private_link"></a>
+### Nested Schema for `service_connectivity.update_in_progress_info.private_link`
+
+Read-Only:
+
+- `client_azure_subscription_ids` (List of String)
+- `service_principals` (List of String)
+
+
+
+
+<a id="nestedblock--databases"></a>
+### Nested Schema for `databases`
+
+Optional:
+
+- `database_configuration` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration))
+- `database_name` (String) Database name
+- `description` (String) Database description
+- `source_database_id` (String) Required while creating a clone. It specifies the Id of the source database from which the clone is being created.
+- `tessell_created` (Boolean) Database created from Tessell platform
+
+Read-Only:
+
+- `cloned_from_info` (List of Object) If a database is created as a clone from some other DB Service's database, this section describes the original database details (see [below for nested schema](#nestedatt--databases--cloned_from_info))
+- `connect_string` (List of Object) (see [below for nested schema](#nestedatt--databases--connect_string))
+- `date_created` (String) Timestamp when the entity was created
+- `engine_type` (String) Database Engine Type
+- `id` (String) Tessell generated UUID for the database
+- `status` (String) Database status
+- `tessell_service_id` (String) Associated DB Service ID
+
+<a id="nestedblock--databases--database_configuration"></a>
+### Nested Schema for `databases.database_configuration`
+
+Optional:
+
+- `milvus_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--milvus_config))
+- `mongodb_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--mongodb_config))
+- `mysql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--mysql_config))
+- `oracle_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--oracle_config))
+- `postgresql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--postgresql_config))
+- `sql_server_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--sql_server_config))
+
+<a id="nestedblock--databases--database_configuration--milvus_config"></a>
+### Nested Schema for `databases.database_configuration.milvus_config`
+
+Optional:
+
+- `parameter_profile_id` (String) The parameter profile ID for the database
+
+
+<a id="nestedblock--databases--database_configuration--mongodb_config"></a>
+### Nested Schema for `databases.database_configuration.mongodb_config`
+
+Optional:
+
+- `parameter_profile_id` (String) The parameter profile ID for the database
+
+
+<a id="nestedblock--databases--database_configuration--mysql_config"></a>
+### Nested Schema for `databases.database_configuration.mysql_config`
+
+Optional:
+
+- `parameter_profile_id` (String) The parameter profile ID for the database
+
+
+<a id="nestedblock--databases--database_configuration--oracle_config"></a>
+### Nested Schema for `databases.database_configuration.oracle_config`
+
+Optional:
+
+- `options_profile` (String) The options profile for the database
+- `parameter_profile_id` (String) The parameter profile id for the database
+- `username` (String) Username for the oracle database
+
+
+<a id="nestedblock--databases--database_configuration--postgresql_config"></a>
+### Nested Schema for `databases.database_configuration.postgresql_config`
+
+Optional:
+
+- `parameter_profile_id` (String) The parameter profile ID for the database
+
+
+<a id="nestedblock--databases--database_configuration--sql_server_config"></a>
+### Nested Schema for `databases.database_configuration.sql_server_config`
+
+Optional:
+
+- `parameter_profile_id` (String) The parameter profile ID for the database
+
+
+
+<a id="nestedatt--databases--cloned_from_info"></a>
+### Nested Schema for `databases.cloned_from_info`
+
+Read-Only:
+
+- `database_id` (String)
+
+
+<a id="nestedatt--databases--connect_string"></a>
+### Nested Schema for `databases.connect_string`
+
+Read-Only:
+
+- `connect_descriptor` (String)
+- `endpoint` (String)
+- `master_user` (String)
+- `service_port` (String)
+
+
+
+<a id="nestedblock--deletion_config"></a>
+### Nested Schema for `deletion_config`
+
+Optional:
+
+- `retain_availability_machine` (Boolean) If specified as true, the associated Availability Machine (snapshots, sanitized-snapshots, logs) would be retained
+
+
+<a id="nestedblock--instances"></a>
+### Nested Schema for `instances`
+
+Required:
+
+- `compute_type` (String) The compute used for creation of the Tessell Service Instance
+- `instance_group_name` (String) Name of the instance group
+- `name` (String) Name of the DB Service Instance
+- `region` (String) DB Service Instance's cloud region
+- `role` (String) DB Service instance role
+- `vpc` (String) The VPC used for creation of the DB Service Instance
+
+Optional:
+
+- `availability_zone` (String) DB Service Instance's cloud availability zone
+- `aws_infra_config` (Block List) (see [below for nested schema](#nestedblock--instances--aws_infra_config))
+- `compute_id` (String) The associated compute identifier
+- `data_volume_iops` (Number)
+- `enable_perf_insights` (Boolean)
+- `encryption_key` (String) The encryption key name which is used to encrypt the data at rest
+- `engine_configuration` (Block List) This field details the DB Service Instance engine configuration details like - access mode (see [below for nested schema](#nestedblock--instances--engine_configuration))
+- `private_subnet` (String) The private subnet used for creation of the DB Service Instance
+- `storage_config` (Block List) (see [below for nested schema](#nestedblock--instances--storage_config))
+- `sync_mode` (String)
+- `throughput` (Number) Throughput requested for this DB Service instance
+- `type` (String) DB Service instance type
+
+Read-Only:
+
+- `cloud` (String) DB Service Instance's cloud type
+- `compute_name` (String) The associated compute name
+- `connect_string` (List of Object) (see [below for nested schema](#nestedatt--instances--connect_string))
+- `date_created` (String) Timestamp when the entity was created
+- `id` (String) Tessell generated UUID for the DB Service Instance
+- `instance_group_id` (String) The instance groupd Id
+- `last_started_at` (String) Timestamp when the service instance was last started at
+- `last_stopped_at` (String) Timestamp when the Service Instance was last stopped at
+- `monitoring_config` (List of Object) (see [below for nested schema](#nestedatt--instances--monitoring_config))
+- `parameter_profile` (List of Object) (see [below for nested schema](#nestedatt--instances--parameter_profile))
+- `public_subnet` (String) The public subnet used for creation of the DB Service Instance
+- `software_image` (String) Software Image to be used to create the instance
+- `software_image_version` (String) Software Image Version to be used to create the instance
+- `status` (String) DB Service instance status
+- `storage` (Number) The storage (in bytes) that has been provisioned for the DB Service instance.
+- `tessell_service_id` (String) DB Service Instance's associated DB Service id
+- `updates_in_progress` (List of Object) The updates that are in progress for this resource (see [below for nested schema](#nestedatt--instances--updates_in_progress))
 
 ### Notes
 1. instance names should be unique for a service
@@ -522,187 +878,109 @@ After
        compute_type = "tesl_2h_a_p"
      }
 ```
-<a id="nestedatt--infrastructure--cloud_availability"></a>
-### Nested Schema for `infrastructure.cloud_availability`
 
-Read-Only:
-
-- `cloud` (String)
-- `regions` (List of Object) (see [below for nested schema](#nestedobjatt--infrastructure--cloud_availability--regions))
-
-<a id="nestedobjatt--infrastructure--cloud_availability--regions"></a>
-### Nested Schema for `infrastructure.cloud_availability.regions`
-
-Read-Only:
-
-- `availability_zones` (List of String)
-- `region` (String)
-
-
-
-
-<a id="nestedblock--service_connectivity"></a>
-### Nested Schema for `service_connectivity`
+<a id="nestedblock--instances--aws_infra_config"></a>
+### Nested Schema for `instances.aws_infra_config`
 
 Optional:
 
-- `allowed_ip_addresses` (List of String) The list of allowed ipv4 addresses that can connect to the DB Service
-- `dns_prefix` (String)
-- `enable_public_access` (Boolean) Specify whether to enable public access to the DB Service, default false
-- `enable_ssl` (Boolean)
-- `service_port` (Number) The connection port for the DB Service
+- `aws_cpu_options` (Block List) (see [below for nested schema](#nestedblock--instances--aws_infra_config--aws_cpu_options))
 
-Read-Only:
+<a id="nestedblock--instances--aws_infra_config--aws_cpu_options"></a>
+### Nested Schema for `instances.aws_infra_config.aws_cpu_options`
 
-- `ca_cert_id` (String)
-- `connect_strings` (List of Object) The list of connect strings for the DB Service (see [below for nested schema](#nestedatt--service_connectivity--connect_strings))
-- `private_link` (List of Object) The interface endpoint or Gateway Load Balancer endpoint to connect to your DB service. (see [below for nested schema](#nestedatt--service_connectivity--private_link))
-- `update_in_progress_info` (List of Object) DB Service connectivity update-in-progress details (see [below for nested schema](#nestedatt--service_connectivity--update_in_progress_info))
+Optional:
 
-<a id="nestedatt--service_connectivity--connect_strings"></a>
-### Nested Schema for `service_connectivity.connect_strings`
+- `vcpus` (Number) Number of vcpus for aws cpu options
+
+
+
+<a id="nestedblock--instances--engine_configuration"></a>
+### Nested Schema for `instances.engine_configuration`
+
+Optional:
+
+- `oracle_config` (Block List) (see [below for nested schema](#nestedblock--instances--engine_configuration--oracle_config))
+
+<a id="nestedblock--instances--engine_configuration--oracle_config"></a>
+### Nested Schema for `instances.engine_configuration.oracle_config`
+
+Optional:
+
+- `access_mode` (String)
+
+
+
+<a id="nestedblock--instances--storage_config"></a>
+### Nested Schema for `instances.storage_config`
+
+Optional:
+
+- `fsx_net_app_config` (Block List) (see [below for nested schema](#nestedblock--instances--storage_config--fsx_net_app_config))
+- `provider` (String)
+
+<a id="nestedblock--instances--storage_config--fsx_net_app_config"></a>
+### Nested Schema for `instances.storage_config.fsx_net_app_config`
+
+Optional:
+
+- `file_system_id` (String) File System Id of the FSx NetApp registered with Tessell
+- `file_system_name` (String)
+- `svm_id` (String) Storage Virtual Machine Id of the FSx NetApp registered with Tessell
+- `svm_name` (String)
+- `volume_name` (String)
+
+
+
+<a id="nestedatt--instances--connect_string"></a>
+### Nested Schema for `instances.connect_string`
 
 Read-Only:
 
 - `connect_descriptor` (String)
 - `endpoint` (String)
 - `master_user` (String)
-- `service_port` (Number)
-- `type` (String)
-- `usage_type` (String)
+- `service_port` (String)
 
 
-<a id="nestedatt--service_connectivity--private_link"></a>
-### Nested Schema for `service_connectivity.private_link`
+<a id="nestedatt--instances--monitoring_config"></a>
+### Nested Schema for `instances.monitoring_config`
 
 Read-Only:
 
-- `client_azure_subscription_ids` (List of String)
-- `endpoint_service_name` (String)
-- `private_link_service_alias` (String)
-- `service_principals` (List of String)
+- `perf_insights` (List of Object) (see [below for nested schema](#nestedobjatt--instances--monitoring_config--perf_insights))
+
+<a id="nestedobjatt--instances--monitoring_config--perf_insights"></a>
+### Nested Schema for `instances.monitoring_config.perf_insights`
+
+Read-Only:
+
+- `monitoring_deployment_id` (String)
+- `perf_insights_enabled` (Boolean)
 - `status` (String)
 
 
-<a id="nestedatt--service_connectivity--update_in_progress_info"></a>
-### Nested Schema for `service_connectivity.update_in_progress_info`
+
+<a id="nestedatt--instances--parameter_profile"></a>
+### Nested Schema for `instances.parameter_profile`
 
 Read-Only:
 
-- `allowed_ip_addresses` (List of String)
-- `dns_prefix` (String)
-- `enable_public_access` (Boolean)
-- `private_link` (List of Object) (see [below for nested schema](#nestedobjatt--service_connectivity--update_in_progress_info--private_link))
-
-<a id="nestedobjatt--service_connectivity--update_in_progress_info--private_link"></a>
-### Nested Schema for `service_connectivity.update_in_progress_info.private_link`
-
-Read-Only:
-
-- `client_azure_subscription_ids` (List of String)
-- `service_principals` (List of String)
+- `id` (String)
+- `name` (String)
+- `status` (String)
+- `version` (String)
 
 
-
-
-<a id="nestedblock--databases"></a>
-### Nested Schema for `databases`
-
-Optional:
-
-- `database_configuration` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration))
-- `database_name` (String) Database name
-- `description` (String) Database description
-- `source_database_id` (String) Required while creating a clone. It specifies the Id of the source database from which the clone is being created.
+<a id="nestedatt--instances--updates_in_progress"></a>
+### Nested Schema for `instances.updates_in_progress`
 
 Read-Only:
 
-- `cloned_from_info` (List of Object) If a database is created as a clone from some other DB Service's database, this section describes the original database details (see [below for nested schema](#nestedatt--databases--cloned_from_info))
-- `date_created` (String) Timestamp when the entity was created
-- `engine_type` (String) Database Engine Type
-- `id` (String) The ID of this resource.
-- `status` (String) Database status
-- `tessell_service_id` (String) Associated DB Service Id
-
-<a id="nestedblock--databases--database_configuration"></a>
-### Nested Schema for `databases.database_configuration`
-
-Optional:
-
-- `mongodb_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--mongodb_config))
-- `mysql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--mysql_config))
-- `oracle_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--oracle_config))
-- `postgresql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--postgresql_config))
-- `sql_server_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--sql_server_config))
-
-<a id="nestedblock--databases--database_configuration--mongodb_config"></a>
-### Nested Schema for `databases.database_configuration.mongodb_config`
-
-Optional:
-
-- `parameter_profile_id` (String) The parameter profile id for the database
-
-
-<a id="nestedblock--databases--database_configuration--mysql_config"></a>
-### Nested Schema for `databases.database_configuration.mysql_config`
-
-Optional:
-
-- `parameter_profile_id` (String) The parameter profile id for the database
-
-
-<a id="nestedblock--databases--database_configuration--oracle_config"></a>
-### Nested Schema for `databases.database_configuration.oracle_config`
-
-Optional:
-
-- `options_profile` (String) The options profile for the database
-- `parameter_profile_id` (String) The parameter profile id for the database
-
-
-<a id="nestedblock--databases--database_configuration--postgresql_config"></a>
-### Nested Schema for `databases.database_configuration.postgresql_config`
-
-Optional:
-
-- `parameter_profile_id` (String) The parameter profile id for the database
-
-
-<a id="nestedblock--databases--database_configuration--sql_server_config"></a>
-### Nested Schema for `databases.database_configuration.sql_server_config`
-
-Optional:
-
-- `parameter_profile_id` (String) The parameter profile id for the database
-
-
-
-<a id="nestedatt--databases--cloned_from_info"></a>
-### Nested Schema for `databases.cloned_from_info`
-
-Read-Only:
-
-- `database_id` (String)
-
-
-
-<a id="nestedblock--deletion_schedule"></a>
-### Nested Schema for `deletion_schedule`
-
-Required:
-
-- `delete_at` (String) DB Service deletion Time
-
-Read-Only:
-
-- `deletion_config` (List of Object) If the service is to be deleted, this config would be honoured if no preference is provided during deleting the service (see [below for nested schema](#nestedatt--deletion_schedule--deletion_config))
-
-<a id="nestedatt--deletion_schedule--deletion_config"></a>
-### Nested Schema for `deletion_schedule.deletion_config`
-
-Read-Only:
-
-- `retain_availability_machine` (Boolean)
+- `reference_id` (String)
+- `submitted_at` (String)
+- `update_info` (Map of String)
+- `update_type` (String)
 
 
 
@@ -720,7 +998,7 @@ Optional:
 Required:
 
 - `day` (String)
-- `duration` (Number)
+- `duration` (Number) The duration during which the maintenance window will be allowed to trigger
 - `time` (String) Time value in (hh:mm) format. ex. '02:00'
 
 
@@ -746,17 +1024,127 @@ Optional:
 
 Optional:
 
-- `auto_snapshot` (Boolean) Specify whether to capture automated snapshots for the DB Service, default true.
+- `full_backup_schedule` (Block List, Max: 1) The schedule at which full backups would be triggered (see [below for nested schema](#nestedblock--snapshot_configuration--full_backup_schedule))
+- `include_transaction_logs` (Boolean) Flag to decide whether the transaction logs would be retained to support PITR (Point in time recoverability)
+- `retention_days` (Number) Number of days for which the snapshot of DB Service would be retained
+- `schedule` (Block List, Max: 1) Schedule Information (see [below for nested schema](#nestedblock--snapshot_configuration--schedule))
 - `sla` (String) The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service
+- `snapshot_start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--snapshot_configuration--snapshot_start_time))
 - `snapshot_window` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--snapshot_window))
+
+<a id="nestedblock--snapshot_configuration--full_backup_schedule"></a>
+### Nested Schema for `snapshot_configuration.full_backup_schedule`
+
+Optional:
+
+- `weekly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--full_backup_schedule--weekly_schedule))
+
+<a id="nestedblock--snapshot_configuration--full_backup_schedule--weekly_schedule"></a>
+### Nested Schema for `snapshot_configuration.full_backup_schedule.weekly_schedule`
+
+Optional:
+
+- `days` (List of String) Days in a week to retain weekly backups for
+
+
+
+<a id="nestedblock--snapshot_configuration--schedule"></a>
+### Nested Schema for `snapshot_configuration.schedule`
+
+Optional:
+
+- `backup_start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--snapshot_configuration--schedule--backup_start_time))
+- `daily_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--schedule--daily_schedule))
+- `monthly_schedule` (Block List, Max: 1) Definition for taking month specific schedule. (see [below for nested schema](#nestedblock--snapshot_configuration--schedule--monthly_schedule))
+- `weekly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--schedule--weekly_schedule))
+- `yearly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--schedule--yearly_schedule))
+
+<a id="nestedblock--snapshot_configuration--schedule--backup_start_time"></a>
+### Nested Schema for `snapshot_configuration.schedule.backup_start_time`
+
+Optional:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
+<a id="nestedblock--snapshot_configuration--schedule--daily_schedule"></a>
+### Nested Schema for `snapshot_configuration.schedule.daily_schedule`
+
+Optional:
+
+- `backups_per_day` (Number) The number of backups to be captured per day.
+
+
+<a id="nestedblock--snapshot_configuration--schedule--monthly_schedule"></a>
+### Nested Schema for `snapshot_configuration.schedule.monthly_schedule`
+
+Optional:
+
+- `common_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--schedule--monthly_schedule--common_schedule))
+
+<a id="nestedblock--snapshot_configuration--schedule--monthly_schedule--common_schedule"></a>
+### Nested Schema for `snapshot_configuration.schedule.monthly_schedule.common_schedule`
+
+Optional:
+
+- `dates` (List of Number) Dates in a month to retain monthly backups
+- `last_day_of_month` (Boolean)
+
+
+
+<a id="nestedblock--snapshot_configuration--schedule--weekly_schedule"></a>
+### Nested Schema for `snapshot_configuration.schedule.weekly_schedule`
+
+Optional:
+
+- `days` (List of String) Days in a week to retain weekly backups for
+
+
+<a id="nestedblock--snapshot_configuration--schedule--yearly_schedule"></a>
+### Nested Schema for `snapshot_configuration.schedule.yearly_schedule`
+
+Optional:
+
+- `common_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--schedule--yearly_schedule--common_schedule))
+- `month_specific_schedule` (Block List) (see [below for nested schema](#nestedblock--snapshot_configuration--schedule--yearly_schedule--month_specific_schedule))
+
+<a id="nestedblock--snapshot_configuration--schedule--yearly_schedule--common_schedule"></a>
+### Nested Schema for `snapshot_configuration.schedule.yearly_schedule.common_schedule`
+
+Optional:
+
+- `dates` (List of Number) Dates in a month to retain monthly backups
+- `last_day_of_month` (Boolean)
+- `months` (List of String)
+
+
+<a id="nestedblock--snapshot_configuration--schedule--yearly_schedule--month_specific_schedule"></a>
+### Nested Schema for `snapshot_configuration.schedule.yearly_schedule.month_specific_schedule`
+
+Required:
+
+- `dates` (List of Number)
+- `month` (String) Name of a month
+
+
+
+
+<a id="nestedblock--snapshot_configuration--snapshot_start_time"></a>
+### Nested Schema for `snapshot_configuration.snapshot_start_time`
+
+Optional:
+
+- `hour` (Number)
+- `minute` (Number)
+
 
 <a id="nestedblock--snapshot_configuration--snapshot_window"></a>
 ### Nested Schema for `snapshot_configuration.snapshot_window`
 
 Optional:
 
-- `duration` (Number) The allowed duration for capturing the DB Service backup
-- `time` (String) Time value in (hh:mm) format. ex. '02:00'
+- `time` (String) Time value in (hh:mm) format. ex. '02:00'. Deprecated, please use backupStartTime in schedule.
 
 
 
@@ -784,6 +1172,8 @@ Read-Only:
 
 - `availability_machine` (String)
 - `availability_machine_id` (String)
+- `clone_type` (String)
+- `content_type` (String)
 - `maximum_recoverability` (Boolean)
 - `pitr_time` (String)
 - `snapshot_id` (String)
@@ -802,91 +1192,62 @@ Read-Only:
 - `sub_status` (String)
 
 
-<a id="nestedatt--deletion_config"></a>
-### Nested Schema for `deletion_config`
+<a id="nestedatt--deletion_schedule"></a>
+### Nested Schema for `deletion_schedule`
+
+Read-Only:
+
+- `delete_at` (String)
+- `deletion_config` (List of Object) (see [below for nested schema](#nestedobjatt--deletion_schedule--deletion_config))
+- `id` (String)
+
+<a id="nestedobjatt--deletion_schedule--deletion_config"></a>
+### Nested Schema for `deletion_schedule.deletion_config`
 
 Read-Only:
 
 - `retain_availability_machine` (Boolean)
 
 
-<a id="nestedatt--instances"></a>
-### Nested Schema for `instances`
+
+<a id="nestedatt--refresh_info"></a>
+### Nested Schema for `refresh_info`
 
 Read-Only:
 
-- `availability_zone` (String)
-- `aws_infra_config` (List of Object) (see [below for nested schema](#nestedobjatt--instances--aws_infra_config))
-- `cloud` (String)
-- `compute_type` (String)
-- `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--instances--connect_string))
-- `data_volume_iops` (Number)
-- `date_created` (String)
-- `encryption_key` (String)
-- `id` (String)
-- `instance_group_id` (String)
-- `last_started_at` (String)
-- `last_stopped_at` (String)
-- `name` (String)
-- `parameter_profile` (List of Object) (see [below for nested schema](#nestedobjatt--instances--parameter_profile))
-- `region` (String)
-- `role` (String)
-- `software_image` (String)
-- `software_image_version` (String)
-- `status` (String)
-- `storage` (Number)
-- `tessell_service_id` (String)
-- `type` (String)
-- `updates_in_progress` (List of Object) (see [below for nested schema](#nestedobjatt--instances--updates_in_progress))
-- `vpc` (String)
+- `content_type` (String)
+- `last_successful_refresh_time` (String)
+- `pitr` (String)
+- `schedule_id` (String)
+- `script_info` (List of Object) (see [below for nested schema](#nestedobjatt--refresh_info--script_info))
+- `snapshot_name` (String)
+- `snapshot_time` (String)
 
-<a id="nestedobjatt--instances--aws_infra_config"></a>
-### Nested Schema for `instances.aws_infra_config`
+<a id="nestedobjatt--refresh_info--script_info"></a>
+### Nested Schema for `refresh_info.script_info`
 
 Read-Only:
 
-- `aws_cpu_options` (List of Object) (see [below for nested schema](#nestedobjatt--instances--aws_infra_config--aws_cpu_options))
+- `post_script_info` (List of Object) (see [below for nested schema](#nestedobjatt--refresh_info--script_info--post_script_info))
+- `pre_script_info` (List of Object) (see [below for nested schema](#nestedobjatt--refresh_info--script_info--pre_script_info))
 
-<a id="nestedobjatt--instances--aws_infra_config--aws_cpu_options"></a>
-### Nested Schema for `instances.aws_infra_config.aws_cpu_options`
-
-Read-Only:
-
-- `vcpus` (Number)
-
-
-
-<a id="nestedobjatt--instances--connect_string"></a>
-### Nested Schema for `instances.connect_string`
+<a id="nestedobjatt--refresh_info--script_info--post_script_info"></a>
+### Nested Schema for `refresh_info.script_info.post_script_info`
 
 Read-Only:
 
-- `connect_descriptor` (String)
-- `endpoint` (String)
-- `master_user` (String)
-- `service_port` (String)
+- `script_id` (String)
+- `script_version` (String)
 
 
-<a id="nestedobjatt--instances--parameter_profile"></a>
-### Nested Schema for `instances.parameter_profile`
+<a id="nestedobjatt--refresh_info--script_info--pre_script_info"></a>
+### Nested Schema for `refresh_info.script_info.pre_script_info`
 
 Read-Only:
 
-- `id` (String)
-- `name` (String)
-- `status` (String)
-- `version` (String)
+- `script_id` (String)
+- `script_version` (String)
 
-
-<a id="nestedobjatt--instances--updates_in_progress"></a>
-### Nested Schema for `instances.updates_in_progress`
-
-Read-Only:
-
-- `reference_id` (String)
-- `submitted_at` (String)
-- `update_info` (Map of String)
-- `update_type` (String)
 
 
 

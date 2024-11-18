@@ -54,12 +54,15 @@ Read-Only:
 - `id` (String)
 - `logged_in_user_role` (String)
 - `owner` (String)
-- `rpo_sla` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla))
 - `service_name` (String)
 - `shared_with` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--shared_with))
+- `snapshot_configuration` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--snapshot_configuration))
+- `storage_config` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--storage_config))
 - `subscription` (String)
 - `tenant` (String)
 - `tessell_service_id` (String)
+- `topology` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--topology))
+- `tsm` (Boolean)
 - `user_id` (String)
 
 <a id="nestedobjatt--availability_machines--backup_download_config"></a>
@@ -247,6 +250,7 @@ Read-Only:
 Read-Only:
 
 - `daily_backups` (Number)
+- `pitr` (Number)
 
 
 <a id="nestedobjatt--availability_machines--daps--shared_with"></a>
@@ -267,66 +271,6 @@ Read-Only:
 
 
 
-<a id="nestedobjatt--availability_machines--rpo_sla"></a>
-### Nested Schema for `availability_machines.rpo_sla`
-
-Read-Only:
-
-- `availability_machine` (String)
-- `availability_machine_id` (String)
-- `rpo_sla_status` (String)
-- `schedule` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule))
-- `sla` (String)
-- `topology` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--topology))
-
-<a id="nestedobjatt--availability_machines--rpo_sla--schedule"></a>
-### Nested Schema for `availability_machines.rpo_sla.schedule`
-
-Read-Only:
-
-- `backup_start_time` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--backup_start_time))
-- `daily_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--daily_schedule))
-
-<a id="nestedobjatt--availability_machines--rpo_sla--schedule--backup_start_time"></a>
-### Nested Schema for `availability_machines.rpo_sla.schedule.daily_schedule`
-
-Read-Only:
-
-- `hour` (Number)
-- `minute` (Number)
-
-
-<a id="nestedobjatt--availability_machines--rpo_sla--schedule--daily_schedule"></a>
-### Nested Schema for `availability_machines.rpo_sla.schedule.daily_schedule`
-
-Read-Only:
-
-- `backup_start_times` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--rpo_sla--schedule--daily_schedule--backup_start_times))
-- `backups_per_day` (Number)
-
-<a id="nestedobjatt--availability_machines--rpo_sla--schedule--daily_schedule--backup_start_times"></a>
-### Nested Schema for `availability_machines.rpo_sla.schedule.daily_schedule.backup_start_times`
-
-Read-Only:
-
-- `hour` (Number)
-- `minute` (Number)
-
-
-
-
-<a id="nestedobjatt--availability_machines--rpo_sla--topology"></a>
-### Nested Schema for `availability_machines.rpo_sla.topology`
-
-Read-Only:
-
-- `availability_zones` (List of String)
-- `cloud_type` (String)
-- `region` (String)
-- `type` (String)
-
-
-
 <a id="nestedobjatt--availability_machines--shared_with"></a>
 ### Nested Schema for `availability_machines.shared_with`
 
@@ -341,5 +285,54 @@ Read-Only:
 
 - `email_id` (String)
 - `role` (String)
+
+
+
+<a id="nestedobjatt--availability_machines--snapshot_configuration"></a>
+### Nested Schema for `availability_machines.snapshot_configuration`
+
+Read-Only:
+
+- `include_transaction_logs` (Boolean)
+- `retention_days` (Number)
+- `snapshot_start_time` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--snapshot_configuration--snapshot_start_time))
+
+<a id="nestedobjatt--availability_machines--snapshot_configuration--snapshot_start_time"></a>
+### Nested Schema for `availability_machines.snapshot_configuration.snapshot_start_time`
+
+Read-Only:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
+
+<a id="nestedobjatt--availability_machines--storage_config"></a>
+### Nested Schema for `availability_machines.storage_config`
+
+Read-Only:
+
+- `fsx_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--storage_config--fsx_net_app_config))
+- `provider` (String)
+
+<a id="nestedobjatt--availability_machines--storage_config--fsx_net_app_config"></a>
+### Nested Schema for `availability_machines.storage_config.fsx_net_app_config`
+
+Read-Only:
+
+- `file_system_id` (String)
+- `svm_id` (String)
+
+
+
+<a id="nestedobjatt--availability_machines--topology"></a>
+### Nested Schema for `availability_machines.topology`
+
+Read-Only:
+
+- `availability_zones` (List of String)
+- `cloud_type` (String)
+- `region` (String)
+- `type` (String)
 
 

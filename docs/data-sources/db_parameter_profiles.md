@@ -35,11 +35,13 @@ Read-Only:
 - `date_modified` (String)
 - `db_version` (String)
 - `description` (String)
+- `driver_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_parameter_profiles--driver_info))
 - `engine_type` (String)
 - `factory_parameter_id` (String)
 - `id` (String)
 - `logged_in_user_role` (String)
 - `maturity_status` (String)
+- `metadata` (List of Object) (see [below for nested schema](#nestedobjatt--db_parameter_profiles--metadata))
 - `name` (String)
 - `oob` (Boolean)
 - `owner` (String)
@@ -49,6 +51,22 @@ Read-Only:
 - `tenant_id` (String)
 - `user_id` (String)
 - `version_id` (String)
+
+<a id="nestedobjatt--db_parameter_profiles--driver_info"></a>
+### Nested Schema for `db_parameter_profiles.driver_info`
+
+Read-Only:
+
+- `data` (Map of String)
+
+
+<a id="nestedobjatt--db_parameter_profiles--metadata"></a>
+### Nested Schema for `db_parameter_profiles.metadata`
+
+Read-Only:
+
+- `data` (Map of String)
+
 
 <a id="nestedobjatt--db_parameter_profiles--parameters"></a>
 ### Nested Schema for `db_parameter_profiles.parameters`

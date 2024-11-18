@@ -156,6 +156,12 @@ func ResourceDBService() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"enable_perf_insights": {
+				Type:        schema.TypeBool,
+				Description: "This field specifies whether to enable performance insights for the DB Service.",
+				Optional:    true,
+				Default:     true,
+			},
 			"owner": {
 				Type:        schema.TypeString,
 				Description: "DB Service owner email address",
@@ -187,6 +193,16 @@ func ResourceDBService() *schema.Resource {
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"clone_type": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"content_type": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
 						"tessell_service_id": {
 							Type:        schema.TypeString,
 							Description: "The DB Service ID using which this DB Service clone is created",
@@ -249,7 +265,6 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "This field contains DB Service's infrastructure related information, like, where the service is hosted - cloud, region; what compute shape, or network is is configured with.",
 				Required:    true,
-				ForceNew:    true,
 				MaxItems:    1,
 				MinItems:    1,
 				Elem: &schema.Resource{
@@ -317,6 +332,11 @@ func ResourceDBService() *schema.Resource {
 							Description: "The VPC to be used for provisioning the DB Service",
 							Optional:    true,
 							Computed:    true,
+						},
+						"private_subnet": {
+							Type:        schema.TypeString,
+							Description: "The private subnet to be used for provisioning the compute resource",
+							Optional:    true,
 						},
 						"enable_encryption": {
 							Type:        schema.TypeBool,
@@ -389,7 +409,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"additional_storage": {
 							Type:        schema.TypeInt,
-							Description: "Size in GB. This is maintained for backward compatibility and would be deprecated soon.",
+							Description: "Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.",
 							Optional:    true,
 							ForceNew:    true,
 							Default:     0,
@@ -417,7 +437,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeInt,
 							Description: "IOPS requested for the DB Service",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								if old != "0" && new == "0" && !d.GetRawState().IsNull() {
 									return true
@@ -429,7 +449,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeInt,
 							Description: "throughput requested for the DB Service",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								if old != "0" && new == "0" && !d.GetRawState().IsNull() {
 									return true
@@ -447,9 +467,19 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+									},
+									"instance_group_name": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+									},
 									"region": {
 										Type:        schema.TypeString,
 										Description: "The region in which the compute is to be provisioned",
@@ -474,6 +504,11 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
+									"private_subnet": {
+										Type:        schema.TypeString,
+										Description: "The private subnet to be used for provisioning the compute resource",
+										Optional:    true,
+									},
 									"compute_type": {
 										Type:        schema.TypeString,
 										Description: "The compute-type to be used for provisioning the compute resource",
@@ -493,8 +528,141 @@ func ResourceDBService() *schema.Resource {
 										ForceNew:    true,
 										Default:     "UTC",
 									},
+									"storage_config": {
+										Type:        schema.TypeList,
+										Description: "The storage details to be provisioned.",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"provider": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"fsx_net_app_config": {
+													Type:        schema.TypeList,
+													Description: "The FSx NetApp details to be provisioned",
+													Optional:    true,
+													ForceNew:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"file_system_id": {
+																Type:        schema.TypeString,
+																Description: "File System Id of the FSx NetApp registered with Tessell",
+																Required:    true,
+																ForceNew:    true,
+															},
+															"svm_id": {
+																Type:        schema.TypeString,
+																Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+																Required:    true,
+																ForceNew:    true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 								},
 							},
+						},
+						"storage_provider": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+					},
+				},
+			},
+			"refresh_info": {
+				Type:        schema.TypeList,
+				Description: "Service refresh details",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"content_type": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+						"snapshot_name": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+						"snapshot_time": {
+							Type:        schema.TypeString,
+							Description: "Time at which snapshot is created.",
+							Computed:    true,
+						},
+						"pitr": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+						"script_info": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pre_script_info": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"script_id": {
+													Type:        schema.TypeString,
+													Description: "The Tessell Script ID",
+													Computed:    true,
+												},
+												"script_version": {
+													Type:        schema.TypeString,
+													Description: "The Tessell Script version",
+													Computed:    true,
+												},
+											},
+										},
+									},
+									"post_script_info": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"script_id": {
+													Type:        schema.TypeString,
+													Description: "The Tessell Script ID",
+													Computed:    true,
+												},
+												"script_version": {
+													Type:        schema.TypeString,
+													Description: "The Tessell Script version",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"schedule_id": {
+							Type:        schema.TypeString,
+							Description: "If refreshed using schedule then schedule id, else null",
+							Computed:    true,
+						},
+						"last_successful_refresh_time": {
+							Type:        schema.TypeString,
+							Description: "Time at which refresh would be successfully completed.",
+							Computed:    true,
 						},
 					},
 				},
@@ -1096,6 +1264,44 @@ func ResourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"retention_days": {
+							Type:        schema.TypeInt,
+							Description: "Number of days for which the snapshot of DB Service would be retained",
+							Optional:    true,
+						},
+						"include_transaction_logs": {
+							Type:        schema.TypeBool,
+							Description: "Flag to decide whether the transaction logs would be retained to support PITR (Point in time recoverability)",
+							Optional:    true,
+							ForceNew:    true,
+							Default:     false,
+						},
+						"snapshot_start_time": {
+							Type:        schema.TypeList,
+							Description: "Clock time format value in hour and minute.",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"hour": {
+										Type:        schema.TypeInt,
+										Description: "",
+										ForceNew:    true,
+										Optional:    true,
+										Default:     1,
+									},
+									"minute": {
+										Type:        schema.TypeInt,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+										Default:     0,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1135,6 +1341,12 @@ func ResourceDBService() *schema.Resource {
 										Description: "The options profile for the database",
 										Optional:    true,
 										ForceNew:    true,
+									},
+									"sid": {
+										Type:        schema.TypeString,
+										Description: "SID for oracle database",
+										Optional:    true,
+										Computed:    true,
 									},
 									"character_set": {
 										Type:        schema.TypeString,
@@ -1667,6 +1879,7 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Instances associated with this DB Service",
 				Optional:    true,
+				Computed:    true, // TODO: remove this once instances computes are removed from infra
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -1729,7 +1942,7 @@ func ResourceDBService() *schema.Resource {
 						"compute_type": {
 							Type:        schema.TypeString,
 							Description: "The compute used for creation of the Tessell Service Instance",
-							Optional:    true,
+							Required:    true,
 						},
 						"aws_infra_config": {
 							Type:        schema.TypeList,
@@ -1777,11 +1990,13 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeInt,
 							Description: "",
 							Optional:    true,
+							Computed:    true,
 						},
 						"throughput": {
 							Type:        schema.TypeInt,
 							Description: "Throughput requested for this DB Service instance",
 							Optional:    true,
+							Computed:    true,
 						},
 						"enable_perf_insights": {
 							Type:        schema.TypeBool,
@@ -1848,6 +2063,12 @@ func ResourceDBService() *schema.Resource {
 													Optional:    true,
 													ForceNew:    true,
 												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
 											},
 										},
 									},
@@ -1858,6 +2079,16 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The VPC used for creation of the DB Service Instance",
 							Required:    true,
+						},
+						"public_subnet": {
+							Type:        schema.TypeString,
+							Description: "The public subnet used for creation of the DB Service Instance",
+							Computed:    true,
+						},
+						"private_subnet": {
+							Type:        schema.TypeString,
+							Description: "The private subnet used for creation of the DB Service Instance",
+							Optional:    true,
 						},
 						"encryption_key": {
 							Type:        schema.TypeString,
@@ -1946,6 +2177,82 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Timestamp when the Service Instance was last stopped at",
 							Computed:    true,
+						},
+						"sync_mode": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"engine_configuration": {
+							Type:        schema.TypeList,
+							Description: "This field details the DB Service Instance engine configuration details like - access mode",
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"oracle_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"access_mode": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"storage_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"provider": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+									},
+									"fsx_net_app_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"file_system_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+												},
+												"svm_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+												},
+												"volume_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+												},
+												"file_system_id": {
+													Type:        schema.TypeString,
+													Description: "File System Id of the FSx NetApp registered with Tessell",
+													Optional:    true,
+												},
+												"svm_id": {
+													Type:        schema.TypeString,
+													Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+													Optional:    true,
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -2154,9 +2461,9 @@ func ResourceDBService() *schema.Resource {
 			},
 			"timeout": {
 				Type:        schema.TypeInt,
-				Description: "If block_until_complete is true, how long it should block for. (In seconds)",
+				Description: "Timeout for terraform polling, when block_until_complete is true (default true). (In seconds)",
 				Optional:    true,
-				Default:     3600,
+				Default:     7200,
 			},
 			"expected_status": {
 				Type:        schema.TypeString,
@@ -2225,7 +2532,7 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 	d.SetId(id)
 
 	if d.Get("block_until_complete").(bool) {
-		if err := client.DBServicePollForStatus(id, "READY", d.Get("timeout").(int), 60); err != nil {
+		if err := client.DBServicePollForStatus(d, id, "READY", d.Get("timeout").(int), 60); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -2274,7 +2581,7 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.FromErr(err)
 		}
 
-		if err := client.DBServicePollForStatus(d.Get("id").(string), "READY", d.Get("timeout").(int), 30); err != nil {
+		if err := client.DBServicePollForStatus(d, d.Get("id").(string), "READY", d.Get("timeout").(int), 30); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -2375,7 +2682,7 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.FromErr(err)
 		}
 
-		if err := client.DBServicePollForStatus(d.Get("id").(string), "STOPPED", d.Get("timeout").(int), 30); err != nil {
+		if err := client.DBServicePollForStatus(d, d.Get("id").(string), "STOPPED", d.Get("timeout").(int), 30); err != nil {
 			return diag.FromErr(err)
 		}
 	}
