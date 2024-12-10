@@ -1,2 +1,2 @@
 # Get all Dataflixes
-data_source "tessell_dataflixes" "example" {}
+data "tessell_dataflixes" "example" {}
