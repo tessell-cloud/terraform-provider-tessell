@@ -90,6 +90,7 @@ func (c *Client) GetDatabaseSnapshots(availabilityMachineId string, name *string
 	if !helper.IsNilBool(manual) {
 		q.Add("manual", fmt.Sprintf("%v", manual))
 	}
+	q.Add("page-size", "1000")
 	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)

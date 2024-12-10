@@ -11,7 +11,7 @@ description: |-
 
 ## Example Usage
 ```
-data_source "tessell_db_service_delete_schedule" "example" {
+data "tessell_db_service_delete_schedule" "example" {
 	id = "015d1443-601b-4786-25fc29f1c"
 }
 ```
