@@ -68,13 +68,13 @@ resource "tessell_db_service" "example" {
   }
 
   snapshot_configuration {
-		retention_days           = 2
-		include_transaction_logs = true
-		snapshot_start_time {
-			hour   = 19
-			minute = 30
-		}
-	}
+    retention_days           = 2
+    include_transaction_logs = true
+    snapshot_start_time {
+      hour   = 19
+      minute = 30
+    }
+  }
 
   engine_configuration {
     postgresql_config {
@@ -193,13 +193,13 @@ resource "tessell_db_service" "example" {
   }
 
   snapshot_configuration {
-		retention_days           = 2
-		include_transaction_logs = true
-		snapshot_start_time {
-			hour   = 19
-			minute = 30
-		}
-	}
+    retention_days           = 2
+    include_transaction_logs = true
+    snapshot_start_time {
+      hour   = 19
+      minute = 30
+    }
+  }
 
   engine_configuration {
     oracle_config {
