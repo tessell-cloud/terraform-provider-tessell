@@ -41,12 +41,11 @@ resource "tessell_db_service" "example" {
 
   infrastructure {
     cloud              = "aws"
-    region             = "ap-south-1"
-    availability_zone  = "ap-south-1a"
-    vpc                = "default-vpc-1234"
-    compute_type       = "t2.small"
-    additional_storage = 0
+    enable_encryption  = true
     encryption_key     = "finance-db-encyption-key-with-salt"
+    additional_storage = 0
+    timezone           = "Asia/Calcutta"
+    enable_compute_sharing = false
   }
 
   service_connectivity {
@@ -69,13 +68,13 @@ resource "tessell_db_service" "example" {
   }
 
   snapshot_configuration {
-    auto_snapshot = true
-    sla           = "2-days-pitr"
-    snapshot_window {
-      time     = "01:00"
-      duration = 30
-    }
-  }
+		retention_days           = 2
+		include_transaction_logs = true
+		snapshot_start_time {
+			hour   = 19
+			minute = 30
+		}
+	}
 
   engine_configuration {
     postgresql_config {
@@ -95,6 +94,15 @@ resource "tessell_db_service" "example" {
   instances {
       name = "default-node-0"
       role = "primary"
+      storage_config {
+			  provider = "AWS_EBS"
+		  }
+      aws_infra_config {
+			  aws_cpu_options {
+				  vcpus = 2
+			  }
+		  }
+      private_subnet = "my-private-subnet"
       region = "ap-south-1"
       instance_group_name = "default"
       availability_zone = "ap-south-1a"
@@ -106,6 +114,15 @@ resource "tessell_db_service" "example" {
 #     instances {
 #       name = "default-node-1"
 #       role = "failover_replica"
+#       storage_config {
+#			    provider = "AWS_EBS"
+#		    }
+#       aws_infra_config {
+#			    aws_cpu_options {
+#				    vcpus = 2
+#			    }
+#		    }
+#       private_subnet = "my-private-subnet"
 #       region = "ap-south-1"
 #       instance_group_name = "default"
 #       availability_zone = "ap-south-1b"
@@ -115,6 +132,15 @@ resource "tessell_db_service" "example" {
 #   instances {
 #       name = "default-node-2"
 #       role = "failover_replica"
+#       storage_config {
+#			    provider = "AWS_EBS"
+#		    }
+#       aws_infra_config {
+#			    aws_cpu_options {
+#				    vcpus = 2
+#			    }
+#		    }
+#       private_subnet = "my-private-subnet"
 #       region = "ap-south-1"
 #       instance_group_name = "default"
 #       availability_zone = "ap-south-1b"
@@ -146,12 +172,11 @@ resource "tessell_db_service" "example" {
 
   infrastructure {
     cloud              = "aws"
-    region             = "ap-south-1"
-    availability_zone  = "ap-south-1a"
-    vpc                = "default-vpc-1234"
-    compute_type       = "m5.large"
-    additional_storage = 0
+    enable_encryption  = true
     encryption_key     = "finance-db-encyption-key-with-salt"
+    additional_storage = 0
+    timezone           = "Asia/Calcutta"
+    enable_compute_sharing = false
   }
 
   service_connectivity {
@@ -168,13 +193,13 @@ resource "tessell_db_service" "example" {
   }
 
   snapshot_configuration {
-    auto_snapshot = true
-    sla           = "2-days-pitr"
-    snapshot_window {
-      time     = "01:00"
-      duration = 30
-    }
-  }
+		retention_days           = 2
+		include_transaction_logs = true
+		snapshot_start_time {
+			hour   = 19
+			minute = 30
+		}
+	}
 
   engine_configuration {
     oracle_config {
@@ -199,17 +224,35 @@ resource "tessell_db_service" "example" {
   instances {
       name = "default-node-0"
       role = "primary"
+      storage_config {
+			  provider = "AWS_EBS"
+		  }
+      aws_infra_config {
+			  aws_cpu_options {
+				  vcpus = 2
+			  }
+		  }
+      private_subnet = "my-private-subnet"
       region = "ap-south-1"
       instance_group_name = "default"
       availability_zone = "ap-south-1a"
       vpc = "tessell-vpc-4jd48"
       compute_type = "tesl_2h_a_p"
     }
-#  Uncomment to add new instance or in case of 
+#  Uncomment to add new instance or in case of
 #  high_availability topology service provisioning
 #     instances {
 #       name = "default-node-1"
 #       role = "failover_replica"
+#       storage_config {
+#			    provider = "AWS_EBS"
+#		    }
+#       aws_infra_config {
+#			    aws_cpu_options {
+#				    vcpus = 2
+#			    }
+#		    }
+#       private_subnet = "my-private-subnet"
 #       region = "ap-south-1"
 #       instance_group_name = "default"
 #       availability_zone = "ap-south-1b"
@@ -219,12 +262,22 @@ resource "tessell_db_service" "example" {
 #   instances {
 #       name = "default-node-2"
 #       role = "failover_replica"
+#       storage_config {
+#			    provider = "AWS_EBS"
+#		    }
+#       aws_infra_config {
+#			    aws_cpu_options {
+#				    vcpus = 2
+#			    }
+#		    }
+#       private_subnet = "my-private-subnet"
 #       region = "ap-south-1"
 #       instance_group_name = "default"
 #       availability_zone = "ap-south-1b"
 #       vpc = "tessell-vpc-4jd48"
 #       compute_type = "tesl_2h_a_p"
 #     }
+
 
   tags {
     name  = "department"
