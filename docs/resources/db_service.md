@@ -278,7 +278,6 @@ resource "tessell_db_service" "example" {
 #       compute_type = "tesl_2h_a_p"
 #     }
 
-
   tags {
     name  = "department"
     value = "finance"
