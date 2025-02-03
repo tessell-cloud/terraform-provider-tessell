@@ -255,6 +255,7 @@ func (c *Client) GetTessellServices(name string, statuses []string, engineTypes 
 	q.Add("load-databases", fmt.Sprintf("%v", loadDatabases))
 	q.Add("owners", strings.Join(owners, ","))
 	q.Add("load-acls", fmt.Sprintf("%v", loadAcls))
+	q.Add("page-size", "1000")
 	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)

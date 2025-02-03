@@ -40,6 +40,7 @@ func (c *Client) GetAvailabilityMachines(name string, status string, engineType 
 	q.Add("engine-type", fmt.Sprintf("%v", engineType))
 	q.Add("load-acls", fmt.Sprintf("%v", loadAcls))
 	q.Add("owners", strings.Join(owners, ","))
+	q.Add("page-size", "1000")
 	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)
