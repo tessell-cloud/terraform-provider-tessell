@@ -141,49 +141,15 @@ type SnapshotConfigurationPayloadAllOfSnapshotWindow struct {
 	Time *string `json:"time,omitempty"` // Time value in (hh:mm) format. ex. &#39;02:00&#39;. Deprecated, please use backupStartTime in schedule.
 }
 
-type ScheduleInfo struct {
-	BackupStartTime *TimeFormat      `json:"backupStartTime,omitempty"`
-	DailySchedule   *DailySchedule   `json:"dailySchedule,omitempty"`
-	WeeklySchedule  *WeeklySchedule  `json:"weeklySchedule,omitempty"`
-	MonthlySchedule *MonthlySchedule `json:"monthlySchedule,omitempty"`
-	YearlySchedule  *YearlySchedule  `json:"yearlySchedule,omitempty"`
-}
-
-type DailySchedule struct {
-	BackupsPerDay *int `json:"backupsPerDay,omitempty"` // The number of backups to be captured per day.
-}
-
-type WeeklySchedule struct {
-	Days *[]string `json:"days,omitempty"` // Days in a week to retain weekly backups for
-}
-
-type MonthlySchedule struct {
-	CommonSchedule *DatesForEachMonth `json:"commonSchedule,omitempty"`
-}
-
-type DatesForEachMonth struct {
-	Dates          *[]int `json:"dates,omitempty"` // Dates in a month to retain monthly backups
-	LastDayOfMonth *bool  `json:"lastDayOfMonth,omitempty"`
-}
-
-type YearlySchedule struct {
-	CommonSchedule        *CommonYearlySchedule `json:"commonSchedule,omitempty"`
-	MonthSpecificSchedule *[]MonthWiseDates     `json:"monthSpecificSchedule,omitempty"`
-}
-
-type CommonYearlySchedule struct {
-	Dates          *[]int    `json:"dates,omitempty"` // Dates in a month to retain monthly backups
-	LastDayOfMonth *bool     `json:"lastDayOfMonth,omitempty"`
-	Months         *[]string `json:"months,omitempty"`
-}
-
-type MonthWiseDates struct {
-	Month *string `json:"month"` // Name of a month
-	Dates *[]int  `json:"dates"`
-}
-
 type FullBackupSchedule struct {
 	WeeklySchedule *WeeklySchedule `json:"weeklySchedule,omitempty"`
+}
+
+type ProvisionRPOPolicyConfig struct {
+	FullBackupSchedule *FullBackupSchedule `json:"fullBackupSchedule,omitempty"`
+	EnableAutoSnapshot *bool               `json:"enableAutoSnapshot"` // Specify whether system will take auto snapshots or not
+	StandardPolicy     *StandardRPOPolicy  `json:"standardPolicy,omitempty"`
+	CustomPolicy       *CustomRPOPolicy    `json:"customPolicy,omitempty"`
 }
 
 type TessellServiceEngineInfo struct {
@@ -390,8 +356,9 @@ type ServiceInstanceOracleEngineConfig struct {
 }
 
 type InstanceStorageConfig struct {
-	Provider        *string                  `json:"provider,omitempty"`
-	FsxNetAppConfig *InstanceFsxNetAppConfig `json:"fsxNetAppConfig,omitempty"`
+	Provider          *string                    `json:"provider,omitempty"`
+	FsxNetAppConfig   *InstanceFsxNetAppConfig   `json:"fsxNetAppConfig,omitempty"`
+	AzureNetAppConfig *InstanceAzureNetAppConfig `json:"azureNetAppConfig,omitempty"`
 }
 
 type InstanceFsxNetAppConfig struct {
@@ -400,6 +367,25 @@ type InstanceFsxNetAppConfig struct {
 	VolumeName     *string `json:"volumeName,omitempty"`
 	FileSystemId   *string `json:"fileSystemId,omitempty"` // File System Id of the FSx NetApp registered with Tessell
 	SvmId          *string `json:"svmId,omitempty"`        // Storage Virtual Machine Id of the FSx NetApp registered with Tessell
+}
+
+type InstanceAzureNetAppConfig struct {
+	AzureNetAppName     *string                       `json:"azureNetAppName,omitempty"`
+	CapacityPoolName    *string                       `json:"capacityPoolName,omitempty"`
+	VolumeName          *string                       `json:"volumeName,omitempty"`
+	AzureNetAppId       *string                       `json:"azureNetAppId,omitempty"`       // Azure NetApp Id registered with Tessell
+	CapacityPoolId      *string                       `json:"capacityPoolId,omitempty"`      // Capacity Pool Id of the Azure NetApp registered with Tessell
+	DelegatedSubnetId   *string                       `json:"delegatedSubnetId,omitempty"`   // Delegated Subnet name registered with Tessell for the Azure NetApp volume
+	DelegatedSubnetName *string                       `json:"delegatedSubnetName,omitempty"` // Delegated Subnet Id registered with Tessell for the Azure NetApp volume
+	EncryptionKeyInfo   *AzureNetAppEncryptionKeyInfo `json:"encryptionKeyInfo,omitempty"`
+	NetworkFeatures     *string                       `json:"networkFeatures,omitempty"`
+}
+
+type AzureNetAppEncryptionKeyInfo struct {
+	Id                      *string `json:"id,omitempty"`                      // Id of the encryption key
+	Name                    *string `json:"name,omitempty"`                    // name of the encryption key
+	KeyVaultCloudResourceId *string `json:"keyVaultCloudResourceId,omitempty"` // name of the encryption key vault in cloud
+	KeySource               *string `json:"keySource,omitempty"`
 }
 
 type ServiceUpcomingScheduledActions struct {
@@ -457,6 +443,7 @@ type TerraformTessellServiceDTO struct {
 	Creds                      *TessellServiceCredsPayload         `json:"creds"`
 	MaintenanceWindow          *TessellServiceMaintenanceWindow    `json:"maintenanceWindow,omitempty"`
 	SnapshotConfiguration      *SnapshotConfigurationPayload       `json:"snapshotConfiguration,omitempty"`
+	RPOPolicyConfig            *ProvisionRPOPolicyConfig           `json:"rpoPolicyConfig,omitempty"`
 	EngineConfiguration        *TessellServiceEngineInfo           `json:"engineConfiguration"`
 	Databases                  *[]TerraformTessellDatabaseDTO      `json:"databases,omitempty"` // Databases that are part of this DB Service
 	IntegrationsConfig         *TessellServiceIntegrationsPayload  `json:"integrationsConfig,omitempty"`
@@ -518,6 +505,7 @@ type CloneTessellServicePayload struct {
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
 	DeletionConfig           *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
 	SnapshotConfiguration    *SnapshotConfigurationPayload             `json:"snapshotConfiguration,omitempty"`
+	RPOPolicyConfig          *ProvisionRPOPolicyConfig                 `json:"rpoPolicyConfig,omitempty"`
 	EngineConfiguration      *TessellServiceEngineConfigurationPayload `json:"engineConfiguration"`
 	Databases                *[]CreateDatabasePayload                  `json:"databases,omitempty"` // Specify the databases to be created in the DB Service
 	IntegrationsConfig       *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`
@@ -791,23 +779,33 @@ type RefreshServiceInfo struct {
 }
 
 type TessellServiceInfrastructureInfo struct {
-	Cloud                *string            `json:"cloud,omitempty"`            // The cloud-type in which the DB Service is provisioned (ex. aws, azure)
-	Region               *string            `json:"region,omitempty"`           // The region in which the DB Service provisioned
-	AvailabilityZone     *string            `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is provisioned
-	CloudAvailability    *[]CloudRegionInfo `json:"cloudAvailability,omitempty"`
-	VPC                  *string            `json:"vpc,omitempty"` // The VPC to be used for provisioning the DB Service
-	EnableEncryption     *bool              `json:"enableEncryption,omitempty"`
-	EncryptionKey        *string            `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
-	ComputeType          *string            `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
-	AwsInfraConfig       *AwsInfraConfig    `json:"awsInfraConfig,omitempty"`
-	EnableComputeSharing *bool              `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
-	Iops                 *int               `json:"iops,omitempty"`                 // IOPS requested for the DB Service
-	Throughput           *int               `json:"throughput,omitempty"`           // throughput requested for the DB Service
-	Storage              *int               `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
-	AdditionalStorage    *int               `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
-	Timezone             *string            `json:"timezone,omitempty"`             // The timezone detail
-	MultiDisk            *bool              `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
-	StorageProvider      *string            `json:"storageProvider,omitempty"`
+	Cloud                *string               `json:"cloud,omitempty"`            // The cloud-type in which the DB Service is provisioned (ex. aws, azure)
+	Region               *string               `json:"region,omitempty"`           // The region in which the DB Service provisioned
+	AvailabilityZone     *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is provisioned
+	CloudAvailability    *[]CloudRegionInfo    `json:"cloudAvailability,omitempty"`
+	VPC                  *string               `json:"vpc,omitempty"` // The VPC to be used for provisioning the DB Service
+	EnableEncryption     *bool                 `json:"enableEncryption,omitempty"`
+	EncryptionKey        *string               `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
+	ComputeType          *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
+	AwsInfraConfig       *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`
+	EnableComputeSharing *bool                 `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
+	Iops                 *int                  `json:"iops,omitempty"`                 // IOPS requested for the DB Service
+	Throughput           *int                  `json:"throughput,omitempty"`           // throughput requested for the DB Service
+	Storage              *int                  `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
+	AdditionalStorage    *int                  `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
+	Timezone             *string               `json:"timezone,omitempty"`             // The timezone detail
+	MultiDisk            *bool                 `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
+	StorageProvider      *string               `json:"storageProvider,omitempty"`
+	StorageConfig        *ServiceStorageConfig `json:"storageConfig,omitempty"`
+}
+
+type ServiceStorageConfig struct {
+	Provider          *string                   `json:"provider,omitempty"`
+	AzureNetAppConfig *ServiceAzureNetAppConfig `json:"azureNetAppConfig,omitempty"`
+}
+
+type ServiceAzureNetAppConfig struct {
+	ServiceLevel *string `json:"serviceLevel,omitempty"`
 }
 
 type TessellServiceIntegrationsInfo struct {
@@ -854,6 +852,7 @@ type ProvisionServicePayload struct {
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
 	DeletionConfig           *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
 	SnapshotConfiguration    *SnapshotConfigurationPayload             `json:"snapshotConfiguration,omitempty"`
+	RPOPolicyConfig          *ProvisionRPOPolicyConfig                 `json:"rpoPolicyConfig,omitempty"`
 	EngineConfiguration      *TessellServiceEngineConfigurationPayload `json:"engineConfiguration"`
 	Databases                *[]CreateDatabasePayload                  `json:"databases,omitempty"` // Specify the databases to be created in the DB Service
 	IntegrationsConfig       *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`
