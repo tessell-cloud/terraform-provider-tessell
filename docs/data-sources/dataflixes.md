@@ -29,7 +29,6 @@ data "tessell_dataflixes" "example" {}
 ### Read-Only
 
 - `dataflixes` (List of Object) (see [below for nested schema](#nestedatt--dataflixes))
-- `id` (String) The ID of this resource.
 
 <a id="nestedatt--dataflixes"></a>
 ### Nested Schema for `dataflixes`
