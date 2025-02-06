@@ -1466,7 +1466,7 @@ func ResourceDBService() *schema.Resource {
 												"backup_start_time": {
 													Type:        schema.TypeList,
 													Description: "Clock time format value in hour and minute.",
-													Optional:    true,
+													Required:    true,
 													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,

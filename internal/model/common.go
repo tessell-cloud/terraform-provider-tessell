@@ -15,7 +15,7 @@ type StorageConfigPayload struct {
 }
 
 type CommonYearlySchedule struct {
-	Dates          *[]int32  `json:"dates,omitempty"` // Dates in a month to retain monthly backups
+	Dates          *[]int    `json:"dates,omitempty"` // Dates in a month to retain monthly backups
 	LastDayOfMonth *bool     `json:"lastDayOfMonth,omitempty"`
 	Months         *[]string `json:"months,omitempty"`
 }
@@ -110,13 +110,13 @@ type CustomRPOPolicy struct {
 }
 
 type MonthWiseDates struct {
-	Month *string  `json:"month"` // Name of a month
-	Dates *[]int32 `json:"dates"`
+	Month *string `json:"month"` // Name of a month
+	Dates *[]int  `json:"dates"`
 }
 
 type DatesForEachMonth struct {
-	Dates          *[]int32 `json:"dates,omitempty"` // Dates in a month to retain monthly backups
-	LastDayOfMonth *bool    `json:"lastDayOfMonth,omitempty"`
+	Dates          *[]int `json:"dates,omitempty"` // Dates in a month to retain monthly backups
+	LastDayOfMonth *bool  `json:"lastDayOfMonth,omitempty"`
 }
 
 type AzureNetAppConfigPayload struct {
