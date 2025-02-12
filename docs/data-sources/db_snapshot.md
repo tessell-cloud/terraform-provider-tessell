@@ -17,7 +17,8 @@ A snapshot can be a manual, which is requested by the users, or it can be automa
 ```terraform
 # Get a DB snapshot using the snapshot TRN
 data "tessell_db_snapshot" "example" {
-  id = "7ab66c70-6f92-42f0-a984-049265c252d2"
+  availability_machine_id = "7ab66c70-6f92-42f0-a984-049265c252d2"
+  id = "dcsjhsdj-6f92-42f0-a984-049265c252d2"
 }
 ```
 

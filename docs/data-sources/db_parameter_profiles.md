@@ -24,7 +24,6 @@ description: |-
 ### Read-Only
 
 - `db_parameter_profiles` (List of Object) (see [below for nested schema](#nestedatt--db_parameter_profiles))
-- `id` (String) The ID of this resource.
 
 <a id="nestedatt--db_parameter_profiles"></a>
 ### Nested Schema for `db_parameter_profiles`

@@ -27,7 +27,7 @@ func ResourceDBSnapshot() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the snapshot",
-				Optional:    true,
+				Required:    true,
 				ForceNew:    true,
 			},
 			"description": {
@@ -181,7 +181,7 @@ func ResourceDBSnapshot() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Tessell Entity ACL Sharing Summary Info",
 				Optional:    true,
-				ForceNew:    true,
+				Computed:    true,
 				MaxItems:    1,
 				MinItems:    1,
 				Elem: &schema.Resource{
@@ -215,25 +215,25 @@ func ResourceDBSnapshot() *schema.Resource {
 			"backup_status": {
 				Type:        schema.TypeString,
 				Description: "",
-				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
 			},
 			"availability_machine_id": {
 				Type:        schema.TypeString,
 				Description: "Id of the parent AvailabilityMachine, required when creating a clone",
-				Optional:    true,
+				Required:    true,
 				ForceNew:    true,
 			},
 			"block_until_complete": {
 				Type:        schema.TypeBool,
 				Description: "For any operation on this resource, block the flow until the action has completed successfully",
-				Optional:    true,
+				Computed:    true,
 				Default:     true,
 			},
 			"timeout": {
 				Type:        schema.TypeInt,
 				Description: "If block_until_complete is true, how long it should block for. (In seconds)",
-				Optional:    true,
+				Computed:    true,
 				Default:     1200,
 			},
 		},

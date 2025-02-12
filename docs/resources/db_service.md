@@ -78,7 +78,7 @@ resource "tessell_db_service" "example" {
 
   engine_configuration {
     postgresql_config {
-      parameter_profile = "PostgreSQL 13 Profile"
+      parameter_profile_id = "parameter-profile-id"
     }
   }
 
@@ -86,28 +86,28 @@ resource "tessell_db_service" "example" {
     database_name = "db1"
     database_configuration {
       postgresql_config {
-        parameter_profile = "PostgreSQL 13 Profile"
+        parameter_profile_id = "parameter-profile-id"
       }
     }
   }
 
   instances {
-      name = "default-node-0"
-      role = "primary"
-      storage_config {
-			  provider = "AWS_EBS"
-		  }
-      aws_infra_config {
-			  aws_cpu_options {
-				  vcpus = 2
-			  }
-		  }
-      private_subnet = "my-private-subnet"
-      region = "ap-south-1"
-      instance_group_name = "default"
-      availability_zone = "ap-south-1a"
-      vpc = "tessell-vpc-4jd48"
-      compute_type = "tesl_2h_a_p"
+    name = "default-node-0"
+    role = "primary"
+    storage_config {
+      provider = "AWS_EBS"
+    }
+    aws_infra_config {
+      aws_cpu_options {
+        vcpus = 2
+      }
+    }
+    private_subnet = "my-private-subnet"
+    region = "ap-south-1"
+    instance_group_name = "default"
+    availability_zone = "ap-south-1a"
+    vpc = "tessell-vpc-4jd48"
+    compute_type = "tesl_2h_a_p"
     }
 #  Uncomment to add new instance or in case of
 #  high_availability topology service provisioning
@@ -115,13 +115,13 @@ resource "tessell_db_service" "example" {
 #       name = "default-node-1"
 #       role = "failover_replica"
 #       storage_config {
-#			    provider = "AWS_EBS"
-#		    }
+#         provider = "AWS_EBS"
+#       }
 #       aws_infra_config {
-#			    aws_cpu_options {
-#				    vcpus = 2
-#			    }
-#		    }
+#         aws_cpu_options {
+#            vcpus = 2
+#         }
+#       }
 #       private_subnet = "my-private-subnet"
 #       region = "ap-south-1"
 #       instance_group_name = "default"
@@ -133,13 +133,13 @@ resource "tessell_db_service" "example" {
 #       name = "default-node-2"
 #       role = "failover_replica"
 #       storage_config {
-#			    provider = "AWS_EBS"
-#		    }
+#         provider = "AWS_EBS"
+#       }
 #       aws_infra_config {
-#			    aws_cpu_options {
-#				    vcpus = 2
-#			    }
-#		    }
+#          aws_cpu_options {
+#             vcpus = 2
+#          }
+#       }
 #       private_subnet = "my-private-subnet"
 #       region = "ap-south-1"
 #       instance_group_name = "default"
@@ -203,7 +203,7 @@ resource "tessell_db_service" "example" {
 
   engine_configuration {
     oracle_config {
-      parameter_profile      = "Oracle Parameter Profile"
+      parameter_profile_id      = "parameter-profile-id"
       options_profile        = "Oracle 12.1.0.2.0 Options Profile"
       character_set          = "AL32UTF8"
       national_character_set = "AL16UTF16"
@@ -215,29 +215,29 @@ resource "tessell_db_service" "example" {
     database_name      = "orcl"
     database_configuration {
       oracle_config {
-        parameter_profile = "Oracle Parameter Profile"
+        parameter_profile_id = "parameter-profile-id"
         options_profile   = "Oracle 12.1.0.2.0 Options Profile"
       }
     }
   }
 
   instances {
-      name = "default-node-0"
-      role = "primary"
-      storage_config {
-			  provider = "AWS_EBS"
-		  }
-      aws_infra_config {
-			  aws_cpu_options {
-				  vcpus = 2
-			  }
-		  }
-      private_subnet = "my-private-subnet"
-      region = "ap-south-1"
-      instance_group_name = "default"
-      availability_zone = "ap-south-1a"
-      vpc = "tessell-vpc-4jd48"
-      compute_type = "tesl_2h_a_p"
+    name = "default-node-0"
+    role = "primary"
+    storage_config {
+      provider = "AWS_EBS"
+    }
+    aws_infra_config {
+      aws_cpu_options {
+        vcpus = 2
+      }
+    }
+    private_subnet = "my-private-subnet"
+    region = "ap-south-1"
+    instance_group_name = "default"
+    availability_zone = "ap-south-1a"
+    vpc = "tessell-vpc-4jd48"
+    compute_type = "tesl_2h_a_p"
     }
 #  Uncomment to add new instance or in case of
 #  high_availability topology service provisioning
@@ -245,13 +245,13 @@ resource "tessell_db_service" "example" {
 #       name = "default-node-1"
 #       role = "failover_replica"
 #       storage_config {
-#			    provider = "AWS_EBS"
-#		    }
+#         provider = "AWS_EBS"
+#       }
 #       aws_infra_config {
-#			    aws_cpu_options {
-#				    vcpus = 2
-#			    }
-#		    }
+#         aws_cpu_options {
+#            vcpus = 2
+#         }
+#       }
 #       private_subnet = "my-private-subnet"
 #       region = "ap-south-1"
 #       instance_group_name = "default"
@@ -263,13 +263,13 @@ resource "tessell_db_service" "example" {
 #       name = "default-node-2"
 #       role = "failover_replica"
 #       storage_config {
-#			    provider = "AWS_EBS"
-#		    }
+#         provider = "AWS_EBS"
+#       }
 #       aws_infra_config {
-#			    aws_cpu_options {
-#				    vcpus = 2
-#			    }
-#		    }
+#          aws_cpu_options {
+#             vcpus = 2
+#          }
+#       }
 #       private_subnet = "my-private-subnet"
 #       region = "ap-south-1"
 #       instance_group_name = "default"

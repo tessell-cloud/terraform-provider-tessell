@@ -36,7 +36,7 @@ data "tessell_availability_machines" "example" {
 ### Read-Only
 
 - `availability_machines` (List of Object) (see [below for nested schema](#nestedatt--availability_machines))
-- `id` (String) The ID of this resource.
+- `id` (String) ID of the Availability Machine
 
 <a id="nestedatt--availability_machines"></a>
 ### Nested Schema for `availability_machines`
