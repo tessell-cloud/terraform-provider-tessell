@@ -612,13 +612,13 @@ func ResourceDBService() *schema.Resource {
 											},
 										},
 									},
-									"storage_provider": {
-										Type:        schema.TypeString,
-										Description: "",
-										Computed:    true,
-									},
 								},
 							},
+						},
+						"storage_provider": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
 						},
 					},
 				},
