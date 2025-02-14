@@ -599,11 +599,6 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
 	}
 
-	var storageConfig *model.ServiceStorageConfig
-	if infrastructure.StorageConfig != storageConfig {
-		parsedInfrastructure["storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.StorageConfig)}
-	}
-
 	return []interface{}{parsedInfrastructure}
 }
 
@@ -638,11 +633,6 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	var awsInfraConfig *model.AwsInfraConfig
 	if infrastructure.AwsInfraConfig != awsInfraConfig {
 		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
-	}
-
-	var storageConfig *model.ServiceStorageConfig
-	if infrastructure.StorageConfig != storageConfig {
-		parsedInfrastructure["storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.StorageConfig)}
 	}
 
 	return parsedInfrastructure
@@ -728,31 +718,6 @@ func parseAwsCpuOptions(awsCpuOptions *model.AwsCpuOptions) interface{} {
 	parsedAwsCpuOptions["vcpus"] = awsCpuOptions.Vcpus
 
 	return parsedAwsCpuOptions
-}
-
-func parseServiceStorageConfig(serviceStorageConfig *model.ServiceStorageConfig) interface{} {
-	if serviceStorageConfig == nil {
-		return nil
-	}
-	parsedServiceStorageConfig := make(map[string]interface{})
-	parsedServiceStorageConfig["provider"] = serviceStorageConfig.Provider
-
-	var azureNetAppConfig *model.ServiceAzureNetAppConfig
-	if serviceStorageConfig.AzureNetAppConfig != azureNetAppConfig {
-		parsedServiceStorageConfig["azure_net_app_config"] = []interface{}{parseServiceAzureNetAppConfig(serviceStorageConfig.AzureNetAppConfig)}
-	}
-
-	return parsedServiceStorageConfig
-}
-
-func parseServiceAzureNetAppConfig(serviceAzureNetAppConfig *model.ServiceAzureNetAppConfig) interface{} {
-	if serviceAzureNetAppConfig == nil {
-		return nil
-	}
-	parsedServiceAzureNetAppConfig := make(map[string]interface{})
-	parsedServiceAzureNetAppConfig["service_level"] = serviceAzureNetAppConfig.ServiceLevel
-
-	return parsedServiceAzureNetAppConfig
 }
 
 func parseTessellServiceMaintenanceWindowWithResData(maintenanceWindow *model.TessellServiceMaintenanceWindow, d *schema.ResourceData) []interface{} {

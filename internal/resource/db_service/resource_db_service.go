@@ -1359,6 +1359,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "The schedule at which full backups would be triggered",
 							Optional:    true,
+							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -1367,6 +1368,7 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
+										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1375,6 +1377,7 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "Days in a week to retain weekly backups for",
 													Optional:    true,
+													ForceNew:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -1389,11 +1392,13 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeBool,
 							Description: "Specify whether system will take auto snapshots or not",
 							Required:    true,
+							ForceNew:    true,
 						},
 						"standard_policy": {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
+							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -1402,17 +1407,20 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeInt,
 										Description: "Number of days for which the snapshot of DB Service would be retained",
 										Required:    true,
+										ForceNew:    true,
 									},
 									"include_transaction_logs": {
 										Type:        schema.TypeBool,
 										Description: "Determines whether transaction logs should be retained to enable Point-In-Time Recovery (PITR) functionality",
 										Optional:    true,
+										ForceNew:    true,
 										Default:     false,
 									},
 									"snapshot_start_time": {
 										Type:        schema.TypeList,
 										Description: "Clock time format value in hour and minute.",
 										Required:    true,
+										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1421,11 +1429,13 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeInt,
 													Description: "",
 													Required:    true,
+													ForceNew:    true,
 												},
 												"minute": {
 													Type:        schema.TypeInt,
 													Description: "",
 													Required:    true,
+													ForceNew:    true,
 												},
 											},
 										},
@@ -1437,6 +1447,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
+							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -1445,11 +1456,13 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "Custom RPO policy name",
 										Required:    true,
+										ForceNew:    true,
 									},
 									"schedule": {
 										Type:        schema.TypeList,
 										Description: "",
 										Required:    true,
+										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1458,6 +1471,7 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "Clock time format value in hour and minute.",
 													Required:    true,
+													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1466,11 +1480,13 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeInt,
 																Description: "",
 																Required:    true,
+																ForceNew:    true,
 															},
 															"minute": {
 																Type:        schema.TypeInt,
 																Description: "",
 																Required:    true,
+																ForceNew:    true,
 															},
 														},
 													},
@@ -1479,6 +1495,7 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
+													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1487,6 +1504,7 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeInt,
 																Description: "The number of backups to be captured per day.",
 																Optional:    true,
+																ForceNew:    true,
 															},
 														},
 													},
@@ -1495,6 +1513,7 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
+													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1503,6 +1522,7 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "Days in a week to retain weekly backups for",
 																Optional:    true,
+																ForceNew:    true,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -1514,6 +1534,7 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "Definition for taking month specific schedule.",
 													Optional:    true,
+													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1522,6 +1543,7 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "",
 																Optional:    true,
+																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -1530,6 +1552,7 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeList,
 																			Description: "Dates in a month to retain monthly backups",
 																			Optional:    true,
+																			ForceNew:    true,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeInt,
 																			},
@@ -1538,6 +1561,7 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeBool,
 																			Description: "",
 																			Optional:    true,
+																			ForceNew:    true,
 																			Default:     false,
 																		},
 																	},
@@ -1550,6 +1574,7 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
+													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1558,6 +1583,7 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "",
 																Optional:    true,
+																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -1594,17 +1620,20 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "",
 																Optional:    true,
+																ForceNew:    true,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"month": {
 																			Type:        schema.TypeString,
 																			Description: "Name of a month",
 																			Required:    true,
+																			ForceNew:    true,
 																		},
 																		"dates": {
 																			Type:        schema.TypeList,
 																			Description: "",
 																			Required:    true,
+																			ForceNew:    true,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeInt,
 																			},
