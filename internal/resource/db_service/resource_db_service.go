@@ -2638,6 +2638,24 @@ func ResourceDBService() *schema.Resource {
 													Optional:    true,
 													ForceNew:    true,
 												},
+												"configurations": {
+													Type:        schema.TypeList,
+													Description: "Azure NetApp configurations",
+													Optional:    true,
+													ForceNew:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"network_features": {
+																Type:        schema.TypeString,
+																Description: "",
+																Optional:    true,
+																ForceNew:    true,
+															},
+														},
+													},
+												},
 												"delegated_subnet_id": {
 													Type:        schema.TypeString,
 													Description: "Delegated Subnet name registered with Tessell for the Azure NetApp volume",
