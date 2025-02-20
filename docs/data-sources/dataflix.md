@@ -30,6 +30,7 @@ data "tessell_dataflix" "example" {
 
 - `cloud_availability` (List of Object) The cloud and region information where the data is available for access (see [below for nested schema](#nestedatt--cloud_availability))
 - `engine_type` (String)
+- `id` (String) The ID of this resource.
 - `owner` (String) Owner of the Availability Machine
 - `service_name` (String) Name of the associated DB Service
 - `shared_with` (List of Object) Tessell Entity ACL Sharing Summary Info (see [below for nested schema](#nestedatt--shared_with))
@@ -60,5 +61,3 @@ Read-Only:
 Read-Only:
 
 - `users` (List of String)
-
-

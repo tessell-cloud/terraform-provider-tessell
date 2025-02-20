@@ -97,5 +97,3 @@ Optional:
 Read-Only:
 
 - `schedule_counter` (Number)
-
-

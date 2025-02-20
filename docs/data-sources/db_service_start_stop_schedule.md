@@ -84,5 +84,3 @@ Read-Only:
 Read-Only:
 
 - `days` (List of String)
-
-

@@ -67,14 +67,59 @@ resource "tessell_db_service" "example" {
     duration = 30
   }
 
-  snapshot_configuration {
-    retention_days           = 2
-    include_transaction_logs = true
-    snapshot_start_time {
-      hour   = 19
-      minute = 30
-    }
-  }
+	rpo_policy_config {
+		enable_auto_snapshot = true
+		standard_policy {
+			retention_days = 2
+			include_transaction_logs = true
+			snapshot_start_time {
+				hour = 19
+				minute = 30
+			}
+		}
+	}
+
+# For custom rpo_policy_config
+# 		rpo_policy_config {
+#   		enable_auto_snapshot = true
+#   		custom_policy {
+#   			name = "Test-policy"
+#   			schedule {
+#   				backup_start_time {
+#   					hour = 19
+#   					minute = 30
+#   				}
+#   				daily_schedule {
+#   					backups_per_day = 1
+              # Currently support 1 only
+#   				}
+#   				weekly_schedule {
+#   					days = [
+#   						"Wednesday",
+#   					]
+#   				}
+#   				monthly_schedule {
+#   					common_schedule {
+#   						dates = [
+#   							24,
+#   						]
+#   						last_day_of_month = false
+#   					}
+#   				}
+#   				yearly_schedule {
+#   					common_schedule {
+#   						dates = [
+#   							21,
+#   						]
+#   						months = [
+#   							"May",
+#   						]
+#   						last_day_of_month = false
+#   					}
+#   				}
+#   			}
+#   		}
+#   	}
 
   engine_configuration {
     postgresql_config {
@@ -92,36 +137,37 @@ resource "tessell_db_service" "example" {
   }
 
   instances {
-    name = "default-node-0"
-    role = "primary"
-    storage_config {
-      provider = "AWS_EBS"
+      name = "default-node-0"
+      role = "primary"
+      storage_config {
+              provider = "AWS_EBS"
+          }
+      aws_infra_config {
+              aws_cpu_options {
+                  vcpus = 2
+              }
+          }
+      private_subnet = "my-private-subnet"
+      region = "ap-south-1"
+      instance_group_name = "default"
+      availability_zone = "ap-south-1a"
+      vpc = "tessell-vpc-4jd48"
+      compute_type = "tesl_2h_a_p"
     }
-    aws_infra_config {
-      aws_cpu_options {
-        vcpus = 2
-      }
-    }
-    private_subnet = "my-private-subnet"
-    region = "ap-south-1"
-    instance_group_name = "default"
-    availability_zone = "ap-south-1a"
-    vpc = "tessell-vpc-4jd48"
-    compute_type = "tesl_2h_a_p"
-    }
+
 #  Uncomment to add new instance or in case of
 #  high_availability topology service provisioning
 #     instances {
 #       name = "default-node-1"
 #       role = "failover_replica"
 #       storage_config {
-#         provider = "AWS_EBS"
-#       }
+#                provider = "AWS_EBS"
+#            }
 #       aws_infra_config {
-#         aws_cpu_options {
-#            vcpus = 2
-#         }
-#       }
+#                aws_cpu_options {
+#                    vcpus = 2
+#                }
+#            }
 #       private_subnet = "my-private-subnet"
 #       region = "ap-south-1"
 #       instance_group_name = "default"
@@ -133,13 +179,13 @@ resource "tessell_db_service" "example" {
 #       name = "default-node-2"
 #       role = "failover_replica"
 #       storage_config {
-#         provider = "AWS_EBS"
-#       }
+#                provider = "AWS_EBS"
+#            }
 #       aws_infra_config {
-#          aws_cpu_options {
-#             vcpus = 2
-#          }
-#       }
+#                aws_cpu_options {
+#                    vcpus = 2
+#                }
+#            }
 #       private_subnet = "my-private-subnet"
 #       region = "ap-south-1"
 #       instance_group_name = "default"
@@ -192,14 +238,59 @@ resource "tessell_db_service" "example" {
     master_password = "MyPassword@123"
   }
 
-  snapshot_configuration {
-    retention_days           = 2
-    include_transaction_logs = true
-    snapshot_start_time {
-      hour   = 19
-      minute = 30
-    }
-  }
+	rpo_policy_config {
+		enable_auto_snapshot = true
+		standard_policy {
+			retention_days = 2
+			include_transaction_logs = true
+			snapshot_start_time {
+				hour = 19
+				minute = 30
+			}
+		}
+	}
+
+# For custom rpo_policy_config
+# 		rpo_policy_config {
+#   		enable_auto_snapshot = true
+#   		custom_policy {
+#   			name = "Test-policy"
+#   			schedule {
+#   				backup_start_time {
+#   					hour = 19
+#   					minute = 30
+#   				}
+#   				daily_schedule {
+#   					backups_per_day = 1
+              # Currently support 1 only
+#   				}
+#   				weekly_schedule {
+#   					days = [
+#   						"Wednesday",
+#   					]
+#   				}
+#   				monthly_schedule {
+#   					common_schedule {
+#   						dates = [
+#   							24,
+#   						]
+#   						last_day_of_month = false
+#   					}
+#   				}
+#   				yearly_schedule {
+#   					common_schedule {
+#   						dates = [
+#   							21,
+#   						]
+#   						months = [
+#   							"May",
+#   						]
+#   						last_day_of_month = false
+#   					}
+#   				}
+#   			}
+#   		}
+#   	}
 
   engine_configuration {
     oracle_config {
@@ -325,8 +416,8 @@ resource "tessell_db_service" "example" {
 - `maintenance_window` (Block List, Max: 1) This field details the DB Service maintenance related details. (see [below for nested schema](#nestedblock--maintenance_window))
 - `parent_availability_machine_id` (String) Id of the parent AvailabilityMachine, required when creating a clone
 - `pitr` (String) PITR Timestamp, using which the clone is to be created
+- `rpo_policy_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config))
 - `shared_with` (Block List, Max: 1) Tessell Entity ACL Sharing Info (see [below for nested schema](#nestedblock--shared_with))
-- `snapshot_configuration` (Block List, Max: 1) DB Service's snapshot retention configurations. If not specified, the default recommended retention configurations would be applied. (see [below for nested schema](#nestedblock--snapshot_configuration))
 - `snapshot_id` (String) Tessell service snapshot Id, using which the clone is to be created
 - `tags` (Block List) The tags to be associated with the DB Service (see [below for nested schema](#nestedblock--tags))
 - `timeout` (Number) Timeout for terraform polling, when block_until_complete is true (default true). (In seconds)
@@ -477,7 +568,7 @@ Optional:
 - `compute_type` (String) The compute-type to be used for provisioning the DB Service
 - `computes` (Block List) (see [below for nested schema](#nestedblock--infrastructure--computes))
 - `enable_compute_sharing` (Boolean) Specify if the computes should be shared across DB Services
-- `enable_encryption` (Boolean) Specify whether to enable perf insights for the DB instances
+- `enable_encryption` (Boolean)
 - `encryption_key` (String) The encryption key name which is used to encrypt the data at rest
 - `iops` (Number) IOPS requested for the DB Service
 - `private_subnet` (String) The private subnet to be used for provisioning the compute resource
@@ -1052,6 +1143,152 @@ Required:
 - `day` (String)
 - `duration` (Number) The duration during which the maintenance window will be allowed to trigger
 - `time` (String) Time value in (hh:mm) format. ex. '02:00'
+
+
+<a id="nestedblock--rpo_policy_config"></a>
+### Nested Schema for `rpo_policy_config`
+
+Required:
+
+- `enable_auto_snapshot` (Boolean) Specify whether system will take auto snapshots or not
+
+Optional:
+
+- `custom_policy` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy))
+- `full_backup_schedule` (Block List, Max: 1) The schedule at which full backups would be triggered (see [below for nested schema](#nestedblock--rpo_policy_config--full_backup_schedule))
+- `standard_policy` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--standard_policy))
+
+<a id="nestedblock--rpo_policy_config--custom_policy"></a>
+### Nested Schema for `rpo_policy_config.custom_policy`
+
+Required:
+
+- `name` (String) Custom RPO policy name
+- `schedule` (Block List, Min: 1, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule))
+
+<a id="nestedblock--rpo_policy_config--custom_policy--schedule"></a>
+### Nested Schema for `rpo_policy_config.custom_policy.schedule`
+
+Required:
+
+- `backup_start_time` (Block List, Min: 1, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--backup_start_time))
+
+Optional:
+
+- `daily_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--daily_schedule))
+- `monthly_schedule` (Block List, Max: 1) Definition for taking month specific schedule. (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--monthly_schedule))
+- `weekly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--weekly_schedule))
+- `yearly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--yearly_schedule))
+
+<a id="nestedblock--rpo_policy_config--custom_policy--schedule--backup_start_time"></a>
+### Nested Schema for `rpo_policy_config.custom_policy.schedule.backup_start_time`
+
+Required:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
+<a id="nestedblock--rpo_policy_config--custom_policy--schedule--daily_schedule"></a>
+### Nested Schema for `rpo_policy_config.custom_policy.schedule.daily_schedule`
+
+Optional:
+
+- `backups_per_day` (Number) The number of backups to be captured per day.
+
+
+<a id="nestedblock--rpo_policy_config--custom_policy--schedule--monthly_schedule"></a>
+### Nested Schema for `rpo_policy_config.custom_policy.schedule.monthly_schedule`
+
+Optional:
+
+- `common_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--monthly_schedule--common_schedule))
+
+<a id="nestedblock--rpo_policy_config--custom_policy--schedule--monthly_schedule--common_schedule"></a>
+### Nested Schema for `rpo_policy_config.custom_policy.schedule.monthly_schedule.common_schedule`
+
+Optional:
+
+- `dates` (List of Number) Dates in a month to retain monthly backups
+- `last_day_of_month` (Boolean)
+
+
+
+<a id="nestedblock--rpo_policy_config--custom_policy--schedule--weekly_schedule"></a>
+### Nested Schema for `rpo_policy_config.custom_policy.schedule.weekly_schedule`
+
+Optional:
+
+- `days` (List of String) Days in a week to retain weekly backups for
+
+
+<a id="nestedblock--rpo_policy_config--custom_policy--schedule--yearly_schedule"></a>
+### Nested Schema for `rpo_policy_config.custom_policy.schedule.yearly_schedule`
+
+Optional:
+
+- `common_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--yearly_schedule--common_schedule))
+- `month_specific_schedule` (Block List) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--yearly_schedule--month_specific_schedule))
+
+<a id="nestedblock--rpo_policy_config--custom_policy--schedule--yearly_schedule--common_schedule"></a>
+### Nested Schema for `rpo_policy_config.custom_policy.schedule.yearly_schedule.common_schedule`
+
+Optional:
+
+- `dates` (List of Number) Dates in a month to retain monthly backups
+- `last_day_of_month` (Boolean)
+- `months` (List of String)
+
+
+<a id="nestedblock--rpo_policy_config--custom_policy--schedule--yearly_schedule--month_specific_schedule"></a>
+### Nested Schema for `rpo_policy_config.custom_policy.schedule.yearly_schedule.month_specific_schedule`
+
+Required:
+
+- `dates` (List of Number)
+- `month` (String) Name of a month
+
+
+
+
+
+<a id="nestedblock--rpo_policy_config--full_backup_schedule"></a>
+### Nested Schema for `rpo_policy_config.full_backup_schedule`
+
+Optional:
+
+- `weekly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--full_backup_schedule--weekly_schedule))
+
+<a id="nestedblock--rpo_policy_config--full_backup_schedule--weekly_schedule"></a>
+### Nested Schema for `rpo_policy_config.full_backup_schedule.weekly_schedule`
+
+Optional:
+
+- `days` (List of String) Days in a week to retain weekly backups for
+
+
+
+<a id="nestedblock--rpo_policy_config--standard_policy"></a>
+### Nested Schema for `rpo_policy_config.standard_policy`
+
+Required:
+
+- `retention_days` (Number) Number of days for which the snapshot of DB Service would be retained
+- `snapshot_start_time` (Block List, Min: 1, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--rpo_policy_config--standard_policy--snapshot_start_time))
+
+Optional:
+
+- `include_transaction_logs` (Boolean) Determines whether transaction logs should be retained to enable Point-In-Time Recovery (PITR) functionality
+
+<a id="nestedblock--rpo_policy_config--standard_policy--snapshot_start_time"></a>
+### Nested Schema for `rpo_policy_config.standard_policy.snapshot_start_time`
+
+Required:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
 
 
 <a id="nestedblock--shared_with"></a>
