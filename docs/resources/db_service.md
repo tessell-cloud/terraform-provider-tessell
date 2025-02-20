@@ -262,8 +262,7 @@ resource "tessell_db_service" "example" {
 #   				}
 #   				daily_schedule {
 #   					backups_per_day = 1
-#              # Currently support 1 only
-
+#   					 # Currently support 1 only
 #   				}
 #   				weekly_schedule {
 #   					days = [
