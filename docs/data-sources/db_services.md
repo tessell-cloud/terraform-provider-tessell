@@ -165,7 +165,7 @@ Read-Only:
 - `sql_server_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--database_configuration--sql_server_config))
 
 <a id="nestedobjatt--db_services--databases--database_configuration--milvus_config"></a>
-### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+### Nested Schema for `db_services.databases.database_configuration.milvus_config`
 
 Read-Only:
 
@@ -173,7 +173,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--db_services--databases--database_configuration--mongodb_config"></a>
-### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+### Nested Schema for `db_services.databases.database_configuration.mongodb_config`
 
 Read-Only:
 
@@ -181,7 +181,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--db_services--databases--database_configuration--mysql_config"></a>
-### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+### Nested Schema for `db_services.databases.database_configuration.mysql_config`
 
 Read-Only:
 
@@ -189,7 +189,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--db_services--databases--database_configuration--oracle_config"></a>
-### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+### Nested Schema for `db_services.databases.database_configuration.oracle_config`
 
 Read-Only:
 
@@ -199,7 +199,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--db_services--databases--database_configuration--postgresql_config"></a>
-### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+### Nested Schema for `db_services.databases.database_configuration.postgresql_config`
 
 Read-Only:
 
@@ -587,7 +587,7 @@ Read-Only:
 - `pre_script_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--refresh_info--script_info--pre_script_info))
 
 <a id="nestedobjatt--db_services--refresh_info--script_info--post_script_info"></a>
-### Nested Schema for `db_services.refresh_info.script_info.pre_script_info`
+### Nested Schema for `db_services.refresh_info.script_info.post_script_info`
 
 Read-Only:
 
@@ -678,15 +678,15 @@ Read-Only:
 - `private_link` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info--private_link))
 
 <a id="nestedobjatt--db_services--service_connectivity--update_in_progress_info--computes_connectivity"></a>
-### Nested Schema for `db_services.service_connectivity.update_in_progress_info.private_link`
+### Nested Schema for `db_services.service_connectivity.update_in_progress_info.computes_connectivity`
 
 Read-Only:
 
 - `compute_resource_id` (String)
-- `port_access_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info--private_link--port_access_config))
+- `port_access_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info--computes_connectivity--port_access_config))
 
-<a id="nestedobjatt--db_services--service_connectivity--update_in_progress_info--private_link--port_access_config"></a>
-### Nested Schema for `db_services.service_connectivity.update_in_progress_info.private_link.port_access_config`
+<a id="nestedobjatt--db_services--service_connectivity--update_in_progress_info--computes_connectivity--port_access_config"></a>
+### Nested Schema for `db_services.service_connectivity.update_in_progress_info.computes_connectivity.port_access_config`
 
 Read-Only:
 
@@ -778,5 +778,3 @@ Read-Only:
 - `submitted_at` (String)
 - `update_info` (Map of String)
 - `update_type` (String)
-
-

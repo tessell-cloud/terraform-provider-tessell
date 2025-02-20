@@ -27,6 +27,7 @@ description: |-
 ### Read-Only
 
 - `db_backups` (List of Object) (see [below for nested schema](#nestedatt--db_backups))
+- `id` (String) The ID of this resource.
 
 <a id="nestedatt--db_backups"></a>
 ### Nested Schema for `db_backups`
@@ -39,7 +40,7 @@ Read-Only:
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedobjatt--db_backups--cloud_availability))
 - `databases` (List of Object) (see [below for nested schema](#nestedobjatt--db_backups--databases))
 - `download_url_status` (String)
-- `id` (String) ID of the backup
+- `id` (String)
 - `manual` (Boolean)
 - `name` (String)
 - `shared_with` (List of Object) (see [below for nested schema](#nestedobjatt--db_backups--shared_with))
@@ -129,10 +130,8 @@ Read-Only:
 - `user_email` (String)
 
 <a id="nestedobjatt--db_backups--shared_with--users--expiry_config"></a>
-### Nested Schema for `db_backups.shared_with.users.user_email`
+### Nested Schema for `db_backups.shared_with.users.expiry_config`
 
 Read-Only:
 
 - `expire_at` (String)
-
-

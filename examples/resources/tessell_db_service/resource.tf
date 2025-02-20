@@ -38,14 +38,58 @@ resource "tessell_db_service" "example" {
     duration = 30
   }
 
-  snapshot_configuration {
-    retention_days           = 2
-    include_transaction_logs = true
-    snapshot_start_time {
-      hour   = 19
-      minute = 30
-    }
-  }
+	rpo_policy_config {
+		enable_auto_snapshot = true
+		standard_policy {
+			retention_days = 2
+			include_transaction_logs = true
+			snapshot_start_time {
+				hour = 19
+				minute = 30
+			}
+		}
+	}
+
+# For custom rpo_policy_config
+# 		rpo_policy_config {
+#   		enable_auto_snapshot = true
+#   		custom_policy {
+#   			name = "Test-policy"
+#   			schedule {
+#   				backup_start_time {
+#   					hour = 19
+#   					minute = 30
+#   				}
+#   				daily_schedule {
+#   					backups_per_day = 1
+#   				}
+#   				weekly_schedule {
+#   					days = [
+#   						"Wednesday",
+#   					]
+#   				}
+#   				monthly_schedule {
+#   					common_schedule {
+#   						dates = [
+#   							24,
+#   						]
+#   						last_day_of_month = false
+#   					}
+#   				}
+#   				yearly_schedule {
+#   					common_schedule {
+#   						dates = [
+#   							21,
+#   						]
+#   						months = [
+#   							"May",
+#   						]
+#   						last_day_of_month = false
+#   					}
+#   				}
+#   			}
+#   		}
+#   	}
 
   engine_configuration {
     postgresql_config {
@@ -80,6 +124,7 @@ resource "tessell_db_service" "example" {
       vpc = "tessell-vpc-4jd48"
       compute_type = "tesl_2h_a_p"
     }
+
 #  Uncomment to add new instance or in case of
 #  high_availability topology service provisioning
 #     instances {
@@ -163,14 +208,58 @@ resource "tessell_db_service" "example" {
     master_password = "MyPassword@123"
   }
 
-  snapshot_configuration {
-    retention_days           = 2
-    include_transaction_logs = true
-    snapshot_start_time {
-      hour   = 19
-      minute = 30
-    }
-  }
+	rpo_policy_config {
+		enable_auto_snapshot = true
+		standard_policy {
+			retention_days = 2
+			include_transaction_logs = true
+			snapshot_start_time {
+				hour = 19
+				minute = 30
+			}
+		}
+	}
+
+# For custom rpo_policy_config
+# 		rpo_policy_config {
+#   		enable_auto_snapshot = true
+#   		custom_policy {
+#   			name = "Test-policy"
+#   			schedule {
+#   				backup_start_time {
+#   					hour = 19
+#   					minute = 30
+#   				}
+#   				daily_schedule {
+#   					backups_per_day = 1
+#   				}
+#   				weekly_schedule {
+#   					days = [
+#   						"Wednesday",
+#   					]
+#   				}
+#   				monthly_schedule {
+#   					common_schedule {
+#   						dates = [
+#   							24,
+#   						]
+#   						last_day_of_month = false
+#   					}
+#   				}
+#   				yearly_schedule {
+#   					common_schedule {
+#   						dates = [
+#   							21,
+#   						]
+#   						months = [
+#   							"May",
+#   						]
+#   						last_day_of_month = false
+#   					}
+#   				}
+#   			}
+#   		}
+#   	}
 
   engine_configuration {
     oracle_config {

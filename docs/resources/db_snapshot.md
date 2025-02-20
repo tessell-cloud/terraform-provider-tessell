@@ -111,5 +111,3 @@ Read-Only:
 - `id` (String)
 - `name` (String)
 - `status` (String)
-
-

@@ -1,8 +1,23 @@
 package model
 
+type AzureNetAppConfigPayloadConfigurations struct {
+	NetworkFeatures *string `json:"networkFeatures,omitempty"`
+}
+
+type WeeklySchedule struct {
+	Days *[]string `json:"days,omitempty"` // Days in a week to retain weekly backups for
+}
+
 type StorageConfigPayload struct {
-	Provider        *string                 `json:"provider"`
-	FsxNetAppConfig *FsxNetAppConfigPayload `json:"fsxNetAppConfig,omitempty"`
+	Provider          *string                   `json:"provider"`
+	FsxNetAppConfig   *FsxNetAppConfigPayload   `json:"fsxNetAppConfig,omitempty"`
+	AzureNetAppConfig *AzureNetAppConfigPayload `json:"azureNetAppConfig,omitempty"`
+}
+
+type CommonYearlySchedule struct {
+	Dates          *[]int    `json:"dates,omitempty"` // Dates in a month to retain monthly backups
+	LastDayOfMonth *bool     `json:"lastDayOfMonth,omitempty"`
+	Months         *[]string `json:"months,omitempty"`
 }
 
 type APIError struct {
@@ -36,6 +51,10 @@ type EntityAclSharingSummaryInfo struct {
 	Users *[]string `json:"users,omitempty"`
 }
 
+type MonthlySchedule struct {
+	CommonSchedule *DatesForEachMonth `json:"commonSchedule,omitempty"`
+}
+
 type APIMetadata struct {
 	TimeZone   *string            `json:"timeZone,omitempty"`
 	Records    *int               `json:"records,omitempty"`
@@ -47,8 +66,27 @@ type EntityAclSharingInfo struct {
 }
 
 type TimeFormat struct {
-	Hour   *int `json:"hour,omitempty"`
-	Minute *int `json:"minute,omitempty"`
+	Hour   *int `json:"hour"`
+	Minute *int `json:"minute"`
+}
+
+type YearlySchedule struct {
+	CommonSchedule        *CommonYearlySchedule `json:"commonSchedule,omitempty"`
+	MonthSpecificSchedule *[]MonthWiseDates     `json:"monthSpecificSchedule,omitempty"`
+}
+
+type StandardRPOPolicy struct {
+	RetentionDays          *int        `json:"retentionDays"`                    // Number of days for which the snapshot of DB Service would be retained
+	IncludeTransactionLogs *bool       `json:"includeTransactionLogs,omitempty"` // Determines whether transaction logs should be retained to enable Point-In-Time Recovery (PITR) functionality
+	SnapshotStartTime      *TimeFormat `json:"snapshotStartTime"`
+}
+
+type ScheduleInfo struct {
+	BackupStartTime *TimeFormat      `json:"backupStartTime,omitempty"`
+	DailySchedule   *DailySchedule   `json:"dailySchedule,omitempty"`
+	WeeklySchedule  *WeeklySchedule  `json:"weeklySchedule,omitempty"`
+	MonthlySchedule *MonthlySchedule `json:"monthlySchedule,omitempty"`
+	YearlySchedule  *YearlySchedule  `json:"yearlySchedule,omitempty"`
 }
 
 type APIPaginationInfo struct {
@@ -64,6 +102,27 @@ type APIStatus struct {
 type EntityUserAclSharingInfo struct {
 	EmailId *string `json:"emailId,omitempty"`
 	Role    *string `json:"role,omitempty"`
+}
+
+type CustomRPOPolicy struct {
+	Name     *string       `json:"name"` // Custom RPO policy name
+	Schedule *ScheduleInfo `json:"schedule"`
+}
+
+type MonthWiseDates struct {
+	Month *string `json:"month"` // Name of a month
+	Dates *[]int  `json:"dates"`
+}
+
+type DatesForEachMonth struct {
+	Dates          *[]int `json:"dates,omitempty"` // Dates in a month to retain monthly backups
+	LastDayOfMonth *bool  `json:"lastDayOfMonth,omitempty"`
+}
+
+type AzureNetAppConfigPayload struct {
+	AzureNetAppId  *string                                 `json:"azureNetAppId,omitempty"`  // Azure NetApp Id registered with Tessell
+	CapacityPoolId *string                                 `json:"capacityPoolId,omitempty"` // Capacity pool Id of the Azure NetApp registered with Tessell
+	Configurations *AzureNetAppConfigPayloadConfigurations `json:"configurations,omitempty"`
 }
 
 type DatabaseSnapshotRegionInfo struct {
@@ -117,6 +176,10 @@ type RegionInfo struct {
 type CloudRegionInfo struct {
 	Cloud   *string       `json:"cloud"`
 	Regions *[]RegionInfo `json:"regions,omitempty"` // The regions details
+}
+
+type DailySchedule struct {
+	BackupsPerDay *int `json:"backupsPerDay,omitempty"` // The number of backups to be captured per day.
 }
 
 type DatabaseSnapshotCloudRegionInfo struct {

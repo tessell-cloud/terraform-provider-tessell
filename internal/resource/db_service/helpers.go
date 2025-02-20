@@ -1280,6 +1280,11 @@ func parseInstanceStorageConfig(instanceStorageConfig *model.InstanceStorageConf
 		parsedInstanceStorageConfig["fsx_net_app_config"] = []interface{}{parseInstanceFsxNetAppConfig(instanceStorageConfig.FsxNetAppConfig)}
 	}
 
+	var azureNetAppConfig *model.InstanceAzureNetAppConfig
+	if instanceStorageConfig.AzureNetAppConfig != azureNetAppConfig {
+		parsedInstanceStorageConfig["azure_net_app_config"] = []interface{}{parseInstanceAzureNetAppConfig(instanceStorageConfig.AzureNetAppConfig)}
+	}
+
 	return parsedInstanceStorageConfig
 }
 
@@ -1295,6 +1300,42 @@ func parseInstanceFsxNetAppConfig(instanceFsxNetAppConfig *model.InstanceFsxNetA
 	parsedInstanceFsxNetAppConfig["svm_id"] = instanceFsxNetAppConfig.SvmId
 
 	return parsedInstanceFsxNetAppConfig
+}
+
+func parseInstanceAzureNetAppConfig(instanceAzureNetAppConfig *model.InstanceAzureNetAppConfig) interface{} {
+	if instanceAzureNetAppConfig == nil {
+		return nil
+	}
+	parsedInstanceAzureNetAppConfig := make(map[string]interface{})
+	parsedInstanceAzureNetAppConfig["azure_net_app_name"] = instanceAzureNetAppConfig.AzureNetAppName
+	parsedInstanceAzureNetAppConfig["capacity_pool_name"] = instanceAzureNetAppConfig.CapacityPoolName
+	parsedInstanceAzureNetAppConfig["volume_name"] = instanceAzureNetAppConfig.VolumeName
+	parsedInstanceAzureNetAppConfig["azure_net_app_id"] = instanceAzureNetAppConfig.AzureNetAppId
+	parsedInstanceAzureNetAppConfig["capacity_pool_id"] = instanceAzureNetAppConfig.CapacityPoolId
+	parsedInstanceAzureNetAppConfig["delegated_subnet_id"] = instanceAzureNetAppConfig.DelegatedSubnetId
+	parsedInstanceAzureNetAppConfig["delegated_subnet_name"] = instanceAzureNetAppConfig.DelegatedSubnetName
+
+	parsedInstanceAzureNetAppConfig["network_features"] = instanceAzureNetAppConfig.NetworkFeatures
+
+	var encryptionKeyInfo *model.AzureNetAppEncryptionKeyInfo
+	if instanceAzureNetAppConfig.EncryptionKeyInfo != encryptionKeyInfo {
+		parsedInstanceAzureNetAppConfig["encryption_key_info"] = []interface{}{parseAzureNetAppEncryptionKeyInfo(instanceAzureNetAppConfig.EncryptionKeyInfo)}
+	}
+
+	return parsedInstanceAzureNetAppConfig
+}
+
+func parseAzureNetAppEncryptionKeyInfo(azureNetAppEncryptionKeyInfo *model.AzureNetAppEncryptionKeyInfo) interface{} {
+	if azureNetAppEncryptionKeyInfo == nil {
+		return nil
+	}
+	parsedAzureNetAppEncryptionKeyInfo := make(map[string]interface{})
+	parsedAzureNetAppEncryptionKeyInfo["id"] = azureNetAppEncryptionKeyInfo.Id
+	parsedAzureNetAppEncryptionKeyInfo["name"] = azureNetAppEncryptionKeyInfo.Name
+	parsedAzureNetAppEncryptionKeyInfo["key_vault_cloud_resource_id"] = azureNetAppEncryptionKeyInfo.KeyVaultCloudResourceId
+	parsedAzureNetAppEncryptionKeyInfo["key_source"] = azureNetAppEncryptionKeyInfo.KeySource
+
+	return parsedAzureNetAppEncryptionKeyInfo
 }
 
 func parseTessellDatabaseDTOListWithResData(databases *[]model.TessellDatabaseDTO, d *schema.ResourceData) []interface{} {
@@ -1758,6 +1799,7 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
 		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
 		SnapshotConfiguration:    formSnapshotConfigurationPayload(d.Get("snapshot_configuration")),
+		RPOPolicyConfig:          formProvisionRPOPolicyConfig(d.Get("rpo_policy_config")),
 		EngineConfiguration:      formTessellServiceEngineConfigurationPayload(d.Get("engine_configuration")),
 		Databases:                formCreateDatabasePayloadList(d.Get("databases")),
 		IntegrationsConfig:       formTessellServiceIntegrationsPayload(d.Get("integrations_config")),
@@ -1807,6 +1849,7 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
 		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
 		SnapshotConfiguration:    formSnapshotConfigurationPayload(d.Get("snapshot_configuration")),
+		RPOPolicyConfig:          formProvisionRPOPolicyConfig(d.Get("rpo_policy_config")),
 		EngineConfiguration:      formTessellServiceEngineConfigurationPayload(d.Get("engine_configuration")),
 		Databases:                formCreateDatabasePayloadList(d.Get("databases")),
 		IntegrationsConfig:       formTessellServiceIntegrationsPayload(d.Get("integrations_config")),
@@ -1997,8 +2040,9 @@ func formStorageConfigPayload(storageConfigPayloadRaw interface{}) *model.Storag
 	storageConfigPayloadData := storageConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	storageConfigPayloadFormed := model.StorageConfigPayload{
-		Provider:        helper.GetStringPointer(storageConfigPayloadData["provider"]),
-		FsxNetAppConfig: formFsxNetAppConfigPayload(storageConfigPayloadData["fsx_net_app_config"]),
+		Provider:          helper.GetStringPointer(storageConfigPayloadData["provider"]),
+		FsxNetAppConfig:   formFsxNetAppConfigPayload(storageConfigPayloadData["fsx_net_app_config"]),
+		AzureNetAppConfig: formAzureNetAppConfigPayload(storageConfigPayloadData["azure_net_app_config"]),
 	}
 
 	return &storageConfigPayloadFormed
@@ -2017,6 +2061,36 @@ func formFsxNetAppConfigPayload(fsxNetAppConfigPayloadRaw interface{}) *model.Fs
 	}
 
 	return &fsxNetAppConfigPayloadFormed
+}
+
+func formAzureNetAppConfigPayload(azureNetAppConfigPayloadRaw interface{}) *model.AzureNetAppConfigPayload {
+	if azureNetAppConfigPayloadRaw == nil || len(azureNetAppConfigPayloadRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	azureNetAppConfigPayloadData := azureNetAppConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
+
+	azureNetAppConfigPayloadFormed := model.AzureNetAppConfigPayload{
+		AzureNetAppId:  helper.GetStringPointer(azureNetAppConfigPayloadData["azure_net_app_id"]),
+		CapacityPoolId: helper.GetStringPointer(azureNetAppConfigPayloadData["capacity_pool_id"]),
+		Configurations: formAzureNetAppConfigPayloadConfigurations(azureNetAppConfigPayloadData["configurations"]),
+	}
+
+	return &azureNetAppConfigPayloadFormed
+}
+
+func formAzureNetAppConfigPayloadConfigurations(azureNetAppConfigPayloadConfigurationsRaw interface{}) *model.AzureNetAppConfigPayloadConfigurations {
+	if azureNetAppConfigPayloadConfigurationsRaw == nil || len(azureNetAppConfigPayloadConfigurationsRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	azureNetAppConfigPayloadConfigurationsData := azureNetAppConfigPayloadConfigurationsRaw.([]interface{})[0].(map[string]interface{})
+
+	azureNetAppConfigPayloadConfigurationsFormed := model.AzureNetAppConfigPayloadConfigurations{
+		NetworkFeatures: helper.GetStringPointer(azureNetAppConfigPayloadConfigurationsData["network_features"]),
+	}
+
+	return &azureNetAppConfigPayloadConfigurationsFormed
 }
 
 func formCreateUpdateRefreshSchedulePayload(refreshScheduleRaw interface{}) *model.CreateUpdateRefreshSchedulePayload {
@@ -2508,6 +2582,54 @@ func formFullBackupSchedule(fullBackupScheduleRaw interface{}) *model.FullBackup
 	}
 
 	return &fullBackupScheduleFormed
+}
+
+func formProvisionRPOPolicyConfig(provisionRPOPolicyConfigRaw interface{}) *model.ProvisionRPOPolicyConfig {
+	if provisionRPOPolicyConfigRaw == nil || len(provisionRPOPolicyConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	provisionRPOPolicyConfigData := provisionRPOPolicyConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	provisionRPOPolicyConfigFormed := model.ProvisionRPOPolicyConfig{
+		FullBackupSchedule: formFullBackupSchedule(provisionRPOPolicyConfigData["full_backup_schedule"]),
+		EnableAutoSnapshot: helper.GetBoolPointer(provisionRPOPolicyConfigData["enable_auto_snapshot"]),
+		StandardPolicy:     formStandardRPOPolicy(provisionRPOPolicyConfigData["standard_policy"]),
+		CustomPolicy:       formCustomRPOPolicy(provisionRPOPolicyConfigData["custom_policy"]),
+	}
+
+	return &provisionRPOPolicyConfigFormed
+}
+
+func formStandardRPOPolicy(standardRPOPolicyRaw interface{}) *model.StandardRPOPolicy {
+	if standardRPOPolicyRaw == nil || len(standardRPOPolicyRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	standardRPOPolicyData := standardRPOPolicyRaw.([]interface{})[0].(map[string]interface{})
+
+	standardRPOPolicyFormed := model.StandardRPOPolicy{
+		RetentionDays:          helper.GetIntPointer(standardRPOPolicyData["retention_days"]),
+		IncludeTransactionLogs: helper.GetBoolPointer(standardRPOPolicyData["include_transaction_logs"]),
+		SnapshotStartTime:      formTimeFormat(standardRPOPolicyData["snapshot_start_time"]),
+	}
+
+	return &standardRPOPolicyFormed
+}
+
+func formCustomRPOPolicy(customRPOPolicyRaw interface{}) *model.CustomRPOPolicy {
+	if customRPOPolicyRaw == nil || len(customRPOPolicyRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	customRPOPolicyData := customRPOPolicyRaw.([]interface{})[0].(map[string]interface{})
+
+	customRPOPolicyFormed := model.CustomRPOPolicy{
+		Name:     helper.GetStringPointer(customRPOPolicyData["name"]),
+		Schedule: formScheduleInfo(customRPOPolicyData["schedule"]),
+	}
+
+	return &customRPOPolicyFormed
 }
 
 func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurationPayloadRaw interface{}) *model.TessellServiceEngineConfigurationPayload {

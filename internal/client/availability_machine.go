@@ -9,7 +9,7 @@ import (
 	"terraform-provider-tessell/internal/model"
 )
 
-func (c *Client) GetAvailabilityMachine(id string) (*model.TessellDMMServiceConsumerDTO, int, error) {
+func (c *Client) GetAvailabilityMachine(id string) (*model.DMMConsumerView, int, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/availability-machines/%s", c.APIAddress, id), nil)
 	if err != nil {
 		return nil, 0, err
@@ -20,7 +20,7 @@ func (c *Client) GetAvailabilityMachine(id string) (*model.TessellDMMServiceCons
 		return nil, statusCode, err
 	}
 
-	tessellDMMServiceConsumerDTO := model.TessellDMMServiceConsumerDTO{}
+	tessellDMMServiceConsumerDTO := model.DMMConsumerView{}
 	err = json.Unmarshal(body, &tessellDMMServiceConsumerDTO)
 	if err != nil {
 		return nil, statusCode, err
