@@ -27,14 +27,13 @@ func ResourceDBSnapshot() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the snapshot",
-				Optional:    true,
+				Required:    true,
 				ForceNew:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Description: "Description of the snapshot",
 				Optional:    true,
-				ForceNew:    true,
 			},
 			"snapshot_time": {
 				Type:        schema.TypeString,
@@ -221,20 +220,18 @@ func ResourceDBSnapshot() *schema.Resource {
 			"availability_machine_id": {
 				Type:        schema.TypeString,
 				Description: "Id of the parent AvailabilityMachine, required when creating a clone",
-				Optional:    true,
+				Required:    true,
 				ForceNew:    true,
 			},
 			"block_until_complete": {
 				Type:        schema.TypeBool,
 				Description: "For any operation on this resource, block the flow until the action has completed successfully",
-				Optional:    true,
-				Default:     true,
+				Computed:    true,
 			},
 			"timeout": {
 				Type:        schema.TypeInt,
 				Description: "If block_until_complete is true, how long it should block for. (In seconds)",
-				Optional:    true,
-				Default:     1200,
+				Computed:    true,
 			},
 		},
 	}
