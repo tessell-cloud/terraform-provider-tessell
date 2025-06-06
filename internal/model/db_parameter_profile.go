@@ -53,6 +53,7 @@ type DatabaseParameterProfileResponse struct {
 	DBVersion          *string                             `json:"dbVersion,omitempty"`    // Database Parameter Profile&#39;s version
 	DateCreated        *string                             `json:"dateCreated,omitempty"`  // Timestamp when the entity was created
 	DateModified       *string                             `json:"dateModified,omitempty"` // Timestamp when the entity was last modified
+	InfraType          *string                             `json:"infraType,omitempty"`
 }
 
 type DatabaseParameterProfileMetadata struct {

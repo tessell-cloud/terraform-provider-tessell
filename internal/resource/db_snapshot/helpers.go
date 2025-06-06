@@ -40,6 +40,10 @@ func setResourceData(d *schema.ResourceData, databaseSnapshot *model.DatabaseSna
 		return err
 	}
 
+	if err := d.Set("incremental", databaseSnapshot.Incremental); err != nil {
+		return err
+	}
+
 	if err := d.Set("cloud_availability", parseDatabaseSnapshotCloudRegionInfoListWithResData(databaseSnapshot.CloudAvailability, d)); err != nil {
 		return err
 	}

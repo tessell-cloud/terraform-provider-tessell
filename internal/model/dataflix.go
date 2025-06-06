@@ -9,6 +9,7 @@ type TessellAmDataflixDTO struct {
 	Owner                 *string                      `json:"owner,omitempty"`             // Owner of the Availability Machine
 	Tsm                   *bool                        `json:"tsm,omitempty"`               // Specify whether the associated DB Service is created using TSM compute type
 	SharedWith            *EntityAclSharingSummaryInfo `json:"sharedWith,omitempty"`
+	StorageProviderType   *string                      `json:"storageProviderType,omitempty"`
 }
 
 type TessellDataflixResponse struct {

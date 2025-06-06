@@ -8,6 +8,7 @@ type DataflixSnapshot struct {
 	Status            *string                            `json:"status,omitempty"`            // Database Backup Status
 	Size              *int                               `json:"size,omitempty"`              // Size of this snapshot (in bytes)
 	Manual            *bool                              `json:"manual,omitempty"`            // Specifies whether the backup is captured as per manual user request or as per the automated schedule
+	Incremental       *bool                              `json:"incremental,omitempty"`       // Specifies if Database Backup&#39;s is incremental
 	CloudAvailability *[]DatabaseSnapshotCloudRegionInfo `json:"cloudAvailability,omitempty"` // The cloud and region information where this snapshot has been made available at
 	Databases         *[]BackupDatabaseInfo              `json:"databases,omitempty"`         // The databases that are captured as part of this snapshot
 	SharedWith        *EntityAclSharingSummaryInfo       `json:"sharedWith,omitempty"`

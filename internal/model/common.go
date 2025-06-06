@@ -8,10 +8,52 @@ type WeeklySchedule struct {
 	Days *[]string `json:"days,omitempty"` // Days in a week to retain weekly backups for
 }
 
+type InstanceFsxNetAppConfig struct {
+	FileSystemName *string `json:"fileSystemName,omitempty"`
+	SvmName        *string `json:"svmName,omitempty"`
+	VolumeName     *string `json:"volumeName,omitempty"`
+	FileSystemId   *string `json:"fileSystemId,omitempty"` // File System Id of the FSx NetApp registered with Tessell
+	SvmId          *string `json:"svmId,omitempty"`        // Storage Virtual Machine Id of the FSx NetApp registered with Tessell
+}
+
+type BackupCustomRPOPolicy struct {
+	Name     *string       `json:"name"` // Custom RPO policy name
+	Schedule *ScheduleInfo `json:"schedule"`
+}
+
 type StorageConfigPayload struct {
 	Provider          *string                   `json:"provider"`
 	FsxNetAppConfig   *FsxNetAppConfigPayload   `json:"fsxNetAppConfig,omitempty"`
 	AzureNetAppConfig *AzureNetAppConfigPayload `json:"azureNetAppConfig,omitempty"`
+}
+
+type BackupStandardRPOPolicy struct {
+	RetentionDays   *int        `json:"retentionDays"` // Number of days for which the backup of DB Service would be retained
+	BackupStartTime *TimeFormat `json:"backupStartTime,omitempty"`
+}
+
+type ServiceInstanceOracleEngineConfig struct {
+	AccessMode *string `json:"accessMode,omitempty"`
+}
+
+type RPOPolicyConfigBackupRPOConfig struct {
+	FullBackupSchedule *FullBackupSchedule      `json:"fullBackupSchedule,omitempty"`
+	StandardPolicy     *BackupStandardRPOPolicy `json:"standardPolicy,omitempty"`
+	CustomPolicy       *BackupCustomRPOPolicy   `json:"customPolicy,omitempty"`
+}
+
+type FullBackupSchedule struct {
+	StartTime      *TimeFormat     `json:"startTime,omitempty"`
+	WeeklySchedule *WeeklySchedule `json:"weeklySchedule,omitempty"`
+}
+
+type InstanceExadataComputeConfig struct {
+	InfrastructureId   *string `json:"infrastructureId"`
+	InfrastructureName *string `json:"infrastructureName"`
+	VmClusterId        *string `json:"vmClusterId"`
+	VmClusterName      *string `json:"vmClusterName"`
+	Vcpus              *int    `json:"vcpus"`
+	Memory             *int    `json:"memory"`
 }
 
 type CommonYearlySchedule struct {
@@ -41,10 +83,27 @@ type SnapshotRegionAvailability struct {
 	Status *string `json:"status"` // Database Backup Status
 }
 
+type TessellResourceUpdateInfo struct {
+	UpdateType  *string                 `json:"updateType,omitempty"`  // Type of the update
+	ReferenceId *string                 `json:"referenceId,omitempty"` // The reference-id of the update request
+	SubmittedAt *string                 `json:"submittedAt,omitempty"` // Timestamp when the resource update was requested
+	UpdateInfo  *map[string]interface{} `json:"updateInfo,omitempty"`  // The specific details for a Tessell resource that are being updated
+}
+
 type SnapshotAvailabilityConfig struct {
 	AvailabilityConfiguredManually *bool                            `json:"availabilityConfiguredManually,omitempty"`
 	DAPId                          *string                          `json:"dapId,omitempty"`
 	CloudAvailabilityConfig        *[]SnapshotCloudAvailabilityInfo `json:"cloudAvailabilityConfig,omitempty"`
+}
+
+type RPOPolicyConfig struct {
+	IncludeTransactionLogs *bool                           `json:"includeTransactionLogs,omitempty"` // Determines whether transaction logs should be retained to enable Point-In-Time Recovery (PITR) functionality
+	EnableAutoSnapshot     *bool                           `json:"enableAutoSnapshot"`               // Specify whether system will take automatic snapshots
+	StandardPolicy         *StandardRPOPolicy              `json:"standardPolicy,omitempty"`
+	CustomPolicy           *CustomRPOPolicy                `json:"customPolicy,omitempty"`
+	FullBackupSchedule     *FullBackupSchedule             `json:"fullBackupSchedule,omitempty"`
+	EnableAutoBackup       *bool                           `json:"enableAutoBackup,omitempty"` // Specify whether system will take automatic backups
+	BackupRPOConfig        *RPOPolicyConfigBackupRPOConfig `json:"backupRpoConfig,omitempty"`
 }
 
 type EntityAclSharingSummaryInfo struct {
@@ -70,6 +129,12 @@ type TimeFormat struct {
 	Minute *int `json:"minute"`
 }
 
+type InstanceStorageConfig struct {
+	Provider          *string                    `json:"provider,omitempty"`
+	FsxNetAppConfig   *InstanceFsxNetAppConfig   `json:"fsxNetAppConfig,omitempty"`
+	AzureNetAppConfig *InstanceAzureNetAppConfig `json:"azureNetAppConfig,omitempty"`
+}
+
 type YearlySchedule struct {
 	CommonSchedule        *CommonYearlySchedule `json:"commonSchedule,omitempty"`
 	MonthSpecificSchedule *[]MonthWiseDates     `json:"monthSpecificSchedule,omitempty"`
@@ -79,6 +144,10 @@ type StandardRPOPolicy struct {
 	RetentionDays          *int        `json:"retentionDays"`                    // Number of days for which the snapshot of DB Service would be retained
 	IncludeTransactionLogs *bool       `json:"includeTransactionLogs,omitempty"` // Determines whether transaction logs should be retained to enable Point-In-Time Recovery (PITR) functionality
 	SnapshotStartTime      *TimeFormat `json:"snapshotStartTime"`
+}
+
+type ServiceInstanceEngineInfo struct {
+	OracleConfig *ServiceInstanceOracleEngineConfig `json:"oracleConfig,omitempty"`
 }
 
 type ScheduleInfo struct {
@@ -99,14 +168,45 @@ type APIStatus struct {
 	Message *string `json:"message,omitempty"`
 }
 
+type AzureNetAppEncryptionKeyInfo struct {
+	Id                      *string `json:"id,omitempty"`                      // Id of the encryption key
+	Name                    *string `json:"name,omitempty"`                    // name of the encryption key
+	KeyVaultCloudResourceId *string `json:"keyVaultCloudResourceId,omitempty"` // name of the encryption key vault in cloud
+	KeySource               *string `json:"keySource,omitempty"`
+}
+
+type InstanceAzureNetAppConfig struct {
+	AzureNetAppName     *string                       `json:"azureNetAppName,omitempty"`
+	CapacityPoolName    *string                       `json:"capacityPoolName,omitempty"`
+	VolumeName          *string                       `json:"volumeName,omitempty"`
+	AzureNetAppId       *string                       `json:"azureNetAppId,omitempty"`       // Azure NetApp Id registered with Tessell
+	CapacityPoolId      *string                       `json:"capacityPoolId,omitempty"`      // Capacity Pool Id of the Azure NetApp registered with Tessell
+	DelegatedSubnetId   *string                       `json:"delegatedSubnetId,omitempty"`   // Delegated Subnet name registered with Tessell for the Azure NetApp volume
+	DelegatedSubnetName *string                       `json:"delegatedSubnetName,omitempty"` // Delegated Subnet Id registered with Tessell for the Azure NetApp volume
+	EncryptionKeyInfo   *AzureNetAppEncryptionKeyInfo `json:"encryptionKeyInfo,omitempty"`
+	NetworkFeatures     *string                       `json:"networkFeatures,omitempty"`
+	ServiceLevel        *string                       `json:"serviceLevel,omitempty"`
+}
+
 type EntityUserAclSharingInfo struct {
 	EmailId *string `json:"emailId,omitempty"`
 	Role    *string `json:"role,omitempty"`
 }
 
+type TessellServiceInstanceConnectString struct {
+	ConnectDescriptor *string `json:"connectDescriptor,omitempty"`
+	MasterUser        *string `json:"masterUser,omitempty"`
+	Endpoint          *string `json:"endpoint,omitempty"`
+	ServicePort       *string `json:"servicePort,omitempty"`
+}
+
 type CustomRPOPolicy struct {
 	Name     *string       `json:"name"` // Custom RPO policy name
 	Schedule *ScheduleInfo `json:"schedule"`
+}
+
+type MonitoringConfig struct {
+	PerfInsights *PerfInsightsConfig `json:"perfInsights,omitempty"`
 }
 
 type MonthWiseDates struct {
@@ -117,6 +217,11 @@ type MonthWiseDates struct {
 type DatesForEachMonth struct {
 	Dates          *[]int `json:"dates,omitempty"` // Dates in a month to retain monthly backups
 	LastDayOfMonth *bool  `json:"lastDayOfMonth,omitempty"`
+}
+
+type InstanceComputeConfig struct {
+	Provider      *string                       `json:"provider,omitempty"`
+	ExadataConfig *InstanceExadataComputeConfig `json:"exadataConfig,omitempty"`
 }
 
 type AzureNetAppConfigPayload struct {
@@ -164,6 +269,13 @@ type FsxNetAppConfigPayload struct {
 	SvmId        *string `json:"svmId"`        // Storage Virtual Machine Id of the FSx NetApp registered with Tessell
 }
 
+type ParameterProfile struct {
+	Id      *string `json:"id,omitempty"`      // Tessell generated UUID for the the parameter profile
+	Name    *string `json:"name,omitempty"`    // The name used to identify the parameter profile
+	Version *string `json:"version,omitempty"` // The version of the parameter profile associated with the instance
+	Status  *string `json:"status,omitempty"`
+}
+
 type TessellServiceDeletionConfig struct {
 	RetainAvailabilityMachine *bool `json:"retainAvailabilityMachine,omitempty"` // If specified as true, the associated Availability Machine (snapshots, sanitized-snapshots, logs) would be retained
 }
@@ -185,6 +297,12 @@ type DailySchedule struct {
 type DatabaseSnapshotCloudRegionInfo struct {
 	Cloud   *string                       `json:"cloud"`
 	Regions *[]DatabaseSnapshotRegionInfo `json:"regions,omitempty"` // Region specific availability details for the snapshot
+}
+
+type PerfInsightsConfig struct {
+	PerfInsightsEnabled    *bool   `json:"perfInsightsEnabled,omitempty"`
+	MonitoringDeploymentId *string `json:"monitoringDeploymentId,omitempty"`
+	Status                 *string `json:"status,omitempty"`
 }
 
 type BackupDatabaseInfo struct {

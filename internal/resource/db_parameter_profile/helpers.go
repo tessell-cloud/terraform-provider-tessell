@@ -91,6 +91,10 @@ func setResourceData(d *schema.ResourceData, databaseParameterProfileResponse *m
 		return err
 	}
 
+	if err := d.Set("infra_type", databaseParameterProfileResponse.InfraType); err != nil {
+		return err
+	}
+
 	return nil
 }
 

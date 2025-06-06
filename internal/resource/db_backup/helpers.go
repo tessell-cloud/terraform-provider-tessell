@@ -35,6 +35,10 @@ func setResourceData(d *schema.ResourceData, databaseBackup *model.DatabaseBacku
 		return err
 	}
 
+	if err := d.Set("is_incremental", databaseBackup.IsIncremental); err != nil {
+		return err
+	}
+
 	if err := d.Set("cloud_availability", parseCloudRegionInfoListWithResData(databaseBackup.CloudAvailability, d)); err != nil {
 		return err
 	}
@@ -44,6 +48,10 @@ func setResourceData(d *schema.ResourceData, databaseBackup *model.DatabaseBacku
 	}
 
 	if err := d.Set("databases", parseBackupDatabaseInfoListWithResData(databaseBackup.Databases, d)); err != nil {
+		return err
+	}
+
+	if err := d.Set("backup_source", databaseBackup.BackupSource); err != nil {
 		return err
 	}
 

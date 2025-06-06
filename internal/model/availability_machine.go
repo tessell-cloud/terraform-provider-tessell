@@ -7,12 +7,6 @@ type DBServiceTopology struct {
 	AvailabilityZones *[]string `json:"availabilityZones,omitempty"`
 }
 
-type RPOPolicyConfig struct {
-	EnableAutoSnapshot *bool              `json:"enableAutoSnapshot"` // Specify whether system will take auto snapshots or not
-	StandardPolicy     *StandardRPOPolicy `json:"standardPolicy,omitempty"`
-	CustomPolicy       *CustomRPOPolicy   `json:"customPolicy,omitempty"`
-}
-
 type TessellDAPServiceDTO struct {
 	Id                                *string                              `json:"id,omitempty"`                    // ID of the Access Policy
 	Name                              *string                              `json:"name,omitempty"`                  // Name of the Access Policy
@@ -80,15 +74,305 @@ type RegionToEncryptionKey struct {
 }
 
 type TessellCloneSummaryInfo struct {
-	Id                *string            `json:"id,omitempty"`
-	Name              *string            `json:"name"`                   // Name of the clone database
-	Subscription      *string            `json:"subscription,omitempty"` // Clone&#39;s subscription name
-	ComputeType       *string            `json:"computeType,omitempty"`  // Clone&#39;s compute type
-	Status            *string            `json:"status,omitempty"`       // Status of the clone database
-	CloudAvailability *[]CloudRegionInfo `json:"cloudAvailability,omitempty"`
-	CloneInfo         *map[string]string `json:"cloneInfo,omitempty"`   // Miscellaneous information
-	Owner             *string            `json:"owner,omitempty"`       // The user who created database clone
-	DateCreated       *string            `json:"dateCreated,omitempty"` // Timestamp when the entity was created
+	Id                *string                         `json:"id,omitempty"`
+	Name              *string                         `json:"name"`                   // Name of the clone database
+	Subscription      *string                         `json:"subscription,omitempty"` // Clone&#39;s subscription name
+	ComputeType       *string                         `json:"computeType,omitempty"`  // Clone&#39;s compute type
+	Status            *string                         `json:"status,omitempty"`       // Status of the clone database
+	CloudAvailability *[]CloudRegionInfo              `json:"cloudAvailability,omitempty"`
+	CloneInfo         *map[string]string              `json:"cloneInfo,omitempty"`   // Miscellaneous information
+	Owner             *string                         `json:"owner,omitempty"`       // The user who created database clone
+	Instances         *[]TessellServiceInstanceOpsDTO `json:"instances,omitempty"`   // Instances associated with this DB Service
+	DateCreated       *string                         `json:"dateCreated,omitempty"` // Timestamp when the entity was created
+}
+
+type TessellServiceInstanceOpsDTO struct {
+	Id                    *string                                        `json:"id,omitempty"`                 // Tessell generated UUID for the DB Service Instance
+	Name                  *string                                        `json:"name,omitempty"`               // Name of the DB Service Instance
+	ComputeName           *string                                        `json:"computeName,omitempty"`        // compute-name of the DB Service Instance on Cloud
+	Description           *string                                        `json:"description,omitempty"`        // DB Service Instance description
+	TessellServiceId      *string                                        `json:"tessellServiceId,omitempty"`   // DB Service Instance&#39;s associated DB Service ID
+	ComputeResourceId     *string                                        `json:"computeResourceId,omitempty"`  // Associated compute resource ID
+	CloudLocationId       *string                                        `json:"cloudLocationId,omitempty"`    // DB Service Instance&#39;s cloud location
+	ParameterProfileId    *string                                        `json:"parameterProfileId,omitempty"` // Parameter Profile linked with the DB service instance
+	CloudAccountId        *string                                        `json:"cloudAccountId,omitempty"`     // The cloud account on which the instance is hosted
+	InstanceGroupId       *string                                        `json:"instanceGroupId,omitempty"`    // The instance group Id
+	Type                  *string                                        `json:"type,omitempty"`
+	Role                  *string                                        `json:"role,omitempty"`
+	UserVisibleRole       *string                                        `json:"userVisibleRole,omitempty"`
+	Status                *string                                        `json:"status,omitempty"`
+	PluginStatus          *string                                        `json:"pluginStatus,omitempty"`
+	ConnectionInfo        *TessellServiceInstanceConnectionInfo          `json:"connectionInfo,omitempty"`
+	GenericInfo           *ServiceInstanceGenericInfo                    `json:"genericInfo,omitempty"`
+	LicenseInfo           *DBLicenseInfo                                 `json:"licenseInfo,omitempty"`
+	MonitoringConfig      *MonitoringConfig                              `json:"monitoringConfig,omitempty"`
+	DateCreated           *string                                        `json:"dateCreated,omitempty"`        // Timestamp when the entity was created
+	DateModified          *string                                        `json:"dateModified,omitempty"`       // Timestamp when the entity was last modified, either by system or by user
+	DateModifieDByUser    *string                                        `json:"dateModifiedByUser,omitempty"` // Timestamp when the entity was last modified by the user
+	Metadata              *TessellServiceInstanceMetadata                `json:"metadata,omitempty"`
+	DriverInfo            *TessellServiceInstanceDriverInfo              `json:"driverInfo,omitempty"`
+	UpdatesInProgressInfo *TessellServiceInstanceInProgressUpdateInfoOps `json:"updatesInProgressInfo,omitempty"`
+	LastStartedAt         *string                                        `json:"lastStartedAt,omitempty"`    // Timestamp when the service instance was last started at
+	LastStoppedAt         *string                                        `json:"lastStoppedAt,omitempty"`    // Timestamp when the Service Instance was last stopped at
+	LastDegradedAt        *string                                        `json:"lastDegradedAt,omitempty"`   // Timestamp when the Service Instance was DEGRADED
+	DeletedForUserAt      *string                                        `json:"deletedForUserAt,omitempty"` // Timestamp when the service instance was marked &#39;delete for user&#39;.
+	IsConsumable          *bool                                          `json:"isConsumable,omitempty"`     // Whether the service instance is consumable for purposes like billing
+	TessellAgentLcmInfo   *TessellAgentLcmInfo                           `json:"tessellAgentLcmInfo,omitempty"`
+	ComputeResource       *TessellComputeResourceOpsDTO                  `json:"computeResource,omitempty"`
+}
+
+type TessellServiceInstanceConnectionInfo struct {
+	ConnectString *TessellServiceInstanceConnectString             `json:"connectString,omitempty"`
+	EndPoints     *[]TessellServiceInstanceConnectionInfoEndPoints `json:"endPoints,omitempty"`
+	Data          *map[string]interface{}                          `json:"data,omitempty"`
+}
+
+type TessellServiceInstanceConnectionInfoEndPoints struct {
+	Endpoint *string                 `json:"endpoint,omitempty"`
+	Labels   *[]string               `json:"labels,omitempty"`
+	Data     *map[string]interface{} `json:"data,omitempty"`
+}
+
+type ServiceInstanceGenericInfo struct {
+	PartOfInitialPrimarySet *bool                      `json:"partOfInitialPrimarySet,omitempty"`
+	EncryptionKey           *string                    `json:"encryptionKey,omitempty"`    // The encryption key name which is used to encrypt the data at rest
+	EncryptionKeyId         *string                    `json:"encryptionKeyId,omitempty"`  // The encryption key id which is used to encrypt the data at rest
+	ServerCertId            *string                    `json:"serverCertId,omitempty"`     // The CA certificate id which is configured for this instance
+	VPC                     *string                    `json:"vpc,omitempty"`              // The VPC to be used for provisioning the instance
+	VPCId                   *string                    `json:"vpcId,omitempty"`            // The VPC Id which is used for provisioning the instance
+	PublicSubnet            *string                    `json:"publicSubnet,omitempty"`     // The public subnet used for provisioning the instance
+	PublicSubnetId          *string                    `json:"publicSubnetId,omitempty"`   // The public subnet Id which is used for provisioning the instance
+	PrivateSubnet           *string                    `json:"privateSubnet,omitempty"`    // The private subnet used for provisioning the instance
+	PrivateSubnetId         *string                    `json:"privateSubnetId,omitempty"`  // The private subnet Id which is used for provisioning the instance
+	NetworkProfileId        *string                    `json:"networkProfileId,omitempty"` // The network-profile-id which is used for provisioning the instance
+	ComputeType             *string                    `json:"computeType,omitempty"`
+	ComputeId               *string                    `json:"computeId,omitempty"`
+	AwsInfraConfig          *AwsInfraConfig            `json:"awsInfraConfig,omitempty"`
+	BaseStorage             *int                       `json:"baseStorage,omitempty"`            // The base storage (in bytes) that has been provisioned for the DB Service instance.
+	AdditionalStorage       *int                       `json:"additionalStorage,omitempty"`      // The additional storage (in bytes) to be provisioned for the DB Service instance. This is in addition to what is specified in the compute type.
+	AllocatedStorage        *int                       `json:"allocatedStorage,omitempty"`       // The actual storage (in bytes) that has been provisioned for the DB Service instance.
+	MaxMemory               *int                       `json:"maxMemory,omitempty"`              // The allocated max memory (in bytes) for this instance
+	SoftwareImage           *string                    `json:"softwareImage,omitempty"`          // The software-image-name which is used for provisioning this instance
+	SoftwareImageVersion    *string                    `json:"softwareImageVersion,omitempty"`   // The software-image-version-name which is used for provisioning this instance
+	SoftwareImageId         *string                    `json:"softwareImageId,omitempty"`        // The software-image-id which is used for provisioning this instance
+	SoftwareImageVersionId  *string                    `json:"softwareImageVersionId,omitempty"` // The software-image-version-id which is used for provisioning this instance
+	DataVolumeIops          *int                       `json:"dataVolumeIops,omitempty"`
+	Throughput              *int                       `json:"throughput,omitempty"` // Throughput requested for this DB Service instance
+	MultiDisk               *bool                      `json:"multiDisk,omitempty"`  // Specify whether the DB service uses multiple data disks
+	ParameterProfile        *ParameterProfile          `json:"parameterProfile,omitempty"`
+	OptionProfile           *OptionProfile             `json:"optionProfile,omitempty"`
+	ParameterProfileId      *string                    `json:"parameterProfileId,omitempty"`
+	SyncMode                *string                    `json:"syncMode,omitempty"`
+	EngineConfiguration     *ServiceInstanceEngineInfo `json:"engineConfiguration,omitempty"`
+	ComputeConfig           *InstanceComputeConfig     `json:"computeConfig,omitempty"`
+	StorageConfig           *InstanceStorageConfig     `json:"storageConfig,omitempty"`
+	ArchiveStorageConfig    *InstanceStorageConfig     `json:"archiveStorageConfig,omitempty"`
+}
+
+type OptionProfile struct {
+	Id     *string `json:"id,omitempty"`   // Tessell generated UUID for the the option profile
+	Name   *string `json:"name,omitempty"` // The name used to identify the option profile
+	Status *string `json:"status,omitempty"`
+}
+
+type DBLicenseInfo struct {
+	Licenses *[]LicenseInfo `json:"licenses,omitempty"`
+}
+
+type LicenseInfo struct {
+	LicenseId *string  `json:"licenseId,omitempty"`
+	LockHash  *string  `json:"lockHash,omitempty"` // Acquired licenses lock-hash
+	Quantity  *float64 `json:"quantity,omitempty"` // quantity of acquired license
+}
+
+type TessellServiceInstanceMetadata struct {
+	InstanceGroupName             *string                 `json:"instanceGroupName,omitempty"`
+	DeletionAttempts              *int                    `json:"deletionAttempts,omitempty"`
+	LastDeletionDispatchTime      *string                 `json:"lastDeletionDispatchTime,omitempty"`
+	LastResizeDispatchTime        *string                 `json:"lastResizeDispatchTime,omitempty"`
+	LastStorageResizeDispatchTime *string                 `json:"lastStorageResizeDispatchTime,omitempty"`
+	AddReplicaContextId           *string                 `json:"addReplicaContextId,omitempty"`
+	Data                          *map[string]interface{} `json:"data,omitempty"`
+	IsDcrEnabled                  *bool                   `json:"isDcrEnabled,omitempty"`
+}
+
+type TessellServiceInstanceDriverInfo struct {
+	Data *map[string]interface{} `json:"data,omitempty"`
+}
+
+type TessellServiceInstanceInProgressUpdateInfoOps struct {
+	Infra *TessellServiceInstanceInProgressUpdateInfoOpsInfra `json:"infra,omitempty"`
+}
+
+type TessellServiceInstanceInProgressUpdateInfoOpsInfra struct {
+	ResourceUpdateInfo *TessellResourceUpdateInfo             `json:"resourceUpdateInfo,omitempty"`
+	InfraUpdateInfo    *TessellServiceInstanceInfraUpdateInfo `json:"infraUpdateInfo,omitempty"`
+}
+
+type TessellServiceInstanceInfraUpdateInfo struct {
+	ComputeType *string `json:"computeType,omitempty"`
+}
+
+type TessellAgentLcmInfo struct {
+	ComputeResourceInfo *map[string]interface{} `json:"computeResourceInfo,omitempty"`
+	ServiceInfo         *map[string]interface{} `json:"serviceInfo,omitempty"`
+	InstanceInfo        *map[string]interface{} `json:"instanceInfo,omitempty"`
+	Data                *map[string]interface{} `json:"data,omitempty"`
+}
+
+type TessellComputeResourceOpsDTO struct {
+	Id                           *string                               `json:"id,omitempty"`          // Tessell generated UUID for the entity
+	Name                         *string                               `json:"name"`                  // Name of the entity
+	Description                  *string                               `json:"description,omitempty"` // Compute Resource description
+	TenantId                     *string                               `json:"tenantId,omitempty"`
+	SubscriptionId               *string                               `json:"subscriptionId,omitempty"`
+	EngineType                   *string                               `json:"engineType,omitempty"`
+	Status                       *string                               `json:"status,omitempty"`
+	Tsm                          *bool                                 `json:"tsm,omitempty"`
+	CloudStatus                  *string                               `json:"cloudStatus,omitempty"`           // Compute Resource&#39;s status in the cloud
+	ComputeSharingEnabled        *bool                                 `json:"computeSharingEnabled,omitempty"` // Whether the Compute Resource is shared across multiple DB Services
+	CloudAccountId               *string                               `json:"cloudAccountId,omitempty"`        // Compute Resource&#39;s Tessell cloud account identifier
+	CloudLocation                *string                               `json:"cloudLocation,omitempty"`         // Compute Resource&#39;s location in the cloud
+	CloudResourceId              *string                               `json:"cloudResourceId,omitempty"`       // Compute Resource&#39;s cloud identifier
+	Type                         *string                               `json:"type,omitempty"`
+	MachineType                  *string                               `json:"machineType,omitempty"`
+	OsInfo                       *OsInfo                               `json:"osInfo,omitempty"`
+	SoftwareImageId              *string                               `json:"softwareImageId,omitempty"`        // Compute Resource&#39;s Software Image Id
+	SoftwareImageVersionId       *string                               `json:"softwareImageVersionId,omitempty"` // Compute Resource&#39;s Software Image Version Id
+	NetworkProfileId             *string                               `json:"networkProfileId,omitempty"`       // Compute Resource&#39;s Network Profile Id
+	ComputeTypeId                *string                               `json:"computeTypeId,omitempty"`          // Compute Resource&#39;s compute type Id
+	UserId                       *string                               `json:"userId,omitempty"`                 // Compute Resource&#39;s user id
+	Owner                        *string                               `json:"owner,omitempty"`                  // Compute resource&#39;s owner email address
+	DateCreated                  *string                               `json:"dateCreated,omitempty"`            // Timestamp when the entity was created
+	DateModified                 *string                               `json:"dateModified,omitempty"`           // Timestamp when the entity was last modified
+	Timezone                     *string                               `json:"timezone,omitempty"`               // The timezone detail
+	MachineFqdnInfo              *ComputeResourceMachineFqdnInfo       `json:"machineFqdnInfo,omitempty"`
+	IpAddressInfo                *ComputeResourceIpAddressInfo         `json:"ipAddressInfo,omitempty"`
+	Metadata                     *ComputeResourceMetadata              `json:"metadata,omitempty"`
+	DriverInfo                   *ComputeResourceDriverInfo            `json:"driverInfo,omitempty"`
+	TessellStackInfo             *ComputeResourceTessellStackInfo      `json:"tessellStackInfo,omitempty"`
+	TessellAgentLcmInfo          *TessellAgentLcmInfo                  `json:"tessellAgentLcmInfo,omitempty"`
+	TessellEndpointMigrationInfo *ComputeResourceEndpointMigrationInfo `json:"tessellEndpointMigrationInfo,omitempty"`
+	Internal                     *bool                                 `json:"internal,omitempty"` // Whether the Compute Resource is created for internal usage
+	ContextInfo                  *ComputeResourceContextInfo           `json:"contextInfo,omitempty"`
+	ActionMetadata               *ComputeResourceActionMetadata        `json:"actionMetadata,omitempty"`
+}
+
+type OsInfo struct {
+	Type  *string `json:"type,omitempty"`
+	Image *string `json:"image,omitempty"`
+}
+
+type ComputeResourceMachineFqdnInfo struct {
+	Data *map[string]interface{} `json:"data,omitempty"`
+}
+
+type ComputeResourceIpAddressInfo struct {
+	Data        *map[string]interface{} `json:"data,omitempty"`
+	IpAddresses *map[string]interface{} `json:"ipAddresses,omitempty"`
+}
+
+type ComputeResourceMetadata struct {
+	Subscription                 *string                                  `json:"subscription,omitempty"`
+	ComputeType                  *string                                  `json:"computeType,omitempty"`
+	VPC                          *string                                  `json:"vpc,omitempty"`
+	PrivateSubnetId              *string                                  `json:"privateSubnetId,omitempty"`
+	PrivateSubnet                *string                                  `json:"privateSubnet,omitempty"`
+	PublicSubnetId               *string                                  `json:"publicSubnetId,omitempty"`
+	PublicSubnet                 *string                                  `json:"publicSubnet,omitempty"`
+	EncryptionKeyId              *string                                  `json:"encryptionKeyId,omitempty"`
+	EncryptionKey                *string                                  `json:"encryptionKey,omitempty"`
+	ConnectivityInfo             *ComputeResourceMetadataConnectivityInfo `json:"connectivityInfo,omitempty"`
+	OsTimezone                   *string                                  `json:"osTimezone,omitempty"` // The timezone detail
+	DBserverInfo                 *ComputeResourceDBserverInfo             `json:"dbserverInfo,omitempty"`
+	AwsInfraConfig               *AwsInfraConfig                          `json:"awsInfraConfig,omitempty"`
+	LicenseInfo                  *ComputeLicenseInfo                      `json:"licenseInfo,omitempty"`
+	Data                         *map[string]interface{}                  `json:"data,omitempty"`
+	IsAzureMonitorAgentInstalled *bool                                    `json:"isAzureMonitorAgentInstalled,omitempty"`
+	NodeIndex                    *int                                     `json:"nodeIndex,omitempty"`
+	UseAzureMonitorAgent         *bool                                    `json:"useAzureMonitorAgent,omitempty"`
+	ComputeConfig                *ComputeConfig                           `json:"computeConfig,omitempty"`
+}
+
+type ComputeResourceMetadataConnectivityInfo struct {
+	ServicePort *int `json:"servicePort,omitempty"` // The connection port for the DB Service
+}
+
+type ComputeResourceDBserverInfo struct {
+	FirstProvisionedDBserviceId *string                    `json:"firstProvisionedDbserviceId,omitempty"`
+	DBServiceIds                *[]string                  `json:"dbServiceIds,omitempty"` // The list of DB Service ids that are hosted on this compute resource
+	EnablePublicAccess          *bool                      `json:"enablePublicAccess,omitempty"`
+	EnableSSL                   *bool                      `json:"enableSSL,omitempty"`
+	SoftwareImageInfo           *DBserverSoftwareImageInfo `json:"softwareImageInfo,omitempty"`
+}
+
+type DBserverSoftwareImageInfo struct {
+	SoftwareImage         *string                             `json:"softwareImage,omitempty"`
+	SoftwareImageId       *string                             `json:"softwareImageId,omitempty"`
+	SoftwareImageVersions *[]DBserverSoftwareImageVersionInfo `json:"softwareImageVersions,omitempty"`
+}
+
+type DBserverSoftwareImageVersionInfo struct {
+	SoftwareImageVersion   *string `json:"softwareImageVersion,omitempty"`
+	SoftwareImageVersionId *string `json:"softwareImageVersionId,omitempty"`
+	Supported              *bool   `json:"supported,omitempty"`
+}
+
+type ComputeLicenseInfo struct {
+	AcquirerId *string  `json:"acquirerId,omitempty"`
+	LicenseId  *string  `json:"licenseId,omitempty"`
+	LockHash   *string  `json:"lockHash,omitempty"` // Acquired licenses lock-hash
+	Quantity   *float64 `json:"quantity,omitempty"` // quantity of acquired license
+}
+
+type ComputeConfig struct {
+	Provider      *string               `json:"provider,omitempty"`
+	ExadataConfig *ExadataComputeConfig `json:"exadataConfig,omitempty"`
+}
+
+type ExadataComputeConfig struct {
+	InfrastructureId   *string `json:"infrastructureId"`
+	InfrastructureName *string `json:"infrastructureName"`
+	VmClusterId        *string `json:"vmClusterId"`
+	VmClusterName      *string `json:"vmClusterName"`
+	Ocpu               *int    `json:"ocpu,omitempty"`
+	MemoryInGbs        *int    `json:"memoryInGbs,omitempty"`
+	FloatingIpAddress  *string `json:"floatingIpAddress,omitempty"`
+	DBServer           *string `json:"dbServer,omitempty"`
+	PrivateIpAddress   *string `json:"privateIpAddress,omitempty"`
+	LocalStorageInGbs  *int    `json:"localStorageInGbs,omitempty"`
+	DNSName            *string `json:"dnsName,omitempty"`
+}
+
+type ComputeResourceDriverInfo struct {
+	Data *map[string]interface{} `json:"data,omitempty"`
+}
+
+type ComputeResourceTessellStackInfo struct {
+	Data *map[string]interface{} `json:"data,omitempty"`
+}
+
+type ComputeResourceEndpointMigrationInfo struct {
+	ValidateCommonEndpoint                 *bool   `json:"validateCommonEndpoint,omitempty"`
+	MigrateToCommonEndpoint                *bool   `json:"migrateToCommonEndpoint,omitempty"`
+	CommonEndpointSuccessfulValidationTime *string `json:"commonEndpointSuccessfulValidationTime,omitempty"`
+	CommonEndpointSuccessfulMigrationTime  *string `json:"commonEndpointSuccessfulMigrationTime,omitempty"`
+}
+
+type ComputeResourceContextInfo struct {
+	SubStatus   *string `json:"subStatus,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
+
+type ComputeResourceActionMetadata struct {
+	LastActionMetadata     *CrLastActionMetadata `json:"lastActionMetadata,omitempty"`
+	LastResizeDispatchTime *string               `json:"lastResizeDispatchTime,omitempty"`
+}
+
+type CrLastActionMetadata struct {
+	ReferenceId *string `json:"referenceId,omitempty"`
+	ContextId   *string `json:"contextId,omitempty"`
+	ActionType  *string `json:"actionType,omitempty"`
 }
 
 type BackupDownloadConfig struct {

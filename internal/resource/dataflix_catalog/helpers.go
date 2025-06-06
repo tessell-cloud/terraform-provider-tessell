@@ -178,6 +178,7 @@ func parseDataflixSnapshot(snapshotCatalog *model.DataflixSnapshot) interface{} 
 	parsedSnapshotCatalog["status"] = snapshotCatalog.Status
 	parsedSnapshotCatalog["size"] = snapshotCatalog.Size
 	parsedSnapshotCatalog["manual"] = snapshotCatalog.Manual
+	parsedSnapshotCatalog["incremental"] = snapshotCatalog.Incremental
 
 	parsedSnapshotCatalog["backup_status"] = snapshotCatalog.BackupStatus
 
