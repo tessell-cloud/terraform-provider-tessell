@@ -163,6 +163,46 @@ type APIPaginationInfo struct {
 	PageOffset *int `json:"pageOffset,omitempty"`
 }
 
+type TessellServiceInstanceDTO struct {
+	Id                   *string                              `json:"id,omitempty"`                // Tessell generated UUID for the DB Service Instance
+	Name                 *string                              `json:"name"`                        // Name of the DB Service Instance
+	InstanceGroupName    *string                              `json:"instanceGroupName,omitempty"` // Name of the instance group
+	Type                 *string                              `json:"type,omitempty"`              // DB Service instance type
+	Role                 *string                              `json:"role,omitempty"`              // DB Service instance role
+	Status               *string                              `json:"status,omitempty"`            // DB Service instance status
+	TessellServiceId     *string                              `json:"tessellServiceId,omitempty"`  // DB Service Instance&#39;s associated DB Service id
+	Cloud                *string                              `json:"cloud,omitempty"`             // DB Service Instance&#39;s cloud type
+	Region               *string                              `json:"region,omitempty"`            // DB Service Instance&#39;s cloud region
+	AvailabilityZone     *string                              `json:"availabilityZone,omitempty"`  // DB Service Instance&#39;s cloud availability zone
+	InstanceGroupId      *string                              `json:"instanceGroupId,omitempty"`   // The instance groupd Id
+	ComputeType          *string                              `json:"computeType,omitempty"`       // The compute used for creation of the Tessell Service Instance
+	AwsInfraConfig       *AwsInfraConfig                      `json:"awsInfraConfig,omitempty"`
+	ComputeId            *string                              `json:"computeId,omitempty"`   // The associated compute identifier
+	ComputeName          *string                              `json:"computeName,omitempty"` // The associated compute name
+	Storage              *int                                 `json:"storage,omitempty"`     // The storage (in bytes) that has been provisioned for the DB Service instance.
+	DataVolumeIops       *int                                 `json:"dataVolumeIops,omitempty"`
+	Throughput           *int                                 `json:"throughput,omitempty"` // Throughput requested for this DB Service instance
+	EnablePerfInsights   *bool                                `json:"enablePerfInsights,omitempty"`
+	ParameterProfile     *ParameterProfile                    `json:"parameterProfile,omitempty"`
+	MonitoringConfig     *MonitoringConfig                    `json:"monitoringConfig,omitempty"`
+	VPC                  *string                              `json:"vpc,omitempty"`                  // The VPC used for creation of the DB Service Instance
+	PublicSubnet         *string                              `json:"publicSubnet,omitempty"`         // The public subnet used for creation of the DB Service Instance
+	PrivateSubnet        *string                              `json:"privateSubnet,omitempty"`        // The private subnet used for creation of the DB Service Instance
+	EncryptionKey        *string                              `json:"encryptionKey,omitempty"`        // The encryption key name which is used to encrypt the data at rest
+	SoftwareImage        *string                              `json:"softwareImage,omitempty"`        // Software Image to be used to create the instance
+	SoftwareImageVersion *string                              `json:"softwareImageVersion,omitempty"` // Software Image Version to be used to create the instance
+	DateCreated          *string                              `json:"dateCreated,omitempty"`          // Timestamp when the entity was created
+	ConnectString        *TessellServiceInstanceConnectString `json:"connectString,omitempty"`
+	UpdatesInProgress    *[]TessellResourceUpdateInfo         `json:"updatesInProgress,omitempty"` // The updates that are in progress for this resource
+	LastStartedAt        *string                              `json:"lastStartedAt,omitempty"`     // Timestamp when the service instance was last started at
+	LastStoppedAt        *string                              `json:"lastStoppedAt,omitempty"`     // Timestamp when the Service Instance was last stopped at
+	SyncMode             *string                              `json:"syncMode,omitempty"`
+	EngineConfiguration  *ServiceInstanceEngineInfo           `json:"engineConfiguration,omitempty"`
+	ComputeConfig        *InstanceComputeConfig               `json:"computeConfig,omitempty"`
+	StorageConfig        *InstanceStorageConfig               `json:"storageConfig,omitempty"`
+	ArchiveStorageConfig *InstanceStorageConfig               `json:"archiveStorageConfig,omitempty"`
+}
+
 type APIStatus struct {
 	Status  *string `json:"status,omitempty"`
 	Message *string `json:"message,omitempty"`
@@ -173,6 +213,10 @@ type AzureNetAppEncryptionKeyInfo struct {
 	Name                    *string `json:"name,omitempty"`                    // name of the encryption key
 	KeyVaultCloudResourceId *string `json:"keyVaultCloudResourceId,omitempty"` // name of the encryption key vault in cloud
 	KeySource               *string `json:"keySource,omitempty"`
+}
+
+type AwsInfraConfig struct {
+	AwsCpuOptions *AwsCpuOptions `json:"awsCpuOptions,omitempty"`
 }
 
 type InstanceAzureNetAppConfig struct {
@@ -303,6 +347,10 @@ type PerfInsightsConfig struct {
 	PerfInsightsEnabled    *bool   `json:"perfInsightsEnabled,omitempty"`
 	MonitoringDeploymentId *string `json:"monitoringDeploymentId,omitempty"`
 	Status                 *string `json:"status,omitempty"`
+}
+
+type AwsCpuOptions struct {
+	Vcpus *int `json:"vcpus,omitempty"` // Number of vcpus for aws cpu options
 }
 
 type BackupDatabaseInfo struct {

@@ -589,8 +589,6 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 	parsedInfrastructure["multi_disk"] = infrastructure.MultiDisk
 	parsedInfrastructure["storage_provider"] = infrastructure.StorageProvider
 
-	parsedInfrastructure["compute_provider"] = infrastructure.ComputeProvider
-
 	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
 		parsedInfrastructure["cloud_availability"] = parseCloudRegionInfoList(infrastructure.CloudAvailability)
@@ -599,16 +597,6 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 	var awsInfraConfig *model.AwsInfraConfig
 	if infrastructure.AwsInfraConfig != awsInfraConfig {
 		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
-	}
-
-	var storageConfig *model.ServiceStorageConfig
-	if infrastructure.StorageConfig != storageConfig {
-		parsedInfrastructure["storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.StorageConfig)}
-	}
-
-	var archiveStorageConfig *model.ServiceStorageConfig
-	if infrastructure.ArchiveStorageConfig != archiveStorageConfig {
-		parsedInfrastructure["archive_storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.ArchiveStorageConfig)}
 	}
 
 	return []interface{}{parsedInfrastructure}
@@ -637,8 +625,6 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	parsedInfrastructure["multi_disk"] = infrastructure.MultiDisk
 	parsedInfrastructure["storage_provider"] = infrastructure.StorageProvider
 
-	parsedInfrastructure["compute_provider"] = infrastructure.ComputeProvider
-
 	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
 		parsedInfrastructure["cloud_availability"] = parseCloudRegionInfoList(infrastructure.CloudAvailability)
@@ -647,16 +633,6 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	var awsInfraConfig *model.AwsInfraConfig
 	if infrastructure.AwsInfraConfig != awsInfraConfig {
 		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
-	}
-
-	var storageConfig *model.ServiceStorageConfig
-	if infrastructure.StorageConfig != storageConfig {
-		parsedInfrastructure["storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.StorageConfig)}
-	}
-
-	var archiveStorageConfig *model.ServiceStorageConfig
-	if infrastructure.ArchiveStorageConfig != archiveStorageConfig {
-		parsedInfrastructure["archive_storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.ArchiveStorageConfig)}
 	}
 
 	return parsedInfrastructure
@@ -2433,12 +2409,15 @@ func formProvisionComputePayload(provisionComputePayloadRaw interface{}) *model.
 		VPC:                  helper.GetStringPointer(provisionComputePayloadData["vpc"]),
 		PrivateSubnet:        helper.GetStringPointer(provisionComputePayloadData["private_subnet"]),
 		ComputeType:          helper.GetStringPointer(provisionComputePayloadData["compute_type"]),
-		ComputeName:          helper.GetStringPointer(provisionComputePayloadData["compute_name"]),
 		ComputeId:            helper.GetStringPointer(provisionComputePayloadData["compute_id"]),
 		Timezone:             helper.GetStringPointer(provisionComputePayloadData["timezone"]),
 		ComputeConfig:        formComputeConfigPayload(provisionComputePayloadData["compute_config"]),
 		StorageConfig:        formStorageConfigPayload(provisionComputePayloadData["storage_config"]),
 		ArchiveStorageConfig: formStorageConfigPayload(provisionComputePayloadData["archive_storage_config"]),
+	}
+
+	if provisionComputePayloadData["compute_name"] != nil && provisionComputePayloadData["compute_name"] != "" {
+		provisionComputePayloadFormed.ComputeName = helper.GetStringPointer(provisionComputePayloadData["compute_name"])
 	}
 
 	return &provisionComputePayloadFormed
@@ -2470,7 +2449,6 @@ func formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2Raw interfac
 		VPC:                  helper.GetStringPointer(addDBServiceInstancePayloadV2Data["vpc"]),
 		PrivateSubnet:        helper.GetStringPointer(addDBServiceInstancePayloadV2Data["private_subnet"]),
 		ComputeType:          helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_type"]),
-		ComputeName:          helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_name"]),
 		ComputeId:            helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_id"]),
 		EnablePerfInsights:   helper.GetBoolPointer(addDBServiceInstancePayloadV2Data["enable_perf_insights"]),
 		AwsInfraConfig:       formAwsInfraConfig(addDBServiceInstancePayloadV2Data["aws_infra_config"]),
@@ -2479,6 +2457,10 @@ func formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2Raw interfac
 		ComputeConfig:        formComputeConfigPayload(addDBServiceInstancePayloadV2Data["compute_config"]),
 		StorageConfig:        formStorageConfigPayload(addDBServiceInstancePayloadV2Data["storage_config"]),
 		ArchiveStorageConfig: formStorageConfigPayload(addDBServiceInstancePayloadV2Data["archive_storage_config"]),
+	}
+
+	if addDBServiceInstancePayloadV2Data["compute_name"] != nil && addDBServiceInstancePayloadV2Data["compute_name"] != "" {
+		addDBServiceInstancePayloadV2Formed.ComputeName = helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_name"])
 	}
 
 	return &addDBServiceInstancePayloadV2Formed
@@ -2846,18 +2828,24 @@ func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurat
 	tessellServiceEngineConfigurationPayloadData := tessellServiceEngineConfigurationPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	tessellServiceEngineConfigurationPayloadFormed := model.TessellServiceEngineConfigurationPayload{
-		PreScriptInfo:           formScriptInfo(tessellServiceEngineConfigurationPayloadData["pre_script_info"]),
-		PostScriptInfo:          formScriptInfo(tessellServiceEngineConfigurationPayloadData["post_script_info"]),
-		OracleConfig:            formOracleEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["oracle_config"]),
-		PostgresqlConfig:        formPostgresqlEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["postgresql_config"]),
-		MysqlConfig:             formMysqlEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mysql_config"]),
-		SqlServerConfig:         formSqlServerEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["sql_server_config"]),
-		ApacheKafkaConfig:       formApacheKafkaEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["apache_kafka_config"]),
-		MongoDBConfig:           formMongoDBEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mongodb_config"]),
-		MilvusConfig:            formMilvusEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["milvus_config"]),
-		CollationConfig:         formDBEngineCollationConfig(tessellServiceEngineConfigurationPayloadData["collation_config"]),
-		IgnorePostScriptFailure: helper.GetBoolPointer(tessellServiceEngineConfigurationPayloadData["ignore_post_script_failure"]),
-		IgnorePreScriptFailure:  helper.GetBoolPointer(tessellServiceEngineConfigurationPayloadData["ignore_pre_script_failure"]),
+		PreScriptInfo:     formScriptInfo(tessellServiceEngineConfigurationPayloadData["pre_script_info"]),
+		PostScriptInfo:    formScriptInfo(tessellServiceEngineConfigurationPayloadData["post_script_info"]),
+		OracleConfig:      formOracleEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["oracle_config"]),
+		PostgresqlConfig:  formPostgresqlEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["postgresql_config"]),
+		MysqlConfig:       formMysqlEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mysql_config"]),
+		SqlServerConfig:   formSqlServerEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["sql_server_config"]),
+		ApacheKafkaConfig: formApacheKafkaEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["apache_kafka_config"]),
+		MongoDBConfig:     formMongoDBEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mongodb_config"]),
+		MilvusConfig:      formMilvusEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["milvus_config"]),
+		CollationConfig:   formDBEngineCollationConfig(tessellServiceEngineConfigurationPayloadData["collation_config"]),
+	}
+
+	if tessellServiceEngineConfigurationPayloadFormed.PreScriptInfo != nil {
+		tessellServiceEngineConfigurationPayloadFormed.IgnorePreScriptFailure = helper.GetBoolPointer(tessellServiceEngineConfigurationPayloadData["ignore_pre_script_failure"])
+	}
+
+	if tessellServiceEngineConfigurationPayloadFormed.PostScriptInfo != nil {
+		tessellServiceEngineConfigurationPayloadFormed.IgnorePostScriptFailure = helper.GetBoolPointer(tessellServiceEngineConfigurationPayloadData["ignore_post_script_failure"])
 	}
 
 	return &tessellServiceEngineConfigurationPayloadFormed

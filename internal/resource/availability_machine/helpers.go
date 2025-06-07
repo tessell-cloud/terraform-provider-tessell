@@ -875,241 +875,113 @@ func parseTessellCloneSummaryInfo(clones *model.TessellCloneSummaryInfo) interfa
 		parsedClones["cloud_availability"] = parseCloudRegionInfoList(clones.CloudAvailability)
 	}
 
-	var instances *[]model.TessellServiceInstanceOpsDTO
+	var instances *[]model.TessellServiceInstanceDTO
 	if clones.Instances != instances {
-		parsedClones["instances"] = parseTessellServiceInstanceOpsDTOList(clones.Instances)
+		parsedClones["instances"] = parseTessellServiceInstanceDTOList(clones.Instances)
 	}
 
 	return parsedClones
 }
 
-func parseTessellServiceInstanceOpsDTOList(tessellServiceInstanceOpsDTO *[]model.TessellServiceInstanceOpsDTO) []interface{} {
-	if tessellServiceInstanceOpsDTO == nil {
+func parseTessellServiceInstanceDTOList(tessellServiceInstanceDTO *[]model.TessellServiceInstanceDTO) []interface{} {
+	if tessellServiceInstanceDTO == nil {
 		return nil
 	}
-	tessellServiceInstanceOpsDTOList := make([]interface{}, 0)
+	tessellServiceInstanceDTOList := make([]interface{}, 0)
 
-	if tessellServiceInstanceOpsDTO != nil {
-		tessellServiceInstanceOpsDTOList = make([]interface{}, len(*tessellServiceInstanceOpsDTO))
-		for i, tessellServiceInstanceOpsDTOItem := range *tessellServiceInstanceOpsDTO {
-			tessellServiceInstanceOpsDTOList[i] = parseTessellServiceInstanceOpsDTO(&tessellServiceInstanceOpsDTOItem)
+	if tessellServiceInstanceDTO != nil {
+		tessellServiceInstanceDTOList = make([]interface{}, len(*tessellServiceInstanceDTO))
+		for i, tessellServiceInstanceDTOItem := range *tessellServiceInstanceDTO {
+			tessellServiceInstanceDTOList[i] = parseTessellServiceInstanceDTO(&tessellServiceInstanceDTOItem)
 		}
 	}
 
-	return tessellServiceInstanceOpsDTOList
+	return tessellServiceInstanceDTOList
 }
 
-func parseTessellServiceInstanceOpsDTO(tessellServiceInstanceOpsDTO *model.TessellServiceInstanceOpsDTO) interface{} {
-	if tessellServiceInstanceOpsDTO == nil {
+func parseTessellServiceInstanceDTO(tessellServiceInstanceDTO *model.TessellServiceInstanceDTO) interface{} {
+	if tessellServiceInstanceDTO == nil {
 		return nil
 	}
-	parsedTessellServiceInstanceOpsDTO := make(map[string]interface{})
-	parsedTessellServiceInstanceOpsDTO["id"] = tessellServiceInstanceOpsDTO.Id
-	parsedTessellServiceInstanceOpsDTO["name"] = tessellServiceInstanceOpsDTO.Name
-	parsedTessellServiceInstanceOpsDTO["compute_name"] = tessellServiceInstanceOpsDTO.ComputeName
-	parsedTessellServiceInstanceOpsDTO["description"] = tessellServiceInstanceOpsDTO.Description
-	parsedTessellServiceInstanceOpsDTO["tessell_service_id"] = tessellServiceInstanceOpsDTO.TessellServiceId
-	parsedTessellServiceInstanceOpsDTO["compute_resource_id"] = tessellServiceInstanceOpsDTO.ComputeResourceId
-	parsedTessellServiceInstanceOpsDTO["cloud_location_id"] = tessellServiceInstanceOpsDTO.CloudLocationId
-	parsedTessellServiceInstanceOpsDTO["parameter_profile_id"] = tessellServiceInstanceOpsDTO.ParameterProfileId
-	parsedTessellServiceInstanceOpsDTO["cloud_account_id"] = tessellServiceInstanceOpsDTO.CloudAccountId
-	parsedTessellServiceInstanceOpsDTO["instance_group_id"] = tessellServiceInstanceOpsDTO.InstanceGroupId
-	parsedTessellServiceInstanceOpsDTO["type"] = tessellServiceInstanceOpsDTO.Type
-	parsedTessellServiceInstanceOpsDTO["role"] = tessellServiceInstanceOpsDTO.Role
-	parsedTessellServiceInstanceOpsDTO["user_visible_role"] = tessellServiceInstanceOpsDTO.UserVisibleRole
-	parsedTessellServiceInstanceOpsDTO["status"] = tessellServiceInstanceOpsDTO.Status
-	parsedTessellServiceInstanceOpsDTO["plugin_status"] = tessellServiceInstanceOpsDTO.PluginStatus
+	parsedTessellServiceInstanceDTO := make(map[string]interface{})
+	parsedTessellServiceInstanceDTO["id"] = tessellServiceInstanceDTO.Id
+	parsedTessellServiceInstanceDTO["name"] = tessellServiceInstanceDTO.Name
+	parsedTessellServiceInstanceDTO["instance_group_name"] = tessellServiceInstanceDTO.InstanceGroupName
+	parsedTessellServiceInstanceDTO["type"] = tessellServiceInstanceDTO.Type
+	parsedTessellServiceInstanceDTO["role"] = tessellServiceInstanceDTO.Role
+	parsedTessellServiceInstanceDTO["status"] = tessellServiceInstanceDTO.Status
+	parsedTessellServiceInstanceDTO["tessell_service_id"] = tessellServiceInstanceDTO.TessellServiceId
+	parsedTessellServiceInstanceDTO["cloud"] = tessellServiceInstanceDTO.Cloud
+	parsedTessellServiceInstanceDTO["region"] = tessellServiceInstanceDTO.Region
+	parsedTessellServiceInstanceDTO["availability_zone"] = tessellServiceInstanceDTO.AvailabilityZone
+	parsedTessellServiceInstanceDTO["instance_group_id"] = tessellServiceInstanceDTO.InstanceGroupId
+	parsedTessellServiceInstanceDTO["compute_type"] = tessellServiceInstanceDTO.ComputeType
 
-	parsedTessellServiceInstanceOpsDTO["date_created"] = tessellServiceInstanceOpsDTO.DateCreated
-	parsedTessellServiceInstanceOpsDTO["date_modified"] = tessellServiceInstanceOpsDTO.DateModified
-	parsedTessellServiceInstanceOpsDTO["date_modified_by_user"] = tessellServiceInstanceOpsDTO.DateModifieDByUser
+	parsedTessellServiceInstanceDTO["compute_id"] = tessellServiceInstanceDTO.ComputeId
+	parsedTessellServiceInstanceDTO["compute_name"] = tessellServiceInstanceDTO.ComputeName
+	parsedTessellServiceInstanceDTO["storage"] = tessellServiceInstanceDTO.Storage
+	parsedTessellServiceInstanceDTO["data_volume_iops"] = tessellServiceInstanceDTO.DataVolumeIops
+	parsedTessellServiceInstanceDTO["throughput"] = tessellServiceInstanceDTO.Throughput
+	parsedTessellServiceInstanceDTO["enable_perf_insights"] = tessellServiceInstanceDTO.EnablePerfInsights
 
-	parsedTessellServiceInstanceOpsDTO["last_started_at"] = tessellServiceInstanceOpsDTO.LastStartedAt
-	parsedTessellServiceInstanceOpsDTO["last_stopped_at"] = tessellServiceInstanceOpsDTO.LastStoppedAt
-	parsedTessellServiceInstanceOpsDTO["last_degraded_at"] = tessellServiceInstanceOpsDTO.LastDegradedAt
-	parsedTessellServiceInstanceOpsDTO["deleted_for_user_at"] = tessellServiceInstanceOpsDTO.DeletedForUserAt
-	parsedTessellServiceInstanceOpsDTO["is_consumable"] = tessellServiceInstanceOpsDTO.IsConsumable
+	parsedTessellServiceInstanceDTO["vpc"] = tessellServiceInstanceDTO.VPC
+	parsedTessellServiceInstanceDTO["public_subnet"] = tessellServiceInstanceDTO.PublicSubnet
+	parsedTessellServiceInstanceDTO["private_subnet"] = tessellServiceInstanceDTO.PrivateSubnet
+	parsedTessellServiceInstanceDTO["encryption_key"] = tessellServiceInstanceDTO.EncryptionKey
+	parsedTessellServiceInstanceDTO["software_image"] = tessellServiceInstanceDTO.SoftwareImage
+	parsedTessellServiceInstanceDTO["software_image_version"] = tessellServiceInstanceDTO.SoftwareImageVersion
+	parsedTessellServiceInstanceDTO["date_created"] = tessellServiceInstanceDTO.DateCreated
 
-	var connectionInfo *model.TessellServiceInstanceConnectionInfo
-	if tessellServiceInstanceOpsDTO.ConnectionInfo != connectionInfo {
-		parsedTessellServiceInstanceOpsDTO["connection_info"] = []interface{}{parseTessellServiceInstanceConnectionInfo(tessellServiceInstanceOpsDTO.ConnectionInfo)}
-	}
-
-	var genericInfo *model.ServiceInstanceGenericInfo
-	if tessellServiceInstanceOpsDTO.GenericInfo != genericInfo {
-		parsedTessellServiceInstanceOpsDTO["generic_info"] = []interface{}{parseServiceInstanceGenericInfo(tessellServiceInstanceOpsDTO.GenericInfo)}
-	}
-
-	var licenseInfo *model.DBLicenseInfo
-	if tessellServiceInstanceOpsDTO.LicenseInfo != licenseInfo {
-		parsedTessellServiceInstanceOpsDTO["license_info"] = []interface{}{parseDBLicenseInfo(tessellServiceInstanceOpsDTO.LicenseInfo)}
-	}
-
-	var monitoringConfig *model.MonitoringConfig
-	if tessellServiceInstanceOpsDTO.MonitoringConfig != monitoringConfig {
-		parsedTessellServiceInstanceOpsDTO["monitoring_config"] = []interface{}{parseMonitoringConfig(tessellServiceInstanceOpsDTO.MonitoringConfig)}
-	}
-
-	var metadata *model.TessellServiceInstanceMetadata
-	if tessellServiceInstanceOpsDTO.Metadata != metadata {
-		parsedTessellServiceInstanceOpsDTO["metadata"] = []interface{}{parseTessellServiceInstanceMetadata(tessellServiceInstanceOpsDTO.Metadata)}
-	}
-
-	var driverInfo *model.TessellServiceInstanceDriverInfo
-	if tessellServiceInstanceOpsDTO.DriverInfo != driverInfo {
-		parsedTessellServiceInstanceOpsDTO["driver_info"] = []interface{}{parseTessellServiceInstanceDriverInfo(tessellServiceInstanceOpsDTO.DriverInfo)}
-	}
-
-	var updatesInProgressInfo *model.TessellServiceInstanceInProgressUpdateInfoOps
-	if tessellServiceInstanceOpsDTO.UpdatesInProgressInfo != updatesInProgressInfo {
-		parsedTessellServiceInstanceOpsDTO["updates_in_progress_info"] = []interface{}{parseTessellServiceInstanceInProgressUpdateInfoOps(tessellServiceInstanceOpsDTO.UpdatesInProgressInfo)}
-	}
-
-	var tessellAgentLcmInfo *model.TessellAgentLcmInfo
-	if tessellServiceInstanceOpsDTO.TessellAgentLcmInfo != tessellAgentLcmInfo {
-		parsedTessellServiceInstanceOpsDTO["tessell_agent_lcm_info"] = []interface{}{parseTessellAgentLcmInfo(tessellServiceInstanceOpsDTO.TessellAgentLcmInfo)}
-	}
-
-	var computeResource *model.TessellComputeResourceOpsDTO
-	if tessellServiceInstanceOpsDTO.ComputeResource != computeResource {
-		parsedTessellServiceInstanceOpsDTO["compute_resource"] = []interface{}{parseTessellComputeResourceOpsDTO(tessellServiceInstanceOpsDTO.ComputeResource)}
-	}
-
-	return parsedTessellServiceInstanceOpsDTO
-}
-
-func parseTessellServiceInstanceConnectionInfo(tessellServiceInstanceConnectionInfo *model.TessellServiceInstanceConnectionInfo) interface{} {
-	if tessellServiceInstanceConnectionInfo == nil {
-		return nil
-	}
-	parsedTessellServiceInstanceConnectionInfo := make(map[string]interface{})
-
-	parsedTessellServiceInstanceConnectionInfo["data"] = tessellServiceInstanceConnectionInfo.Data
-
-	var connectString *model.TessellServiceInstanceConnectString
-	if tessellServiceInstanceConnectionInfo.ConnectString != connectString {
-		parsedTessellServiceInstanceConnectionInfo["connect_string"] = []interface{}{parseTessellServiceInstanceConnectString(tessellServiceInstanceConnectionInfo.ConnectString)}
-	}
-
-	var endPoints *[]model.TessellServiceInstanceConnectionInfoEndPoints
-	if tessellServiceInstanceConnectionInfo.EndPoints != endPoints {
-		parsedTessellServiceInstanceConnectionInfo["end_points"] = parseTessellServiceInstanceConnectionInfoEndPointsList(tessellServiceInstanceConnectionInfo.EndPoints)
-	}
-
-	return parsedTessellServiceInstanceConnectionInfo
-}
-
-func parseTessellServiceInstanceConnectString(tessellServiceInstanceConnectString *model.TessellServiceInstanceConnectString) interface{} {
-	if tessellServiceInstanceConnectString == nil {
-		return nil
-	}
-	parsedTessellServiceInstanceConnectString := make(map[string]interface{})
-	parsedTessellServiceInstanceConnectString["connect_descriptor"] = tessellServiceInstanceConnectString.ConnectDescriptor
-	parsedTessellServiceInstanceConnectString["master_user"] = tessellServiceInstanceConnectString.MasterUser
-	parsedTessellServiceInstanceConnectString["endpoint"] = tessellServiceInstanceConnectString.Endpoint
-	parsedTessellServiceInstanceConnectString["service_port"] = tessellServiceInstanceConnectString.ServicePort
-
-	return parsedTessellServiceInstanceConnectString
-}
-
-func parseTessellServiceInstanceConnectionInfoEndPointsList(tessellServiceInstanceConnectionInfo_endPoints *[]model.TessellServiceInstanceConnectionInfoEndPoints) []interface{} {
-	if tessellServiceInstanceConnectionInfo_endPoints == nil {
-		return nil
-	}
-	tessellServiceInstanceConnectionInfoEndPointsList := make([]interface{}, 0)
-
-	if tessellServiceInstanceConnectionInfo_endPoints != nil {
-		tessellServiceInstanceConnectionInfoEndPointsList = make([]interface{}, len(*tessellServiceInstanceConnectionInfo_endPoints))
-		for i, tessellServiceInstanceConnectionInfoEndPointsItem := range *tessellServiceInstanceConnectionInfo_endPoints {
-			tessellServiceInstanceConnectionInfoEndPointsList[i] = parseTessellServiceInstanceConnectionInfoEndPoints(&tessellServiceInstanceConnectionInfoEndPointsItem)
-		}
-	}
-
-	return tessellServiceInstanceConnectionInfoEndPointsList
-}
-
-func parseTessellServiceInstanceConnectionInfoEndPoints(tessellServiceInstanceConnectionInfo_endPoints *model.TessellServiceInstanceConnectionInfoEndPoints) interface{} {
-	if tessellServiceInstanceConnectionInfo_endPoints == nil {
-		return nil
-	}
-	parsedTessellServiceInstanceConnectionInfo_endPoints := make(map[string]interface{})
-	parsedTessellServiceInstanceConnectionInfo_endPoints["endpoint"] = tessellServiceInstanceConnectionInfo_endPoints.Endpoint
-	parsedTessellServiceInstanceConnectionInfo_endPoints["labels"] = tessellServiceInstanceConnectionInfo_endPoints.Labels
-	parsedTessellServiceInstanceConnectionInfo_endPoints["data"] = tessellServiceInstanceConnectionInfo_endPoints.Data
-
-	return parsedTessellServiceInstanceConnectionInfo_endPoints
-}
-
-func parseServiceInstanceGenericInfo(serviceInstanceGenericInfo *model.ServiceInstanceGenericInfo) interface{} {
-	if serviceInstanceGenericInfo == nil {
-		return nil
-	}
-	parsedServiceInstanceGenericInfo := make(map[string]interface{})
-	parsedServiceInstanceGenericInfo["part_of_initial_primary_set"] = serviceInstanceGenericInfo.PartOfInitialPrimarySet
-	parsedServiceInstanceGenericInfo["encryption_key"] = serviceInstanceGenericInfo.EncryptionKey
-	parsedServiceInstanceGenericInfo["encryption_key_id"] = serviceInstanceGenericInfo.EncryptionKeyId
-	parsedServiceInstanceGenericInfo["server_cert_id"] = serviceInstanceGenericInfo.ServerCertId
-	parsedServiceInstanceGenericInfo["vpc"] = serviceInstanceGenericInfo.VPC
-	parsedServiceInstanceGenericInfo["vpc_id"] = serviceInstanceGenericInfo.VPCId
-	parsedServiceInstanceGenericInfo["public_subnet"] = serviceInstanceGenericInfo.PublicSubnet
-	parsedServiceInstanceGenericInfo["public_subnet_id"] = serviceInstanceGenericInfo.PublicSubnetId
-	parsedServiceInstanceGenericInfo["private_subnet"] = serviceInstanceGenericInfo.PrivateSubnet
-	parsedServiceInstanceGenericInfo["private_subnet_id"] = serviceInstanceGenericInfo.PrivateSubnetId
-	parsedServiceInstanceGenericInfo["network_profile_id"] = serviceInstanceGenericInfo.NetworkProfileId
-	parsedServiceInstanceGenericInfo["compute_type"] = serviceInstanceGenericInfo.ComputeType
-	parsedServiceInstanceGenericInfo["compute_id"] = serviceInstanceGenericInfo.ComputeId
-
-	parsedServiceInstanceGenericInfo["base_storage"] = serviceInstanceGenericInfo.BaseStorage
-	parsedServiceInstanceGenericInfo["additional_storage"] = serviceInstanceGenericInfo.AdditionalStorage
-	parsedServiceInstanceGenericInfo["allocated_storage"] = serviceInstanceGenericInfo.AllocatedStorage
-	parsedServiceInstanceGenericInfo["max_memory"] = serviceInstanceGenericInfo.MaxMemory
-	parsedServiceInstanceGenericInfo["software_image"] = serviceInstanceGenericInfo.SoftwareImage
-	parsedServiceInstanceGenericInfo["software_image_version"] = serviceInstanceGenericInfo.SoftwareImageVersion
-	parsedServiceInstanceGenericInfo["software_image_id"] = serviceInstanceGenericInfo.SoftwareImageId
-	parsedServiceInstanceGenericInfo["software_image_version_id"] = serviceInstanceGenericInfo.SoftwareImageVersionId
-	parsedServiceInstanceGenericInfo["data_volume_iops"] = serviceInstanceGenericInfo.DataVolumeIops
-	parsedServiceInstanceGenericInfo["throughput"] = serviceInstanceGenericInfo.Throughput
-	parsedServiceInstanceGenericInfo["multi_disk"] = serviceInstanceGenericInfo.MultiDisk
-
-	parsedServiceInstanceGenericInfo["parameter_profile_id"] = serviceInstanceGenericInfo.ParameterProfileId
-	parsedServiceInstanceGenericInfo["sync_mode"] = serviceInstanceGenericInfo.SyncMode
+	parsedTessellServiceInstanceDTO["last_started_at"] = tessellServiceInstanceDTO.LastStartedAt
+	parsedTessellServiceInstanceDTO["last_stopped_at"] = tessellServiceInstanceDTO.LastStoppedAt
+	parsedTessellServiceInstanceDTO["sync_mode"] = tessellServiceInstanceDTO.SyncMode
 
 	var awsInfraConfig *model.AwsInfraConfig
-	if serviceInstanceGenericInfo.AwsInfraConfig != awsInfraConfig {
-		parsedServiceInstanceGenericInfo["aws_infra_config"] = []interface{}{parseAwsInfraConfig(serviceInstanceGenericInfo.AwsInfraConfig)}
+	if tessellServiceInstanceDTO.AwsInfraConfig != awsInfraConfig {
+		parsedTessellServiceInstanceDTO["aws_infra_config"] = []interface{}{parseAwsInfraConfig(tessellServiceInstanceDTO.AwsInfraConfig)}
 	}
 
 	var parameterProfile *model.ParameterProfile
-	if serviceInstanceGenericInfo.ParameterProfile != parameterProfile {
-		parsedServiceInstanceGenericInfo["parameter_profile"] = []interface{}{parseParameterProfile(serviceInstanceGenericInfo.ParameterProfile)}
+	if tessellServiceInstanceDTO.ParameterProfile != parameterProfile {
+		parsedTessellServiceInstanceDTO["parameter_profile"] = []interface{}{parseParameterProfile(tessellServiceInstanceDTO.ParameterProfile)}
 	}
 
-	var optionProfile *model.OptionProfile
-	if serviceInstanceGenericInfo.OptionProfile != optionProfile {
-		parsedServiceInstanceGenericInfo["option_profile"] = []interface{}{parseOptionProfile(serviceInstanceGenericInfo.OptionProfile)}
+	var monitoringConfig *model.MonitoringConfig
+	if tessellServiceInstanceDTO.MonitoringConfig != monitoringConfig {
+		parsedTessellServiceInstanceDTO["monitoring_config"] = []interface{}{parseMonitoringConfig(tessellServiceInstanceDTO.MonitoringConfig)}
+	}
+
+	var connectString *model.TessellServiceInstanceConnectString
+	if tessellServiceInstanceDTO.ConnectString != connectString {
+		parsedTessellServiceInstanceDTO["connect_string"] = []interface{}{parseTessellServiceInstanceConnectString(tessellServiceInstanceDTO.ConnectString)}
+	}
+
+	var updatesInProgress *[]model.TessellResourceUpdateInfo
+	if tessellServiceInstanceDTO.UpdatesInProgress != updatesInProgress {
+		parsedTessellServiceInstanceDTO["updates_in_progress"] = parseTessellResourceUpdateInfoList(tessellServiceInstanceDTO.UpdatesInProgress)
 	}
 
 	var engineConfiguration *model.ServiceInstanceEngineInfo
-	if serviceInstanceGenericInfo.EngineConfiguration != engineConfiguration {
-		parsedServiceInstanceGenericInfo["engine_configuration"] = []interface{}{parseServiceInstanceEngineInfo(serviceInstanceGenericInfo.EngineConfiguration)}
+	if tessellServiceInstanceDTO.EngineConfiguration != engineConfiguration {
+		parsedTessellServiceInstanceDTO["engine_configuration"] = []interface{}{parseServiceInstanceEngineInfo(tessellServiceInstanceDTO.EngineConfiguration)}
 	}
 
 	var computeConfig *model.InstanceComputeConfig
-	if serviceInstanceGenericInfo.ComputeConfig != computeConfig {
-		parsedServiceInstanceGenericInfo["compute_config"] = []interface{}{parseInstanceComputeConfig(serviceInstanceGenericInfo.ComputeConfig)}
+	if tessellServiceInstanceDTO.ComputeConfig != computeConfig {
+		parsedTessellServiceInstanceDTO["compute_config"] = []interface{}{parseInstanceComputeConfig(tessellServiceInstanceDTO.ComputeConfig)}
 	}
 
 	var storageConfig *model.InstanceStorageConfig
-	if serviceInstanceGenericInfo.StorageConfig != storageConfig {
-		parsedServiceInstanceGenericInfo["storage_config"] = []interface{}{parseInstanceStorageConfig(serviceInstanceGenericInfo.StorageConfig)}
+	if tessellServiceInstanceDTO.StorageConfig != storageConfig {
+		parsedTessellServiceInstanceDTO["storage_config"] = []interface{}{parseInstanceStorageConfig(tessellServiceInstanceDTO.StorageConfig)}
 	}
 
 	var archiveStorageConfig *model.InstanceStorageConfig
-	if serviceInstanceGenericInfo.ArchiveStorageConfig != archiveStorageConfig {
-		parsedServiceInstanceGenericInfo["archive_storage_config"] = []interface{}{parseInstanceStorageConfig(serviceInstanceGenericInfo.ArchiveStorageConfig)}
+	if tessellServiceInstanceDTO.ArchiveStorageConfig != archiveStorageConfig {
+		parsedTessellServiceInstanceDTO["archive_storage_config"] = []interface{}{parseInstanceStorageConfig(tessellServiceInstanceDTO.ArchiveStorageConfig)}
 	}
 
-	return parsedServiceInstanceGenericInfo
+	return parsedTessellServiceInstanceDTO
 }
 
 func parseAwsInfraConfig(awsInfraConfig *model.AwsInfraConfig) interface{} {
@@ -1149,16 +1021,72 @@ func parseParameterProfile(parameterProfile *model.ParameterProfile) interface{}
 	return parsedParameterProfile
 }
 
-func parseOptionProfile(optionProfile *model.OptionProfile) interface{} {
-	if optionProfile == nil {
+func parseMonitoringConfig(monitoringConfig *model.MonitoringConfig) interface{} {
+	if monitoringConfig == nil {
 		return nil
 	}
-	parsedOptionProfile := make(map[string]interface{})
-	parsedOptionProfile["id"] = optionProfile.Id
-	parsedOptionProfile["name"] = optionProfile.Name
-	parsedOptionProfile["status"] = optionProfile.Status
+	parsedMonitoringConfig := make(map[string]interface{})
 
-	return parsedOptionProfile
+	var perfInsights *model.PerfInsightsConfig
+	if monitoringConfig.PerfInsights != perfInsights {
+		parsedMonitoringConfig["perf_insights"] = []interface{}{parsePerfInsightsConfig(monitoringConfig.PerfInsights)}
+	}
+
+	return parsedMonitoringConfig
+}
+
+func parsePerfInsightsConfig(perfInsightsConfig *model.PerfInsightsConfig) interface{} {
+	if perfInsightsConfig == nil {
+		return nil
+	}
+	parsedPerfInsightsConfig := make(map[string]interface{})
+	parsedPerfInsightsConfig["perf_insights_enabled"] = perfInsightsConfig.PerfInsightsEnabled
+	parsedPerfInsightsConfig["monitoring_deployment_id"] = perfInsightsConfig.MonitoringDeploymentId
+	parsedPerfInsightsConfig["status"] = perfInsightsConfig.Status
+
+	return parsedPerfInsightsConfig
+}
+
+func parseTessellServiceInstanceConnectString(tessellServiceInstanceConnectString *model.TessellServiceInstanceConnectString) interface{} {
+	if tessellServiceInstanceConnectString == nil {
+		return nil
+	}
+	parsedTessellServiceInstanceConnectString := make(map[string]interface{})
+	parsedTessellServiceInstanceConnectString["connect_descriptor"] = tessellServiceInstanceConnectString.ConnectDescriptor
+	parsedTessellServiceInstanceConnectString["master_user"] = tessellServiceInstanceConnectString.MasterUser
+	parsedTessellServiceInstanceConnectString["endpoint"] = tessellServiceInstanceConnectString.Endpoint
+	parsedTessellServiceInstanceConnectString["service_port"] = tessellServiceInstanceConnectString.ServicePort
+
+	return parsedTessellServiceInstanceConnectString
+}
+
+func parseTessellResourceUpdateInfoList(tessellResourceUpdateInfo *[]model.TessellResourceUpdateInfo) []interface{} {
+	if tessellResourceUpdateInfo == nil {
+		return nil
+	}
+	tessellResourceUpdateInfoList := make([]interface{}, 0)
+
+	if tessellResourceUpdateInfo != nil {
+		tessellResourceUpdateInfoList = make([]interface{}, len(*tessellResourceUpdateInfo))
+		for i, tessellResourceUpdateInfoItem := range *tessellResourceUpdateInfo {
+			tessellResourceUpdateInfoList[i] = parseTessellResourceUpdateInfo(&tessellResourceUpdateInfoItem)
+		}
+	}
+
+	return tessellResourceUpdateInfoList
+}
+
+func parseTessellResourceUpdateInfo(tessellResourceUpdateInfo *model.TessellResourceUpdateInfo) interface{} {
+	if tessellResourceUpdateInfo == nil {
+		return nil
+	}
+	parsedTessellResourceUpdateInfo := make(map[string]interface{})
+	parsedTessellResourceUpdateInfo["update_type"] = tessellResourceUpdateInfo.UpdateType
+	parsedTessellResourceUpdateInfo["reference_id"] = tessellResourceUpdateInfo.ReferenceId
+	parsedTessellResourceUpdateInfo["submitted_at"] = tessellResourceUpdateInfo.SubmittedAt
+	parsedTessellResourceUpdateInfo["update_info"] = tessellResourceUpdateInfo.UpdateInfo
+
+	return parsedTessellResourceUpdateInfo
 }
 
 func parseServiceInstanceEngineInfo(serviceInstanceEngineInfo *model.ServiceInstanceEngineInfo) interface{} {
@@ -1284,530 +1212,6 @@ func parseAzureNetAppEncryptionKeyInfo(azureNetAppEncryptionKeyInfo *model.Azure
 	parsedAzureNetAppEncryptionKeyInfo["key_source"] = azureNetAppEncryptionKeyInfo.KeySource
 
 	return parsedAzureNetAppEncryptionKeyInfo
-}
-
-func parseDBLicenseInfo(dbLicenseInfo *model.DBLicenseInfo) interface{} {
-	if dbLicenseInfo == nil {
-		return nil
-	}
-	parsedDbLicenseInfo := make(map[string]interface{})
-
-	var licenses *[]model.LicenseInfo
-	if dbLicenseInfo.Licenses != licenses {
-		parsedDbLicenseInfo["licenses"] = parseLicenseInfoList(dbLicenseInfo.Licenses)
-	}
-
-	return parsedDbLicenseInfo
-}
-
-func parseLicenseInfoList(licenseInfo *[]model.LicenseInfo) []interface{} {
-	if licenseInfo == nil {
-		return nil
-	}
-	licenseInfoList := make([]interface{}, 0)
-
-	if licenseInfo != nil {
-		licenseInfoList = make([]interface{}, len(*licenseInfo))
-		for i, licenseInfoItem := range *licenseInfo {
-			licenseInfoList[i] = parseLicenseInfo(&licenseInfoItem)
-		}
-	}
-
-	return licenseInfoList
-}
-
-func parseLicenseInfo(licenseInfo *model.LicenseInfo) interface{} {
-	if licenseInfo == nil {
-		return nil
-	}
-	parsedLicenseInfo := make(map[string]interface{})
-	parsedLicenseInfo["license_id"] = licenseInfo.LicenseId
-	parsedLicenseInfo["lock_hash"] = licenseInfo.LockHash
-	parsedLicenseInfo["quantity"] = licenseInfo.Quantity
-
-	return parsedLicenseInfo
-}
-
-func parseMonitoringConfig(monitoringConfig *model.MonitoringConfig) interface{} {
-	if monitoringConfig == nil {
-		return nil
-	}
-	parsedMonitoringConfig := make(map[string]interface{})
-
-	var perfInsights *model.PerfInsightsConfig
-	if monitoringConfig.PerfInsights != perfInsights {
-		parsedMonitoringConfig["perf_insights"] = []interface{}{parsePerfInsightsConfig(monitoringConfig.PerfInsights)}
-	}
-
-	return parsedMonitoringConfig
-}
-
-func parsePerfInsightsConfig(perfInsightsConfig *model.PerfInsightsConfig) interface{} {
-	if perfInsightsConfig == nil {
-		return nil
-	}
-	parsedPerfInsightsConfig := make(map[string]interface{})
-	parsedPerfInsightsConfig["perf_insights_enabled"] = perfInsightsConfig.PerfInsightsEnabled
-	parsedPerfInsightsConfig["monitoring_deployment_id"] = perfInsightsConfig.MonitoringDeploymentId
-	parsedPerfInsightsConfig["status"] = perfInsightsConfig.Status
-
-	return parsedPerfInsightsConfig
-}
-
-func parseTessellServiceInstanceMetadata(tessellServiceInstanceMetadata *model.TessellServiceInstanceMetadata) interface{} {
-	if tessellServiceInstanceMetadata == nil {
-		return nil
-	}
-	parsedTessellServiceInstanceMetadata := make(map[string]interface{})
-	parsedTessellServiceInstanceMetadata["instance_group_name"] = tessellServiceInstanceMetadata.InstanceGroupName
-	parsedTessellServiceInstanceMetadata["deletion_attempts"] = tessellServiceInstanceMetadata.DeletionAttempts
-	parsedTessellServiceInstanceMetadata["last_deletion_dispatch_time"] = tessellServiceInstanceMetadata.LastDeletionDispatchTime
-	parsedTessellServiceInstanceMetadata["last_resize_dispatch_time"] = tessellServiceInstanceMetadata.LastResizeDispatchTime
-	parsedTessellServiceInstanceMetadata["last_storage_resize_dispatch_time"] = tessellServiceInstanceMetadata.LastStorageResizeDispatchTime
-	parsedTessellServiceInstanceMetadata["add_replica_context_id"] = tessellServiceInstanceMetadata.AddReplicaContextId
-	parsedTessellServiceInstanceMetadata["data"] = tessellServiceInstanceMetadata.Data
-	parsedTessellServiceInstanceMetadata["is_dcr_enabled"] = tessellServiceInstanceMetadata.IsDcrEnabled
-
-	return parsedTessellServiceInstanceMetadata
-}
-
-func parseTessellServiceInstanceDriverInfo(tessellServiceInstanceDriverInfo *model.TessellServiceInstanceDriverInfo) interface{} {
-	if tessellServiceInstanceDriverInfo == nil {
-		return nil
-	}
-	parsedTessellServiceInstanceDriverInfo := make(map[string]interface{})
-	parsedTessellServiceInstanceDriverInfo["data"] = tessellServiceInstanceDriverInfo.Data
-
-	return parsedTessellServiceInstanceDriverInfo
-}
-
-func parseTessellServiceInstanceInProgressUpdateInfoOps(tessellServiceInstanceInProgressUpdateInfoOps *model.TessellServiceInstanceInProgressUpdateInfoOps) interface{} {
-	if tessellServiceInstanceInProgressUpdateInfoOps == nil {
-		return nil
-	}
-	parsedTessellServiceInstanceInProgressUpdateInfoOps := make(map[string]interface{})
-
-	var infra *model.TessellServiceInstanceInProgressUpdateInfoOpsInfra
-	if tessellServiceInstanceInProgressUpdateInfoOps.Infra != infra {
-		parsedTessellServiceInstanceInProgressUpdateInfoOps["infra"] = []interface{}{parseTessellServiceInstanceInProgressUpdateInfoOpsInfra(tessellServiceInstanceInProgressUpdateInfoOps.Infra)}
-	}
-
-	return parsedTessellServiceInstanceInProgressUpdateInfoOps
-}
-
-func parseTessellServiceInstanceInProgressUpdateInfoOpsInfra(tessellServiceInstanceInProgressUpdateInfoOps_infra *model.TessellServiceInstanceInProgressUpdateInfoOpsInfra) interface{} {
-	if tessellServiceInstanceInProgressUpdateInfoOps_infra == nil {
-		return nil
-	}
-	parsedTessellServiceInstanceInProgressUpdateInfoOps_infra := make(map[string]interface{})
-
-	var resourceUpdateInfo *model.TessellResourceUpdateInfo
-	if tessellServiceInstanceInProgressUpdateInfoOps_infra.ResourceUpdateInfo != resourceUpdateInfo {
-		parsedTessellServiceInstanceInProgressUpdateInfoOps_infra["resource_update_info"] = []interface{}{parseTessellResourceUpdateInfo(tessellServiceInstanceInProgressUpdateInfoOps_infra.ResourceUpdateInfo)}
-	}
-
-	var infraUpdateInfo *model.TessellServiceInstanceInfraUpdateInfo
-	if tessellServiceInstanceInProgressUpdateInfoOps_infra.InfraUpdateInfo != infraUpdateInfo {
-		parsedTessellServiceInstanceInProgressUpdateInfoOps_infra["infra_update_info"] = []interface{}{parseTessellServiceInstanceInfraUpdateInfo(tessellServiceInstanceInProgressUpdateInfoOps_infra.InfraUpdateInfo)}
-	}
-
-	return parsedTessellServiceInstanceInProgressUpdateInfoOps_infra
-}
-
-func parseTessellResourceUpdateInfo(tessellResourceUpdateInfo *model.TessellResourceUpdateInfo) interface{} {
-	if tessellResourceUpdateInfo == nil {
-		return nil
-	}
-	parsedTessellResourceUpdateInfo := make(map[string]interface{})
-	parsedTessellResourceUpdateInfo["update_type"] = tessellResourceUpdateInfo.UpdateType
-	parsedTessellResourceUpdateInfo["reference_id"] = tessellResourceUpdateInfo.ReferenceId
-	parsedTessellResourceUpdateInfo["submitted_at"] = tessellResourceUpdateInfo.SubmittedAt
-	parsedTessellResourceUpdateInfo["update_info"] = tessellResourceUpdateInfo.UpdateInfo
-
-	return parsedTessellResourceUpdateInfo
-}
-
-func parseTessellServiceInstanceInfraUpdateInfo(tessellServiceInstanceInfraUpdateInfo *model.TessellServiceInstanceInfraUpdateInfo) interface{} {
-	if tessellServiceInstanceInfraUpdateInfo == nil {
-		return nil
-	}
-	parsedTessellServiceInstanceInfraUpdateInfo := make(map[string]interface{})
-	parsedTessellServiceInstanceInfraUpdateInfo["compute_type"] = tessellServiceInstanceInfraUpdateInfo.ComputeType
-
-	return parsedTessellServiceInstanceInfraUpdateInfo
-}
-
-func parseTessellAgentLcmInfo(tessellAgentLcmInfo *model.TessellAgentLcmInfo) interface{} {
-	if tessellAgentLcmInfo == nil {
-		return nil
-	}
-	parsedTessellAgentLcmInfo := make(map[string]interface{})
-	parsedTessellAgentLcmInfo["compute_resource_info"] = tessellAgentLcmInfo.ComputeResourceInfo
-	parsedTessellAgentLcmInfo["service_info"] = tessellAgentLcmInfo.ServiceInfo
-	parsedTessellAgentLcmInfo["instance_info"] = tessellAgentLcmInfo.InstanceInfo
-	parsedTessellAgentLcmInfo["data"] = tessellAgentLcmInfo.Data
-
-	return parsedTessellAgentLcmInfo
-}
-
-func parseTessellComputeResourceOpsDTO(tessellComputeResourceOpsDTO *model.TessellComputeResourceOpsDTO) interface{} {
-	if tessellComputeResourceOpsDTO == nil {
-		return nil
-	}
-	parsedTessellComputeResourceOpsDTO := make(map[string]interface{})
-	parsedTessellComputeResourceOpsDTO["id"] = tessellComputeResourceOpsDTO.Id
-	parsedTessellComputeResourceOpsDTO["name"] = tessellComputeResourceOpsDTO.Name
-	parsedTessellComputeResourceOpsDTO["description"] = tessellComputeResourceOpsDTO.Description
-	parsedTessellComputeResourceOpsDTO["tenant_id"] = tessellComputeResourceOpsDTO.TenantId
-	parsedTessellComputeResourceOpsDTO["subscription_id"] = tessellComputeResourceOpsDTO.SubscriptionId
-	parsedTessellComputeResourceOpsDTO["engine_type"] = tessellComputeResourceOpsDTO.EngineType
-	parsedTessellComputeResourceOpsDTO["status"] = tessellComputeResourceOpsDTO.Status
-	parsedTessellComputeResourceOpsDTO["tsm"] = tessellComputeResourceOpsDTO.Tsm
-	parsedTessellComputeResourceOpsDTO["cloud_status"] = tessellComputeResourceOpsDTO.CloudStatus
-	parsedTessellComputeResourceOpsDTO["compute_sharing_enabled"] = tessellComputeResourceOpsDTO.ComputeSharingEnabled
-	parsedTessellComputeResourceOpsDTO["cloud_account_id"] = tessellComputeResourceOpsDTO.CloudAccountId
-	parsedTessellComputeResourceOpsDTO["cloud_location"] = tessellComputeResourceOpsDTO.CloudLocation
-	parsedTessellComputeResourceOpsDTO["cloud_resource_id"] = tessellComputeResourceOpsDTO.CloudResourceId
-	parsedTessellComputeResourceOpsDTO["type"] = tessellComputeResourceOpsDTO.Type
-	parsedTessellComputeResourceOpsDTO["machine_type"] = tessellComputeResourceOpsDTO.MachineType
-
-	parsedTessellComputeResourceOpsDTO["software_image_id"] = tessellComputeResourceOpsDTO.SoftwareImageId
-	parsedTessellComputeResourceOpsDTO["software_image_version_id"] = tessellComputeResourceOpsDTO.SoftwareImageVersionId
-	parsedTessellComputeResourceOpsDTO["network_profile_id"] = tessellComputeResourceOpsDTO.NetworkProfileId
-	parsedTessellComputeResourceOpsDTO["compute_type_id"] = tessellComputeResourceOpsDTO.ComputeTypeId
-	parsedTessellComputeResourceOpsDTO["user_id"] = tessellComputeResourceOpsDTO.UserId
-	parsedTessellComputeResourceOpsDTO["owner"] = tessellComputeResourceOpsDTO.Owner
-	parsedTessellComputeResourceOpsDTO["date_created"] = tessellComputeResourceOpsDTO.DateCreated
-	parsedTessellComputeResourceOpsDTO["date_modified"] = tessellComputeResourceOpsDTO.DateModified
-	parsedTessellComputeResourceOpsDTO["timezone"] = tessellComputeResourceOpsDTO.Timezone
-
-	parsedTessellComputeResourceOpsDTO["internal"] = tessellComputeResourceOpsDTO.Internal
-
-	var osInfo *model.OsInfo
-	if tessellComputeResourceOpsDTO.OsInfo != osInfo {
-		parsedTessellComputeResourceOpsDTO["os_info"] = []interface{}{parseOsInfo(tessellComputeResourceOpsDTO.OsInfo)}
-	}
-
-	var machineFqdnInfo *model.ComputeResourceMachineFqdnInfo
-	if tessellComputeResourceOpsDTO.MachineFqdnInfo != machineFqdnInfo {
-		parsedTessellComputeResourceOpsDTO["machine_fqdn_info"] = []interface{}{parseComputeResourceMachineFqdnInfo(tessellComputeResourceOpsDTO.MachineFqdnInfo)}
-	}
-
-	var ipAddressInfo *model.ComputeResourceIpAddressInfo
-	if tessellComputeResourceOpsDTO.IpAddressInfo != ipAddressInfo {
-		parsedTessellComputeResourceOpsDTO["ip_address_info"] = []interface{}{parseComputeResourceIpAddressInfo(tessellComputeResourceOpsDTO.IpAddressInfo)}
-	}
-
-	var metadata *model.ComputeResourceMetadata
-	if tessellComputeResourceOpsDTO.Metadata != metadata {
-		parsedTessellComputeResourceOpsDTO["metadata"] = []interface{}{parseComputeResourceMetadata(tessellComputeResourceOpsDTO.Metadata)}
-	}
-
-	var driverInfo *model.ComputeResourceDriverInfo
-	if tessellComputeResourceOpsDTO.DriverInfo != driverInfo {
-		parsedTessellComputeResourceOpsDTO["driver_info"] = []interface{}{parseComputeResourceDriverInfo(tessellComputeResourceOpsDTO.DriverInfo)}
-	}
-
-	var tessellStackInfo *model.ComputeResourceTessellStackInfo
-	if tessellComputeResourceOpsDTO.TessellStackInfo != tessellStackInfo {
-		parsedTessellComputeResourceOpsDTO["tessell_stack_info"] = []interface{}{parseComputeResourceTessellStackInfo(tessellComputeResourceOpsDTO.TessellStackInfo)}
-	}
-
-	var tessellAgentLcmInfo *model.TessellAgentLcmInfo
-	if tessellComputeResourceOpsDTO.TessellAgentLcmInfo != tessellAgentLcmInfo {
-		parsedTessellComputeResourceOpsDTO["tessell_agent_lcm_info"] = []interface{}{parseTessellAgentLcmInfo(tessellComputeResourceOpsDTO.TessellAgentLcmInfo)}
-	}
-
-	var tessellEndpointMigrationInfo *model.ComputeResourceEndpointMigrationInfo
-	if tessellComputeResourceOpsDTO.TessellEndpointMigrationInfo != tessellEndpointMigrationInfo {
-		parsedTessellComputeResourceOpsDTO["tessell_endpoint_migration_info"] = []interface{}{parseComputeResourceEndpointMigrationInfo(tessellComputeResourceOpsDTO.TessellEndpointMigrationInfo)}
-	}
-
-	var contextInfo *model.ComputeResourceContextInfo
-	if tessellComputeResourceOpsDTO.ContextInfo != contextInfo {
-		parsedTessellComputeResourceOpsDTO["context_info"] = []interface{}{parseComputeResourceContextInfo(tessellComputeResourceOpsDTO.ContextInfo)}
-	}
-
-	var actionMetadata *model.ComputeResourceActionMetadata
-	if tessellComputeResourceOpsDTO.ActionMetadata != actionMetadata {
-		parsedTessellComputeResourceOpsDTO["action_metadata"] = []interface{}{parseComputeResourceActionMetadata(tessellComputeResourceOpsDTO.ActionMetadata)}
-	}
-
-	return parsedTessellComputeResourceOpsDTO
-}
-
-func parseOsInfo(osInfo *model.OsInfo) interface{} {
-	if osInfo == nil {
-		return nil
-	}
-	parsedOsInfo := make(map[string]interface{})
-	parsedOsInfo["type"] = osInfo.Type
-	parsedOsInfo["image"] = osInfo.Image
-
-	return parsedOsInfo
-}
-
-func parseComputeResourceMachineFqdnInfo(computeResourceMachineFqdnInfo *model.ComputeResourceMachineFqdnInfo) interface{} {
-	if computeResourceMachineFqdnInfo == nil {
-		return nil
-	}
-	parsedComputeResourceMachineFqdnInfo := make(map[string]interface{})
-	parsedComputeResourceMachineFqdnInfo["data"] = computeResourceMachineFqdnInfo.Data
-
-	return parsedComputeResourceMachineFqdnInfo
-}
-
-func parseComputeResourceIpAddressInfo(computeResourceIpAddressInfo *model.ComputeResourceIpAddressInfo) interface{} {
-	if computeResourceIpAddressInfo == nil {
-		return nil
-	}
-	parsedComputeResourceIpAddressInfo := make(map[string]interface{})
-	parsedComputeResourceIpAddressInfo["data"] = computeResourceIpAddressInfo.Data
-	parsedComputeResourceIpAddressInfo["ip_addresses"] = computeResourceIpAddressInfo.IpAddresses
-
-	return parsedComputeResourceIpAddressInfo
-}
-
-func parseComputeResourceMetadata(computeResourceMetadata *model.ComputeResourceMetadata) interface{} {
-	if computeResourceMetadata == nil {
-		return nil
-	}
-	parsedComputeResourceMetadata := make(map[string]interface{})
-	parsedComputeResourceMetadata["subscription"] = computeResourceMetadata.Subscription
-	parsedComputeResourceMetadata["compute_type"] = computeResourceMetadata.ComputeType
-	parsedComputeResourceMetadata["vpc"] = computeResourceMetadata.VPC
-	parsedComputeResourceMetadata["private_subnet_id"] = computeResourceMetadata.PrivateSubnetId
-	parsedComputeResourceMetadata["private_subnet"] = computeResourceMetadata.PrivateSubnet
-	parsedComputeResourceMetadata["public_subnet_id"] = computeResourceMetadata.PublicSubnetId
-	parsedComputeResourceMetadata["public_subnet"] = computeResourceMetadata.PublicSubnet
-	parsedComputeResourceMetadata["encryption_key_id"] = computeResourceMetadata.EncryptionKeyId
-	parsedComputeResourceMetadata["encryption_key"] = computeResourceMetadata.EncryptionKey
-
-	parsedComputeResourceMetadata["os_timezone"] = computeResourceMetadata.OsTimezone
-
-	parsedComputeResourceMetadata["data"] = computeResourceMetadata.Data
-	parsedComputeResourceMetadata["is_azure_monitor_agent_installed"] = computeResourceMetadata.IsAzureMonitorAgentInstalled
-	parsedComputeResourceMetadata["node_index"] = computeResourceMetadata.NodeIndex
-	parsedComputeResourceMetadata["use_azure_monitor_agent"] = computeResourceMetadata.UseAzureMonitorAgent
-
-	var connectivityInfo *model.ComputeResourceMetadataConnectivityInfo
-	if computeResourceMetadata.ConnectivityInfo != connectivityInfo {
-		parsedComputeResourceMetadata["connectivity_info"] = []interface{}{parseComputeResourceMetadataConnectivityInfo(computeResourceMetadata.ConnectivityInfo)}
-	}
-
-	var dBserverInfo *model.ComputeResourceDBserverInfo
-	if computeResourceMetadata.DBserverInfo != dBserverInfo {
-		parsedComputeResourceMetadata["dbserver_info"] = []interface{}{parseComputeResourceDBserverInfo(computeResourceMetadata.DBserverInfo)}
-	}
-
-	var awsInfraConfig *model.AwsInfraConfig
-	if computeResourceMetadata.AwsInfraConfig != awsInfraConfig {
-		parsedComputeResourceMetadata["aws_infra_config"] = []interface{}{parseAwsInfraConfig(computeResourceMetadata.AwsInfraConfig)}
-	}
-
-	var licenseInfo *model.ComputeLicenseInfo
-	if computeResourceMetadata.LicenseInfo != licenseInfo {
-		parsedComputeResourceMetadata["license_info"] = []interface{}{parseComputeLicenseInfo(computeResourceMetadata.LicenseInfo)}
-	}
-
-	var computeConfig *model.ComputeConfig
-	if computeResourceMetadata.ComputeConfig != computeConfig {
-		parsedComputeResourceMetadata["compute_config"] = []interface{}{parseComputeConfig(computeResourceMetadata.ComputeConfig)}
-	}
-
-	return parsedComputeResourceMetadata
-}
-
-func parseComputeResourceMetadataConnectivityInfo(computeResourceMetadata_connectivityInfo *model.ComputeResourceMetadataConnectivityInfo) interface{} {
-	if computeResourceMetadata_connectivityInfo == nil {
-		return nil
-	}
-	parsedComputeResourceMetadata_connectivityInfo := make(map[string]interface{})
-	parsedComputeResourceMetadata_connectivityInfo["service_port"] = computeResourceMetadata_connectivityInfo.ServicePort
-
-	return parsedComputeResourceMetadata_connectivityInfo
-}
-
-func parseComputeResourceDBserverInfo(computeResourceDbserverInfo *model.ComputeResourceDBserverInfo) interface{} {
-	if computeResourceDbserverInfo == nil {
-		return nil
-	}
-	parsedComputeResourceDbserverInfo := make(map[string]interface{})
-	parsedComputeResourceDbserverInfo["first_provisioned_dbservice_id"] = computeResourceDbserverInfo.FirstProvisionedDBserviceId
-	parsedComputeResourceDbserverInfo["db_service_ids"] = computeResourceDbserverInfo.DBServiceIds
-	parsedComputeResourceDbserverInfo["enable_public_access"] = computeResourceDbserverInfo.EnablePublicAccess
-	parsedComputeResourceDbserverInfo["enable_ssl"] = computeResourceDbserverInfo.EnableSSL
-
-	var softwareImageInfo *model.DBserverSoftwareImageInfo
-	if computeResourceDbserverInfo.SoftwareImageInfo != softwareImageInfo {
-		parsedComputeResourceDbserverInfo["software_image_info"] = []interface{}{parseDBserverSoftwareImageInfo(computeResourceDbserverInfo.SoftwareImageInfo)}
-	}
-
-	return parsedComputeResourceDbserverInfo
-}
-
-func parseDBserverSoftwareImageInfo(dbserverSoftwareImageInfo *model.DBserverSoftwareImageInfo) interface{} {
-	if dbserverSoftwareImageInfo == nil {
-		return nil
-	}
-	parsedDbserverSoftwareImageInfo := make(map[string]interface{})
-	parsedDbserverSoftwareImageInfo["software_image"] = dbserverSoftwareImageInfo.SoftwareImage
-	parsedDbserverSoftwareImageInfo["software_image_id"] = dbserverSoftwareImageInfo.SoftwareImageId
-
-	var softwareImageVersions *[]model.DBserverSoftwareImageVersionInfo
-	if dbserverSoftwareImageInfo.SoftwareImageVersions != softwareImageVersions {
-		parsedDbserverSoftwareImageInfo["software_image_versions"] = parseDBserverSoftwareImageVersionInfoList(dbserverSoftwareImageInfo.SoftwareImageVersions)
-	}
-
-	return parsedDbserverSoftwareImageInfo
-}
-
-func parseDBserverSoftwareImageVersionInfoList(dbserverSoftwareImageVersionInfo *[]model.DBserverSoftwareImageVersionInfo) []interface{} {
-	if dbserverSoftwareImageVersionInfo == nil {
-		return nil
-	}
-	dBserverSoftwareImageVersionInfoList := make([]interface{}, 0)
-
-	if dbserverSoftwareImageVersionInfo != nil {
-		dBserverSoftwareImageVersionInfoList = make([]interface{}, len(*dbserverSoftwareImageVersionInfo))
-		for i, dBserverSoftwareImageVersionInfoItem := range *dbserverSoftwareImageVersionInfo {
-			dBserverSoftwareImageVersionInfoList[i] = parseDBserverSoftwareImageVersionInfo(&dBserverSoftwareImageVersionInfoItem)
-		}
-	}
-
-	return dBserverSoftwareImageVersionInfoList
-}
-
-func parseDBserverSoftwareImageVersionInfo(dbserverSoftwareImageVersionInfo *model.DBserverSoftwareImageVersionInfo) interface{} {
-	if dbserverSoftwareImageVersionInfo == nil {
-		return nil
-	}
-	parsedDbserverSoftwareImageVersionInfo := make(map[string]interface{})
-	parsedDbserverSoftwareImageVersionInfo["software_image_version"] = dbserverSoftwareImageVersionInfo.SoftwareImageVersion
-	parsedDbserverSoftwareImageVersionInfo["software_image_version_id"] = dbserverSoftwareImageVersionInfo.SoftwareImageVersionId
-	parsedDbserverSoftwareImageVersionInfo["supported"] = dbserverSoftwareImageVersionInfo.Supported
-
-	return parsedDbserverSoftwareImageVersionInfo
-}
-
-func parseComputeLicenseInfo(computeLicenseInfo *model.ComputeLicenseInfo) interface{} {
-	if computeLicenseInfo == nil {
-		return nil
-	}
-	parsedComputeLicenseInfo := make(map[string]interface{})
-	parsedComputeLicenseInfo["acquirer_id"] = computeLicenseInfo.AcquirerId
-	parsedComputeLicenseInfo["license_id"] = computeLicenseInfo.LicenseId
-	parsedComputeLicenseInfo["lock_hash"] = computeLicenseInfo.LockHash
-	parsedComputeLicenseInfo["quantity"] = computeLicenseInfo.Quantity
-
-	return parsedComputeLicenseInfo
-}
-
-func parseComputeConfig(computeConfig *model.ComputeConfig) interface{} {
-	if computeConfig == nil {
-		return nil
-	}
-	parsedComputeConfig := make(map[string]interface{})
-	parsedComputeConfig["provider"] = computeConfig.Provider
-
-	var exadataConfig *model.ExadataComputeConfig
-	if computeConfig.ExadataConfig != exadataConfig {
-		parsedComputeConfig["exadata_config"] = []interface{}{parseExadataComputeConfig(computeConfig.ExadataConfig)}
-	}
-
-	return parsedComputeConfig
-}
-
-func parseExadataComputeConfig(exadataComputeConfig *model.ExadataComputeConfig) interface{} {
-	if exadataComputeConfig == nil {
-		return nil
-	}
-	parsedExadataComputeConfig := make(map[string]interface{})
-	parsedExadataComputeConfig["infrastructure_id"] = exadataComputeConfig.InfrastructureId
-	parsedExadataComputeConfig["infrastructure_name"] = exadataComputeConfig.InfrastructureName
-	parsedExadataComputeConfig["vm_cluster_id"] = exadataComputeConfig.VmClusterId
-	parsedExadataComputeConfig["vm_cluster_name"] = exadataComputeConfig.VmClusterName
-	parsedExadataComputeConfig["ocpu"] = exadataComputeConfig.Ocpu
-	parsedExadataComputeConfig["memory_in_gbs"] = exadataComputeConfig.MemoryInGbs
-	parsedExadataComputeConfig["floating_ip_address"] = exadataComputeConfig.FloatingIpAddress
-	parsedExadataComputeConfig["db_server"] = exadataComputeConfig.DBServer
-	parsedExadataComputeConfig["private_ip_address"] = exadataComputeConfig.PrivateIpAddress
-	parsedExadataComputeConfig["local_storage_in_gbs"] = exadataComputeConfig.LocalStorageInGbs
-	parsedExadataComputeConfig["dns_name"] = exadataComputeConfig.DNSName
-
-	return parsedExadataComputeConfig
-}
-
-func parseComputeResourceDriverInfo(computeResourceDriverInfo *model.ComputeResourceDriverInfo) interface{} {
-	if computeResourceDriverInfo == nil {
-		return nil
-	}
-	parsedComputeResourceDriverInfo := make(map[string]interface{})
-	parsedComputeResourceDriverInfo["data"] = computeResourceDriverInfo.Data
-
-	return parsedComputeResourceDriverInfo
-}
-
-func parseComputeResourceTessellStackInfo(computeResourceTessellStackInfo *model.ComputeResourceTessellStackInfo) interface{} {
-	if computeResourceTessellStackInfo == nil {
-		return nil
-	}
-	parsedComputeResourceTessellStackInfo := make(map[string]interface{})
-	parsedComputeResourceTessellStackInfo["data"] = computeResourceTessellStackInfo.Data
-
-	return parsedComputeResourceTessellStackInfo
-}
-
-func parseComputeResourceEndpointMigrationInfo(computeResourceEndpointMigrationInfo *model.ComputeResourceEndpointMigrationInfo) interface{} {
-	if computeResourceEndpointMigrationInfo == nil {
-		return nil
-	}
-	parsedComputeResourceEndpointMigrationInfo := make(map[string]interface{})
-	parsedComputeResourceEndpointMigrationInfo["validate_common_endpoint"] = computeResourceEndpointMigrationInfo.ValidateCommonEndpoint
-	parsedComputeResourceEndpointMigrationInfo["migrate_to_common_endpoint"] = computeResourceEndpointMigrationInfo.MigrateToCommonEndpoint
-	parsedComputeResourceEndpointMigrationInfo["common_endpoint_successful_validation_time"] = computeResourceEndpointMigrationInfo.CommonEndpointSuccessfulValidationTime
-	parsedComputeResourceEndpointMigrationInfo["common_endpoint_successful_migration_time"] = computeResourceEndpointMigrationInfo.CommonEndpointSuccessfulMigrationTime
-
-	return parsedComputeResourceEndpointMigrationInfo
-}
-
-func parseComputeResourceContextInfo(computeResourceContextInfo *model.ComputeResourceContextInfo) interface{} {
-	if computeResourceContextInfo == nil {
-		return nil
-	}
-	parsedComputeResourceContextInfo := make(map[string]interface{})
-	parsedComputeResourceContextInfo["sub_status"] = computeResourceContextInfo.SubStatus
-	parsedComputeResourceContextInfo["description"] = computeResourceContextInfo.Description
-
-	return parsedComputeResourceContextInfo
-}
-
-func parseComputeResourceActionMetadata(computeResourceActionMetadata *model.ComputeResourceActionMetadata) interface{} {
-	if computeResourceActionMetadata == nil {
-		return nil
-	}
-	parsedComputeResourceActionMetadata := make(map[string]interface{})
-
-	parsedComputeResourceActionMetadata["last_resize_dispatch_time"] = computeResourceActionMetadata.LastResizeDispatchTime
-
-	var lastActionMetadata *model.CrLastActionMetadata
-	if computeResourceActionMetadata.LastActionMetadata != lastActionMetadata {
-		parsedComputeResourceActionMetadata["last_action_metadata"] = []interface{}{parseCrLastActionMetadata(computeResourceActionMetadata.LastActionMetadata)}
-	}
-
-	return parsedComputeResourceActionMetadata
-}
-
-func parseCrLastActionMetadata(crLastActionMetadata *model.CrLastActionMetadata) interface{} {
-	if crLastActionMetadata == nil {
-		return nil
-	}
-	parsedCrLastActionMetadata := make(map[string]interface{})
-	parsedCrLastActionMetadata["reference_id"] = crLastActionMetadata.ReferenceId
-	parsedCrLastActionMetadata["context_id"] = crLastActionMetadata.ContextId
-	parsedCrLastActionMetadata["action_type"] = crLastActionMetadata.ActionType
-
-	return parsedCrLastActionMetadata
 }
 
 func parseBackupDownloadConfigWithResData(backupDownloadConfig *model.BackupDownloadConfig, d *schema.ResourceData) []interface{} {

@@ -668,7 +668,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "The storage details to be provisioned.",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -2437,13 +2436,11 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeBool,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"ignore_pre_script_failure": {
 							Type:        schema.TypeBool,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 						},
 					},
 				},
@@ -3315,9 +3312,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
-							MaxItems:    1,
-							MinItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"provider": {

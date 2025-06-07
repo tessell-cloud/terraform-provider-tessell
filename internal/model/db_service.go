@@ -40,14 +40,6 @@ type TfTessellServiceInfrastructureInfo struct {
 	Computes             *[]ProvisionComputePayload `json:"computes,omitempty"`
 }
 
-type AwsInfraConfig struct {
-	AwsCpuOptions *AwsCpuOptions `json:"awsCpuOptions,omitempty"`
-}
-
-type AwsCpuOptions struct {
-	Vcpus *int `json:"vcpus,omitempty"` // Number of vcpus for aws cpu options
-}
-
 type ProvisionComputePayload struct {
 	Name                 *string               `json:"name,omitempty"`
 	InstanceGroupName    *string               `json:"instanceGroupName,omitempty"`
@@ -289,46 +281,6 @@ type TessellServiceIntegrationsPayload struct {
 type TessellTag struct {
 	Name  *string `json:"name,omitempty"`  // Case sensitive, tag name
 	Value *string `json:"value,omitempty"` // Case sensitive, tag value
-}
-
-type TessellServiceInstanceDTO struct {
-	Id                   *string                              `json:"id,omitempty"`               // Tessell generated UUID for the DB Service Instance
-	Name                 *string                              `json:"name"`                       // Name of the DB Service Instance
-	InstanceGroupName    *string                              `json:"instanceGroupName"`          // Name of the instance group
-	Type                 *string                              `json:"type,omitempty"`             // DB Service instance type
-	Role                 *string                              `json:"role"`                       // DB Service instance role
-	Status               *string                              `json:"status,omitempty"`           // DB Service instance status
-	TessellServiceId     *string                              `json:"tessellServiceId,omitempty"` // DB Service Instance&#39;s associated DB Service id
-	Cloud                *string                              `json:"cloud,omitempty"`            // DB Service Instance&#39;s cloud type
-	Region               *string                              `json:"region"`                     // DB Service Instance&#39;s cloud region
-	AvailabilityZone     *string                              `json:"availabilityZone,omitempty"` // DB Service Instance&#39;s cloud availability zone
-	InstanceGroupId      *string                              `json:"instanceGroupId,omitempty"`  // The instance groupd Id
-	ComputeType          *string                              `json:"computeType,omitempty"`      // The compute used for creation of the Tessell Service Instance
-	AwsInfraConfig       *AwsInfraConfig                      `json:"awsInfraConfig,omitempty"`
-	ComputeId            *string                              `json:"computeId,omitempty"`   // The associated compute identifier
-	ComputeName          *string                              `json:"computeName,omitempty"` // The associated compute name
-	Storage              *int                                 `json:"storage,omitempty"`     // The storage (in bytes) that has been provisioned for the DB Service instance.
-	DataVolumeIops       *int                                 `json:"dataVolumeIops,omitempty"`
-	Throughput           *int                                 `json:"throughput,omitempty"` // Throughput requested for this DB Service instance
-	EnablePerfInsights   *bool                                `json:"enablePerfInsights,omitempty"`
-	ParameterProfile     *ParameterProfile                    `json:"parameterProfile,omitempty"`
-	MonitoringConfig     *MonitoringConfig                    `json:"monitoringConfig,omitempty"`
-	VPC                  *string                              `json:"vpc,omitempty"`                  // The VPC used for creation of the DB Service Instance
-	PublicSubnet         *string                              `json:"publicSubnet,omitempty"`         // The public subnet used for creation of the DB Service Instance
-	PrivateSubnet        *string                              `json:"privateSubnet,omitempty"`        // The private subnet used for creation of the DB Service Instance
-	EncryptionKey        *string                              `json:"encryptionKey,omitempty"`        // The encryption key name which is used to encrypt the data at rest
-	SoftwareImage        *string                              `json:"softwareImage,omitempty"`        // Software Image to be used to create the instance
-	SoftwareImageVersion *string                              `json:"softwareImageVersion,omitempty"` // Software Image Version to be used to create the instance
-	DateCreated          *string                              `json:"dateCreated,omitempty"`          // Timestamp when the entity was created
-	ConnectString        *TessellServiceInstanceConnectString `json:"connectString,omitempty"`
-	UpdatesInProgress    *[]TessellResourceUpdateInfo         `json:"updatesInProgress,omitempty"` // The updates that are in progress for this resource
-	LastStartedAt        *string                              `json:"lastStartedAt,omitempty"`     // Timestamp when the service instance was last started at
-	LastStoppedAt        *string                              `json:"lastStoppedAt,omitempty"`     // Timestamp when the Service Instance was last stopped at
-	SyncMode             *string                              `json:"syncMode,omitempty"`
-	EngineConfiguration  *ServiceInstanceEngineInfo           `json:"engineConfiguration,omitempty"`
-	ComputeConfig        *InstanceComputeConfig               `json:"computeConfig,omitempty"`
-	StorageConfig        *InstanceStorageConfig               `json:"storageConfig,omitempty"`
-	ArchiveStorageConfig *InstanceStorageConfig               `json:"archiveStorageConfig,omitempty"`
 }
 
 type ServiceUpcomingScheduledActions struct {
@@ -739,26 +691,23 @@ type RefreshServiceInfo struct {
 }
 
 type TessellServiceInfrastructureInfo struct {
-	Cloud                *string               `json:"cloud,omitempty"`            // The cloud-type in which the DB Service is provisioned (ex. aws, azure)
-	Region               *string               `json:"region,omitempty"`           // The region in which the DB Service provisioned
-	AvailabilityZone     *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is provisioned
-	CloudAvailability    *[]CloudRegionInfo    `json:"cloudAvailability,omitempty"`
-	VPC                  *string               `json:"vpc,omitempty"` // The VPC to be used for provisioning the DB Service
-	EnableEncryption     *bool                 `json:"enableEncryption,omitempty"`
-	EncryptionKey        *string               `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
-	ComputeType          *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
-	AwsInfraConfig       *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`
-	EnableComputeSharing *bool                 `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
-	Iops                 *int                  `json:"iops,omitempty"`                 // IOPS requested for the DB Service
-	Throughput           *int                  `json:"throughput,omitempty"`           // throughput requested for the DB Service
-	Storage              *int                  `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
-	AdditionalStorage    *int                  `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
-	Timezone             *string               `json:"timezone,omitempty"`             // The timezone detail
-	MultiDisk            *bool                 `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
-	StorageProvider      *string               `json:"storageProvider,omitempty"`
-	StorageConfig        *ServiceStorageConfig `json:"storageConfig,omitempty"`
-	ArchiveStorageConfig *ServiceStorageConfig `json:"archiveStorageConfig,omitempty"`
-	ComputeProvider      *string               `json:"computeProvider,omitempty"`
+	Cloud                *string            `json:"cloud,omitempty"`            // The cloud-type in which the DB Service is provisioned (ex. aws, azure)
+	Region               *string            `json:"region,omitempty"`           // The region in which the DB Service provisioned
+	AvailabilityZone     *string            `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is provisioned
+	CloudAvailability    *[]CloudRegionInfo `json:"cloudAvailability,omitempty"`
+	VPC                  *string            `json:"vpc,omitempty"` // The VPC to be used for provisioning the DB Service
+	EnableEncryption     *bool              `json:"enableEncryption,omitempty"`
+	EncryptionKey        *string            `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
+	ComputeType          *string            `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
+	AwsInfraConfig       *AwsInfraConfig    `json:"awsInfraConfig,omitempty"`
+	EnableComputeSharing *bool              `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
+	Iops                 *int               `json:"iops,omitempty"`                 // IOPS requested for the DB Service
+	Throughput           *int               `json:"throughput,omitempty"`           // throughput requested for the DB Service
+	Storage              *int               `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
+	AdditionalStorage    *int               `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
+	Timezone             *string            `json:"timezone,omitempty"`             // The timezone detail
+	MultiDisk            *bool              `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
+	StorageProvider      *string            `json:"storageProvider,omitempty"`
 }
 
 type ServiceStorageConfig struct {
