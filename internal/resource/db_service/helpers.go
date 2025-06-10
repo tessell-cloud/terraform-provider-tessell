@@ -929,7 +929,7 @@ func parseTessellServicePostgresqlEngineConfig(tessellServicePostgresqlEngineCon
 	parsedTessellServicePostgresqlEngineConfig["parameter_profile_id"] = tessellServicePostgresqlEngineConfig.ParameterProfileId
 	parsedTessellServicePostgresqlEngineConfig["ad_domain_id"] = tessellServicePostgresqlEngineConfig.AdDomainId
 	parsedTessellServicePostgresqlEngineConfig["proxy_port"] = tessellServicePostgresqlEngineConfig.ProxyPort
-	parsedTessellServicePostgresqlEngineConfig["option_profile_name"] = tessellServicePostgresqlEngineConfig.OptionProfileName
+	parsedTessellServicePostgresqlEngineConfig["options_profile"] = tessellServicePostgresqlEngineConfig.OptionProfileName
 
 	return parsedTessellServicePostgresqlEngineConfig
 }

@@ -870,7 +870,7 @@ func DataSourceDBServices() *schema.Resource {
 													Description: "",
 													Computed:    true,
 												},
-												"option_profile_name": {
+												"options_profile": {
 													Type:        schema.TypeString,
 													Description: "",
 													Computed:    true,

@@ -2237,7 +2237,7 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
-									"option_profile_name": {
+									"options_profile": {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
