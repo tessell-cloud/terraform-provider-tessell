@@ -536,7 +536,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -3096,7 +3095,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
