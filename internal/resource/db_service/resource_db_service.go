@@ -3,6 +3,7 @@ package db_service
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -536,6 +537,7 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
+										Computed:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -2479,6 +2481,16 @@ func ResourceDBService() *schema.Resource {
 							Description: "Database name",
 							Optional:    true,
 							Computed:    true, // in case of oracle
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								// Normalize both old and new values before comparing
+								// Example: if backend always prepends "PDB", strip and compare
+								normalize := func(s string) string {
+									s = strings.ToLower(s)
+									return strings.TrimPrefix(s, "pdb")
+								}
+
+								return normalize(old) == normalize(new)
+							},
 						},
 						"description": {
 							Type:        schema.TypeString,
@@ -2978,6 +2990,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The encryption key name which is used to encrypt the data at rest",
 							Optional:    true,
+							Computed:    true,
 						},
 						"software_image": {
 							Type:        schema.TypeString,
@@ -3094,6 +3107,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
+							Computed:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
