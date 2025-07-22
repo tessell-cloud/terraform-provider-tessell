@@ -544,7 +544,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "",
 													Required:    true,
-													// ForceNew:    true,
 												},
 												"exadata_config": {
 													Type:        schema.TypeList,
@@ -1484,7 +1483,6 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "This is the definition for RPO Policy details for Tessell DB Service",
 				Optional:    true,
-				ForceNew:    true,
 				MaxItems:    1,
 				MinItems:    1,
 				Elem: &schema.Resource{
@@ -3102,15 +3100,13 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
-										// ForceNew:    true,
 									},
 									"exadata_config": {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										// ForceNew:    true,
-										MaxItems: 1,
-										MinItems: 1,
+										MaxItems:    1,
+										MinItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"infrastructure_id": {
