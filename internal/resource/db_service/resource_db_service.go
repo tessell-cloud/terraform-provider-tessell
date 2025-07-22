@@ -544,13 +544,12 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "",
 													Required:    true,
-													ForceNew:    true,
+													// ForceNew:    true,
 												},
 												"exadata_config": {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -3103,15 +3102,15 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
+										// ForceNew:    true,
 									},
 									"exadata_config": {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
-										MaxItems:    1,
-										MinItems:    1,
+										// ForceNew:    true,
+										MaxItems: 1,
+										MinItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"infrastructure_id": {
