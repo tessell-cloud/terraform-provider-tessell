@@ -248,6 +248,9 @@ Read-Only:
 Read-Only:
 
 - `apache_kafka_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration--apache_kafka_config))
+- `collation_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration--collation_config))
+- `ignore_post_script_failure` (Boolean)
+- `ignore_pre_script_failure` (Boolean)
 - `milvus_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration--milvus_config))
 - `mongodb_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration--mongodb_config))
 - `mysql_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--engine_configuration--mysql_config))
@@ -263,6 +266,14 @@ Read-Only:
 Read-Only:
 
 - `parameter_profile_id` (String)
+
+
+<a id="nestedobjatt--db_services--engine_configuration--collation_config"></a>
+### Nested Schema for `db_services.engine_configuration.collation_config`
+
+Read-Only:
+
+- `collation_name` (String)
 
 
 <a id="nestedobjatt--db_services--engine_configuration--milvus_config"></a>
@@ -320,6 +331,7 @@ Read-Only:
 Read-Only:
 
 - `ad_domain_id` (String)
+- `options_profile` (String)
 - `parameter_profile_id` (String)
 - `proxy_port` (Number)
 
@@ -339,7 +351,9 @@ Read-Only:
 Read-Only:
 
 - `ad_domain_id` (String)
+- `agent_service_account_user` (String)
 - `parameter_profile_id` (String)
+- `service_account_user` (String)
 
 
 
@@ -349,10 +363,12 @@ Read-Only:
 Read-Only:
 
 - `additional_storage` (Number)
+- `archive_storage_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--infrastructure--archive_storage_config))
 - `availability_zone` (String)
 - `aws_infra_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--infrastructure--aws_infra_config))
 - `cloud` (String)
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--infrastructure--cloud_availability))
+- `compute_provider` (String)
 - `compute_type` (String)
 - `enable_compute_sharing` (Boolean)
 - `enable_encryption` (Boolean)
@@ -361,10 +377,28 @@ Read-Only:
 - `multi_disk` (Boolean)
 - `region` (String)
 - `storage` (Number)
+- `storage_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--infrastructure--storage_config))
 - `storage_provider` (String)
 - `throughput` (Number)
 - `timezone` (String)
 - `vpc` (String)
+
+<a id="nestedobjatt--db_services--infrastructure--archive_storage_config"></a>
+### Nested Schema for `db_services.infrastructure.archive_storage_config`
+
+Read-Only:
+
+- `azure_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--infrastructure--archive_storage_config--azure_net_app_config))
+- `provider` (String)
+
+<a id="nestedobjatt--db_services--infrastructure--archive_storage_config--azure_net_app_config"></a>
+### Nested Schema for `db_services.infrastructure.archive_storage_config.azure_net_app_config`
+
+Read-Only:
+
+- `service_level` (String)
+
+
 
 <a id="nestedobjatt--db_services--infrastructure--aws_infra_config"></a>
 ### Nested Schema for `db_services.infrastructure.aws_infra_config`
@@ -400,15 +434,34 @@ Read-Only:
 
 
 
+<a id="nestedobjatt--db_services--infrastructure--storage_config"></a>
+### Nested Schema for `db_services.infrastructure.storage_config`
+
+Read-Only:
+
+- `azure_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--infrastructure--storage_config--azure_net_app_config))
+- `provider` (String)
+
+<a id="nestedobjatt--db_services--infrastructure--storage_config--azure_net_app_config"></a>
+### Nested Schema for `db_services.infrastructure.storage_config.azure_net_app_config`
+
+Read-Only:
+
+- `service_level` (String)
+
+
+
 
 <a id="nestedobjatt--db_services--instances"></a>
 ### Nested Schema for `db_services.instances`
 
 Read-Only:
 
+- `archive_storage_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--archive_storage_config))
 - `availability_zone` (String)
 - `aws_infra_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--aws_infra_config))
 - `cloud` (String)
+- `compute_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--compute_config))
 - `compute_id` (String)
 - `compute_name` (String)
 - `compute_type` (String)
@@ -442,6 +495,56 @@ Read-Only:
 - `updates_in_progress` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--updates_in_progress))
 - `vpc` (String)
 
+<a id="nestedobjatt--db_services--instances--archive_storage_config"></a>
+### Nested Schema for `db_services.instances.archive_storage_config`
+
+Read-Only:
+
+- `azure_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--archive_storage_config--azure_net_app_config))
+- `fsx_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--archive_storage_config--fsx_net_app_config))
+- `provider` (String)
+
+<a id="nestedobjatt--db_services--instances--archive_storage_config--azure_net_app_config"></a>
+### Nested Schema for `db_services.instances.archive_storage_config.azure_net_app_config`
+
+Read-Only:
+
+- `azure_net_app_id` (String)
+- `azure_net_app_name` (String)
+- `capacity_pool_id` (String)
+- `capacity_pool_name` (String)
+- `delegated_subnet_id` (String)
+- `delegated_subnet_name` (String)
+- `encryption_key_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--archive_storage_config--azure_net_app_config--encryption_key_info))
+- `network_features` (String)
+- `service_level` (String)
+- `volume_name` (String)
+
+<a id="nestedobjatt--db_services--instances--archive_storage_config--azure_net_app_config--encryption_key_info"></a>
+### Nested Schema for `db_services.instances.archive_storage_config.azure_net_app_config.encryption_key_info`
+
+Read-Only:
+
+- `id` (String)
+- `key_source` (String)
+- `key_vault_cloud_resource_id` (String)
+- `name` (String)
+
+
+
+<a id="nestedobjatt--db_services--instances--archive_storage_config--fsx_net_app_config"></a>
+### Nested Schema for `db_services.instances.archive_storage_config.fsx_net_app_config`
+
+Read-Only:
+
+- `file_system_id` (String)
+- `file_system_name` (String)
+- `svm_id` (String)
+- `svm_name` (String)
+- `volume_name` (String)
+
+
+
 <a id="nestedobjatt--db_services--instances--aws_infra_config"></a>
 ### Nested Schema for `db_services.instances.aws_infra_config`
 
@@ -455,6 +558,28 @@ Read-Only:
 Read-Only:
 
 - `vcpus` (Number)
+
+
+
+<a id="nestedobjatt--db_services--instances--compute_config"></a>
+### Nested Schema for `db_services.instances.compute_config`
+
+Read-Only:
+
+- `exadata_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--compute_config--exadata_config))
+- `provider` (String)
+
+<a id="nestedobjatt--db_services--instances--compute_config--exadata_config"></a>
+### Nested Schema for `db_services.instances.compute_config.exadata_config`
+
+Read-Only:
+
+- `infrastructure_id` (String)
+- `infrastructure_name` (String)
+- `memory` (Number)
+- `vcpus` (Number)
+- `vm_cluster_id` (String)
+- `vm_cluster_name` (String)
 
 
 
@@ -519,11 +644,40 @@ Read-Only:
 
 Read-Only:
 
+- `azure_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--storage_config--azure_net_app_config))
 - `fsx_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--storage_config--fsx_net_app_config))
 - `provider` (String)
 
+<a id="nestedobjatt--db_services--instances--storage_config--azure_net_app_config"></a>
+### Nested Schema for `db_services.instances.storage_config.azure_net_app_config`
+
+Read-Only:
+
+- `azure_net_app_id` (String)
+- `azure_net_app_name` (String)
+- `capacity_pool_id` (String)
+- `capacity_pool_name` (String)
+- `delegated_subnet_id` (String)
+- `delegated_subnet_name` (String)
+- `encryption_key_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--storage_config--azure_net_app_config--encryption_key_info))
+- `network_features` (String)
+- `service_level` (String)
+- `volume_name` (String)
+
+<a id="nestedobjatt--db_services--instances--storage_config--azure_net_app_config--encryption_key_info"></a>
+### Nested Schema for `db_services.instances.storage_config.azure_net_app_config.encryption_key_info`
+
+Read-Only:
+
+- `id` (String)
+- `key_source` (String)
+- `key_vault_cloud_resource_id` (String)
+- `name` (String)
+
+
+
 <a id="nestedobjatt--db_services--instances--storage_config--fsx_net_app_config"></a>
-### Nested Schema for `db_services.instances.storage_config.provider`
+### Nested Schema for `db_services.instances.storage_config.fsx_net_app_config`
 
 Read-Only:
 

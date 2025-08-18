@@ -34,6 +34,7 @@ data "tessell_dataflix" "example" {
 - `owner` (String) Owner of the Availability Machine
 - `service_name` (String) Name of the associated DB Service
 - `shared_with` (List of Object) Tessell Entity ACL Sharing Summary Info (see [below for nested schema](#nestedatt--shared_with))
+- `storage_provider_type` (String)
 - `tessell_service_id` (String) ID of the associated DB Service
 - `tsm` (Boolean) Specify whether the associated DB Service is created using TSM compute type
 

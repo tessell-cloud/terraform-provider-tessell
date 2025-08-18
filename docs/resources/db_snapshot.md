@@ -32,7 +32,10 @@ resource "tessell_db_snapshot" "example" {
 
 ### Optional
 
+- `backup_status` (String)
 - `description` (String) Description of the snapshot
+- `incremental` (Boolean) Specifies if Database Backup's is incremental
+- `shared_with` (Block List, Max: 1) Tessell Entity ACL Sharing Summary Info (see [below for nested schema](#nestedblock--shared_with))
 
 ### Read-Only
 
