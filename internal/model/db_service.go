@@ -40,26 +40,32 @@ type TfTessellServiceInfrastructureInfo struct {
 	Computes             *[]ProvisionComputePayload `json:"computes,omitempty"`
 }
 
-type AwsInfraConfig struct {
-	AwsCpuOptions *AwsCpuOptions `json:"awsCpuOptions,omitempty"`
-}
-
-type AwsCpuOptions struct {
-	Vcpus *int `json:"vcpus,omitempty"` // Number of vcpus for aws cpu options
-}
-
 type ProvisionComputePayload struct {
-	Name              *string               `json:"name,omitempty"`
-	InstanceGroupName *string               `json:"instanceGroupName,omitempty"`
-	Region            *string               `json:"region,omitempty"`           // The region in which the compute is to be provisioned
-	AvailabilityZone  *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the compute is to be provisioned
-	Role              *string               `json:"role,omitempty"`
-	VPC               *string               `json:"vpc,omitempty"`           // The VPC to be used for provisioning the compute resource
-	PrivateSubnet     *string               `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the compute resource
-	ComputeType       *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the compute resource
-	ComputeId         *string               `json:"computeId,omitempty"`     // Specify the compute resource if it has to be shared
-	Timezone          *string               `json:"timezone,omitempty"`      // The timezone detail
-	StorageConfig     *StorageConfigPayload `json:"storageConfig,omitempty"`
+	Name                 *string               `json:"name,omitempty"`
+	InstanceGroupName    *string               `json:"instanceGroupName,omitempty"`
+	Region               *string               `json:"region,omitempty"`           // The region in which the compute is to be provisioned
+	AvailabilityZone     *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the compute is to be provisioned
+	Role                 *string               `json:"role,omitempty"`
+	VPC                  *string               `json:"vpc,omitempty"`           // The VPC to be used for provisioning the compute resource
+	PrivateSubnet        *string               `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the compute resource
+	ComputeType          *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the compute resource
+	ComputeName          *string               `json:"computeName,omitempty"`   // The compute-name of instance provided by the User
+	ComputeId            *string               `json:"computeId,omitempty"`     // Specify the compute resource if it has to be shared
+	Timezone             *string               `json:"timezone,omitempty"`      // The timezone detail
+	ComputeConfig        *ComputeConfigPayload `json:"computeConfig,omitempty"`
+	StorageConfig        *StorageConfigPayload `json:"storageConfig,omitempty"`
+	ArchiveStorageConfig *StorageConfigPayload `json:"archiveStorageConfig,omitempty"`
+}
+
+type ComputeConfigPayload struct {
+	Provider      *string                      `json:"provider"`
+	ExadataConfig *ExadataComputeConfigPayload `json:"exadataConfig,omitempty"`
+}
+
+type ExadataComputeConfigPayload struct {
+	InfrastructureId *string `json:"infrastructureId"`
+	VmClusterId      *string `json:"vmClusterId"`
+	ComputeId        *string `json:"computeId,omitempty"`
 }
 
 type TessellServiceConnectivityInfo struct {
@@ -141,27 +147,19 @@ type SnapshotConfigurationPayloadAllOfSnapshotWindow struct {
 	Time *string `json:"time,omitempty"` // Time value in (hh:mm) format. ex. &#39;02:00&#39;. Deprecated, please use backupStartTime in schedule.
 }
 
-type FullBackupSchedule struct {
-	WeeklySchedule *WeeklySchedule `json:"weeklySchedule,omitempty"`
-}
-
-type ProvisionRPOPolicyConfig struct {
-	FullBackupSchedule *FullBackupSchedule `json:"fullBackupSchedule,omitempty"`
-	EnableAutoSnapshot *bool               `json:"enableAutoSnapshot"` // Specify whether system will take auto snapshots or not
-	StandardPolicy     *StandardRPOPolicy  `json:"standardPolicy,omitempty"`
-	CustomPolicy       *CustomRPOPolicy    `json:"customPolicy,omitempty"`
-}
-
 type TessellServiceEngineInfo struct {
-	OracleConfig      *TessellServiceOracleEngineConfig      `json:"oracleConfig,omitempty"`
-	PostgresqlConfig  *TessellServicePostgresqlEngineConfig  `json:"postgresqlConfig,omitempty"`
-	MysqlConfig       *TessellServiceMysqlEngineConfig       `json:"mysqlConfig,omitempty"`
-	SqlServerConfig   *TessellServiceSqlServerEngineConfig   `json:"sqlServerConfig,omitempty"`
-	ApacheKafkaConfig *TessellServiceApacheKafkaEngineConfig `json:"apacheKafkaConfig,omitempty"`
-	MongoDBConfig     *TessellServiceMongoDBEngineConfig     `json:"mongodbConfig,omitempty"`
-	MilvusConfig      *TessellServiceMilvusEngineConfig      `json:"milvusConfig,omitempty"`
-	PreScriptInfo     *ScriptInfo                            `json:"preScriptInfo,omitempty"`
-	PostScriptInfo    *ScriptInfo                            `json:"postScriptInfo,omitempty"`
+	OracleConfig            *TessellServiceOracleEngineConfig      `json:"oracleConfig,omitempty"`
+	PostgresqlConfig        *TessellServicePostgresqlEngineConfig  `json:"postgresqlConfig,omitempty"`
+	MysqlConfig             *TessellServiceMysqlEngineConfig       `json:"mysqlConfig,omitempty"`
+	SqlServerConfig         *TessellServiceSqlServerEngineConfig   `json:"sqlServerConfig,omitempty"`
+	ApacheKafkaConfig       *TessellServiceApacheKafkaEngineConfig `json:"apacheKafkaConfig,omitempty"`
+	MongoDBConfig           *TessellServiceMongoDBEngineConfig     `json:"mongodbConfig,omitempty"`
+	MilvusConfig            *TessellServiceMilvusEngineConfig      `json:"milvusConfig,omitempty"`
+	PreScriptInfo           *ScriptInfo                            `json:"preScriptInfo,omitempty"`
+	PostScriptInfo          *ScriptInfo                            `json:"postScriptInfo,omitempty"`
+	CollationConfig         *DBEngineCollationConfig               `json:"collationConfig,omitempty"`
+	IgnorePostScriptFailure *bool                                  `json:"ignorePostScriptFailure,omitempty"`
+	IgnorePreScriptFailure  *bool                                  `json:"ignorePreScriptFailure,omitempty"`
 }
 
 type TessellServiceOracleEngineConfig struct {
@@ -178,6 +176,7 @@ type TessellServicePostgresqlEngineConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
 	AdDomainId         *string `json:"adDomainId,omitempty"`         // Active Directory Domain ID
 	ProxyPort          *int    `json:"proxyPort,omitempty"`
+	OptionProfileName  *string `json:"optionProfileName,omitempty"`
 }
 
 type TessellServiceMysqlEngineConfig struct {
@@ -186,8 +185,10 @@ type TessellServiceMysqlEngineConfig struct {
 }
 
 type TessellServiceSqlServerEngineConfig struct {
-	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
-	AdDomainId         *string `json:"adDomainId,omitempty"`         // Active Directory Domain ID
+	ParameterProfileId      *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
+	AdDomainId              *string `json:"adDomainId,omitempty"`         // Active Directory Domain ID
+	ServiceAccountUser      *string `json:"serviceAccountUser,omitempty"`
+	AgentServiceAccountUser *string `json:"agentServiceAccountUser,omitempty"`
 }
 
 type TessellServiceApacheKafkaEngineConfig struct {
@@ -206,6 +207,10 @@ type TessellServiceMilvusEngineConfig struct {
 type ScriptInfo struct {
 	ScriptId      *string `json:"scriptId,omitempty"`      // The Tessell Script ID
 	ScriptVersion *string `json:"scriptVersion,omitempty"` // The Tessell Script version
+}
+
+type DBEngineCollationConfig struct {
+	CollationName *string `json:"collationName,omitempty"` // Collation name for the database
 }
 
 type TerraformTessellDatabaseDTO struct {
@@ -278,116 +283,6 @@ type TessellTag struct {
 	Value *string `json:"value,omitempty"` // Case sensitive, tag value
 }
 
-type TessellServiceInstanceDTO struct {
-	Id                   *string                              `json:"id,omitempty"`               // Tessell generated UUID for the DB Service Instance
-	Name                 *string                              `json:"name"`                       // Name of the DB Service Instance
-	InstanceGroupName    *string                              `json:"instanceGroupName"`          // Name of the instance group
-	Type                 *string                              `json:"type,omitempty"`             // DB Service instance type
-	Role                 *string                              `json:"role"`                       // DB Service instance role
-	Status               *string                              `json:"status,omitempty"`           // DB Service instance status
-	TessellServiceId     *string                              `json:"tessellServiceId,omitempty"` // DB Service Instance&#39;s associated DB Service id
-	Cloud                *string                              `json:"cloud,omitempty"`            // DB Service Instance&#39;s cloud type
-	Region               *string                              `json:"region"`                     // DB Service Instance&#39;s cloud region
-	AvailabilityZone     *string                              `json:"availabilityZone,omitempty"` // DB Service Instance&#39;s cloud availability zone
-	InstanceGroupId      *string                              `json:"instanceGroupId,omitempty"`  // The instance groupd Id
-	ComputeType          *string                              `json:"computeType,omitempty"`      // The compute used for creation of the Tessell Service Instance
-	AwsInfraConfig       *AwsInfraConfig                      `json:"awsInfraConfig,omitempty"`
-	ComputeId            *string                              `json:"computeId,omitempty"`   // The associated compute identifier
-	ComputeName          *string                              `json:"computeName,omitempty"` // The associated compute name
-	Storage              *int                                 `json:"storage,omitempty"`     // The storage (in bytes) that has been provisioned for the DB Service instance.
-	DataVolumeIops       *int                                 `json:"dataVolumeIops,omitempty"`
-	Throughput           *int                                 `json:"throughput,omitempty"` // Throughput requested for this DB Service instance
-	EnablePerfInsights   *bool                                `json:"enablePerfInsights,omitempty"`
-	ParameterProfile     *ParameterProfile                    `json:"parameterProfile,omitempty"`
-	MonitoringConfig     *MonitoringConfig                    `json:"monitoringConfig,omitempty"`
-	VPC                  *string                              `json:"vpc,omitempty"`                  // The VPC used for creation of the DB Service Instance
-	PublicSubnet         *string                              `json:"publicSubnet,omitempty"`         // The public subnet used for creation of the DB Service Instance
-	PrivateSubnet        *string                              `json:"privateSubnet,omitempty"`        // The private subnet used for creation of the DB Service Instance
-	EncryptionKey        *string                              `json:"encryptionKey,omitempty"`        // The encryption key name which is used to encrypt the data at rest
-	SoftwareImage        *string                              `json:"softwareImage,omitempty"`        // Software Image to be used to create the instance
-	SoftwareImageVersion *string                              `json:"softwareImageVersion,omitempty"` // Software Image Version to be used to create the instance
-	DateCreated          *string                              `json:"dateCreated,omitempty"`          // Timestamp when the entity was created
-	ConnectString        *TessellServiceInstanceConnectString `json:"connectString,omitempty"`
-	UpdatesInProgress    *[]TessellResourceUpdateInfo         `json:"updatesInProgress,omitempty"` // The updates that are in progress for this resource
-	LastStartedAt        *string                              `json:"lastStartedAt,omitempty"`     // Timestamp when the service instance was last started at
-	LastStoppedAt        *string                              `json:"lastStoppedAt,omitempty"`     // Timestamp when the Service Instance was last stopped at
-	SyncMode             *string                              `json:"syncMode,omitempty"`
-	EngineConfiguration  *ServiceInstanceEngineInfo           `json:"engineConfiguration,omitempty"`
-	StorageConfig        *InstanceStorageConfig               `json:"storageConfig,omitempty"`
-}
-
-type ParameterProfile struct {
-	Id      *string `json:"id,omitempty"`      // Tessell generated UUID for the the parameter profile
-	Name    *string `json:"name,omitempty"`    // The name used to identify the parameter profile
-	Version *string `json:"version,omitempty"` // The version of the parameter profile associated with the instance
-	Status  *string `json:"status,omitempty"`
-}
-
-type MonitoringConfig struct {
-	PerfInsights *PerfInsightsConfig `json:"perfInsights,omitempty"`
-}
-
-type PerfInsightsConfig struct {
-	PerfInsightsEnabled    *bool   `json:"perfInsightsEnabled,omitempty"`
-	MonitoringDeploymentId *string `json:"monitoringDeploymentId,omitempty"`
-	Status                 *string `json:"status,omitempty"`
-}
-
-type TessellServiceInstanceConnectString struct {
-	ConnectDescriptor *string `json:"connectDescriptor,omitempty"`
-	MasterUser        *string `json:"masterUser,omitempty"`
-	Endpoint          *string `json:"endpoint,omitempty"`
-	ServicePort       *string `json:"servicePort,omitempty"`
-}
-
-type TessellResourceUpdateInfo struct {
-	UpdateType  *string                 `json:"updateType,omitempty"`  // Type of the update
-	ReferenceId *string                 `json:"referenceId,omitempty"` // The reference-id of the update request
-	SubmittedAt *string                 `json:"submittedAt,omitempty"` // Timestamp when the resource update was requested
-	UpdateInfo  *map[string]interface{} `json:"updateInfo,omitempty"`  // The specific details for a Tessell resource that are being updated
-}
-
-type ServiceInstanceEngineInfo struct {
-	OracleConfig *ServiceInstanceOracleEngineConfig `json:"oracleConfig,omitempty"`
-}
-
-type ServiceInstanceOracleEngineConfig struct {
-	AccessMode *string `json:"accessMode,omitempty"`
-}
-
-type InstanceStorageConfig struct {
-	Provider          *string                    `json:"provider,omitempty"`
-	FsxNetAppConfig   *InstanceFsxNetAppConfig   `json:"fsxNetAppConfig,omitempty"`
-	AzureNetAppConfig *InstanceAzureNetAppConfig `json:"azureNetAppConfig,omitempty"`
-}
-
-type InstanceFsxNetAppConfig struct {
-	FileSystemName *string `json:"fileSystemName,omitempty"`
-	SvmName        *string `json:"svmName,omitempty"`
-	VolumeName     *string `json:"volumeName,omitempty"`
-	FileSystemId   *string `json:"fileSystemId,omitempty"` // File System Id of the FSx NetApp registered with Tessell
-	SvmId          *string `json:"svmId,omitempty"`        // Storage Virtual Machine Id of the FSx NetApp registered with Tessell
-}
-
-type InstanceAzureNetAppConfig struct {
-	AzureNetAppName     *string                       `json:"azureNetAppName,omitempty"`
-	CapacityPoolName    *string                       `json:"capacityPoolName,omitempty"`
-	VolumeName          *string                       `json:"volumeName,omitempty"`
-	AzureNetAppId       *string                       `json:"azureNetAppId,omitempty"`       // Azure NetApp Id registered with Tessell
-	CapacityPoolId      *string                       `json:"capacityPoolId,omitempty"`      // Capacity Pool Id of the Azure NetApp registered with Tessell
-	DelegatedSubnetId   *string                       `json:"delegatedSubnetId,omitempty"`   // Delegated Subnet name registered with Tessell for the Azure NetApp volume
-	DelegatedSubnetName *string                       `json:"delegatedSubnetName,omitempty"` // Delegated Subnet Id registered with Tessell for the Azure NetApp volume
-	EncryptionKeyInfo   *AzureNetAppEncryptionKeyInfo `json:"encryptionKeyInfo,omitempty"`
-	NetworkFeatures     *string                       `json:"networkFeatures,omitempty"`
-}
-
-type AzureNetAppEncryptionKeyInfo struct {
-	Id                      *string `json:"id,omitempty"`                      // Id of the encryption key
-	Name                    *string `json:"name,omitempty"`                    // name of the encryption key
-	KeyVaultCloudResourceId *string `json:"keyVaultCloudResourceId,omitempty"` // name of the encryption key vault in cloud
-	KeySource               *string `json:"keySource,omitempty"`
-}
-
 type ServiceUpcomingScheduledActions struct {
 	StartStop *ServiceUpcomingScheduledActionsStartStop `json:"startStop,omitempty"`
 	Patch     *ServiceUpcomingScheduledActionsPatch     `json:"patch,omitempty"`
@@ -443,7 +338,7 @@ type TerraformTessellServiceDTO struct {
 	Creds                      *TessellServiceCredsPayload         `json:"creds"`
 	MaintenanceWindow          *TessellServiceMaintenanceWindow    `json:"maintenanceWindow,omitempty"`
 	SnapshotConfiguration      *SnapshotConfigurationPayload       `json:"snapshotConfiguration,omitempty"`
-	RPOPolicyConfig            *ProvisionRPOPolicyConfig           `json:"rpoPolicyConfig,omitempty"`
+	RPOPolicyConfig            *RPOPolicyConfig                    `json:"rpoPolicyConfig,omitempty"`
 	EngineConfiguration        *TessellServiceEngineInfo           `json:"engineConfiguration"`
 	Databases                  *[]TerraformTessellDatabaseDTO      `json:"databases,omitempty"` // Databases that are part of this DB Service
 	IntegrationsConfig         *TessellServiceIntegrationsPayload  `json:"integrationsConfig,omitempty"`
@@ -468,17 +363,20 @@ type AddDBServiceInstancesPayload struct {
 }
 
 type AddDBServiceInstancePayload struct {
-	Name                *string                    `json:"name"` // Name of the instance
-	Role                *string                    `json:"role"`
-	AvailabilityZone    *string                    `json:"availabilityZone,omitempty"`   // The availability-zone in which the instance is to be provisioned
-	PrivateSubnet       *string                    `json:"privateSubnet,omitempty"`      // The private subnet in which the instance is to be provisioned
-	ComputeId           *string                    `json:"computeId,omitempty"`          // ID of the Compute Resource
-	ParameterProfileId  *string                    `json:"parameterProfileId,omitempty"` // ID of the Parameter Profile to be used for instance
-	Iops                *int                       `json:"iops,omitempty"`               // IOPS required for the DB Service Instance
-	Throughput          *int                       `json:"throughput,omitempty"`         // Throughput in MB/s required for the DB Service Instance
-	SyncMode            *string                    `json:"syncMode,omitempty"`
-	EngineConfiguration *ServiceInstanceEngineInfo `json:"engineConfiguration,omitempty"`
-	StorageConfig       *StorageConfigPayload      `json:"storageConfig,omitempty"`
+	Name                 *string                    `json:"name"` // Name of the instance
+	Role                 *string                    `json:"role"`
+	AvailabilityZone     *string                    `json:"availabilityZone,omitempty"`   // The availability-zone in which the instance is to be provisioned
+	PrivateSubnet        *string                    `json:"privateSubnet,omitempty"`      // The private subnet in which the instance is to be provisioned
+	ComputeId            *string                    `json:"computeId,omitempty"`          // ID of the Compute Resource
+	ParameterProfileId   *string                    `json:"parameterProfileId,omitempty"` // ID of the Parameter Profile to be used for instance
+	ComputeName          *string                    `json:"computeName,omitempty"`        // The compute-name of instance provided by the User
+	Iops                 *int                       `json:"iops,omitempty"`               // IOPS required for the DB Service Instance
+	Throughput           *int                       `json:"throughput,omitempty"`         // Throughput in MB/s required for the DB Service Instance
+	SyncMode             *string                    `json:"syncMode,omitempty"`
+	EngineConfiguration  *ServiceInstanceEngineInfo `json:"engineConfiguration,omitempty"`
+	ComputeConfig        *ComputeConfigPayload      `json:"computeConfig,omitempty"`
+	StorageConfig        *StorageConfigPayload      `json:"storageConfig,omitempty"`
+	ArchiveStorageConfig *StorageConfigPayload      `json:"archiveStorageConfig,omitempty"`
 }
 
 type CloneTessellServicePayload struct {
@@ -505,7 +403,7 @@ type CloneTessellServicePayload struct {
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
 	DeletionConfig           *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
 	SnapshotConfiguration    *SnapshotConfigurationPayload             `json:"snapshotConfiguration,omitempty"`
-	RPOPolicyConfig          *ProvisionRPOPolicyConfig                 `json:"rpoPolicyConfig,omitempty"`
+	RPOPolicyConfig          *RPOPolicyConfig                          `json:"rpoPolicyConfig,omitempty"`
 	EngineConfiguration      *TessellServiceEngineConfigurationPayload `json:"engineConfiguration"`
 	Databases                *[]CreateDatabasePayload                  `json:"databases,omitempty"` // Specify the databases to be created in the DB Service
 	IntegrationsConfig       *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`
@@ -562,20 +460,23 @@ type ProvisionInfraPayload struct {
 }
 
 type AddDBServiceInstancePayloadV2 struct {
-	InstanceGroupName  *string               `json:"instanceGroupName"`
-	Name               *string               `json:"name"`                    // Name of the instance to be created, should be unique for a dbservice
-	Region             *string               `json:"region"`                  // The region in which the instance is to be provisioned
-	VPC                *string               `json:"vpc,omitempty"`           // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
-	PrivateSubnet      *string               `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the instance.
-	ComputeType        *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
-	ComputeId          *string               `json:"computeId,omitempty"`
-	EnablePerfInsights *bool                 `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
-	AwsInfraConfig     *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`
-	Role               *string               `json:"role"`
-	AvailabilityZone   *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
-	Iops               *int                  `json:"iops,omitempty"`
-	Throughput         *int                  `json:"throughput,omitempty"`
-	StorageConfig      *StorageConfigPayload `json:"storageConfig,omitempty"`
+	InstanceGroupName    *string               `json:"instanceGroupName"`
+	Name                 *string               `json:"name"`                    // Name of the instance to be created, should be unique for a dbservice
+	Region               *string               `json:"region"`                  // The region in which the instance is to be provisioned
+	VPC                  *string               `json:"vpc,omitempty"`           // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
+	PrivateSubnet        *string               `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the instance.
+	ComputeType          *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
+	ComputeName          *string               `json:"computeName,omitempty"`   // The compute-name of instance provided by the User
+	ComputeId            *string               `json:"computeId,omitempty"`
+	EnablePerfInsights   *bool                 `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
+	AwsInfraConfig       *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`
+	Role                 *string               `json:"role"`
+	AvailabilityZone     *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
+	Iops                 *int                  `json:"iops,omitempty"`
+	Throughput           *int                  `json:"throughput,omitempty"`
+	ComputeConfig        *ComputeConfigPayload `json:"computeConfig,omitempty"`
+	StorageConfig        *StorageConfigPayload `json:"storageConfig,omitempty"`
+	ArchiveStorageConfig *StorageConfigPayload `json:"archiveStorageConfig,omitempty"`
 }
 
 type TessellServiceConnectivityInfoPayload struct {
@@ -587,15 +488,18 @@ type TessellServiceConnectivityInfoPayload struct {
 }
 
 type TessellServiceEngineConfigurationPayload struct {
-	PreScriptInfo     *ScriptInfo                     `json:"preScriptInfo,omitempty"`
-	PostScriptInfo    *ScriptInfo                     `json:"postScriptInfo,omitempty"`
-	OracleConfig      *OracleEngineConfigPayload      `json:"oracleConfig,omitempty"`
-	PostgresqlConfig  *PostgresqlEngineConfigPayload  `json:"postgresqlConfig,omitempty"`
-	MysqlConfig       *MysqlEngineConfigPayload       `json:"mysqlConfig,omitempty"`
-	SqlServerConfig   *SqlServerEngineConfigPayload   `json:"sqlServerConfig,omitempty"`
-	ApacheKafkaConfig *ApacheKafkaEngineConfigPayload `json:"apacheKafkaConfig,omitempty"`
-	MongoDBConfig     *MongoDBEngineConfigPayload     `json:"mongodbConfig,omitempty"`
-	MilvusConfig      *MilvusEngineConfigPayload      `json:"milvusConfig,omitempty"`
+	PreScriptInfo           *ScriptInfo                     `json:"preScriptInfo,omitempty"`
+	PostScriptInfo          *ScriptInfo                     `json:"postScriptInfo,omitempty"`
+	OracleConfig            *OracleEngineConfigPayload      `json:"oracleConfig,omitempty"`
+	PostgresqlConfig        *PostgresqlEngineConfigPayload  `json:"postgresqlConfig,omitempty"`
+	MysqlConfig             *MysqlEngineConfigPayload       `json:"mysqlConfig,omitempty"`
+	SqlServerConfig         *SqlServerEngineConfigPayload   `json:"sqlServerConfig,omitempty"`
+	ApacheKafkaConfig       *ApacheKafkaEngineConfigPayload `json:"apacheKafkaConfig,omitempty"`
+	MongoDBConfig           *MongoDBEngineConfigPayload     `json:"mongodbConfig,omitempty"`
+	MilvusConfig            *MilvusEngineConfigPayload      `json:"milvusConfig,omitempty"`
+	CollationConfig         *DBEngineCollationConfig        `json:"collationConfig,omitempty"`
+	IgnorePostScriptFailure *bool                           `json:"ignorePostScriptFailure,omitempty"`
+	IgnorePreScriptFailure  *bool                           `json:"ignorePreScriptFailure,omitempty"`
 }
 
 type OracleEngineConfigPayload struct {
@@ -612,6 +516,7 @@ type PostgresqlEngineConfigPayload struct {
 	ParameterProfileId *string `json:"parameterProfileId"`   // The parameter profile id for the database
 	AdDomainId         *string `json:"adDomainId,omitempty"` // Active Directory Domain id
 	ProxyPort          *int    `json:"proxyPort,omitempty"`
+	OptionsProfile     *string `json:"optionsProfile,omitempty"` // The options profile for the database
 }
 
 type MysqlEngineConfigPayload struct {
@@ -620,8 +525,15 @@ type MysqlEngineConfigPayload struct {
 }
 
 type SqlServerEngineConfigPayload struct {
-	ParameterProfileId *string `json:"parameterProfileId"`   // The parameter profile id for the database
-	AdDomainId         *string `json:"adDomainId,omitempty"` // Active Directory Domain id
+	ParameterProfileId       *string             `json:"parameterProfileId"`   // The parameter profile id for the database
+	AdDomainId               *string             `json:"adDomainId,omitempty"` // Active Directory Domain id
+	ServiceAccountCreds      *CredentialsPayload `json:"serviceAccountCreds,omitempty"`
+	AgentServiceAccountCreds *CredentialsPayload `json:"agentServiceAccountCreds,omitempty"`
+}
+
+type CredentialsPayload struct {
+	User     *string `json:"user"`     // Username
+	Password *string `json:"password"` // Password
 }
 
 type ApacheKafkaEngineConfigPayload struct {
@@ -779,24 +691,23 @@ type RefreshServiceInfo struct {
 }
 
 type TessellServiceInfrastructureInfo struct {
-	Cloud                *string               `json:"cloud,omitempty"`            // The cloud-type in which the DB Service is provisioned (ex. aws, azure)
-	Region               *string               `json:"region,omitempty"`           // The region in which the DB Service provisioned
-	AvailabilityZone     *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is provisioned
-	CloudAvailability    *[]CloudRegionInfo    `json:"cloudAvailability,omitempty"`
-	VPC                  *string               `json:"vpc,omitempty"` // The VPC to be used for provisioning the DB Service
-	EnableEncryption     *bool                 `json:"enableEncryption,omitempty"`
-	EncryptionKey        *string               `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
-	ComputeType          *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
-	AwsInfraConfig       *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`
-	EnableComputeSharing *bool                 `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
-	Iops                 *int                  `json:"iops,omitempty"`                 // IOPS requested for the DB Service
-	Throughput           *int                  `json:"throughput,omitempty"`           // throughput requested for the DB Service
-	Storage              *int                  `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
-	AdditionalStorage    *int                  `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
-	Timezone             *string               `json:"timezone,omitempty"`             // The timezone detail
-	MultiDisk            *bool                 `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
-	StorageProvider      *string               `json:"storageProvider,omitempty"`
-	StorageConfig        *ServiceStorageConfig `json:"storageConfig,omitempty"`
+	Cloud                *string            `json:"cloud,omitempty"`            // The cloud-type in which the DB Service is provisioned (ex. aws, azure)
+	Region               *string            `json:"region,omitempty"`           // The region in which the DB Service provisioned
+	AvailabilityZone     *string            `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is provisioned
+	CloudAvailability    *[]CloudRegionInfo `json:"cloudAvailability,omitempty"`
+	VPC                  *string            `json:"vpc,omitempty"` // The VPC to be used for provisioning the DB Service
+	EnableEncryption     *bool              `json:"enableEncryption,omitempty"`
+	EncryptionKey        *string            `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
+	ComputeType          *string            `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
+	AwsInfraConfig       *AwsInfraConfig    `json:"awsInfraConfig,omitempty"`
+	EnableComputeSharing *bool              `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
+	Iops                 *int               `json:"iops,omitempty"`                 // IOPS requested for the DB Service
+	Throughput           *int               `json:"throughput,omitempty"`           // throughput requested for the DB Service
+	Storage              *int               `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
+	AdditionalStorage    *int               `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
+	Timezone             *string            `json:"timezone,omitempty"`             // The timezone detail
+	MultiDisk            *bool              `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
+	StorageProvider      *string            `json:"storageProvider,omitempty"`
 }
 
 type ServiceStorageConfig struct {
@@ -852,7 +763,7 @@ type ProvisionServicePayload struct {
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
 	DeletionConfig           *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
 	SnapshotConfiguration    *SnapshotConfigurationPayload             `json:"snapshotConfiguration,omitempty"`
-	RPOPolicyConfig          *ProvisionRPOPolicyConfig                 `json:"rpoPolicyConfig,omitempty"`
+	RPOPolicyConfig          *RPOPolicyConfig                          `json:"rpoPolicyConfig,omitempty"`
 	EngineConfiguration      *TessellServiceEngineConfigurationPayload `json:"engineConfiguration"`
 	Databases                *[]CreateDatabasePayload                  `json:"databases,omitempty"` // Specify the databases to be created in the DB Service
 	IntegrationsConfig       *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`

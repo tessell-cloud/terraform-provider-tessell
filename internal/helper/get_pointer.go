@@ -27,6 +27,14 @@ func GetBoolPointer(b interface{}) *bool {
 	return &b2
 }
 
+func GetBoolPointerV2(b interface{}) *bool {
+	if b != nil {
+		b2 := b.(bool)
+		return &b2
+	}
+	return nil
+}
+
 func GetFloat32Pointer(f interface{}) *float32 {
 	if f != nil {
 		f2 := f.(float32)

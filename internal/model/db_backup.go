@@ -27,9 +27,11 @@ type DatabaseBackup struct {
 	Status             *string                       `json:"status,omitempty"`             // Database Backup Status
 	Size               *int                          `json:"size,omitempty"`               // Size of this backup (in bytes)
 	Manual             *bool                         `json:"manual,omitempty"`             // Specifies whether the backup is captured as per manual user request or per automated schedule
+	IsIncremental      *bool                         `json:"isIncremental,omitempty"`      // Specifies whether this backup is incremental
 	CloudAvailability  *[]CloudRegionInfo            `json:"cloudAvailability,omitempty"`  // The cloud and region information where this backup has been made available at
 	AvailabilityConfig *[]SnapshotAvailabilityConfig `json:"availabilityConfig,omitempty"` // The config information for cloud and region availability for this backup
 	Databases          *[]BackupDatabaseInfo         `json:"databases,omitempty"`          // The databases that are captured as part of this backup
+	BackupSource       *string                       `json:"backupSource,omitempty"`
 	BackupInfo         *BackupSourceInfo             `json:"backupInfo,omitempty"`
 	SharedWith         *DatabaseBackupSharedWith     `json:"sharedWith,omitempty"`
 	DownloadUrlStatus  *string                       `json:"downloadUrlStatus,omitempty"`

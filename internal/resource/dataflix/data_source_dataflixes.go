@@ -105,6 +105,11 @@ func DataSourceDataflixes() *schema.Resource {
 								},
 							},
 						},
+						"storage_provider_type": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -169,6 +174,7 @@ func setDataSourceValues(d *schema.ResourceData, DataflixList *[]model.TessellAm
 				"owner":                   Dataflix.Owner,
 				"tsm":                     Dataflix.Tsm,
 				"shared_with":             []interface{}{parseEntityAclSharingSummaryInfo(Dataflix.SharedWith)},
+				"storage_provider_type":   Dataflix.StorageProviderType,
 			}
 		}
 	}

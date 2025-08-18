@@ -720,6 +720,31 @@ func parseAwsCpuOptions(awsCpuOptions *model.AwsCpuOptions) interface{} {
 	return parsedAwsCpuOptions
 }
 
+func parseServiceStorageConfig(serviceStorageConfig *model.ServiceStorageConfig) interface{} {
+	if serviceStorageConfig == nil {
+		return nil
+	}
+	parsedServiceStorageConfig := make(map[string]interface{})
+	parsedServiceStorageConfig["provider"] = serviceStorageConfig.Provider
+
+	var azureNetAppConfig *model.ServiceAzureNetAppConfig
+	if serviceStorageConfig.AzureNetAppConfig != azureNetAppConfig {
+		parsedServiceStorageConfig["azure_net_app_config"] = []interface{}{parseServiceAzureNetAppConfig(serviceStorageConfig.AzureNetAppConfig)}
+	}
+
+	return parsedServiceStorageConfig
+}
+
+func parseServiceAzureNetAppConfig(serviceAzureNetAppConfig *model.ServiceAzureNetAppConfig) interface{} {
+	if serviceAzureNetAppConfig == nil {
+		return nil
+	}
+	parsedServiceAzureNetAppConfig := make(map[string]interface{})
+	parsedServiceAzureNetAppConfig["service_level"] = serviceAzureNetAppConfig.ServiceLevel
+
+	return parsedServiceAzureNetAppConfig
+}
+
 func parseTessellServiceMaintenanceWindowWithResData(maintenanceWindow *model.TessellServiceMaintenanceWindow, d *schema.ResourceData) []interface{} {
 	if maintenanceWindow == nil {
 		return nil
@@ -762,6 +787,9 @@ func parseTessellServiceEngineInfoWithResData(engineConfiguration *model.Tessell
 		}
 	}
 
+	parsedEngineConfiguration["ignore_post_script_failure"] = engineConfiguration.IgnorePostScriptFailure
+	parsedEngineConfiguration["ignore_pre_script_failure"] = engineConfiguration.IgnorePreScriptFailure
+
 	var oracleConfig *model.TessellServiceOracleEngineConfig
 	if engineConfiguration.OracleConfig != oracleConfig {
 		parsedEngineConfiguration["oracle_config"] = []interface{}{parseTessellServiceOracleEngineConfig(engineConfiguration.OracleConfig)}
@@ -805,6 +833,11 @@ func parseTessellServiceEngineInfoWithResData(engineConfiguration *model.Tessell
 	var postScriptInfo *model.ScriptInfo
 	if engineConfiguration.PostScriptInfo != postScriptInfo {
 		parsedEngineConfiguration["post_script_info"] = []interface{}{parseScriptInfo(engineConfiguration.PostScriptInfo)}
+	}
+
+	var collationConfig *model.DBEngineCollationConfig
+	if engineConfiguration.CollationConfig != collationConfig {
+		parsedEngineConfiguration["collation_config"] = []interface{}{parseDBEngineCollationConfig(engineConfiguration.CollationConfig)}
 	}
 
 	return []interface{}{parsedEngineConfiguration}
@@ -816,6 +849,9 @@ func parseTessellServiceEngineInfo(engineConfiguration *model.TessellServiceEngi
 	}
 	parsedEngineConfiguration := make(map[string]interface{})
 
+	parsedEngineConfiguration["ignore_post_script_failure"] = engineConfiguration.IgnorePostScriptFailure
+	parsedEngineConfiguration["ignore_pre_script_failure"] = engineConfiguration.IgnorePreScriptFailure
+
 	var oracleConfig *model.TessellServiceOracleEngineConfig
 	if engineConfiguration.OracleConfig != oracleConfig {
 		parsedEngineConfiguration["oracle_config"] = []interface{}{parseTessellServiceOracleEngineConfig(engineConfiguration.OracleConfig)}
@@ -859,6 +895,11 @@ func parseTessellServiceEngineInfo(engineConfiguration *model.TessellServiceEngi
 	var postScriptInfo *model.ScriptInfo
 	if engineConfiguration.PostScriptInfo != postScriptInfo {
 		parsedEngineConfiguration["post_script_info"] = []interface{}{parseScriptInfo(engineConfiguration.PostScriptInfo)}
+	}
+
+	var collationConfig *model.DBEngineCollationConfig
+	if engineConfiguration.CollationConfig != collationConfig {
+		parsedEngineConfiguration["collation_config"] = []interface{}{parseDBEngineCollationConfig(engineConfiguration.CollationConfig)}
 	}
 
 	return parsedEngineConfiguration
@@ -888,6 +929,7 @@ func parseTessellServicePostgresqlEngineConfig(tessellServicePostgresqlEngineCon
 	parsedTessellServicePostgresqlEngineConfig["parameter_profile_id"] = tessellServicePostgresqlEngineConfig.ParameterProfileId
 	parsedTessellServicePostgresqlEngineConfig["ad_domain_id"] = tessellServicePostgresqlEngineConfig.AdDomainId
 	parsedTessellServicePostgresqlEngineConfig["proxy_port"] = tessellServicePostgresqlEngineConfig.ProxyPort
+	parsedTessellServicePostgresqlEngineConfig["options_profile"] = tessellServicePostgresqlEngineConfig.OptionProfileName
 
 	return parsedTessellServicePostgresqlEngineConfig
 }
@@ -910,6 +952,8 @@ func parseTessellServiceSqlServerEngineConfig(tessellServiceSqlServerEngineConfi
 	parsedTessellServiceSqlServerEngineConfig := make(map[string]interface{})
 	parsedTessellServiceSqlServerEngineConfig["parameter_profile_id"] = tessellServiceSqlServerEngineConfig.ParameterProfileId
 	parsedTessellServiceSqlServerEngineConfig["ad_domain_id"] = tessellServiceSqlServerEngineConfig.AdDomainId
+	parsedTessellServiceSqlServerEngineConfig["service_account_user"] = tessellServiceSqlServerEngineConfig.ServiceAccountUser
+	parsedTessellServiceSqlServerEngineConfig["agent_service_account_user"] = tessellServiceSqlServerEngineConfig.AgentServiceAccountUser
 
 	return parsedTessellServiceSqlServerEngineConfig
 }
@@ -943,6 +987,16 @@ func parseTessellServiceMilvusEngineConfig(tessellServiceMilvusEngineConfig *mod
 	parsedTessellServiceMilvusEngineConfig["parameter_profile_id"] = tessellServiceMilvusEngineConfig.ParameterProfileId
 
 	return parsedTessellServiceMilvusEngineConfig
+}
+
+func parseDBEngineCollationConfig(dbEngineCollationConfig *model.DBEngineCollationConfig) interface{} {
+	if dbEngineCollationConfig == nil {
+		return nil
+	}
+	parsedDbEngineCollationConfig := make(map[string]interface{})
+	parsedDbEngineCollationConfig["collation_name"] = dbEngineCollationConfig.CollationName
+
+	return parsedDbEngineCollationConfig
 }
 
 func parseTessellServiceIntegrationsInfoWithResData(integrationsConfig *model.TessellServiceIntegrationsInfo, d *schema.ResourceData) []interface{} {
@@ -1184,9 +1238,19 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 		parsedInstances["engine_configuration"] = []interface{}{parseServiceInstanceEngineInfo(instances.EngineConfiguration)}
 	}
 
+	var computeConfig *model.InstanceComputeConfig
+	if instances.ComputeConfig != computeConfig {
+		parsedInstances["compute_config"] = []interface{}{parseInstanceComputeConfig(instances.ComputeConfig)}
+	}
+
 	var storageConfig *model.InstanceStorageConfig
 	if instances.StorageConfig != storageConfig {
 		parsedInstances["storage_config"] = []interface{}{parseInstanceStorageConfig(instances.StorageConfig)}
+	}
+
+	var archiveStorageConfig *model.InstanceStorageConfig
+	if instances.ArchiveStorageConfig != archiveStorageConfig {
+		parsedInstances["archive_storage_config"] = []interface{}{parseInstanceStorageConfig(instances.ArchiveStorageConfig)}
 	}
 
 	return parsedInstances
@@ -1268,6 +1332,36 @@ func parseServiceInstanceOracleEngineConfig(serviceInstanceOracleEngineConfig *m
 	return parsedServiceInstanceOracleEngineConfig
 }
 
+func parseInstanceComputeConfig(instanceComputeConfig *model.InstanceComputeConfig) interface{} {
+	if instanceComputeConfig == nil {
+		return nil
+	}
+	parsedInstanceComputeConfig := make(map[string]interface{})
+	parsedInstanceComputeConfig["provider"] = instanceComputeConfig.Provider
+
+	var exadataConfig *model.InstanceExadataComputeConfig
+	if instanceComputeConfig.ExadataConfig != exadataConfig {
+		parsedInstanceComputeConfig["exadata_config"] = []interface{}{parseInstanceExadataComputeConfig(instanceComputeConfig.ExadataConfig)}
+	}
+
+	return parsedInstanceComputeConfig
+}
+
+func parseInstanceExadataComputeConfig(instanceExadataComputeConfig *model.InstanceExadataComputeConfig) interface{} {
+	if instanceExadataComputeConfig == nil {
+		return nil
+	}
+	parsedInstanceExadataComputeConfig := make(map[string]interface{})
+	parsedInstanceExadataComputeConfig["infrastructure_id"] = instanceExadataComputeConfig.InfrastructureId
+	parsedInstanceExadataComputeConfig["infrastructure_name"] = instanceExadataComputeConfig.InfrastructureName
+	parsedInstanceExadataComputeConfig["vm_cluster_id"] = instanceExadataComputeConfig.VmClusterId
+	parsedInstanceExadataComputeConfig["vm_cluster_name"] = instanceExadataComputeConfig.VmClusterName
+	parsedInstanceExadataComputeConfig["vcpus"] = instanceExadataComputeConfig.Vcpus
+	parsedInstanceExadataComputeConfig["memory"] = instanceExadataComputeConfig.Memory
+
+	return parsedInstanceExadataComputeConfig
+}
+
 func parseInstanceStorageConfig(instanceStorageConfig *model.InstanceStorageConfig) interface{} {
 	if instanceStorageConfig == nil {
 		return nil
@@ -1316,6 +1410,7 @@ func parseInstanceAzureNetAppConfig(instanceAzureNetAppConfig *model.InstanceAzu
 	parsedInstanceAzureNetAppConfig["delegated_subnet_name"] = instanceAzureNetAppConfig.DelegatedSubnetName
 
 	parsedInstanceAzureNetAppConfig["network_features"] = instanceAzureNetAppConfig.NetworkFeatures
+	parsedInstanceAzureNetAppConfig["service_level"] = instanceAzureNetAppConfig.ServiceLevel
 
 	var encryptionKeyInfo *model.AzureNetAppEncryptionKeyInfo
 	if instanceAzureNetAppConfig.EncryptionKeyInfo != encryptionKeyInfo {
@@ -1799,7 +1894,7 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
 		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
 		SnapshotConfiguration:    formSnapshotConfigurationPayload(d.Get("snapshot_configuration")),
-		RPOPolicyConfig:          formProvisionRPOPolicyConfig(d.Get("rpo_policy_config")),
+		RPOPolicyConfig:          formRPOPolicyConfig(d.Get("rpo_policy_config")),
 		EngineConfiguration:      formTessellServiceEngineConfigurationPayload(d.Get("engine_configuration")),
 		Databases:                formCreateDatabasePayloadList(d.Get("databases")),
 		IntegrationsConfig:       formTessellServiceIntegrationsPayload(d.Get("integrations_config")),
@@ -1849,7 +1944,7 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
 		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
 		SnapshotConfiguration:    formSnapshotConfigurationPayload(d.Get("snapshot_configuration")),
-		RPOPolicyConfig:          formProvisionRPOPolicyConfig(d.Get("rpo_policy_config")),
+		RPOPolicyConfig:          formRPOPolicyConfig(d.Get("rpo_policy_config")),
 		EngineConfiguration:      formTessellServiceEngineConfigurationPayload(d.Get("engine_configuration")),
 		Databases:                formCreateDatabasePayloadList(d.Get("databases")),
 		IntegrationsConfig:       formTessellServiceIntegrationsPayload(d.Get("integrations_config")),
@@ -2030,6 +2125,37 @@ func formServiceInstanceOracleEngineConfig(oracleConfigRaw interface{}) *model.S
 	}
 
 	return &serviceInstanceOracleEngineConfigFormed
+}
+
+func formComputeConfigPayload(computeConfigPayloadRaw interface{}) *model.ComputeConfigPayload {
+	if computeConfigPayloadRaw == nil || len(computeConfigPayloadRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	computeConfigPayloadData := computeConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
+
+	computeConfigPayloadFormed := model.ComputeConfigPayload{
+		Provider:      helper.GetStringPointer(computeConfigPayloadData["provider"]),
+		ExadataConfig: formExadataComputeConfigPayload(computeConfigPayloadData["exadata_config"]),
+	}
+
+	return &computeConfigPayloadFormed
+}
+
+func formExadataComputeConfigPayload(exadataComputeConfigPayloadRaw interface{}) *model.ExadataComputeConfigPayload {
+	if exadataComputeConfigPayloadRaw == nil || len(exadataComputeConfigPayloadRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	exadataComputeConfigPayloadData := exadataComputeConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
+
+	exadataComputeConfigPayloadFormed := model.ExadataComputeConfigPayload{
+		InfrastructureId: helper.GetStringPointer(exadataComputeConfigPayloadData["infrastructure_id"]),
+		VmClusterId:      helper.GetStringPointer(exadataComputeConfigPayloadData["vm_cluster_id"]),
+		ComputeId:        helper.GetStringPointer(exadataComputeConfigPayloadData["compute_id"]),
+	}
+
+	return &exadataComputeConfigPayloadFormed
 }
 
 func formStorageConfigPayload(storageConfigPayloadRaw interface{}) *model.StorageConfigPayload {
@@ -2275,17 +2401,23 @@ func formProvisionComputePayload(provisionComputePayloadRaw interface{}) *model.
 	provisionComputePayloadData := provisionComputePayloadRaw.(map[string]interface{})
 
 	provisionComputePayloadFormed := model.ProvisionComputePayload{
-		Name:              helper.GetStringPointer(provisionComputePayloadData["name"]),
-		InstanceGroupName: helper.GetStringPointer(provisionComputePayloadData["instance_group_name"]),
-		Region:            helper.GetStringPointer(provisionComputePayloadData["region"]),
-		AvailabilityZone:  helper.GetStringPointer(provisionComputePayloadData["availability_zone"]),
-		Role:              helper.GetStringPointer(provisionComputePayloadData["role"]),
-		VPC:               helper.GetStringPointer(provisionComputePayloadData["vpc"]),
-		PrivateSubnet:     helper.GetStringPointer(provisionComputePayloadData["private_subnet"]),
-		ComputeType:       helper.GetStringPointer(provisionComputePayloadData["compute_type"]),
-		ComputeId:         helper.GetStringPointer(provisionComputePayloadData["compute_id"]),
-		Timezone:          helper.GetStringPointer(provisionComputePayloadData["timezone"]),
-		StorageConfig:     formStorageConfigPayload(provisionComputePayloadData["storage_config"]),
+		Name:                 helper.GetStringPointer(provisionComputePayloadData["name"]),
+		InstanceGroupName:    helper.GetStringPointer(provisionComputePayloadData["instance_group_name"]),
+		Region:               helper.GetStringPointer(provisionComputePayloadData["region"]),
+		AvailabilityZone:     helper.GetStringPointer(provisionComputePayloadData["availability_zone"]),
+		Role:                 helper.GetStringPointer(provisionComputePayloadData["role"]),
+		VPC:                  helper.GetStringPointer(provisionComputePayloadData["vpc"]),
+		PrivateSubnet:        helper.GetStringPointer(provisionComputePayloadData["private_subnet"]),
+		ComputeType:          helper.GetStringPointer(provisionComputePayloadData["compute_type"]),
+		ComputeId:            helper.GetStringPointer(provisionComputePayloadData["compute_id"]),
+		Timezone:             helper.GetStringPointer(provisionComputePayloadData["timezone"]),
+		ComputeConfig:        formComputeConfigPayload(provisionComputePayloadData["compute_config"]),
+		StorageConfig:        formStorageConfigPayload(provisionComputePayloadData["storage_config"]),
+		ArchiveStorageConfig: formStorageConfigPayload(provisionComputePayloadData["archive_storage_config"]),
+	}
+
+	if provisionComputePayloadData["compute_name"] != nil && provisionComputePayloadData["compute_name"] != "" {
+		provisionComputePayloadFormed.ComputeName = helper.GetStringPointer(provisionComputePayloadData["compute_name"])
 	}
 
 	return &provisionComputePayloadFormed
@@ -2311,18 +2443,24 @@ func formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2Raw interfac
 	addDBServiceInstancePayloadV2Data := addDBServiceInstancePayloadV2Raw.(map[string]interface{})
 
 	addDBServiceInstancePayloadV2Formed := model.AddDBServiceInstancePayloadV2{
-		InstanceGroupName:  helper.GetStringPointer(addDBServiceInstancePayloadV2Data["instance_group_name"]),
-		Name:               helper.GetStringPointer(addDBServiceInstancePayloadV2Data["name"]),
-		Region:             helper.GetStringPointer(addDBServiceInstancePayloadV2Data["region"]),
-		VPC:                helper.GetStringPointer(addDBServiceInstancePayloadV2Data["vpc"]),
-		PrivateSubnet:      helper.GetStringPointer(addDBServiceInstancePayloadV2Data["private_subnet"]),
-		ComputeType:        helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_type"]),
-		ComputeId:          helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_id"]),
-		EnablePerfInsights: helper.GetBoolPointer(addDBServiceInstancePayloadV2Data["enable_perf_insights"]),
-		AwsInfraConfig:     formAwsInfraConfig(addDBServiceInstancePayloadV2Data["aws_infra_config"]),
-		Role:               helper.GetStringPointer(addDBServiceInstancePayloadV2Data["role"]),
-		AvailabilityZone:   helper.GetStringPointer(addDBServiceInstancePayloadV2Data["availability_zone"]),
-		StorageConfig:      formStorageConfigPayload(addDBServiceInstancePayloadV2Data["storage_config"]),
+		InstanceGroupName:    helper.GetStringPointer(addDBServiceInstancePayloadV2Data["instance_group_name"]),
+		Name:                 helper.GetStringPointer(addDBServiceInstancePayloadV2Data["name"]),
+		Region:               helper.GetStringPointer(addDBServiceInstancePayloadV2Data["region"]),
+		VPC:                  helper.GetStringPointer(addDBServiceInstancePayloadV2Data["vpc"]),
+		PrivateSubnet:        helper.GetStringPointer(addDBServiceInstancePayloadV2Data["private_subnet"]),
+		ComputeType:          helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_type"]),
+		ComputeId:            helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_id"]),
+		EnablePerfInsights:   helper.GetBoolPointer(addDBServiceInstancePayloadV2Data["enable_perf_insights"]),
+		AwsInfraConfig:       formAwsInfraConfig(addDBServiceInstancePayloadV2Data["aws_infra_config"]),
+		Role:                 helper.GetStringPointer(addDBServiceInstancePayloadV2Data["role"]),
+		AvailabilityZone:     helper.GetStringPointer(addDBServiceInstancePayloadV2Data["availability_zone"]),
+		ComputeConfig:        formComputeConfigPayload(addDBServiceInstancePayloadV2Data["compute_config"]),
+		StorageConfig:        formStorageConfigPayload(addDBServiceInstancePayloadV2Data["storage_config"]),
+		ArchiveStorageConfig: formStorageConfigPayload(addDBServiceInstancePayloadV2Data["archive_storage_config"]),
+	}
+
+	if addDBServiceInstancePayloadV2Data["compute_name"] != nil && addDBServiceInstancePayloadV2Data["compute_name"] != "" {
+		addDBServiceInstancePayloadV2Formed.ComputeName = helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_name"])
 	}
 
 	return &addDBServiceInstancePayloadV2Formed
@@ -2578,27 +2716,31 @@ func formFullBackupSchedule(fullBackupScheduleRaw interface{}) *model.FullBackup
 	fullBackupScheduleData := fullBackupScheduleRaw.([]interface{})[0].(map[string]interface{})
 
 	fullBackupScheduleFormed := model.FullBackupSchedule{
+		StartTime:      formTimeFormat(fullBackupScheduleData["start_time"]),
 		WeeklySchedule: formWeeklySchedule(fullBackupScheduleData["weekly_schedule"]),
 	}
 
 	return &fullBackupScheduleFormed
 }
 
-func formProvisionRPOPolicyConfig(provisionRPOPolicyConfigRaw interface{}) *model.ProvisionRPOPolicyConfig {
-	if provisionRPOPolicyConfigRaw == nil || len(provisionRPOPolicyConfigRaw.([]interface{})) == 0 {
+func formRPOPolicyConfig(rpoPolicyConfigRaw interface{}) *model.RPOPolicyConfig {
+	if rpoPolicyConfigRaw == nil || len(rpoPolicyConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
 
-	provisionRPOPolicyConfigData := provisionRPOPolicyConfigRaw.([]interface{})[0].(map[string]interface{})
+	rpoPolicyConfigData := rpoPolicyConfigRaw.([]interface{})[0].(map[string]interface{})
 
-	provisionRPOPolicyConfigFormed := model.ProvisionRPOPolicyConfig{
-		FullBackupSchedule: formFullBackupSchedule(provisionRPOPolicyConfigData["full_backup_schedule"]),
-		EnableAutoSnapshot: helper.GetBoolPointer(provisionRPOPolicyConfigData["enable_auto_snapshot"]),
-		StandardPolicy:     formStandardRPOPolicy(provisionRPOPolicyConfigData["standard_policy"]),
-		CustomPolicy:       formCustomRPOPolicy(provisionRPOPolicyConfigData["custom_policy"]),
+	rpoPolicyConfigFormed := model.RPOPolicyConfig{
+		IncludeTransactionLogs: helper.GetBoolPointer(rpoPolicyConfigData["include_transaction_logs"]),
+		EnableAutoSnapshot:     helper.GetBoolPointer(rpoPolicyConfigData["enable_auto_snapshot"]),
+		StandardPolicy:         formStandardRPOPolicy(rpoPolicyConfigData["standard_policy"]),
+		CustomPolicy:           formCustomRPOPolicy(rpoPolicyConfigData["custom_policy"]),
+		FullBackupSchedule:     formFullBackupSchedule(rpoPolicyConfigData["full_backup_schedule"]),
+		EnableAutoBackup:       helper.GetBoolPointer(rpoPolicyConfigData["enable_auto_backup"]),
+		BackupRPOConfig:        formRPOPolicyConfigBackupRPOConfig(rpoPolicyConfigData["backup_rpo_config"]),
 	}
 
-	return &provisionRPOPolicyConfigFormed
+	return &rpoPolicyConfigFormed
 }
 
 func formStandardRPOPolicy(standardRPOPolicyRaw interface{}) *model.StandardRPOPolicy {
@@ -2632,6 +2774,52 @@ func formCustomRPOPolicy(customRPOPolicyRaw interface{}) *model.CustomRPOPolicy 
 	return &customRPOPolicyFormed
 }
 
+func formRPOPolicyConfigBackupRPOConfig(rpoPolicyConfigBackupRPOConfigRaw interface{}) *model.RPOPolicyConfigBackupRPOConfig {
+	if rpoPolicyConfigBackupRPOConfigRaw == nil || len(rpoPolicyConfigBackupRPOConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	rpoPolicyConfigBackupRPOConfigData := rpoPolicyConfigBackupRPOConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	rpoPolicyConfigBackupRPOConfigFormed := model.RPOPolicyConfigBackupRPOConfig{
+		FullBackupSchedule: formFullBackupSchedule(rpoPolicyConfigBackupRPOConfigData["full_backup_schedule"]),
+		StandardPolicy:     formBackupStandardRPOPolicy(rpoPolicyConfigBackupRPOConfigData["standard_policy"]),
+		CustomPolicy:       formBackupCustomRPOPolicy(rpoPolicyConfigBackupRPOConfigData["custom_policy"]),
+	}
+
+	return &rpoPolicyConfigBackupRPOConfigFormed
+}
+
+func formBackupStandardRPOPolicy(backupStandardRPOPolicyRaw interface{}) *model.BackupStandardRPOPolicy {
+	if backupStandardRPOPolicyRaw == nil || len(backupStandardRPOPolicyRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	backupStandardRPOPolicyData := backupStandardRPOPolicyRaw.([]interface{})[0].(map[string]interface{})
+
+	backupStandardRPOPolicyFormed := model.BackupStandardRPOPolicy{
+		RetentionDays:   helper.GetIntPointer(backupStandardRPOPolicyData["retention_days"]),
+		BackupStartTime: formTimeFormat(backupStandardRPOPolicyData["backup_start_time"]),
+	}
+
+	return &backupStandardRPOPolicyFormed
+}
+
+func formBackupCustomRPOPolicy(backupCustomRPOPolicyRaw interface{}) *model.BackupCustomRPOPolicy {
+	if backupCustomRPOPolicyRaw == nil || len(backupCustomRPOPolicyRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	backupCustomRPOPolicyData := backupCustomRPOPolicyRaw.([]interface{})[0].(map[string]interface{})
+
+	backupCustomRPOPolicyFormed := model.BackupCustomRPOPolicy{
+		Name:     helper.GetStringPointer(backupCustomRPOPolicyData["name"]),
+		Schedule: formScheduleInfo(backupCustomRPOPolicyData["schedule"]),
+	}
+
+	return &backupCustomRPOPolicyFormed
+}
+
 func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurationPayloadRaw interface{}) *model.TessellServiceEngineConfigurationPayload {
 	if tessellServiceEngineConfigurationPayloadRaw == nil || len(tessellServiceEngineConfigurationPayloadRaw.([]interface{})) == 0 {
 		return nil
@@ -2649,6 +2837,15 @@ func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurat
 		ApacheKafkaConfig: formApacheKafkaEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["apache_kafka_config"]),
 		MongoDBConfig:     formMongoDBEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["mongodb_config"]),
 		MilvusConfig:      formMilvusEngineConfigPayload(tessellServiceEngineConfigurationPayloadData["milvus_config"]),
+		CollationConfig:   formDBEngineCollationConfig(tessellServiceEngineConfigurationPayloadData["collation_config"]),
+	}
+
+	if tessellServiceEngineConfigurationPayloadFormed.PreScriptInfo != nil {
+		tessellServiceEngineConfigurationPayloadFormed.IgnorePreScriptFailure = helper.GetBoolPointer(tessellServiceEngineConfigurationPayloadData["ignore_pre_script_failure"])
+	}
+
+	if tessellServiceEngineConfigurationPayloadFormed.PostScriptInfo != nil {
+		tessellServiceEngineConfigurationPayloadFormed.IgnorePostScriptFailure = helper.GetBoolPointer(tessellServiceEngineConfigurationPayloadData["ignore_post_script_failure"])
 	}
 
 	return &tessellServiceEngineConfigurationPayloadFormed
@@ -2685,6 +2882,7 @@ func formPostgresqlEngineConfigPayload(postgresqlEngineConfigPayloadRaw interfac
 		ParameterProfileId: helper.GetStringPointer(postgresqlEngineConfigPayloadData["parameter_profile_id"]),
 		AdDomainId:         helper.GetStringPointer(postgresqlEngineConfigPayloadData["ad_domain_id"]),
 		ProxyPort:          helper.GetIntPointer(postgresqlEngineConfigPayloadData["proxy_port"]),
+		OptionsProfile:     helper.GetStringPointer(postgresqlEngineConfigPayloadData["options_profile"]),
 	}
 
 	return &postgresqlEngineConfigPayloadFormed
@@ -2713,11 +2911,28 @@ func formSqlServerEngineConfigPayload(sqlServerEngineConfigPayloadRaw interface{
 	sqlServerEngineConfigPayloadData := sqlServerEngineConfigPayloadRaw.([]interface{})[0].(map[string]interface{})
 
 	sqlServerEngineConfigPayloadFormed := model.SqlServerEngineConfigPayload{
-		ParameterProfileId: helper.GetStringPointer(sqlServerEngineConfigPayloadData["parameter_profile_id"]),
-		AdDomainId:         helper.GetStringPointer(sqlServerEngineConfigPayloadData["ad_domain_id"]),
+		ParameterProfileId:       helper.GetStringPointer(sqlServerEngineConfigPayloadData["parameter_profile_id"]),
+		AdDomainId:               helper.GetStringPointer(sqlServerEngineConfigPayloadData["ad_domain_id"]),
+		ServiceAccountCreds:      formCredentialsPayload(sqlServerEngineConfigPayloadData["service_account_creds"]),
+		AgentServiceAccountCreds: formCredentialsPayload(sqlServerEngineConfigPayloadData["agent_service_account_creds"]),
 	}
 
 	return &sqlServerEngineConfigPayloadFormed
+}
+
+func formCredentialsPayload(credentialsPayloadRaw interface{}) *model.CredentialsPayload {
+	if credentialsPayloadRaw == nil || len(credentialsPayloadRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	credentialsPayloadData := credentialsPayloadRaw.([]interface{})[0].(map[string]interface{})
+
+	credentialsPayloadFormed := model.CredentialsPayload{
+		User:     helper.GetStringPointer(credentialsPayloadData["user"]),
+		Password: helper.GetStringPointer(credentialsPayloadData["password"]),
+	}
+
+	return &credentialsPayloadFormed
 }
 
 func formApacheKafkaEngineConfigPayload(apacheKafkaEngineConfigPayloadRaw interface{}) *model.ApacheKafkaEngineConfigPayload {
@@ -2761,6 +2976,20 @@ func formMilvusEngineConfigPayload(milvusEngineConfigPayloadRaw interface{}) *mo
 	}
 
 	return &milvusEngineConfigPayloadFormed
+}
+
+func formDBEngineCollationConfig(dbEngineCollationConfigRaw interface{}) *model.DBEngineCollationConfig {
+	if dbEngineCollationConfigRaw == nil || len(dbEngineCollationConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	dbEngineCollationConfigData := dbEngineCollationConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	dbEngineCollationConfigFormed := model.DBEngineCollationConfig{
+		CollationName: helper.GetStringPointer(dbEngineCollationConfigData["collation_name"]),
+	}
+
+	return &dbEngineCollationConfigFormed
 }
 
 func formCreateDatabasePayload(createDatabasePayloadRaw interface{}) *model.CreateDatabasePayload {

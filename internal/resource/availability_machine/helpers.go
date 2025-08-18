@@ -289,7 +289,10 @@ func parseRPOPolicyConfigWithResData(rpoPolicy *model.RPOPolicyConfig, d *schema
 			parsedRpoPolicy = (rpoPolicyResourceData[0]).(map[string]interface{})
 		}
 	}
+	parsedRpoPolicy["include_transaction_logs"] = rpoPolicy.IncludeTransactionLogs
 	parsedRpoPolicy["enable_auto_snapshot"] = rpoPolicy.EnableAutoSnapshot
+
+	parsedRpoPolicy["enable_auto_backup"] = rpoPolicy.EnableAutoBackup
 
 	var standardPolicy *model.StandardRPOPolicy
 	if rpoPolicy.StandardPolicy != standardPolicy {
@@ -299,6 +302,16 @@ func parseRPOPolicyConfigWithResData(rpoPolicy *model.RPOPolicyConfig, d *schema
 	var customPolicy *model.CustomRPOPolicy
 	if rpoPolicy.CustomPolicy != customPolicy {
 		parsedRpoPolicy["custom_policy"] = []interface{}{parseCustomRPOPolicy(rpoPolicy.CustomPolicy)}
+	}
+
+	var fullBackupSchedule *model.FullBackupSchedule
+	if rpoPolicy.FullBackupSchedule != fullBackupSchedule {
+		parsedRpoPolicy["full_backup_schedule"] = []interface{}{parseFullBackupSchedule(rpoPolicy.FullBackupSchedule)}
+	}
+
+	var backupRPOConfig *model.RPOPolicyConfigBackupRPOConfig
+	if rpoPolicy.BackupRPOConfig != backupRPOConfig {
+		parsedRpoPolicy["backup_rpo_config"] = []interface{}{parseRPOPolicyConfigBackupRPOConfig(rpoPolicy.BackupRPOConfig)}
 	}
 
 	return []interface{}{parsedRpoPolicy}
@@ -309,7 +322,10 @@ func parseRPOPolicyConfig(rpoPolicy *model.RPOPolicyConfig) interface{} {
 		return nil
 	}
 	parsedRpoPolicy := make(map[string]interface{})
+	parsedRpoPolicy["include_transaction_logs"] = rpoPolicy.IncludeTransactionLogs
 	parsedRpoPolicy["enable_auto_snapshot"] = rpoPolicy.EnableAutoSnapshot
+
+	parsedRpoPolicy["enable_auto_backup"] = rpoPolicy.EnableAutoBackup
 
 	var standardPolicy *model.StandardRPOPolicy
 	if rpoPolicy.StandardPolicy != standardPolicy {
@@ -319,6 +335,16 @@ func parseRPOPolicyConfig(rpoPolicy *model.RPOPolicyConfig) interface{} {
 	var customPolicy *model.CustomRPOPolicy
 	if rpoPolicy.CustomPolicy != customPolicy {
 		parsedRpoPolicy["custom_policy"] = []interface{}{parseCustomRPOPolicy(rpoPolicy.CustomPolicy)}
+	}
+
+	var fullBackupSchedule *model.FullBackupSchedule
+	if rpoPolicy.FullBackupSchedule != fullBackupSchedule {
+		parsedRpoPolicy["full_backup_schedule"] = []interface{}{parseFullBackupSchedule(rpoPolicy.FullBackupSchedule)}
+	}
+
+	var backupRPOConfig *model.RPOPolicyConfigBackupRPOConfig
+	if rpoPolicy.BackupRPOConfig != backupRPOConfig {
+		parsedRpoPolicy["backup_rpo_config"] = []interface{}{parseRPOPolicyConfigBackupRPOConfig(rpoPolicy.BackupRPOConfig)}
 	}
 
 	return parsedRpoPolicy
@@ -501,6 +527,79 @@ func parseMonthWiseDates(monthWiseDates *model.MonthWiseDates) interface{} {
 	parsedMonthWiseDates["dates"] = monthWiseDates.Dates
 
 	return parsedMonthWiseDates
+}
+
+func parseFullBackupSchedule(fullBackupSchedule *model.FullBackupSchedule) interface{} {
+	if fullBackupSchedule == nil {
+		return nil
+	}
+	parsedFullBackupSchedule := make(map[string]interface{})
+
+	var startTime *model.TimeFormat
+	if fullBackupSchedule.StartTime != startTime {
+		parsedFullBackupSchedule["start_time"] = []interface{}{parseTimeFormat(fullBackupSchedule.StartTime)}
+	}
+
+	var weeklySchedule *model.WeeklySchedule
+	if fullBackupSchedule.WeeklySchedule != weeklySchedule {
+		parsedFullBackupSchedule["weekly_schedule"] = []interface{}{parseWeeklySchedule(fullBackupSchedule.WeeklySchedule)}
+	}
+
+	return parsedFullBackupSchedule
+}
+
+func parseRPOPolicyConfigBackupRPOConfig(rpoPolicyConfig_backupRpoConfig *model.RPOPolicyConfigBackupRPOConfig) interface{} {
+	if rpoPolicyConfig_backupRpoConfig == nil {
+		return nil
+	}
+	parsedRpoPolicyConfig_backupRpoConfig := make(map[string]interface{})
+
+	var fullBackupSchedule *model.FullBackupSchedule
+	if rpoPolicyConfig_backupRpoConfig.FullBackupSchedule != fullBackupSchedule {
+		parsedRpoPolicyConfig_backupRpoConfig["full_backup_schedule"] = []interface{}{parseFullBackupSchedule(rpoPolicyConfig_backupRpoConfig.FullBackupSchedule)}
+	}
+
+	var standardPolicy *model.BackupStandardRPOPolicy
+	if rpoPolicyConfig_backupRpoConfig.StandardPolicy != standardPolicy {
+		parsedRpoPolicyConfig_backupRpoConfig["standard_policy"] = []interface{}{parseBackupStandardRPOPolicy(rpoPolicyConfig_backupRpoConfig.StandardPolicy)}
+	}
+
+	var customPolicy *model.BackupCustomRPOPolicy
+	if rpoPolicyConfig_backupRpoConfig.CustomPolicy != customPolicy {
+		parsedRpoPolicyConfig_backupRpoConfig["custom_policy"] = []interface{}{parseBackupCustomRPOPolicy(rpoPolicyConfig_backupRpoConfig.CustomPolicy)}
+	}
+
+	return parsedRpoPolicyConfig_backupRpoConfig
+}
+
+func parseBackupStandardRPOPolicy(backupStandardRpoPolicy *model.BackupStandardRPOPolicy) interface{} {
+	if backupStandardRpoPolicy == nil {
+		return nil
+	}
+	parsedBackupStandardRpoPolicy := make(map[string]interface{})
+	parsedBackupStandardRpoPolicy["retention_days"] = backupStandardRpoPolicy.RetentionDays
+
+	var backupStartTime *model.TimeFormat
+	if backupStandardRpoPolicy.BackupStartTime != backupStartTime {
+		parsedBackupStandardRpoPolicy["backup_start_time"] = []interface{}{parseTimeFormat(backupStandardRpoPolicy.BackupStartTime)}
+	}
+
+	return parsedBackupStandardRpoPolicy
+}
+
+func parseBackupCustomRPOPolicy(backupCustomRpoPolicy *model.BackupCustomRPOPolicy) interface{} {
+	if backupCustomRpoPolicy == nil {
+		return nil
+	}
+	parsedBackupCustomRpoPolicy := make(map[string]interface{})
+	parsedBackupCustomRpoPolicy["name"] = backupCustomRpoPolicy.Name
+
+	var schedule *model.ScheduleInfo
+	if backupCustomRpoPolicy.Schedule != schedule {
+		parsedBackupCustomRpoPolicy["schedule"] = []interface{}{parseScheduleInfo(backupCustomRpoPolicy.Schedule)}
+	}
+
+	return parsedBackupCustomRpoPolicy
 }
 
 func parseTessellDAPServiceDTOListWithResData(daps *[]model.TessellDAPServiceDTO, d *schema.ResourceData) []interface{} {
@@ -776,7 +875,343 @@ func parseTessellCloneSummaryInfo(clones *model.TessellCloneSummaryInfo) interfa
 		parsedClones["cloud_availability"] = parseCloudRegionInfoList(clones.CloudAvailability)
 	}
 
+	var instances *[]model.TessellServiceInstanceDTO
+	if clones.Instances != instances {
+		parsedClones["instances"] = parseTessellServiceInstanceDTOList(clones.Instances)
+	}
+
 	return parsedClones
+}
+
+func parseTessellServiceInstanceDTOList(tessellServiceInstanceDTO *[]model.TessellServiceInstanceDTO) []interface{} {
+	if tessellServiceInstanceDTO == nil {
+		return nil
+	}
+	tessellServiceInstanceDTOList := make([]interface{}, 0)
+
+	if tessellServiceInstanceDTO != nil {
+		tessellServiceInstanceDTOList = make([]interface{}, len(*tessellServiceInstanceDTO))
+		for i, tessellServiceInstanceDTOItem := range *tessellServiceInstanceDTO {
+			tessellServiceInstanceDTOList[i] = parseTessellServiceInstanceDTO(&tessellServiceInstanceDTOItem)
+		}
+	}
+
+	return tessellServiceInstanceDTOList
+}
+
+func parseTessellServiceInstanceDTO(tessellServiceInstanceDTO *model.TessellServiceInstanceDTO) interface{} {
+	if tessellServiceInstanceDTO == nil {
+		return nil
+	}
+	parsedTessellServiceInstanceDTO := make(map[string]interface{})
+	parsedTessellServiceInstanceDTO["id"] = tessellServiceInstanceDTO.Id
+	parsedTessellServiceInstanceDTO["name"] = tessellServiceInstanceDTO.Name
+	parsedTessellServiceInstanceDTO["instance_group_name"] = tessellServiceInstanceDTO.InstanceGroupName
+	parsedTessellServiceInstanceDTO["type"] = tessellServiceInstanceDTO.Type
+	parsedTessellServiceInstanceDTO["role"] = tessellServiceInstanceDTO.Role
+	parsedTessellServiceInstanceDTO["status"] = tessellServiceInstanceDTO.Status
+	parsedTessellServiceInstanceDTO["tessell_service_id"] = tessellServiceInstanceDTO.TessellServiceId
+	parsedTessellServiceInstanceDTO["cloud"] = tessellServiceInstanceDTO.Cloud
+	parsedTessellServiceInstanceDTO["region"] = tessellServiceInstanceDTO.Region
+	parsedTessellServiceInstanceDTO["availability_zone"] = tessellServiceInstanceDTO.AvailabilityZone
+	parsedTessellServiceInstanceDTO["instance_group_id"] = tessellServiceInstanceDTO.InstanceGroupId
+	parsedTessellServiceInstanceDTO["compute_type"] = tessellServiceInstanceDTO.ComputeType
+
+	parsedTessellServiceInstanceDTO["compute_id"] = tessellServiceInstanceDTO.ComputeId
+	parsedTessellServiceInstanceDTO["compute_name"] = tessellServiceInstanceDTO.ComputeName
+	parsedTessellServiceInstanceDTO["storage"] = tessellServiceInstanceDTO.Storage
+	parsedTessellServiceInstanceDTO["data_volume_iops"] = tessellServiceInstanceDTO.DataVolumeIops
+	parsedTessellServiceInstanceDTO["throughput"] = tessellServiceInstanceDTO.Throughput
+	parsedTessellServiceInstanceDTO["enable_perf_insights"] = tessellServiceInstanceDTO.EnablePerfInsights
+
+	parsedTessellServiceInstanceDTO["vpc"] = tessellServiceInstanceDTO.VPC
+	parsedTessellServiceInstanceDTO["public_subnet"] = tessellServiceInstanceDTO.PublicSubnet
+	parsedTessellServiceInstanceDTO["private_subnet"] = tessellServiceInstanceDTO.PrivateSubnet
+	parsedTessellServiceInstanceDTO["encryption_key"] = tessellServiceInstanceDTO.EncryptionKey
+	parsedTessellServiceInstanceDTO["software_image"] = tessellServiceInstanceDTO.SoftwareImage
+	parsedTessellServiceInstanceDTO["software_image_version"] = tessellServiceInstanceDTO.SoftwareImageVersion
+	parsedTessellServiceInstanceDTO["date_created"] = tessellServiceInstanceDTO.DateCreated
+
+	parsedTessellServiceInstanceDTO["last_started_at"] = tessellServiceInstanceDTO.LastStartedAt
+	parsedTessellServiceInstanceDTO["last_stopped_at"] = tessellServiceInstanceDTO.LastStoppedAt
+	parsedTessellServiceInstanceDTO["sync_mode"] = tessellServiceInstanceDTO.SyncMode
+
+	var awsInfraConfig *model.AwsInfraConfig
+	if tessellServiceInstanceDTO.AwsInfraConfig != awsInfraConfig {
+		parsedTessellServiceInstanceDTO["aws_infra_config"] = []interface{}{parseAwsInfraConfig(tessellServiceInstanceDTO.AwsInfraConfig)}
+	}
+
+	var parameterProfile *model.ParameterProfile
+	if tessellServiceInstanceDTO.ParameterProfile != parameterProfile {
+		parsedTessellServiceInstanceDTO["parameter_profile"] = []interface{}{parseParameterProfile(tessellServiceInstanceDTO.ParameterProfile)}
+	}
+
+	var monitoringConfig *model.MonitoringConfig
+	if tessellServiceInstanceDTO.MonitoringConfig != monitoringConfig {
+		parsedTessellServiceInstanceDTO["monitoring_config"] = []interface{}{parseMonitoringConfig(tessellServiceInstanceDTO.MonitoringConfig)}
+	}
+
+	var connectString *model.TessellServiceInstanceConnectString
+	if tessellServiceInstanceDTO.ConnectString != connectString {
+		parsedTessellServiceInstanceDTO["connect_string"] = []interface{}{parseTessellServiceInstanceConnectString(tessellServiceInstanceDTO.ConnectString)}
+	}
+
+	var updatesInProgress *[]model.TessellResourceUpdateInfo
+	if tessellServiceInstanceDTO.UpdatesInProgress != updatesInProgress {
+		parsedTessellServiceInstanceDTO["updates_in_progress"] = parseTessellResourceUpdateInfoList(tessellServiceInstanceDTO.UpdatesInProgress)
+	}
+
+	var engineConfiguration *model.ServiceInstanceEngineInfo
+	if tessellServiceInstanceDTO.EngineConfiguration != engineConfiguration {
+		parsedTessellServiceInstanceDTO["engine_configuration"] = []interface{}{parseServiceInstanceEngineInfo(tessellServiceInstanceDTO.EngineConfiguration)}
+	}
+
+	var computeConfig *model.InstanceComputeConfig
+	if tessellServiceInstanceDTO.ComputeConfig != computeConfig {
+		parsedTessellServiceInstanceDTO["compute_config"] = []interface{}{parseInstanceComputeConfig(tessellServiceInstanceDTO.ComputeConfig)}
+	}
+
+	var storageConfig *model.InstanceStorageConfig
+	if tessellServiceInstanceDTO.StorageConfig != storageConfig {
+		parsedTessellServiceInstanceDTO["storage_config"] = []interface{}{parseInstanceStorageConfig(tessellServiceInstanceDTO.StorageConfig)}
+	}
+
+	var archiveStorageConfig *model.InstanceStorageConfig
+	if tessellServiceInstanceDTO.ArchiveStorageConfig != archiveStorageConfig {
+		parsedTessellServiceInstanceDTO["archive_storage_config"] = []interface{}{parseInstanceStorageConfig(tessellServiceInstanceDTO.ArchiveStorageConfig)}
+	}
+
+	return parsedTessellServiceInstanceDTO
+}
+
+func parseAwsInfraConfig(awsInfraConfig *model.AwsInfraConfig) interface{} {
+	if awsInfraConfig == nil {
+		return nil
+	}
+	parsedAwsInfraConfig := make(map[string]interface{})
+
+	var awsCpuOptions *model.AwsCpuOptions
+	if awsInfraConfig.AwsCpuOptions != awsCpuOptions {
+		parsedAwsInfraConfig["aws_cpu_options"] = []interface{}{parseAwsCpuOptions(awsInfraConfig.AwsCpuOptions)}
+	}
+
+	return parsedAwsInfraConfig
+}
+
+func parseAwsCpuOptions(awsCpuOptions *model.AwsCpuOptions) interface{} {
+	if awsCpuOptions == nil {
+		return nil
+	}
+	parsedAwsCpuOptions := make(map[string]interface{})
+	parsedAwsCpuOptions["vcpus"] = awsCpuOptions.Vcpus
+
+	return parsedAwsCpuOptions
+}
+
+func parseParameterProfile(parameterProfile *model.ParameterProfile) interface{} {
+	if parameterProfile == nil {
+		return nil
+	}
+	parsedParameterProfile := make(map[string]interface{})
+	parsedParameterProfile["id"] = parameterProfile.Id
+	parsedParameterProfile["name"] = parameterProfile.Name
+	parsedParameterProfile["version"] = parameterProfile.Version
+	parsedParameterProfile["status"] = parameterProfile.Status
+
+	return parsedParameterProfile
+}
+
+func parseMonitoringConfig(monitoringConfig *model.MonitoringConfig) interface{} {
+	if monitoringConfig == nil {
+		return nil
+	}
+	parsedMonitoringConfig := make(map[string]interface{})
+
+	var perfInsights *model.PerfInsightsConfig
+	if monitoringConfig.PerfInsights != perfInsights {
+		parsedMonitoringConfig["perf_insights"] = []interface{}{parsePerfInsightsConfig(monitoringConfig.PerfInsights)}
+	}
+
+	return parsedMonitoringConfig
+}
+
+func parsePerfInsightsConfig(perfInsightsConfig *model.PerfInsightsConfig) interface{} {
+	if perfInsightsConfig == nil {
+		return nil
+	}
+	parsedPerfInsightsConfig := make(map[string]interface{})
+	parsedPerfInsightsConfig["perf_insights_enabled"] = perfInsightsConfig.PerfInsightsEnabled
+	parsedPerfInsightsConfig["monitoring_deployment_id"] = perfInsightsConfig.MonitoringDeploymentId
+	parsedPerfInsightsConfig["status"] = perfInsightsConfig.Status
+
+	return parsedPerfInsightsConfig
+}
+
+func parseTessellServiceInstanceConnectString(tessellServiceInstanceConnectString *model.TessellServiceInstanceConnectString) interface{} {
+	if tessellServiceInstanceConnectString == nil {
+		return nil
+	}
+	parsedTessellServiceInstanceConnectString := make(map[string]interface{})
+	parsedTessellServiceInstanceConnectString["connect_descriptor"] = tessellServiceInstanceConnectString.ConnectDescriptor
+	parsedTessellServiceInstanceConnectString["master_user"] = tessellServiceInstanceConnectString.MasterUser
+	parsedTessellServiceInstanceConnectString["endpoint"] = tessellServiceInstanceConnectString.Endpoint
+	parsedTessellServiceInstanceConnectString["service_port"] = tessellServiceInstanceConnectString.ServicePort
+
+	return parsedTessellServiceInstanceConnectString
+}
+
+func parseTessellResourceUpdateInfoList(tessellResourceUpdateInfo *[]model.TessellResourceUpdateInfo) []interface{} {
+	if tessellResourceUpdateInfo == nil {
+		return nil
+	}
+	tessellResourceUpdateInfoList := make([]interface{}, 0)
+
+	if tessellResourceUpdateInfo != nil {
+		tessellResourceUpdateInfoList = make([]interface{}, len(*tessellResourceUpdateInfo))
+		for i, tessellResourceUpdateInfoItem := range *tessellResourceUpdateInfo {
+			tessellResourceUpdateInfoList[i] = parseTessellResourceUpdateInfo(&tessellResourceUpdateInfoItem)
+		}
+	}
+
+	return tessellResourceUpdateInfoList
+}
+
+func parseTessellResourceUpdateInfo(tessellResourceUpdateInfo *model.TessellResourceUpdateInfo) interface{} {
+	if tessellResourceUpdateInfo == nil {
+		return nil
+	}
+	parsedTessellResourceUpdateInfo := make(map[string]interface{})
+	parsedTessellResourceUpdateInfo["update_type"] = tessellResourceUpdateInfo.UpdateType
+	parsedTessellResourceUpdateInfo["reference_id"] = tessellResourceUpdateInfo.ReferenceId
+	parsedTessellResourceUpdateInfo["submitted_at"] = tessellResourceUpdateInfo.SubmittedAt
+	parsedTessellResourceUpdateInfo["update_info"] = tessellResourceUpdateInfo.UpdateInfo
+
+	return parsedTessellResourceUpdateInfo
+}
+
+func parseServiceInstanceEngineInfo(serviceInstanceEngineInfo *model.ServiceInstanceEngineInfo) interface{} {
+	if serviceInstanceEngineInfo == nil {
+		return nil
+	}
+	parsedServiceInstanceEngineInfo := make(map[string]interface{})
+
+	var oracleConfig *model.ServiceInstanceOracleEngineConfig
+	if serviceInstanceEngineInfo.OracleConfig != oracleConfig {
+		parsedServiceInstanceEngineInfo["oracle_config"] = []interface{}{parseServiceInstanceOracleEngineConfig(serviceInstanceEngineInfo.OracleConfig)}
+	}
+
+	return parsedServiceInstanceEngineInfo
+}
+
+func parseServiceInstanceOracleEngineConfig(serviceInstanceOracleEngineConfig *model.ServiceInstanceOracleEngineConfig) interface{} {
+	if serviceInstanceOracleEngineConfig == nil {
+		return nil
+	}
+	parsedServiceInstanceOracleEngineConfig := make(map[string]interface{})
+	parsedServiceInstanceOracleEngineConfig["access_mode"] = serviceInstanceOracleEngineConfig.AccessMode
+
+	return parsedServiceInstanceOracleEngineConfig
+}
+
+func parseInstanceComputeConfig(instanceComputeConfig *model.InstanceComputeConfig) interface{} {
+	if instanceComputeConfig == nil {
+		return nil
+	}
+	parsedInstanceComputeConfig := make(map[string]interface{})
+	parsedInstanceComputeConfig["provider"] = instanceComputeConfig.Provider
+
+	var exadataConfig *model.InstanceExadataComputeConfig
+	if instanceComputeConfig.ExadataConfig != exadataConfig {
+		parsedInstanceComputeConfig["exadata_config"] = []interface{}{parseInstanceExadataComputeConfig(instanceComputeConfig.ExadataConfig)}
+	}
+
+	return parsedInstanceComputeConfig
+}
+
+func parseInstanceExadataComputeConfig(instanceExadataComputeConfig *model.InstanceExadataComputeConfig) interface{} {
+	if instanceExadataComputeConfig == nil {
+		return nil
+	}
+	parsedInstanceExadataComputeConfig := make(map[string]interface{})
+	parsedInstanceExadataComputeConfig["infrastructure_id"] = instanceExadataComputeConfig.InfrastructureId
+	parsedInstanceExadataComputeConfig["infrastructure_name"] = instanceExadataComputeConfig.InfrastructureName
+	parsedInstanceExadataComputeConfig["vm_cluster_id"] = instanceExadataComputeConfig.VmClusterId
+	parsedInstanceExadataComputeConfig["vm_cluster_name"] = instanceExadataComputeConfig.VmClusterName
+	parsedInstanceExadataComputeConfig["vcpus"] = instanceExadataComputeConfig.Vcpus
+	parsedInstanceExadataComputeConfig["memory"] = instanceExadataComputeConfig.Memory
+
+	return parsedInstanceExadataComputeConfig
+}
+
+func parseInstanceStorageConfig(storageConfig *model.InstanceStorageConfig) interface{} {
+	if storageConfig == nil {
+		return nil
+	}
+	parsedStorageConfig := make(map[string]interface{})
+	parsedStorageConfig["provider"] = storageConfig.Provider
+
+	var fsxNetAppConfig *model.InstanceFsxNetAppConfig
+	if storageConfig.FsxNetAppConfig != fsxNetAppConfig {
+		parsedStorageConfig["fsx_net_app_config"] = []interface{}{parseInstanceFsxNetAppConfig(storageConfig.FsxNetAppConfig)}
+	}
+
+	var azureNetAppConfig *model.InstanceAzureNetAppConfig
+	if storageConfig.AzureNetAppConfig != azureNetAppConfig {
+		parsedStorageConfig["azure_net_app_config"] = []interface{}{parseInstanceAzureNetAppConfig(storageConfig.AzureNetAppConfig)}
+	}
+
+	return parsedStorageConfig
+}
+
+func parseInstanceFsxNetAppConfig(instanceFsxNetAppConfig *model.InstanceFsxNetAppConfig) interface{} {
+	if instanceFsxNetAppConfig == nil {
+		return nil
+	}
+	parsedInstanceFsxNetAppConfig := make(map[string]interface{})
+	parsedInstanceFsxNetAppConfig["file_system_name"] = instanceFsxNetAppConfig.FileSystemName
+	parsedInstanceFsxNetAppConfig["svm_name"] = instanceFsxNetAppConfig.SvmName
+	parsedInstanceFsxNetAppConfig["volume_name"] = instanceFsxNetAppConfig.VolumeName
+	parsedInstanceFsxNetAppConfig["file_system_id"] = instanceFsxNetAppConfig.FileSystemId
+	parsedInstanceFsxNetAppConfig["svm_id"] = instanceFsxNetAppConfig.SvmId
+
+	return parsedInstanceFsxNetAppConfig
+}
+
+func parseInstanceAzureNetAppConfig(instanceAzureNetAppConfig *model.InstanceAzureNetAppConfig) interface{} {
+	if instanceAzureNetAppConfig == nil {
+		return nil
+	}
+	parsedInstanceAzureNetAppConfig := make(map[string]interface{})
+	parsedInstanceAzureNetAppConfig["azure_net_app_name"] = instanceAzureNetAppConfig.AzureNetAppName
+	parsedInstanceAzureNetAppConfig["capacity_pool_name"] = instanceAzureNetAppConfig.CapacityPoolName
+	parsedInstanceAzureNetAppConfig["volume_name"] = instanceAzureNetAppConfig.VolumeName
+	parsedInstanceAzureNetAppConfig["azure_net_app_id"] = instanceAzureNetAppConfig.AzureNetAppId
+	parsedInstanceAzureNetAppConfig["capacity_pool_id"] = instanceAzureNetAppConfig.CapacityPoolId
+	parsedInstanceAzureNetAppConfig["delegated_subnet_id"] = instanceAzureNetAppConfig.DelegatedSubnetId
+	parsedInstanceAzureNetAppConfig["delegated_subnet_name"] = instanceAzureNetAppConfig.DelegatedSubnetName
+
+	parsedInstanceAzureNetAppConfig["network_features"] = instanceAzureNetAppConfig.NetworkFeatures
+	parsedInstanceAzureNetAppConfig["service_level"] = instanceAzureNetAppConfig.ServiceLevel
+
+	var encryptionKeyInfo *model.AzureNetAppEncryptionKeyInfo
+	if instanceAzureNetAppConfig.EncryptionKeyInfo != encryptionKeyInfo {
+		parsedInstanceAzureNetAppConfig["encryption_key_info"] = []interface{}{parseAzureNetAppEncryptionKeyInfo(instanceAzureNetAppConfig.EncryptionKeyInfo)}
+	}
+
+	return parsedInstanceAzureNetAppConfig
+}
+
+func parseAzureNetAppEncryptionKeyInfo(azureNetAppEncryptionKeyInfo *model.AzureNetAppEncryptionKeyInfo) interface{} {
+	if azureNetAppEncryptionKeyInfo == nil {
+		return nil
+	}
+	parsedAzureNetAppEncryptionKeyInfo := make(map[string]interface{})
+	parsedAzureNetAppEncryptionKeyInfo["id"] = azureNetAppEncryptionKeyInfo.Id
+	parsedAzureNetAppEncryptionKeyInfo["name"] = azureNetAppEncryptionKeyInfo.Name
+	parsedAzureNetAppEncryptionKeyInfo["key_vault_cloud_resource_id"] = azureNetAppEncryptionKeyInfo.KeyVaultCloudResourceId
+	parsedAzureNetAppEncryptionKeyInfo["key_source"] = azureNetAppEncryptionKeyInfo.KeySource
+
+	return parsedAzureNetAppEncryptionKeyInfo
 }
 
 func parseBackupDownloadConfigWithResData(backupDownloadConfig *model.BackupDownloadConfig, d *schema.ResourceData) []interface{} {

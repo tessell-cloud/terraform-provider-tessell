@@ -3,6 +3,7 @@ package db_service
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -426,7 +427,6 @@ func ResourceDBService() *schema.Resource {
 							Description: "The timezone detail",
 							Optional:    true,
 							ForceNew:    true,
-							Default:     "UTC",
 						},
 						"multi_disk": {
 							Type:        schema.TypeBool,
@@ -515,6 +515,12 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
+									"compute_name": {
+										Type:        schema.TypeString,
+										Description: "The compute-name of instance provided by the User",
+										Optional:    true,
+										ForceNew:    true,
+									},
 									"compute_id": {
 										Type:        schema.TypeString,
 										Description: "Specify the compute resource if it has to be shared",
@@ -526,13 +532,141 @@ func ResourceDBService() *schema.Resource {
 										Description: "The timezone detail",
 										Optional:    true,
 										ForceNew:    true,
-										Default:     "UTC",
+									},
+									"compute_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										Computed:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"provider": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+												},
+												"exadata_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Optional:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"infrastructure_id": {
+																Type:        schema.TypeString,
+																Description: "",
+																Required:    true,
+																ForceNew:    true,
+															},
+															"vm_cluster_id": {
+																Type:        schema.TypeString,
+																Description: "",
+																Required:    true,
+																ForceNew:    true,
+															},
+															"compute_id": {
+																Type:        schema.TypeString,
+																Description: "",
+																Optional:    true,
+																ForceNew:    true,
+															},
+														},
+													},
+												},
+											},
+										},
 									},
 									"storage_config": {
 										Type:        schema.TypeList,
 										Description: "The storage details to be provisioned.",
 										Optional:    true,
 										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"provider": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"fsx_net_app_config": {
+													Type:        schema.TypeList,
+													Description: "The FSx NetApp details to be provisioned",
+													Optional:    true,
+													ForceNew:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"file_system_id": {
+																Type:        schema.TypeString,
+																Description: "File System Id of the FSx NetApp registered with Tessell",
+																Required:    true,
+																ForceNew:    true,
+															},
+															"svm_id": {
+																Type:        schema.TypeString,
+																Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+																Required:    true,
+																ForceNew:    true,
+															},
+														},
+													},
+												},
+												"azure_net_app_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"azure_net_app_id": {
+																Type:        schema.TypeString,
+																Description: "Azure NetApp Id registered with Tessell",
+																Optional:    true,
+																ForceNew:    true,
+															},
+															"capacity_pool_id": {
+																Type:        schema.TypeString,
+																Description: "Capacity pool Id of the Azure NetApp registered with Tessell",
+																Optional:    true,
+																ForceNew:    true,
+															},
+															"configurations": {
+																Type:        schema.TypeList,
+																Description: "Azure NetApp configurations",
+																Optional:    true,
+																ForceNew:    true,
+																MaxItems:    1,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"network_features": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Optional:    true,
+																			ForceNew:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"archive_storage_config": {
+										Type:        schema.TypeList,
+										Description: "The storage details to be provisioned.",
+										Optional:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1055,7 +1189,7 @@ func ResourceDBService() *schema.Resource {
 			},
 			"snapshot_configuration": {
 				Type:        schema.TypeList,
-				Description: "DB Service's snapshot retention configurations. If not specified, the default recommended retention configurations would be applied.",
+				Description: "",
 				Optional:    true,
 				MaxItems:    1,
 				MinItems:    1,
@@ -1084,7 +1218,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"schedule": {
 							Type:        schema.TypeList,
-							Description: "Schedule Information",
+							Description: "",
 							Optional:    true,
 							ForceNew:    true,
 							MaxItems:    1,
@@ -1349,54 +1483,28 @@ func ResourceDBService() *schema.Resource {
 			},
 			"rpo_policy_config": {
 				Type:        schema.TypeList,
-				Description: "",
+				Description: "This is the definition for RPO Policy details for Tessell DB Service",
 				Optional:    true,
 				MaxItems:    1,
 				MinItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"full_backup_schedule": {
-							Type:        schema.TypeList,
-							Description: "The schedule at which full backups would be triggered",
+						"include_transaction_logs": {
+							Type:        schema.TypeBool,
+							Description: "Determines whether transaction logs should be retained to enable Point-In-Time Recovery (PITR) functionality",
 							Optional:    true,
 							ForceNew:    true,
-							MaxItems:    1,
-							MinItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"weekly_schedule": {
-										Type:        schema.TypeList,
-										Description: "",
-										Optional:    true,
-										ForceNew:    true,
-										MaxItems:    1,
-										MinItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"days": {
-													Type:        schema.TypeList,
-													Description: "Days in a week to retain weekly backups for",
-													Optional:    true,
-													ForceNew:    true,
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
-												},
-											},
-										},
-									},
-								},
-							},
+							Default:     false,
 						},
 						"enable_auto_snapshot": {
 							Type:        schema.TypeBool,
-							Description: "Specify whether system will take auto snapshots or not",
+							Description: "Specify whether system will take automatic snapshots",
 							Required:    true,
 							ForceNew:    true,
 						},
 						"standard_policy": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "This is the definition of Standard RPO Policy for Snapshot for Tessell DB Service",
 							Optional:    true,
 							ForceNew:    true,
 							MaxItems:    1,
@@ -1445,7 +1553,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"custom_policy": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "This is the definition of Custom RPO Policy for Snapshot for Tessell DB Service",
 							Optional:    true,
 							ForceNew:    true,
 							MaxItems:    1,
@@ -1470,7 +1578,7 @@ func ResourceDBService() *schema.Resource {
 												"backup_start_time": {
 													Type:        schema.TypeList,
 													Description: "Clock time format value in hour and minute.",
-													Required:    true,
+													Optional:    true,
 													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
@@ -1650,6 +1758,388 @@ func ResourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"full_backup_schedule": {
+							Type:        schema.TypeList,
+							Description: "The schedule at which full backups would be triggered",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_time": {
+										Type:        schema.TypeList,
+										Description: "Clock time format value in hour and minute.",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hour": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"minute": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+											},
+										},
+									},
+									"weekly_schedule": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"days": {
+													Type:        schema.TypeList,
+													Description: "Days in a week to retain weekly backups for",
+													Optional:    true,
+													ForceNew:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"enable_auto_backup": {
+							Type:        schema.TypeBool,
+							Description: "Specify whether system will take automatic backups",
+							Optional:    true,
+							ForceNew:    true,
+							Default:     false,
+						},
+						"backup_rpo_config": {
+							Type:        schema.TypeList,
+							Description: "Config for the Native Backup RPO policies",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"full_backup_schedule": {
+										Type:        schema.TypeList,
+										Description: "The schedule at which full backups would be triggered",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"start_time": {
+													Type:        schema.TypeList,
+													Description: "Clock time format value in hour and minute.",
+													Optional:    true,
+													ForceNew:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"hour": {
+																Type:        schema.TypeInt,
+																Description: "",
+																Required:    true,
+																ForceNew:    true,
+															},
+															"minute": {
+																Type:        schema.TypeInt,
+																Description: "",
+																Required:    true,
+																ForceNew:    true,
+															},
+														},
+													},
+												},
+												"weekly_schedule": {
+													Type:        schema.TypeList,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"days": {
+																Type:        schema.TypeList,
+																Description: "Days in a week to retain weekly backups for",
+																Optional:    true,
+																ForceNew:    true,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"standard_policy": {
+										Type:        schema.TypeList,
+										Description: "This is the definition of Standard RPO Policy for Backup for Tessell DB Service",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"retention_days": {
+													Type:        schema.TypeInt,
+													Description: "Number of days for which the backup of DB Service would be retained",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"backup_start_time": {
+													Type:        schema.TypeList,
+													Description: "Clock time format value in hour and minute.",
+													Optional:    true,
+													ForceNew:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"hour": {
+																Type:        schema.TypeInt,
+																Description: "",
+																Required:    true,
+																ForceNew:    true,
+															},
+															"minute": {
+																Type:        schema.TypeInt,
+																Description: "",
+																Required:    true,
+																ForceNew:    true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"custom_policy": {
+										Type:        schema.TypeList,
+										Description: "This is the definition of Custom RPO Policy for Backup for Tessell DB Service",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Description: "Custom RPO policy name",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"schedule": {
+													Type:        schema.TypeList,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"backup_start_time": {
+																Type:        schema.TypeList,
+																Description: "Clock time format value in hour and minute.",
+																Optional:    true,
+																ForceNew:    true,
+																MaxItems:    1,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"hour": {
+																			Type:        schema.TypeInt,
+																			Description: "",
+																			Required:    true,
+																			ForceNew:    true,
+																		},
+																		"minute": {
+																			Type:        schema.TypeInt,
+																			Description: "",
+																			Required:    true,
+																			ForceNew:    true,
+																		},
+																	},
+																},
+															},
+															"daily_schedule": {
+																Type:        schema.TypeList,
+																Description: "",
+																Optional:    true,
+																ForceNew:    true,
+																MaxItems:    1,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"backups_per_day": {
+																			Type:        schema.TypeInt,
+																			Description: "The number of backups to be captured per day.",
+																			Optional:    true,
+																			ForceNew:    true,
+																		},
+																	},
+																},
+															},
+															"weekly_schedule": {
+																Type:        schema.TypeList,
+																Description: "",
+																Optional:    true,
+																ForceNew:    true,
+																MaxItems:    1,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"days": {
+																			Type:        schema.TypeList,
+																			Description: "Days in a week to retain weekly backups for",
+																			Optional:    true,
+																			ForceNew:    true,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																		},
+																	},
+																},
+															},
+															"monthly_schedule": {
+																Type:        schema.TypeList,
+																Description: "Definition for taking month specific schedule.",
+																Optional:    true,
+																ForceNew:    true,
+																MaxItems:    1,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"common_schedule": {
+																			Type:        schema.TypeList,
+																			Description: "",
+																			Optional:    true,
+																			ForceNew:    true,
+																			MaxItems:    1,
+																			MinItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"dates": {
+																						Type:        schema.TypeList,
+																						Description: "Dates in a month to retain monthly backups",
+																						Optional:    true,
+																						ForceNew:    true,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeInt,
+																						},
+																					},
+																					"last_day_of_month": {
+																						Type:        schema.TypeBool,
+																						Description: "",
+																						Optional:    true,
+																						ForceNew:    true,
+																						Default:     false,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"yearly_schedule": {
+																Type:        schema.TypeList,
+																Description: "",
+																Optional:    true,
+																ForceNew:    true,
+																MaxItems:    1,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"common_schedule": {
+																			Type:        schema.TypeList,
+																			Description: "",
+																			Optional:    true,
+																			ForceNew:    true,
+																			MaxItems:    1,
+																			MinItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"dates": {
+																						Type:        schema.TypeList,
+																						Description: "Dates in a month to retain monthly backups",
+																						Optional:    true,
+																						ForceNew:    true,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeInt,
+																						},
+																					},
+																					"last_day_of_month": {
+																						Type:        schema.TypeBool,
+																						Description: "",
+																						Optional:    true,
+																						ForceNew:    true,
+																						Default:     false,
+																					},
+																					"months": {
+																						Type:        schema.TypeList,
+																						Description: "",
+																						Optional:    true,
+																						ForceNew:    true,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																				},
+																			},
+																		},
+																		"month_specific_schedule": {
+																			Type:        schema.TypeList,
+																			Description: "",
+																			Optional:    true,
+																			ForceNew:    true,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"month": {
+																						Type:        schema.TypeString,
+																						Description: "Name of a month",
+																						Required:    true,
+																						ForceNew:    true,
+																					},
+																					"dates": {
+																						Type:        schema.TypeList,
+																						Description: "",
+																						Required:    true,
+																						ForceNew:    true,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeInt,
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1745,6 +2235,12 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
+									"options_profile": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
 								},
 							},
 						},
@@ -1790,6 +2286,18 @@ func ResourceDBService() *schema.Resource {
 									"ad_domain_id": {
 										Type:        schema.TypeString,
 										Description: "Active Directory Domain ID",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"service_account_user": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"agent_service_account_user": {
+										Type:        schema.TypeString,
+										Description: "",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -1904,6 +2412,34 @@ func ResourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"collation_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"collation_name": {
+										Type:        schema.TypeString,
+										Description: "Collation name for the database",
+										Optional:    true,
+										ForceNew:    true,
+									},
+								},
+							},
+						},
+						"ignore_post_script_failure": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Optional:    true,
+						},
+						"ignore_pre_script_failure": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Optional:    true,
+						},
 					},
 				},
 			},
@@ -1943,6 +2479,16 @@ func ResourceDBService() *schema.Resource {
 							Description: "Database name",
 							Optional:    true,
 							Computed:    true, // in case of oracle
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								// Normalize both old and new values before comparing
+								// Example: if backend always prepends "PDB", strip and compare
+								normalize := func(s string) string {
+									s = strings.ToLower(s)
+									return strings.TrimPrefix(s, "pdb")
+								}
+
+								return normalize(old) == normalize(new)
+							},
 						},
 						"description": {
 							Type:        schema.TypeString,
@@ -2442,6 +2988,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The encryption key name which is used to encrypt the data at rest",
 							Optional:    true,
+							Computed:    true,
 						},
 						"software_image": {
 							Type:        schema.TypeString,
@@ -2554,6 +3101,70 @@ func ResourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"compute_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"provider": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+									},
+									"exadata_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"infrastructure_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"infrastructure_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"vm_cluster_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"vm_cluster_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"vcpus": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+												"memory": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Required:    true,
+													ForceNew:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"storage_config": {
 							Type:        schema.TypeList,
 							Description: "",
@@ -2638,16 +3249,46 @@ func ResourceDBService() *schema.Resource {
 													Optional:    true,
 													ForceNew:    true,
 												},
-												"configurations": {
+												"delegated_subnet_id": {
+													Type:        schema.TypeString,
+													Description: "Delegated Subnet name registered with Tessell for the Azure NetApp volume",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"delegated_subnet_name": {
+													Type:        schema.TypeString,
+													Description: "Delegated Subnet Id registered with Tessell for the Azure NetApp volume",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"encryption_key_info": {
 													Type:        schema.TypeList,
-													Description: "Azure NetApp configurations",
+													Description: "Details of encryption key",
 													Optional:    true,
 													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"network_features": {
+															"id": {
+																Type:        schema.TypeString,
+																Description: "Id of the encryption key",
+																Optional:    true,
+																ForceNew:    true,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Description: "name of the encryption key",
+																Optional:    true,
+																ForceNew:    true,
+															},
+															"key_vault_cloud_resource_id": {
+																Type:        schema.TypeString,
+																Description: "name of the encryption key vault in cloud",
+																Optional:    true,
+																ForceNew:    true,
+															},
+															"key_source": {
 																Type:        schema.TypeString,
 																Description: "",
 																Optional:    true,
@@ -2655,6 +3296,117 @@ func ResourceDBService() *schema.Resource {
 															},
 														},
 													},
+												},
+												"network_features": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"service_level": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"archive_storage_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"provider": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"fsx_net_app_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"file_system_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"svm_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"volume_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"file_system_id": {
+													Type:        schema.TypeString,
+													Description: "File System Id of the FSx NetApp registered with Tessell",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"svm_id": {
+													Type:        schema.TypeString,
+													Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+													Optional:    true,
+													ForceNew:    true,
+												},
+											},
+										},
+									},
+									"azure_net_app_config": {
+										Type:        schema.TypeList,
+										Description: "Service instance level Azure NetApp config",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"azure_net_app_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"capacity_pool_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"volume_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"azure_net_app_id": {
+													Type:        schema.TypeString,
+													Description: "Azure NetApp Id registered with Tessell",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"capacity_pool_id": {
+													Type:        schema.TypeString,
+													Description: "Capacity Pool Id of the Azure NetApp registered with Tessell",
+													Optional:    true,
+													ForceNew:    true,
 												},
 												"delegated_subnet_id": {
 													Type:        schema.TypeString,
@@ -2705,6 +3457,12 @@ func ResourceDBService() *schema.Resource {
 													},
 												},
 												"network_features": {
+													Type:        schema.TypeString,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"service_level": {
 													Type:        schema.TypeString,
 													Description: "",
 													Optional:    true,

@@ -732,6 +732,39 @@ func DataSourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"archive_storage_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"provider": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"azure_net_app_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"service_level": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"compute_provider": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -830,6 +863,11 @@ func DataSourceDBService() *schema.Resource {
 										Description: "",
 										Computed:    true,
 									},
+									"options_profile": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
 								},
 							},
 						},
@@ -866,6 +904,16 @@ func DataSourceDBService() *schema.Resource {
 									"ad_domain_id": {
 										Type:        schema.TypeString,
 										Description: "Active Directory Domain ID",
+										Computed:    true,
+									},
+									"service_account_user": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"agent_service_account_user": {
+										Type:        schema.TypeString,
+										Description: "",
 										Computed:    true,
 									},
 								},
@@ -955,6 +1003,30 @@ func DataSourceDBService() *schema.Resource {
 									},
 								},
 							},
+						},
+						"collation_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"collation_name": {
+										Type:        schema.TypeString,
+										Description: "Collation name for the database",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"ignore_post_script_failure": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Computed:    true,
+						},
+						"ignore_pre_script_failure": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Computed:    true,
 						},
 					},
 				},
@@ -1350,6 +1422,59 @@ func DataSourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"compute_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"provider": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"exadata_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"infrastructure_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"infrastructure_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"vm_cluster_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"vm_cluster_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"vcpus": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Computed:    true,
+												},
+												"memory": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"storage_config": {
 							Type:        schema.TypeList,
 							Description: "",
@@ -1466,6 +1591,142 @@ func DataSourceDBService() *schema.Resource {
 													},
 												},
 												"network_features": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"service_level": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"archive_storage_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"provider": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"fsx_net_app_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"file_system_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"svm_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"volume_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"file_system_id": {
+													Type:        schema.TypeString,
+													Description: "File System Id of the FSx NetApp registered with Tessell",
+													Computed:    true,
+												},
+												"svm_id": {
+													Type:        schema.TypeString,
+													Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+													Computed:    true,
+												},
+											},
+										},
+									},
+									"azure_net_app_config": {
+										Type:        schema.TypeList,
+										Description: "Service instance level Azure NetApp config",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"azure_net_app_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"capacity_pool_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"volume_name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"azure_net_app_id": {
+													Type:        schema.TypeString,
+													Description: "Azure NetApp Id registered with Tessell",
+													Computed:    true,
+												},
+												"capacity_pool_id": {
+													Type:        schema.TypeString,
+													Description: "Capacity Pool Id of the Azure NetApp registered with Tessell",
+													Computed:    true,
+												},
+												"delegated_subnet_id": {
+													Type:        schema.TypeString,
+													Description: "Delegated Subnet name registered with Tessell for the Azure NetApp volume",
+													Computed:    true,
+												},
+												"delegated_subnet_name": {
+													Type:        schema.TypeString,
+													Description: "Delegated Subnet Id registered with Tessell for the Azure NetApp volume",
+													Computed:    true,
+												},
+												"encryption_key_info": {
+													Type:        schema.TypeList,
+													Description: "Details of encryption key",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"id": {
+																Type:        schema.TypeString,
+																Description: "Id of the encryption key",
+																Required:    true,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Description: "name of the encryption key",
+																Computed:    true,
+															},
+															"key_vault_cloud_resource_id": {
+																Type:        schema.TypeString,
+																Description: "name of the encryption key vault in cloud",
+																Computed:    true,
+															},
+															"key_source": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+														},
+													},
+												},
+												"network_features": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"service_level": {
 													Type:        schema.TypeString,
 													Description: "",
 													Computed:    true,

@@ -170,18 +170,23 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 						},
 						"rpo_policy": {
 							Type:        schema.TypeList,
-							Description: "This is a definition for RPO Policy details for Tessell DB Service",
+							Description: "This is the definition for RPO Policy details for Tessell DB Service",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"include_transaction_logs": {
+										Type:        schema.TypeBool,
+										Description: "Determines whether transaction logs should be retained to enable Point-In-Time Recovery (PITR) functionality",
+										Computed:    true,
+									},
 									"enable_auto_snapshot": {
 										Type:        schema.TypeBool,
-										Description: "Specify whether system will take auto snapshots or not",
+										Description: "Specify whether system will take automatic snapshots",
 										Computed:    true,
 									},
 									"standard_policy": {
 										Type:        schema.TypeList,
-										Description: "",
+										Description: "This is the definition of Standard RPO Policy for Snapshot for Tessell DB Service",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -219,7 +224,7 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 									},
 									"custom_policy": {
 										Type:        schema.TypeList,
-										Description: "",
+										Description: "This is the definition of Custom RPO Policy for Snapshot for Tessell DB Service",
 										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -368,6 +373,308 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 																						Computed:    true,
 																						Elem: &schema.Schema{
 																							Type: schema.TypeInt,
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"full_backup_schedule": {
+										Type:        schema.TypeList,
+										Description: "The schedule at which full backups would be triggered",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"start_time": {
+													Type:        schema.TypeList,
+													Description: "Clock time format value in hour and minute.",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"hour": {
+																Type:        schema.TypeInt,
+																Description: "",
+																Computed:    true,
+															},
+															"minute": {
+																Type:        schema.TypeInt,
+																Description: "",
+																Computed:    true,
+															},
+														},
+													},
+												},
+												"weekly_schedule": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"days": {
+																Type:        schema.TypeList,
+																Description: "Days in a week to retain weekly backups for",
+																Computed:    true,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"enable_auto_backup": {
+										Type:        schema.TypeBool,
+										Description: "Specify whether system will take automatic backups",
+										Computed:    true,
+									},
+									"backup_rpo_config": {
+										Type:        schema.TypeList,
+										Description: "Config for the Native Backup RPO policies",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"full_backup_schedule": {
+													Type:        schema.TypeList,
+													Description: "The schedule at which full backups would be triggered",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"start_time": {
+																Type:        schema.TypeList,
+																Description: "Clock time format value in hour and minute.",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"hour": {
+																			Type:        schema.TypeInt,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"minute": {
+																			Type:        schema.TypeInt,
+																			Description: "",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+															"weekly_schedule": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"days": {
+																			Type:        schema.TypeList,
+																			Description: "Days in a week to retain weekly backups for",
+																			Computed:    true,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"standard_policy": {
+													Type:        schema.TypeList,
+													Description: "This is the definition of Standard RPO Policy for Backup for Tessell DB Service",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"retention_days": {
+																Type:        schema.TypeInt,
+																Description: "Number of days for which the backup of DB Service would be retained",
+																Computed:    true,
+															},
+															"backup_start_time": {
+																Type:        schema.TypeList,
+																Description: "Clock time format value in hour and minute.",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"hour": {
+																			Type:        schema.TypeInt,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"minute": {
+																			Type:        schema.TypeInt,
+																			Description: "",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"custom_policy": {
+													Type:        schema.TypeList,
+													Description: "This is the definition of Custom RPO Policy for Backup for Tessell DB Service",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:        schema.TypeString,
+																Description: "Custom RPO policy name",
+																Computed:    true,
+															},
+															"schedule": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"backup_start_time": {
+																			Type:        schema.TypeList,
+																			Description: "Clock time format value in hour and minute.",
+																			Computed:    true,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"hour": {
+																						Type:        schema.TypeInt,
+																						Description: "",
+																						Computed:    true,
+																					},
+																					"minute": {
+																						Type:        schema.TypeInt,
+																						Description: "",
+																						Computed:    true,
+																					},
+																				},
+																			},
+																		},
+																		"daily_schedule": {
+																			Type:        schema.TypeList,
+																			Description: "",
+																			Computed:    true,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"backups_per_day": {
+																						Type:        schema.TypeInt,
+																						Description: "The number of backups to be captured per day.",
+																						Computed:    true,
+																					},
+																				},
+																			},
+																		},
+																		"weekly_schedule": {
+																			Type:        schema.TypeList,
+																			Description: "",
+																			Computed:    true,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"days": {
+																						Type:        schema.TypeList,
+																						Description: "Days in a week to retain weekly backups for",
+																						Computed:    true,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																				},
+																			},
+																		},
+																		"monthly_schedule": {
+																			Type:        schema.TypeList,
+																			Description: "Definition for taking month specific schedule.",
+																			Computed:    true,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"common_schedule": {
+																						Type:        schema.TypeList,
+																						Description: "",
+																						Computed:    true,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"dates": {
+																									Type:        schema.TypeList,
+																									Description: "Dates in a month to retain monthly backups",
+																									Computed:    true,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeInt,
+																									},
+																								},
+																								"last_day_of_month": {
+																									Type:        schema.TypeBool,
+																									Description: "",
+																									Computed:    true,
+																								},
+																							},
+																						},
+																					},
+																				},
+																			},
+																		},
+																		"yearly_schedule": {
+																			Type:        schema.TypeList,
+																			Description: "",
+																			Computed:    true,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"common_schedule": {
+																						Type:        schema.TypeList,
+																						Description: "",
+																						Computed:    true,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"dates": {
+																									Type:        schema.TypeList,
+																									Description: "Dates in a month to retain monthly backups",
+																									Computed:    true,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeInt,
+																									},
+																								},
+																								"last_day_of_month": {
+																									Type:        schema.TypeBool,
+																									Description: "",
+																									Computed:    true,
+																								},
+																								"months": {
+																									Type:        schema.TypeList,
+																									Description: "",
+																									Computed:    true,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeString,
+																									},
+																								},
+																							},
+																						},
+																					},
+																					"month_specific_schedule": {
+																						Type:        schema.TypeList,
+																						Description: "",
+																						Computed:    true,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"month": {
+																									Type:        schema.TypeString,
+																									Description: "Name of a month",
+																									Computed:    true,
+																								},
+																								"dates": {
+																									Type:        schema.TypeList,
+																									Description: "",
+																									Computed:    true,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeInt,
+																									},
+																								},
+																							},
 																						},
 																					},
 																				},
@@ -723,6 +1030,636 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The user who created database clone",
 										Computed:    true,
+									},
+									"instances": {
+										Type:        schema.TypeList,
+										Description: "Instances associated with this DB Service",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "Tessell generated UUID for the DB Service Instance",
+													Computed:    true,
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Description: "Name of the DB Service Instance",
+													Computed:    true,
+												},
+												"instance_group_name": {
+													Type:        schema.TypeString,
+													Description: "Name of the instance group",
+													Computed:    true,
+												},
+												"type": {
+													Type:        schema.TypeString,
+													Description: "DB Service instance type",
+													Computed:    true,
+												},
+												"role": {
+													Type:        schema.TypeString,
+													Description: "DB Service instance role",
+													Computed:    true,
+												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "DB Service instance status",
+													Computed:    true,
+												},
+												"tessell_service_id": {
+													Type:        schema.TypeString,
+													Description: "DB Service Instance's associated DB Service id",
+													Computed:    true,
+												},
+												"cloud": {
+													Type:        schema.TypeString,
+													Description: "DB Service Instance's cloud type",
+													Computed:    true,
+												},
+												"region": {
+													Type:        schema.TypeString,
+													Description: "DB Service Instance's cloud region",
+													Computed:    true,
+												},
+												"availability_zone": {
+													Type:        schema.TypeString,
+													Description: "DB Service Instance's cloud availability zone",
+													Computed:    true,
+												},
+												"instance_group_id": {
+													Type:        schema.TypeString,
+													Description: "The instance groupd Id",
+													Computed:    true,
+												},
+												"compute_type": {
+													Type:        schema.TypeString,
+													Description: "The compute used for creation of the Tessell Service Instance",
+													Computed:    true,
+												},
+												"aws_infra_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"aws_cpu_options": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"vcpus": {
+																			Type:        schema.TypeInt,
+																			Description: "Number of vcpus for aws cpu options",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"compute_id": {
+													Type:        schema.TypeString,
+													Description: "The associated compute identifier",
+													Computed:    true,
+												},
+												"compute_name": {
+													Type:        schema.TypeString,
+													Description: "The associated compute name",
+													Computed:    true,
+												},
+												"storage": {
+													Type:        schema.TypeInt,
+													Description: "The storage (in bytes) that has been provisioned for the DB Service instance.",
+													Computed:    true,
+												},
+												"data_volume_iops": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Computed:    true,
+												},
+												"throughput": {
+													Type:        schema.TypeInt,
+													Description: "Throughput requested for this DB Service instance",
+													Computed:    true,
+												},
+												"enable_perf_insights": {
+													Type:        schema.TypeBool,
+													Description: "",
+													Computed:    true,
+												},
+												"parameter_profile": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"id": {
+																Type:        schema.TypeString,
+																Description: "Tessell generated UUID for the the parameter profile",
+																Computed:    true,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Description: "The name used to identify the parameter profile",
+																Computed:    true,
+															},
+															"version": {
+																Type:        schema.TypeString,
+																Description: "The version of the parameter profile associated with the instance",
+																Computed:    true,
+															},
+															"status": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+														},
+													},
+												},
+												"monitoring_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"perf_insights": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"perf_insights_enabled": {
+																			Type:        schema.TypeBool,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"monitoring_deployment_id": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"status": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"vpc": {
+													Type:        schema.TypeString,
+													Description: "The VPC used for creation of the DB Service Instance",
+													Computed:    true,
+												},
+												"public_subnet": {
+													Type:        schema.TypeString,
+													Description: "The public subnet used for creation of the DB Service Instance",
+													Computed:    true,
+												},
+												"private_subnet": {
+													Type:        schema.TypeString,
+													Description: "The private subnet used for creation of the DB Service Instance",
+													Computed:    true,
+												},
+												"encryption_key": {
+													Type:        schema.TypeString,
+													Description: "The encryption key name which is used to encrypt the data at rest",
+													Computed:    true,
+												},
+												"software_image": {
+													Type:        schema.TypeString,
+													Description: "Software Image to be used to create the instance",
+													Computed:    true,
+												},
+												"software_image_version": {
+													Type:        schema.TypeString,
+													Description: "Software Image Version to be used to create the instance",
+													Computed:    true,
+												},
+												"date_created": {
+													Type:        schema.TypeString,
+													Description: "Timestamp when the entity was created",
+													Computed:    true,
+												},
+												"connect_string": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"connect_descriptor": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"master_user": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"endpoint": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"service_port": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+														},
+													},
+												},
+												"updates_in_progress": {
+													Type:        schema.TypeList,
+													Description: "The updates that are in progress for this resource",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"update_type": {
+																Type:        schema.TypeString,
+																Description: "Type of the update",
+																Computed:    true,
+															},
+															"reference_id": {
+																Type:        schema.TypeString,
+																Description: "The reference-id of the update request",
+																Computed:    true,
+															},
+															"submitted_at": {
+																Type:        schema.TypeString,
+																Description: "Timestamp when the resource update was requested",
+																Computed:    true,
+															},
+															"update_info": {
+																Type:        schema.TypeMap,
+																Description: "The specific details for a Tessell resource that are being updated",
+																Computed:    true,
+															},
+														},
+													},
+												},
+												"last_started_at": {
+													Type:        schema.TypeString,
+													Description: "Timestamp when the service instance was last started at",
+													Computed:    true,
+												},
+												"last_stopped_at": {
+													Type:        schema.TypeString,
+													Description: "Timestamp when the Service Instance was last stopped at",
+													Computed:    true,
+												},
+												"sync_mode": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"engine_configuration": {
+													Type:        schema.TypeList,
+													Description: "This field details the DB Service Instance engine configuration details like - access mode",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"oracle_config": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"access_mode": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"compute_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"provider": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"exadata_config": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"infrastructure_id": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"infrastructure_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"vm_cluster_id": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"vm_cluster_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"vcpus": {
+																			Type:        schema.TypeInt,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"memory": {
+																			Type:        schema.TypeInt,
+																			Description: "",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"storage_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"provider": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"fsx_net_app_config": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"file_system_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"svm_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"volume_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"file_system_id": {
+																			Type:        schema.TypeString,
+																			Description: "File System Id of the FSx NetApp registered with Tessell",
+																			Computed:    true,
+																		},
+																		"svm_id": {
+																			Type:        schema.TypeString,
+																			Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+															"azure_net_app_config": {
+																Type:        schema.TypeList,
+																Description: "Service instance level Azure NetApp config",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"azure_net_app_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"capacity_pool_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"volume_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"azure_net_app_id": {
+																			Type:        schema.TypeString,
+																			Description: "Azure NetApp Id registered with Tessell",
+																			Computed:    true,
+																		},
+																		"capacity_pool_id": {
+																			Type:        schema.TypeString,
+																			Description: "Capacity Pool Id of the Azure NetApp registered with Tessell",
+																			Computed:    true,
+																		},
+																		"delegated_subnet_id": {
+																			Type:        schema.TypeString,
+																			Description: "Delegated Subnet name registered with Tessell for the Azure NetApp volume",
+																			Computed:    true,
+																		},
+																		"delegated_subnet_name": {
+																			Type:        schema.TypeString,
+																			Description: "Delegated Subnet Id registered with Tessell for the Azure NetApp volume",
+																			Computed:    true,
+																		},
+																		"encryption_key_info": {
+																			Type:        schema.TypeList,
+																			Description: "Details of encryption key",
+																			Computed:    true,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"id": {
+																						Type:        schema.TypeString,
+																						Description: "Id of the encryption key",
+																						Computed:    true,
+																					},
+																					"name": {
+																						Type:        schema.TypeString,
+																						Description: "name of the encryption key",
+																						Computed:    true,
+																					},
+																					"key_vault_cloud_resource_id": {
+																						Type:        schema.TypeString,
+																						Description: "name of the encryption key vault in cloud",
+																						Computed:    true,
+																					},
+																					"key_source": {
+																						Type:        schema.TypeString,
+																						Description: "",
+																						Computed:    true,
+																					},
+																				},
+																			},
+																		},
+																		"network_features": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"service_level": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"archive_storage_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"provider": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"fsx_net_app_config": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"file_system_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"svm_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"volume_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"file_system_id": {
+																			Type:        schema.TypeString,
+																			Description: "File System Id of the FSx NetApp registered with Tessell",
+																			Computed:    true,
+																		},
+																		"svm_id": {
+																			Type:        schema.TypeString,
+																			Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+															"azure_net_app_config": {
+																Type:        schema.TypeList,
+																Description: "Service instance level Azure NetApp config",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"azure_net_app_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"capacity_pool_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"volume_name": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"azure_net_app_id": {
+																			Type:        schema.TypeString,
+																			Description: "Azure NetApp Id registered with Tessell",
+																			Computed:    true,
+																		},
+																		"capacity_pool_id": {
+																			Type:        schema.TypeString,
+																			Description: "Capacity Pool Id of the Azure NetApp registered with Tessell",
+																			Computed:    true,
+																		},
+																		"delegated_subnet_id": {
+																			Type:        schema.TypeString,
+																			Description: "Delegated Subnet name registered with Tessell for the Azure NetApp volume",
+																			Computed:    true,
+																		},
+																		"delegated_subnet_name": {
+																			Type:        schema.TypeString,
+																			Description: "Delegated Subnet Id registered with Tessell for the Azure NetApp volume",
+																			Computed:    true,
+																		},
+																		"encryption_key_info": {
+																			Type:        schema.TypeList,
+																			Description: "Details of encryption key",
+																			Computed:    true,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"id": {
+																						Type:        schema.TypeString,
+																						Description: "Id of the encryption key",
+																						Computed:    true,
+																					},
+																					"name": {
+																						Type:        schema.TypeString,
+																						Description: "name of the encryption key",
+																						Computed:    true,
+																					},
+																					"key_vault_cloud_resource_id": {
+																						Type:        schema.TypeString,
+																						Description: "name of the encryption key vault in cloud",
+																						Computed:    true,
+																					},
+																					"key_source": {
+																						Type:        schema.TypeString,
+																						Description: "",
+																						Computed:    true,
+																					},
+																				},
+																			},
+																		},
+																		"network_features": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																		"service_level": {
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
 									},
 									"date_created": {
 										Type:        schema.TypeString,

@@ -222,6 +222,11 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 							Description: "Timestamp when the entity was last modified",
 							Computed:    true,
 						},
+						"infra_type": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -288,6 +293,7 @@ func setDataSourceValues(d *schema.ResourceData, DBParameterProfileList *[]model
 				"db_version":           DBParameterProfile.DBVersion,
 				"date_created":         DBParameterProfile.DateCreated,
 				"date_modified":        DBParameterProfile.DateModified,
+				"infra_type":           DBParameterProfile.InfraType,
 			}
 		}
 	}

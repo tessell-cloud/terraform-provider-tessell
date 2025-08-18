@@ -7,12 +7,6 @@ type DBServiceTopology struct {
 	AvailabilityZones *[]string `json:"availabilityZones,omitempty"`
 }
 
-type RPOPolicyConfig struct {
-	EnableAutoSnapshot *bool              `json:"enableAutoSnapshot"` // Specify whether system will take auto snapshots or not
-	StandardPolicy     *StandardRPOPolicy `json:"standardPolicy,omitempty"`
-	CustomPolicy       *CustomRPOPolicy   `json:"customPolicy,omitempty"`
-}
-
 type TessellDAPServiceDTO struct {
 	Id                                *string                              `json:"id,omitempty"`                    // ID of the Access Policy
 	Name                              *string                              `json:"name,omitempty"`                  // Name of the Access Policy
@@ -80,15 +74,16 @@ type RegionToEncryptionKey struct {
 }
 
 type TessellCloneSummaryInfo struct {
-	Id                *string            `json:"id,omitempty"`
-	Name              *string            `json:"name"`                   // Name of the clone database
-	Subscription      *string            `json:"subscription,omitempty"` // Clone&#39;s subscription name
-	ComputeType       *string            `json:"computeType,omitempty"`  // Clone&#39;s compute type
-	Status            *string            `json:"status,omitempty"`       // Status of the clone database
-	CloudAvailability *[]CloudRegionInfo `json:"cloudAvailability,omitempty"`
-	CloneInfo         *map[string]string `json:"cloneInfo,omitempty"`   // Miscellaneous information
-	Owner             *string            `json:"owner,omitempty"`       // The user who created database clone
-	DateCreated       *string            `json:"dateCreated,omitempty"` // Timestamp when the entity was created
+	Id                *string                      `json:"id,omitempty"`
+	Name              *string                      `json:"name"`                   // Name of the clone database
+	Subscription      *string                      `json:"subscription,omitempty"` // Clone&#39;s subscription name
+	ComputeType       *string                      `json:"computeType,omitempty"`  // Clone&#39;s compute type
+	Status            *string                      `json:"status,omitempty"`       // Status of the clone database
+	CloudAvailability *[]CloudRegionInfo           `json:"cloudAvailability,omitempty"`
+	CloneInfo         *map[string]string           `json:"cloneInfo,omitempty"`   // Miscellaneous information
+	Owner             *string                      `json:"owner,omitempty"`       // The user who created database clone
+	Instances         *[]TessellServiceInstanceDTO `json:"instances,omitempty"`   // Instances associated with this DB Service
+	DateCreated       *string                      `json:"dateCreated,omitempty"` // Timestamp when the entity was created
 }
 
 type BackupDownloadConfig struct {
