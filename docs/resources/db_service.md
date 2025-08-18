@@ -240,9 +240,10 @@ resource "tessell_db_service" "example" {
 
 	rpo_policy_config {
 		enable_auto_snapshot = true
+		include_transaction_logs = true
+		enable_auto_backup = false
 		standard_policy {
 			retention_days = 2
-			include_transaction_logs = true
 			snapshot_start_time {
 				hour = 19
 				minute = 30
@@ -253,6 +254,8 @@ resource "tessell_db_service" "example" {
 # For custom rpo_policy_config
 # 		rpo_policy_config {
 #   		enable_auto_snapshot = true
+#           include_transaction_logs = true
+#		    enable_auto_backup = false
 #   		custom_policy {
 #   			name = "Test-policy"
 #   			schedule {
@@ -412,12 +415,14 @@ resource "tessell_db_service" "example" {
 - `enable_perf_insights` (Boolean) This field specifies whether to enable performance insights for the DB Service.
 - `enable_stop_protection` (Boolean) This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
 - `expected_status` (String) If provided, invoke the DB Service start/stop API
+- `instances` (Block List) Instances associated with this DB Service (see [below for nested schema](#nestedblock--instances))
 - `integrations_config` (Block List, Max: 1) Integrations to be enabled for the DB Service (see [below for nested schema](#nestedblock--integrations_config))
 - `maintenance_window` (Block List, Max: 1) This field details the DB Service maintenance related details. (see [below for nested schema](#nestedblock--maintenance_window))
 - `parent_availability_machine_id` (String) Id of the parent AvailabilityMachine, required when creating a clone
 - `pitr` (String) PITR Timestamp, using which the clone is to be created
-- `rpo_policy_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config))
+- `rpo_policy_config` (Block List, Max: 1) This is the definition for RPO Policy details for Tessell DB Service (see [below for nested schema](#nestedblock--rpo_policy_config))
 - `shared_with` (Block List, Max: 1) Tessell Entity ACL Sharing Info (see [below for nested schema](#nestedblock--shared_with))
+- `snapshot_configuration` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration))
 - `snapshot_id` (String) Tessell service snapshot Id, using which the clone is to be created
 - `tags` (Block List) The tags to be associated with the DB Service (see [below for nested schema](#nestedblock--tags))
 - `timeout` (Number) Timeout for terraform polling, when block_until_complete is true (default true). (In seconds)
@@ -460,6 +465,9 @@ Required:
 Optional:
 
 - `apache_kafka_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--apache_kafka_config))
+- `collation_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--collation_config))
+- `ignore_post_script_failure` (Boolean)
+- `ignore_pre_script_failure` (Boolean)
 - `milvus_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--milvus_config))
 - `mongodb_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--mongodb_config))
 - `mysql_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--mysql_config))
@@ -475,6 +483,14 @@ Optional:
 Optional:
 
 - `parameter_profile_id` (String) The parameter profile id for the database
+
+
+<a id="nestedblock--engine_configuration--collation_config"></a>
+### Nested Schema for `engine_configuration.collation_config`
+
+Optional:
+
+- `collation_name` (String) Collation name for the database
 
 
 <a id="nestedblock--engine_configuration--milvus_config"></a>
@@ -532,6 +548,7 @@ Optional:
 Optional:
 
 - `ad_domain_id` (String) Active Directory Domain ID
+- `options_profile` (String)
 - `parameter_profile_id` (String) The parameter profile ID for the database
 - `proxy_port` (Number)
 
@@ -551,7 +568,9 @@ Optional:
 Optional:
 
 - `ad_domain_id` (String) Active Directory Domain ID
+- `agent_service_account_user` (String)
 - `parameter_profile_id` (String) The parameter profile ID for the database
+- `service_account_user` (String)
 
 
 
@@ -605,8 +624,11 @@ Optional:
 
 Optional:
 
+- `archive_storage_config` (Block List, Max: 1) The storage details to be provisioned. (see [below for nested schema](#nestedblock--infrastructure--computes--archive_storage_config))
 - `availability_zone` (String) The availability-zone in which the compute is to be provisioned
+- `compute_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--infrastructure--computes--compute_config))
 - `compute_id` (String) Specify the compute resource if it has to be shared
+- `compute_name` (String) The compute-name of instance provided by the User
 - `compute_type` (String) The compute-type to be used for provisioning the compute resource
 - `instance_group_name` (String)
 - `name` (String)
@@ -617,6 +639,71 @@ Optional:
 - `timezone` (String) The timezone detail
 - `vpc` (String) The VPC to be used for provisioning the compute resource
 
+<a id="nestedblock--infrastructure--computes--archive_storage_config"></a>
+### Nested Schema for `infrastructure.computes.archive_storage_config`
+
+Required:
+
+- `provider` (String)
+
+Optional:
+
+- `azure_net_app_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--infrastructure--computes--archive_storage_config--azure_net_app_config))
+- `fsx_net_app_config` (Block List, Max: 1) The FSx NetApp details to be provisioned (see [below for nested schema](#nestedblock--infrastructure--computes--archive_storage_config--fsx_net_app_config))
+
+<a id="nestedblock--infrastructure--computes--archive_storage_config--azure_net_app_config"></a>
+### Nested Schema for `infrastructure.computes.archive_storage_config.azure_net_app_config`
+
+Optional:
+
+- `azure_net_app_id` (String) Azure NetApp Id registered with Tessell
+- `capacity_pool_id` (String) Capacity pool Id of the Azure NetApp registered with Tessell
+- `configurations` (Block List, Max: 1) Azure NetApp configurations (see [below for nested schema](#nestedblock--infrastructure--computes--archive_storage_config--azure_net_app_config--configurations))
+
+<a id="nestedblock--infrastructure--computes--archive_storage_config--azure_net_app_config--configurations"></a>
+### Nested Schema for `infrastructure.computes.archive_storage_config.azure_net_app_config.configurations`
+
+Optional:
+
+- `network_features` (String)
+
+
+
+<a id="nestedblock--infrastructure--computes--archive_storage_config--fsx_net_app_config"></a>
+### Nested Schema for `infrastructure.computes.archive_storage_config.fsx_net_app_config`
+
+Required:
+
+- `file_system_id` (String) File System Id of the FSx NetApp registered with Tessell
+- `svm_id` (String) Storage Virtual Machine Id of the FSx NetApp registered with Tessell
+
+
+
+<a id="nestedblock--infrastructure--computes--compute_config"></a>
+### Nested Schema for `infrastructure.computes.compute_config`
+
+Required:
+
+- `provider` (String)
+
+Optional:
+
+- `exadata_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--infrastructure--computes--compute_config--exadata_config))
+
+<a id="nestedblock--infrastructure--computes--compute_config--exadata_config"></a>
+### Nested Schema for `infrastructure.computes.compute_config.exadata_config`
+
+Required:
+
+- `infrastructure_id` (String)
+- `vm_cluster_id` (String)
+
+Optional:
+
+- `compute_id` (String)
+
+
+
 <a id="nestedblock--infrastructure--computes--storage_config"></a>
 ### Nested Schema for `infrastructure.computes.storage_config`
 
@@ -626,7 +713,26 @@ Required:
 
 Optional:
 
+- `azure_net_app_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--infrastructure--computes--storage_config--azure_net_app_config))
 - `fsx_net_app_config` (Block List, Max: 1) The FSx NetApp details to be provisioned (see [below for nested schema](#nestedblock--infrastructure--computes--storage_config--fsx_net_app_config))
+
+<a id="nestedblock--infrastructure--computes--storage_config--azure_net_app_config"></a>
+### Nested Schema for `infrastructure.computes.storage_config.azure_net_app_config`
+
+Optional:
+
+- `azure_net_app_id` (String) Azure NetApp Id registered with Tessell
+- `capacity_pool_id` (String) Capacity pool Id of the Azure NetApp registered with Tessell
+- `configurations` (Block List, Max: 1) Azure NetApp configurations (see [below for nested schema](#nestedblock--infrastructure--computes--storage_config--azure_net_app_config--configurations))
+
+<a id="nestedblock--infrastructure--computes--storage_config--azure_net_app_config--configurations"></a>
+### Nested Schema for `infrastructure.computes.storage_config.azure_net_app_config.configurations`
+
+Optional:
+
+- `network_features` (String)
+
+
 
 <a id="nestedblock--infrastructure--computes--storage_config--fsx_net_app_config"></a>
 ### Nested Schema for `infrastructure.computes.storage_config.fsx_net_app_config`
@@ -888,8 +994,10 @@ Required:
 
 Optional:
 
+- `archive_storage_config` (Block List) (see [below for nested schema](#nestedblock--instances--archive_storage_config))
 - `availability_zone` (String) DB Service Instance's cloud availability zone
 - `aws_infra_config` (Block List) (see [below for nested schema](#nestedblock--instances--aws_infra_config))
+- `compute_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--instances--compute_config))
 - `compute_id` (String) The associated compute identifier
 - `data_volume_iops` (Number)
 - `enable_perf_insights` (Boolean)
@@ -1038,6 +1146,28 @@ Optional:
 
 
 
+<a id="nestedblock--instances--compute_config"></a>
+### Nested Schema for `instances.compute_config`
+
+Optional:
+
+- `exadata_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--instances--compute_config--exadata_config))
+- `provider` (String)
+
+<a id="nestedblock--instances--compute_config--exadata_config"></a>
+### Nested Schema for `instances.compute_config.exadata_config`
+
+Required:
+
+- `infrastructure_id` (String)
+- `infrastructure_name` (String)
+- `memory` (Number)
+- `vcpus` (Number)
+- `vm_cluster_id` (String)
+- `vm_cluster_name` (String)
+
+
+
 <a id="nestedblock--instances--engine_configuration"></a>
 ### Nested Schema for `instances.engine_configuration`
 
@@ -1059,8 +1189,37 @@ Optional:
 
 Optional:
 
+- `azure_net_app_config` (Block List, Max: 1) Service instance level Azure NetApp config (see [below for nested schema](#nestedblock--instances--storage_config--azure_net_app_config))
 - `fsx_net_app_config` (Block List) (see [below for nested schema](#nestedblock--instances--storage_config--fsx_net_app_config))
 - `provider` (String)
+
+<a id="nestedblock--instances--storage_config--azure_net_app_config"></a>
+### Nested Schema for `instances.storage_config.azure_net_app_config`
+
+Optional:
+
+- `azure_net_app_id` (String) Azure NetApp Id registered with Tessell
+- `azure_net_app_name` (String)
+- `capacity_pool_id` (String) Capacity Pool Id of the Azure NetApp registered with Tessell
+- `capacity_pool_name` (String)
+- `delegated_subnet_id` (String) Delegated Subnet name registered with Tessell for the Azure NetApp volume
+- `delegated_subnet_name` (String) Delegated Subnet Id registered with Tessell for the Azure NetApp volume
+- `encryption_key_info` (Block List, Max: 1) Details of encryption key (see [below for nested schema](#nestedblock--instances--storage_config--azure_net_app_config--encryption_key_info))
+- `network_features` (String)
+- `service_level` (String)
+- `volume_name` (String)
+
+<a id="nestedblock--instances--storage_config--azure_net_app_config--encryption_key_info"></a>
+### Nested Schema for `instances.storage_config.azure_net_app_config.encryption_key_info`
+
+Optional:
+
+- `id` (String) Id of the encryption key
+- `key_source` (String)
+- `key_vault_cloud_resource_id` (String) name of the encryption key vault in cloud
+- `name` (String) name of the encryption key
+
+
 
 <a id="nestedblock--instances--storage_config--fsx_net_app_config"></a>
 ### Nested Schema for `instances.storage_config.fsx_net_app_config`
@@ -1154,9 +1313,160 @@ Required:
 
 Optional:
 
-- `custom_policy` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy))
+- `backup_rpo_config` (Block List, Max: 1) Config for the Native Backup RPO policies (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config))
+- `custom_policy` (Block List, Max: 1) This is the definition of Custom RPO Policy for Snapshot for Tessell DB Service (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy))
+- `enable_auto_backup` (Boolean) Specify whether system will take automatic backups
 - `full_backup_schedule` (Block List, Max: 1) The schedule at which full backups would be triggered (see [below for nested schema](#nestedblock--rpo_policy_config--full_backup_schedule))
-- `standard_policy` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--standard_policy))
+- `include_transaction_logs` (Boolean) Determines whether transaction logs should be retained to enable Point-In-Time Recovery (PITR) functionality
+- `standard_policy` (Block List, Max: 1) This is the definition of Standard RPO Policy for Snapshot for Tessell DB Service (see [below for nested schema](#nestedblock--rpo_policy_config--standard_policy))
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config`
+
+Optional:
+
+- `custom_policy` (Block List, Max: 1) This is the definition of Custom RPO Policy for Backup for Tessell DB Service (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--custom_policy))
+- `full_backup_schedule` (Block List, Max: 1) The schedule at which full backups would be triggered (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--full_backup_schedule))
+- `standard_policy` (Block List, Max: 1) This is the definition of Standard RPO Policy for Backup for Tessell DB Service (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--standard_policy))
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--custom_policy"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.custom_policy`
+
+Required:
+
+- `name` (String) Custom RPO policy name
+- `schedule` (Block List, Min: 1, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule))
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.custom_policy.schedule`
+
+Optional:
+
+- `backup_start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--backup_start_time))
+- `daily_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--daily_schedule))
+- `monthly_schedule` (Block List, Max: 1) Definition for taking month specific schedule. (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--monthly_schedule))
+- `weekly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--weekly_schedule))
+- `yearly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--yearly_schedule))
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--backup_start_time"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.custom_policy.schedule.backup_start_time`
+
+Required:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--daily_schedule"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.custom_policy.schedule.daily_schedule`
+
+Optional:
+
+- `backups_per_day` (Number) The number of backups to be captured per day.
+
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--monthly_schedule"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.custom_policy.schedule.monthly_schedule`
+
+Optional:
+
+- `common_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--monthly_schedule--common_schedule))
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--monthly_schedule--common_schedule"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.custom_policy.schedule.monthly_schedule.common_schedule`
+
+Optional:
+
+- `dates` (List of Number) Dates in a month to retain monthly backups
+- `last_day_of_month` (Boolean)
+
+
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--weekly_schedule"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.custom_policy.schedule.weekly_schedule`
+
+Optional:
+
+- `days` (List of String) Days in a week to retain weekly backups for
+
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--yearly_schedule"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.custom_policy.schedule.yearly_schedule`
+
+Optional:
+
+- `common_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--yearly_schedule--common_schedule))
+- `month_specific_schedule` (Block List) (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--yearly_schedule--month_specific_schedule))
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--yearly_schedule--common_schedule"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.custom_policy.schedule.yearly_schedule.common_schedule`
+
+Optional:
+
+- `dates` (List of Number) Dates in a month to retain monthly backups
+- `last_day_of_month` (Boolean)
+- `months` (List of String)
+
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--custom_policy--schedule--yearly_schedule--month_specific_schedule"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.custom_policy.schedule.yearly_schedule.month_specific_schedule`
+
+Required:
+
+- `dates` (List of Number)
+- `month` (String) Name of a month
+
+
+
+
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--full_backup_schedule"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.full_backup_schedule`
+
+Optional:
+
+- `start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--full_backup_schedule--start_time))
+- `weekly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--full_backup_schedule--weekly_schedule))
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--full_backup_schedule--start_time"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.full_backup_schedule.start_time`
+
+Required:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--full_backup_schedule--weekly_schedule"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.full_backup_schedule.weekly_schedule`
+
+Optional:
+
+- `days` (List of String) Days in a week to retain weekly backups for
+
+
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--standard_policy"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.standard_policy`
+
+Required:
+
+- `retention_days` (Number) Number of days for which the backup of DB Service would be retained
+
+Optional:
+
+- `backup_start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--rpo_policy_config--backup_rpo_config--standard_policy--backup_start_time))
+
+<a id="nestedblock--rpo_policy_config--backup_rpo_config--standard_policy--backup_start_time"></a>
+### Nested Schema for `rpo_policy_config.backup_rpo_config.standard_policy.backup_start_time`
+
+Required:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
+
 
 <a id="nestedblock--rpo_policy_config--custom_policy"></a>
 ### Nested Schema for `rpo_policy_config.custom_policy`
@@ -1175,6 +1485,7 @@ Required:
 
 Optional:
 
+- `backup_start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--backup_start_time))
 - `daily_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--daily_schedule))
 - `monthly_schedule` (Block List, Max: 1) Definition for taking month specific schedule. (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--monthly_schedule))
 - `weekly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--weekly_schedule))
@@ -1257,7 +1568,17 @@ Required:
 
 Optional:
 
+- `start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--rpo_policy_config--full_backup_schedule--start_time))
 - `weekly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--rpo_policy_config--full_backup_schedule--weekly_schedule))
+
+<a id="nestedblock--rpo_policy_config--full_backup_schedule--start_time"></a>
+### Nested Schema for `rpo_policy_config.full_backup_schedule.start_time`
+
+Required:
+
+- `hour` (Number)
+- `minute` (Number)
+
 
 <a id="nestedblock--rpo_policy_config--full_backup_schedule--weekly_schedule"></a>
 ### Nested Schema for `rpo_policy_config.full_backup_schedule.weekly_schedule`

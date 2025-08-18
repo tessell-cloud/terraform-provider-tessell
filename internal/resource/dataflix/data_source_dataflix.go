@@ -98,6 +98,11 @@ func DataSourceDataflix() *schema.Resource {
 					},
 				},
 			},
+			"storage_provider_type": {
+				Type:        schema.TypeString,
+				Description: "",
+				Computed:    true,
+			},
 		},
 	}
 }

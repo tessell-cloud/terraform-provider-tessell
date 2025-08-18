@@ -150,6 +150,11 @@ func DataSourceDataflixCatalog() *schema.Resource {
 							Description: "Specifies whether the backup is captured as per manual user request or as per the automated schedule",
 							Computed:    true,
 						},
+						"incremental": {
+							Type:        schema.TypeBool,
+							Description: "Specifies if Database Backup's is incremental",
+							Computed:    true,
+						},
 						"cloud_availability": {
 							Type:        schema.TypeList,
 							Description: "The cloud and region information where this snapshot has been made available at",

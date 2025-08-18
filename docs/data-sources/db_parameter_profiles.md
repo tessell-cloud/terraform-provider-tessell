@@ -39,6 +39,7 @@ Read-Only:
 - `engine_type` (String)
 - `factory_parameter_id` (String)
 - `id` (String)
+- `infra_type` (String)
 - `logged_in_user_role` (String)
 - `maturity_status` (String)
 - `metadata` (List of Object) (see [below for nested schema](#nestedobjatt--db_parameter_profiles--metadata))

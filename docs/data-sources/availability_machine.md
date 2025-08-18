@@ -68,6 +68,7 @@ Read-Only:
 - `compute_type` (String)
 - `date_created` (String)
 - `id` (String)
+- `instances` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances))
 - `name` (String)
 - `owner` (String)
 - `status` (String)
@@ -88,6 +89,255 @@ Read-Only:
 
 - `availability_zones` (List of String)
 - `region` (String)
+
+
+
+<a id="nestedobjatt--clones--instances"></a>
+### Nested Schema for `clones.instances`
+
+Read-Only:
+
+- `archive_storage_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--archive_storage_config))
+- `availability_zone` (String)
+- `aws_infra_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--aws_infra_config))
+- `cloud` (String)
+- `compute_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--compute_config))
+- `compute_id` (String)
+- `compute_name` (String)
+- `compute_type` (String)
+- `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--connect_string))
+- `data_volume_iops` (Number)
+- `date_created` (String)
+- `enable_perf_insights` (Boolean)
+- `encryption_key` (String)
+- `engine_configuration` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--engine_configuration))
+- `id` (String)
+- `instance_group_id` (String)
+- `instance_group_name` (String)
+- `last_started_at` (String)
+- `last_stopped_at` (String)
+- `monitoring_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--monitoring_config))
+- `name` (String)
+- `parameter_profile` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--parameter_profile))
+- `private_subnet` (String)
+- `public_subnet` (String)
+- `region` (String)
+- `role` (String)
+- `software_image` (String)
+- `software_image_version` (String)
+- `status` (String)
+- `storage` (Number)
+- `storage_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--storage_config))
+- `sync_mode` (String)
+- `tessell_service_id` (String)
+- `throughput` (Number)
+- `type` (String)
+- `updates_in_progress` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--updates_in_progress))
+- `vpc` (String)
+
+<a id="nestedobjatt--clones--instances--archive_storage_config"></a>
+### Nested Schema for `clones.instances.archive_storage_config`
+
+Read-Only:
+
+- `azure_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--archive_storage_config--azure_net_app_config))
+- `fsx_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--archive_storage_config--fsx_net_app_config))
+- `provider` (String)
+
+<a id="nestedobjatt--clones--instances--archive_storage_config--azure_net_app_config"></a>
+### Nested Schema for `clones.instances.archive_storage_config.azure_net_app_config`
+
+Read-Only:
+
+- `azure_net_app_id` (String)
+- `azure_net_app_name` (String)
+- `capacity_pool_id` (String)
+- `capacity_pool_name` (String)
+- `delegated_subnet_id` (String)
+- `delegated_subnet_name` (String)
+- `encryption_key_info` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--archive_storage_config--azure_net_app_config--encryption_key_info))
+- `network_features` (String)
+- `service_level` (String)
+- `volume_name` (String)
+
+<a id="nestedobjatt--clones--instances--archive_storage_config--azure_net_app_config--encryption_key_info"></a>
+### Nested Schema for `clones.instances.archive_storage_config.azure_net_app_config.encryption_key_info`
+
+Read-Only:
+
+- `id` (String)
+- `key_source` (String)
+- `key_vault_cloud_resource_id` (String)
+- `name` (String)
+
+
+
+<a id="nestedobjatt--clones--instances--archive_storage_config--fsx_net_app_config"></a>
+### Nested Schema for `clones.instances.archive_storage_config.fsx_net_app_config`
+
+Read-Only:
+
+- `file_system_id` (String)
+- `file_system_name` (String)
+- `svm_id` (String)
+- `svm_name` (String)
+- `volume_name` (String)
+
+
+
+<a id="nestedobjatt--clones--instances--aws_infra_config"></a>
+### Nested Schema for `clones.instances.aws_infra_config`
+
+Read-Only:
+
+- `aws_cpu_options` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--aws_infra_config--aws_cpu_options))
+
+<a id="nestedobjatt--clones--instances--aws_infra_config--aws_cpu_options"></a>
+### Nested Schema for `clones.instances.aws_infra_config.aws_cpu_options`
+
+Read-Only:
+
+- `vcpus` (Number)
+
+
+
+<a id="nestedobjatt--clones--instances--compute_config"></a>
+### Nested Schema for `clones.instances.compute_config`
+
+Read-Only:
+
+- `exadata_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--compute_config--exadata_config))
+- `provider` (String)
+
+<a id="nestedobjatt--clones--instances--compute_config--exadata_config"></a>
+### Nested Schema for `clones.instances.compute_config.exadata_config`
+
+Read-Only:
+
+- `infrastructure_id` (String)
+- `infrastructure_name` (String)
+- `memory` (Number)
+- `vcpus` (Number)
+- `vm_cluster_id` (String)
+- `vm_cluster_name` (String)
+
+
+
+<a id="nestedobjatt--clones--instances--connect_string"></a>
+### Nested Schema for `clones.instances.connect_string`
+
+Read-Only:
+
+- `connect_descriptor` (String)
+- `endpoint` (String)
+- `master_user` (String)
+- `service_port` (String)
+
+
+<a id="nestedobjatt--clones--instances--engine_configuration"></a>
+### Nested Schema for `clones.instances.engine_configuration`
+
+Read-Only:
+
+- `oracle_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--engine_configuration--oracle_config))
+
+<a id="nestedobjatt--clones--instances--engine_configuration--oracle_config"></a>
+### Nested Schema for `clones.instances.engine_configuration.oracle_config`
+
+Read-Only:
+
+- `access_mode` (String)
+
+
+
+<a id="nestedobjatt--clones--instances--monitoring_config"></a>
+### Nested Schema for `clones.instances.monitoring_config`
+
+Read-Only:
+
+- `perf_insights` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--monitoring_config--perf_insights))
+
+<a id="nestedobjatt--clones--instances--monitoring_config--perf_insights"></a>
+### Nested Schema for `clones.instances.monitoring_config.perf_insights`
+
+Read-Only:
+
+- `monitoring_deployment_id` (String)
+- `perf_insights_enabled` (Boolean)
+- `status` (String)
+
+
+
+<a id="nestedobjatt--clones--instances--parameter_profile"></a>
+### Nested Schema for `clones.instances.parameter_profile`
+
+Read-Only:
+
+- `id` (String)
+- `name` (String)
+- `status` (String)
+- `version` (String)
+
+
+<a id="nestedobjatt--clones--instances--storage_config"></a>
+### Nested Schema for `clones.instances.storage_config`
+
+Read-Only:
+
+- `azure_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--storage_config--azure_net_app_config))
+- `fsx_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--storage_config--fsx_net_app_config))
+- `provider` (String)
+
+<a id="nestedobjatt--clones--instances--storage_config--azure_net_app_config"></a>
+### Nested Schema for `clones.instances.storage_config.azure_net_app_config`
+
+Read-Only:
+
+- `azure_net_app_id` (String)
+- `azure_net_app_name` (String)
+- `capacity_pool_id` (String)
+- `capacity_pool_name` (String)
+- `delegated_subnet_id` (String)
+- `delegated_subnet_name` (String)
+- `encryption_key_info` (List of Object) (see [below for nested schema](#nestedobjatt--clones--instances--storage_config--azure_net_app_config--encryption_key_info))
+- `network_features` (String)
+- `service_level` (String)
+- `volume_name` (String)
+
+<a id="nestedobjatt--clones--instances--storage_config--azure_net_app_config--encryption_key_info"></a>
+### Nested Schema for `clones.instances.storage_config.azure_net_app_config.encryption_key_info`
+
+Read-Only:
+
+- `id` (String)
+- `key_source` (String)
+- `key_vault_cloud_resource_id` (String)
+- `name` (String)
+
+
+
+<a id="nestedobjatt--clones--instances--storage_config--fsx_net_app_config"></a>
+### Nested Schema for `clones.instances.storage_config.fsx_net_app_config`
+
+Read-Only:
+
+- `file_system_id` (String)
+- `file_system_name` (String)
+- `svm_id` (String)
+- `svm_name` (String)
+- `volume_name` (String)
+
+
+
+<a id="nestedobjatt--clones--instances--updates_in_progress"></a>
+### Nested Schema for `clones.instances.updates_in_progress`
+
+Read-Only:
+
+- `reference_id` (String)
+- `submitted_at` (String)
+- `update_info` (Map of String)
+- `update_type` (String)
 
 
 
@@ -234,9 +484,158 @@ Read-Only:
 
 Read-Only:
 
+- `backup_rpo_config` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config))
 - `custom_policy` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--custom_policy))
+- `enable_auto_backup` (Boolean)
 - `enable_auto_snapshot` (Boolean)
+- `full_backup_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--full_backup_schedule))
+- `include_transaction_logs` (Boolean)
 - `standard_policy` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--standard_policy))
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config`
+
+Read-Only:
+
+- `custom_policy` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--custom_policy))
+- `full_backup_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--full_backup_schedule))
+- `standard_policy` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--standard_policy))
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--custom_policy"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.custom_policy`
+
+Read-Only:
+
+- `name` (String)
+- `schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule))
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.custom_policy.schedule`
+
+Read-Only:
+
+- `backup_start_time` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--backup_start_time))
+- `daily_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--daily_schedule))
+- `monthly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--monthly_schedule))
+- `weekly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--weekly_schedule))
+- `yearly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--yearly_schedule))
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--backup_start_time"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.custom_policy.schedule.backup_start_time`
+
+Read-Only:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--daily_schedule"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.custom_policy.schedule.daily_schedule`
+
+Read-Only:
+
+- `backups_per_day` (Number)
+
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--monthly_schedule"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.custom_policy.schedule.monthly_schedule`
+
+Read-Only:
+
+- `common_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--monthly_schedule--common_schedule))
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--monthly_schedule--common_schedule"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.custom_policy.schedule.monthly_schedule.common_schedule`
+
+Read-Only:
+
+- `dates` (List of Number)
+- `last_day_of_month` (Boolean)
+
+
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--weekly_schedule"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.custom_policy.schedule.weekly_schedule`
+
+Read-Only:
+
+- `days` (List of String)
+
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--yearly_schedule"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.custom_policy.schedule.yearly_schedule`
+
+Read-Only:
+
+- `common_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--yearly_schedule--common_schedule))
+- `month_specific_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--yearly_schedule--month_specific_schedule))
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--yearly_schedule--common_schedule"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.custom_policy.schedule.yearly_schedule.common_schedule`
+
+Read-Only:
+
+- `dates` (List of Number)
+- `last_day_of_month` (Boolean)
+- `months` (List of String)
+
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--custom_policy--schedule--yearly_schedule--month_specific_schedule"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.custom_policy.schedule.yearly_schedule.month_specific_schedule`
+
+Read-Only:
+
+- `dates` (List of Number)
+- `month` (String)
+
+
+
+
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--full_backup_schedule"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.full_backup_schedule`
+
+Read-Only:
+
+- `start_time` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--full_backup_schedule--start_time))
+- `weekly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--full_backup_schedule--weekly_schedule))
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--full_backup_schedule--start_time"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.full_backup_schedule.start_time`
+
+Read-Only:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--full_backup_schedule--weekly_schedule"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.full_backup_schedule.weekly_schedule`
+
+Read-Only:
+
+- `days` (List of String)
+
+
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--standard_policy"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.standard_policy`
+
+Read-Only:
+
+- `backup_start_time` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--backup_rpo_config--standard_policy--backup_start_time))
+- `retention_days` (Number)
+
+<a id="nestedobjatt--rpo_policy--backup_rpo_config--standard_policy--backup_start_time"></a>
+### Nested Schema for `rpo_policy.backup_rpo_config.standard_policy.backup_start_time`
+
+Read-Only:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
+
 
 <a id="nestedobjatt--rpo_policy--custom_policy"></a>
 ### Nested Schema for `rpo_policy.custom_policy`
@@ -326,6 +725,32 @@ Read-Only:
 - `month` (String)
 
 
+
+
+
+<a id="nestedobjatt--rpo_policy--full_backup_schedule"></a>
+### Nested Schema for `rpo_policy.full_backup_schedule`
+
+Read-Only:
+
+- `start_time` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--full_backup_schedule--start_time))
+- `weekly_schedule` (List of Object) (see [below for nested schema](#nestedobjatt--rpo_policy--full_backup_schedule--weekly_schedule))
+
+<a id="nestedobjatt--rpo_policy--full_backup_schedule--start_time"></a>
+### Nested Schema for `rpo_policy.full_backup_schedule.start_time`
+
+Read-Only:
+
+- `hour` (Number)
+- `minute` (Number)
+
+
+<a id="nestedobjatt--rpo_policy--full_backup_schedule--weekly_schedule"></a>
+### Nested Schema for `rpo_policy.full_backup_schedule.weekly_schedule`
+
+Read-Only:
+
+- `days` (List of String)
 
 
 

@@ -66,6 +66,11 @@ func DataSourceDBBackups() *schema.Resource {
 							Description: "Specifies whether the backup is captured as per manual user request or per automated schedule",
 							Computed:    true,
 						},
+						"is_incremental": {
+							Type:        schema.TypeBool,
+							Description: "Specifies whether this backup is incremental",
+							Computed:    true,
+						},
 						"cloud_availability": {
 							Type:        schema.TypeList,
 							Description: "The cloud and region information where this backup has been made available at",
@@ -178,20 +183,25 @@ func DataSourceDBBackups() *schema.Resource {
 								},
 							},
 						},
+						"backup_source": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
 						"backup_info": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "Backup Source Info if the backup source is Snapshot",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"source_snapshot_id": {
 										Type:        schema.TypeString,
-										Description: "ID of snapshot from which this backup was created",
+										Description: "ID of the snapshot from which this backup was created",
 										Computed:    true,
 									},
 									"snapshot_name": {
 										Type:        schema.TypeString,
-										Description: "Name of snapshot from which this backup was created",
+										Description: "Name of the snapshot from which this backup was created",
 										Computed:    true,
 									},
 									"snapshot_time": {
@@ -298,9 +308,11 @@ func setDataSourceValues(d *schema.ResourceData, DBBackupList *[]model.DatabaseB
 				"status":              DBBackup.Status,
 				"size":                DBBackup.Size,
 				"manual":              DBBackup.Manual,
+				"is_incremental":      DBBackup.IsIncremental,
 				"cloud_availability":  parseCloudRegionInfoList(DBBackup.CloudAvailability),
 				"availability_config": parseSnapshotAvailabilityConfigList(DBBackup.AvailabilityConfig),
 				"databases":           parseBackupDatabaseInfoList(DBBackup.Databases),
+				"backup_source":       DBBackup.BackupSource,
 				"backup_info":         []interface{}{parseBackupSourceInfo(DBBackup.BackupInfo)},
 				"shared_with":         []interface{}{parseDatabaseBackupSharedWith(DBBackup.SharedWith)},
 				"download_url_status": DBBackup.DownloadUrlStatus,

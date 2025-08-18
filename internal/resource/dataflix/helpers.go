@@ -43,6 +43,10 @@ func setResourceData(d *schema.ResourceData, tessellAmDataflixDTO *model.Tessell
 		return err
 	}
 
+	if err := d.Set("storage_provider_type", tessellAmDataflixDTO.StorageProviderType); err != nil {
+		return err
+	}
+
 	return nil
 }
 

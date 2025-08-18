@@ -40,6 +40,7 @@ Read-Only:
 - `databases` (List of Object) (see [below for nested schema](#nestedobjatt--db_snapshots--databases))
 - `description` (String)
 - `id` (String)
+- `incremental` (Boolean)
 - `manual` (Boolean)
 - `name` (String)
 - `shared_with` (List of Object) (see [below for nested schema](#nestedobjatt--db_snapshots--shared_with))

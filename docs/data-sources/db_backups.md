@@ -36,11 +36,13 @@ Read-Only:
 
 - `availability_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_backups--availability_config))
 - `backup_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_backups--backup_info))
+- `backup_source` (String)
 - `backup_time` (String)
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedobjatt--db_backups--cloud_availability))
 - `databases` (List of Object) (see [below for nested schema](#nestedobjatt--db_backups--databases))
 - `download_url_status` (String)
 - `id` (String)
+- `is_incremental` (Boolean)
 - `manual` (Boolean)
 - `name` (String)
 - `shared_with` (List of Object) (see [below for nested schema](#nestedobjatt--db_backups--shared_with))
