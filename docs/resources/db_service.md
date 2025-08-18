@@ -41,12 +41,11 @@ resource "tessell_db_service" "example" {
 
   infrastructure {
     cloud              = "aws"
-    region             = "ap-south-1"
-    availability_zone  = "ap-south-1a"
-    vpc                = "default-vpc-1234"
-    compute_type       = "t2.small"
-    additional_storage = 0
+    enable_encryption  = true
     encryption_key     = "finance-db-encyption-key-with-salt"
+    additional_storage = 0
+    timezone           = "Asia/Calcutta"
+    enable_compute_sharing = false
   }
 
   service_connectivity {
@@ -68,14 +67,59 @@ resource "tessell_db_service" "example" {
     duration = 30
   }
 
-  snapshot_configuration {
-    auto_snapshot = true
-    sla           = "2-days-pitr"
-    snapshot_window {
-      time     = "01:00"
-      duration = 30
-    }
-  }
+	rpo_policy_config {
+		enable_auto_snapshot = true
+		standard_policy {
+			retention_days = 2
+			include_transaction_logs = true
+			snapshot_start_time {
+				hour = 19
+				minute = 30
+			}
+		}
+	}
+
+# For custom rpo_policy_config
+# 		rpo_policy_config {
+#   		enable_auto_snapshot = true
+#   		custom_policy {
+#   			name = "Test-policy"
+#   			schedule {
+#   				backup_start_time {
+#   					hour = 19
+#   					minute = 30
+#   				}
+#   				daily_schedule {
+#   					backups_per_day = 1
+#   					# Currently support 1 only
+#   				}
+#   				weekly_schedule {
+#   					days = [
+#   						"Wednesday",
+#   					]
+#   				}
+#   				monthly_schedule {
+#   					common_schedule {
+#   						dates = [
+#   							24,
+#   						]
+#   						last_day_of_month = false
+#   					}
+#   				}
+#   				yearly_schedule {
+#   					common_schedule {
+#   						dates = [
+#   							21,
+#   						]
+#   						months = [
+#   							"May",
+#   						]
+#   						last_day_of_month = false
+#   					}
+#   				}
+#   			}
+#   		}
+#   	}
 
   engine_configuration {
     postgresql_config {
@@ -1593,7 +1637,7 @@ Optional:
 - `full_backup_schedule` (Block List, Max: 1) The schedule at which full backups would be triggered (see [below for nested schema](#nestedblock--snapshot_configuration--full_backup_schedule))
 - `include_transaction_logs` (Boolean) Flag to decide whether the transaction logs would be retained to support PITR (Point in time recoverability)
 - `retention_days` (Number) Number of days for which the snapshot of DB Service would be retained
-- `schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--schedule))
+- `schedule` (Block List, Max: 1) Schedule Information (see [below for nested schema](#nestedblock--snapshot_configuration--schedule))
 - `sla` (String) The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service
 - `snapshot_start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--snapshot_configuration--snapshot_start_time))
 - `snapshot_window` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--snapshot_window))
