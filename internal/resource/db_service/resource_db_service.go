@@ -1416,6 +1416,32 @@ func ResourceDBService() *schema.Resource {
 							MinItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"start_time": {
+										Type:        schema.TypeList,
+										Description: "Clock time format value in hour and minute.",
+										Optional:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hour": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+													Default:     1,
+												},
+												"minute": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Optional:    true,
+													ForceNew:    true,
+													Default:     0,
+												},
+											},
+										},
+									},
 									"weekly_schedule": {
 										Type:        schema.TypeList,
 										Description: "",
@@ -2174,7 +2200,7 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
-									"options_profile": {
+									"option_profile_id": {
 										Type:        schema.TypeString,
 										Description: "The options profile for the database",
 										Optional:    true,
@@ -2235,9 +2261,9 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
-									"options_profile": {
+									"option_profile_id": {
 										Type:        schema.TypeString,
-										Description: "",
+										Description: "The options profile for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -2262,6 +2288,12 @@ func ResourceDBService() *schema.Resource {
 									"ad_domain_id": {
 										Type:        schema.TypeString,
 										Description: "Active Directory Domain ID",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"option_profile_id": {
+										Type:        schema.TypeString,
+										Description: "The options profile for the database",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -2430,6 +2462,12 @@ func ResourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"backup_url": {
+							Type:        schema.TypeString,
+							Description: "The URL where the backup is stored",
+							Optional:    true,
+							ForceNew:    true,
+						},
 						"ignore_post_script_failure": {
 							Type:        schema.TypeBool,
 							Description: "",
@@ -2559,7 +2597,7 @@ func ResourceDBService() *schema.Resource {
 													Optional:    true,
 													ForceNew:    true,
 												},
-												"options_profile": {
+												"option_profile_id": {
 													Type:        schema.TypeString,
 													Description: "The options profile for the database",
 													Optional:    true,
@@ -2604,6 +2642,12 @@ func ResourceDBService() *schema.Resource {
 												"parameter_profile_id": {
 													Type:        schema.TypeString,
 													Description: "The parameter profile ID for the database",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"option_profile_id": {
+													Type:        schema.TypeString,
+													Description: "The options profile for the database",
 													Optional:    true,
 													ForceNew:    true,
 												},
@@ -2930,6 +2974,39 @@ func ResourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"option_profile": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Description: "Tessell generated UUID for the the option profile",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Description: "The name used to identify the option profile",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"version": {
+										Type:        schema.TypeString,
+										Description: "The version of the option profile associated with the instance",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"status": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+								},
+							},
+						},
 						"monitoring_config": {
 							Type:        schema.TypeList,
 							Description: "",
@@ -3175,6 +3252,13 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
+										ForceNew:    true,
+									},
+									"volume_type": {
+										Type:        schema.TypeString,
+										Description: "Data disk volume type",
+										Optional:    true,
+										ForceNew:    true,
 									},
 									"fsx_net_app_config": {
 										Type:        schema.TypeList,
@@ -3327,6 +3411,12 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
+									"volume_type": {
+										Type:        schema.TypeString,
+										Description: "Data disk volume type",
+										Optional:    true,
+										ForceNew:    true,
+									},
 									"fsx_net_app_config": {
 										Type:        schema.TypeList,
 										Description: "",
@@ -3469,6 +3559,59 @@ func ResourceDBService() *schema.Resource {
 													ForceNew:    true,
 												},
 											},
+										},
+									},
+								},
+							},
+						},
+						"private_link_info": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"status": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"endpoint_service_name": {
+										Type:        schema.TypeString,
+										Description: "The configured endpoint as a result of configuring the service-principals",
+										Computed:    true,
+									},
+									"private_link_service_alias": {
+										Type:        schema.TypeString,
+										Description: "The Azure private link service alias",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"service_principals": {
+										Type:        schema.TypeList,
+										Description: "The list of AWS account principals that are currently enabled. This is only applicable for DB Services hosted on AWS.",
+										Optional:    true,
+										ForceNew:    true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"client_azure_subscription_ids": {
+										Type:        schema.TypeList,
+										Description: "The list of Azure subscription Ids. This is only applicable for DB Services hosted on AZURE.",
+										Optional:    true,
+										ForceNew:    true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
 										},
 									},
 								},

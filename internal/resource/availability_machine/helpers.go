@@ -946,6 +946,11 @@ func parseTessellServiceInstanceDTO(tessellServiceInstanceDTO *model.TessellServ
 		parsedTessellServiceInstanceDTO["parameter_profile"] = []interface{}{parseParameterProfile(tessellServiceInstanceDTO.ParameterProfile)}
 	}
 
+	var optionProfile *model.OptionProfile
+	if tessellServiceInstanceDTO.OptionProfile != optionProfile {
+		parsedTessellServiceInstanceDTO["option_profile"] = []interface{}{parseOptionProfile(tessellServiceInstanceDTO.OptionProfile)}
+	}
+
 	var monitoringConfig *model.MonitoringConfig
 	if tessellServiceInstanceDTO.MonitoringConfig != monitoringConfig {
 		parsedTessellServiceInstanceDTO["monitoring_config"] = []interface{}{parseMonitoringConfig(tessellServiceInstanceDTO.MonitoringConfig)}
@@ -979,6 +984,11 @@ func parseTessellServiceInstanceDTO(tessellServiceInstanceDTO *model.TessellServ
 	var archiveStorageConfig *model.InstanceStorageConfig
 	if tessellServiceInstanceDTO.ArchiveStorageConfig != archiveStorageConfig {
 		parsedTessellServiceInstanceDTO["archive_storage_config"] = []interface{}{parseInstanceStorageConfig(tessellServiceInstanceDTO.ArchiveStorageConfig)}
+	}
+
+	var privateLinkInfo *model.PrivateLinkInfo
+	if tessellServiceInstanceDTO.PrivateLinkInfo != privateLinkInfo {
+		parsedTessellServiceInstanceDTO["private_link_info"] = []interface{}{parsePrivateLinkInfo(tessellServiceInstanceDTO.PrivateLinkInfo)}
 	}
 
 	return parsedTessellServiceInstanceDTO
@@ -1019,6 +1029,19 @@ func parseParameterProfile(parameterProfile *model.ParameterProfile) interface{}
 	parsedParameterProfile["status"] = parameterProfile.Status
 
 	return parsedParameterProfile
+}
+
+func parseOptionProfile(optionProfile *model.OptionProfile) interface{} {
+	if optionProfile == nil {
+		return nil
+	}
+	parsedOptionProfile := make(map[string]interface{})
+	parsedOptionProfile["id"] = optionProfile.Id
+	parsedOptionProfile["name"] = optionProfile.Name
+	parsedOptionProfile["version"] = optionProfile.Version
+	parsedOptionProfile["status"] = optionProfile.Status
+
+	return parsedOptionProfile
 }
 
 func parseMonitoringConfig(monitoringConfig *model.MonitoringConfig) interface{} {
@@ -1149,6 +1172,7 @@ func parseInstanceStorageConfig(storageConfig *model.InstanceStorageConfig) inte
 	}
 	parsedStorageConfig := make(map[string]interface{})
 	parsedStorageConfig["provider"] = storageConfig.Provider
+	parsedStorageConfig["volume_type"] = storageConfig.VolumeType
 
 	var fsxNetAppConfig *model.InstanceFsxNetAppConfig
 	if storageConfig.FsxNetAppConfig != fsxNetAppConfig {
@@ -1212,6 +1236,21 @@ func parseAzureNetAppEncryptionKeyInfo(azureNetAppEncryptionKeyInfo *model.Azure
 	parsedAzureNetAppEncryptionKeyInfo["key_source"] = azureNetAppEncryptionKeyInfo.KeySource
 
 	return parsedAzureNetAppEncryptionKeyInfo
+}
+
+func parsePrivateLinkInfo(privateLinkInfo *model.PrivateLinkInfo) interface{} {
+	if privateLinkInfo == nil {
+		return nil
+	}
+	parsedPrivateLinkInfo := make(map[string]interface{})
+	parsedPrivateLinkInfo["id"] = privateLinkInfo.Id
+	parsedPrivateLinkInfo["status"] = privateLinkInfo.Status
+	parsedPrivateLinkInfo["endpoint_service_name"] = privateLinkInfo.EndpointServiceName
+	parsedPrivateLinkInfo["private_link_service_alias"] = privateLinkInfo.PrivateLinkServiceAlias
+	parsedPrivateLinkInfo["service_principals"] = privateLinkInfo.ServicePrincipals
+	parsedPrivateLinkInfo["client_azure_subscription_ids"] = privateLinkInfo.ClientAzureSubscriptionIds
+
+	return parsedPrivateLinkInfo
 }
 
 func parseBackupDownloadConfigWithResData(backupDownloadConfig *model.BackupDownloadConfig, d *schema.ResourceData) []interface{} {

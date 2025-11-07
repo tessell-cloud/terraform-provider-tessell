@@ -32,6 +32,13 @@ type BackupStandardRPOPolicy struct {
 	BackupStartTime *TimeFormat `json:"backupStartTime,omitempty"`
 }
 
+type OptionProfile struct {
+	Id      *string `json:"id,omitempty"`      // Tessell generated UUID for the the option profile
+	Name    *string `json:"name,omitempty"`    // The name used to identify the option profile
+	Version *string `json:"version,omitempty"` // The version of the option profile associated with the instance
+	Status  *string `json:"status,omitempty"`
+}
+
 type ServiceInstanceOracleEngineConfig struct {
 	AccessMode *string `json:"accessMode,omitempty"`
 }
@@ -83,6 +90,15 @@ type SnapshotRegionAvailability struct {
 	Status *string `json:"status"` // Database Backup Status
 }
 
+type PrivateLinkInfo struct {
+	Id                         *string   `json:"id,omitempty"`
+	Status                     *string   `json:"status,omitempty"`
+	EndpointServiceName        *string   `json:"endpointServiceName,omitempty"`        // The configured endpoint as a result of configuring the service-principals
+	PrivateLinkServiceAlias    *string   `json:"privateLinkServiceAlias,omitempty"`    // The Azure private link service alias
+	ServicePrincipals          *[]string `json:"servicePrincipals,omitempty"`          // The list of AWS account principals that are currently enabled. This is only applicable for DB Services hosted on AWS.
+	ClientAzureSubscriptionIds *[]string `json:"clientAzureSubscriptionIds,omitempty"` // The list of Azure subscription Ids. This is only applicable for DB Services hosted on AZURE.
+}
+
 type TessellResourceUpdateInfo struct {
 	UpdateType  *string                 `json:"updateType,omitempty"`  // Type of the update
 	ReferenceId *string                 `json:"referenceId,omitempty"` // The reference-id of the update request
@@ -131,6 +147,7 @@ type TimeFormat struct {
 
 type InstanceStorageConfig struct {
 	Provider          *string                    `json:"provider,omitempty"`
+	VolumeType        *string                    `json:"volumeType,omitempty"` // Data disk volume type
 	FsxNetAppConfig   *InstanceFsxNetAppConfig   `json:"fsxNetAppConfig,omitempty"`
 	AzureNetAppConfig *InstanceAzureNetAppConfig `json:"azureNetAppConfig,omitempty"`
 }
@@ -184,6 +201,7 @@ type TessellServiceInstanceDTO struct {
 	Throughput           *int                                 `json:"throughput,omitempty"` // Throughput requested for this DB Service instance
 	EnablePerfInsights   *bool                                `json:"enablePerfInsights,omitempty"`
 	ParameterProfile     *ParameterProfile                    `json:"parameterProfile,omitempty"`
+	OptionProfile        *OptionProfile                       `json:"optionProfile,omitempty"`
 	MonitoringConfig     *MonitoringConfig                    `json:"monitoringConfig,omitempty"`
 	VPC                  *string                              `json:"vpc,omitempty"`                  // The VPC used for creation of the DB Service Instance
 	PublicSubnet         *string                              `json:"publicSubnet,omitempty"`         // The public subnet used for creation of the DB Service Instance
@@ -201,6 +219,7 @@ type TessellServiceInstanceDTO struct {
 	ComputeConfig        *InstanceComputeConfig               `json:"computeConfig,omitempty"`
 	StorageConfig        *InstanceStorageConfig               `json:"storageConfig,omitempty"`
 	ArchiveStorageConfig *InstanceStorageConfig               `json:"archiveStorageConfig,omitempty"`
+	PrivateLinkInfo      *PrivateLinkInfo                     `json:"privateLinkInfo,omitempty"`
 }
 
 type APIStatus struct {
