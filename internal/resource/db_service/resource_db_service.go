@@ -754,6 +754,67 @@ func ResourceDBService() *schema.Resource {
 							Description: "",
 							Computed:    true,
 						},
+						"compute_provider": {
+							Type:        schema.TypeString,
+							Description: "The compute provider for the DB Service",
+							Computed:    true,
+						},
+						"storage_config": {
+							Type:        schema.TypeList,
+							Description: "The storage configuration for the DB Service",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"provider": {
+										Type:        schema.TypeString,
+										Description: "Storage provider",
+										Computed:    true,
+									},
+									"azure_net_app_config": {
+										Type:        schema.TypeList,
+										Description: "Azure NetApp configuration",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"service_level": {
+													Type:        schema.TypeString,
+													Description: "Service level for Azure NetApp",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"archive_storage_config": {
+							Type:        schema.TypeList,
+							Description: "The archive storage configuration for the DB Service",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"provider": {
+										Type:        schema.TypeString,
+										Description: "Storage provider",
+										Computed:    true,
+									},
+									"azure_net_app_config": {
+										Type:        schema.TypeList,
+										Description: "Azure NetApp configuration",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"service_level": {
+													Type:        schema.TypeString,
+													Description: "Service level for Azure NetApp",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
