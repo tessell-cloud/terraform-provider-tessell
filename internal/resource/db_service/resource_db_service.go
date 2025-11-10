@@ -3325,7 +3325,7 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "Data disk volume type",
 										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"fsx_net_app_config": {
 										Type:        schema.TypeList,
@@ -3482,7 +3482,7 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "Data disk volume type",
 										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"fsx_net_app_config": {
 										Type:        schema.TypeList,
