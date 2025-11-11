@@ -3644,13 +3644,13 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"status": {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"endpoint_service_name": {
 										Type:        schema.TypeString,
@@ -3661,13 +3661,13 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The Azure private link service alias",
 										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"service_principals": {
 										Type:        schema.TypeList,
 										Description: "The list of AWS account principals that are currently enabled. This is only applicable for DB Services hosted on AWS.",
 										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -3676,7 +3676,7 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "The list of Azure subscription Ids. This is only applicable for DB Services hosted on AZURE.",
 										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
