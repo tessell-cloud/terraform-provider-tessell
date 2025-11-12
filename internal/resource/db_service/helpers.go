@@ -1894,6 +1894,8 @@ func formatTfInputInstances(d *schema.ResourceData) *[]model.AddDBServiceInstanc
 			AwsInfraConfig:     formAwsInfraConfig(inputInstance["aws_infra_config"]),
 			Role:               helper.GetStringPointer(inputInstance["role"]),
 			AvailabilityZone:   helper.GetStringPointer(inputInstance["availability_zone"]),
+			Iops:               helper.GetIntPointer(inputInstance["data_volume_iops"]),
+			Throughput:         helper.GetIntPointer(inputInstance["throughput"]),
 			StorageConfig:      formStorageConfigPayload(inputInstance["storage_config"]),
 		})
 	}
@@ -2149,6 +2151,13 @@ func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceIn
 		ComputeId:        tfInstancePayload.ComputeId,
 		StorageConfig:    tfInstancePayload.StorageConfig,
 		PrivateSubnet:    tfInstancePayload.PrivateSubnet,
+	}
+
+	if tfInstancePayload.Iops != nil && *tfInstancePayload.Iops != 0 {
+		newInstance.Iops = tfInstancePayload.Iops
+	}
+	if tfInstancePayload.Throughput != nil && *tfInstancePayload.Throughput != 0 {
+		newInstance.Throughput = tfInstancePayload.Throughput
 	}
 
 	InstancesListFormed := []model.AddDBServiceInstancePayload{

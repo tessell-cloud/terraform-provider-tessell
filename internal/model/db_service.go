@@ -479,6 +479,8 @@ type AddDBServiceInstancePayloadV2 struct {
 	AwsInfraConfig       *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`
 	Role                 *string               `json:"role"`
 	AvailabilityZone     *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
+	Iops                 *int                  `json:"iops,omitempty"`
+	Throughput           *int                  `json:"throughput,omitempty"`
 	ComputeConfig        *ComputeConfigPayload `json:"computeConfig,omitempty"`
 	StorageConfig        *StorageConfigPayload `json:"storageConfig,omitempty"`
 	ArchiveStorageConfig *StorageConfigPayload `json:"archiveStorageConfig,omitempty"`
