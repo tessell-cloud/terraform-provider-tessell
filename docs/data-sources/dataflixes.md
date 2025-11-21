@@ -42,6 +42,7 @@ Read-Only:
 - `owner` (String)
 - `service_name` (String)
 - `shared_with` (List of Object) (see [below for nested schema](#nestedobjatt--dataflixes--shared_with))
+- `storage_provider_type` (String)
 - `tessell_service_id` (String)
 - `tsm` (Boolean)
 

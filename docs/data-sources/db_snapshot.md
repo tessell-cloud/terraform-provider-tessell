@@ -17,7 +17,8 @@ A snapshot can be a manual, which is requested by the users, or it can be automa
 ```terraform
 # Get a DB snapshot using the snapshot TRN
 data "tessell_db_snapshot" "example" {
-  id = "7ab66c70-6f92-42f0-a984-049265c252d2"
+  availability_machine_id = "7ab66c70-6f92-42f0-a984-049265c252d2"
+  id                      = "7ab66c70-6f92-42f0-a984-049265c252d2"
 }
 ```
 
@@ -36,6 +37,7 @@ data "tessell_db_snapshot" "example" {
 - `cloud_availability` (List of Object) The cloud and region information where this snapshot has been made available at (see [below for nested schema](#nestedatt--cloud_availability))
 - `databases` (List of Object) The databases that are captured as part of this snapshot (see [below for nested schema](#nestedatt--databases))
 - `description` (String) Description of the snapshot
+- `incremental` (Boolean) Specifies if Database Backup's is incremental
 - `manual` (Boolean) Specifies whether this snapshot is captured as per manual user request or per automated schedule
 - `name` (String) Name of the snapshot
 - `shared_with` (List of Object) Tessell Entity ACL Sharing Summary Info (see [below for nested schema](#nestedatt--shared_with))
