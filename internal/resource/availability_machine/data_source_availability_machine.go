@@ -1181,7 +1181,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 												"id": {
 													Type:        schema.TypeString,
 													Description: "Tessell generated UUID for the the option profile",
-													Required:    true,
+													Computed:    true,
 												},
 												"name": {
 													Type:        schema.TypeString,
@@ -1699,7 +1699,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 												"id": {
 													Type:        schema.TypeString,
 													Description: "",
-													Required:    true,
+													Computed:    true,
 												},
 												"status": {
 													Type:        schema.TypeString,
