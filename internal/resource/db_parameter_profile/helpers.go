@@ -35,6 +35,10 @@ func setResourceData(d *schema.ResourceData, databaseParameterProfileResponse *m
 		return err
 	}
 
+	if err := d.Set("engine_info", parseDatabaseParameterEngineInfoWithResData(databaseParameterProfileResponse.EngineInfo, d)); err != nil {
+		return err
+	}
+
 	if err := d.Set("factory_parameter_id", databaseParameterProfileResponse.FactoryParameterId); err != nil {
 		return err
 	}
@@ -48,14 +52,6 @@ func setResourceData(d *schema.ResourceData, databaseParameterProfileResponse *m
 	}
 
 	if err := d.Set("owner", databaseParameterProfileResponse.Owner); err != nil {
-		return err
-	}
-
-	if err := d.Set("tenant_id", databaseParameterProfileResponse.TenantId); err != nil {
-		return err
-	}
-
-	if err := d.Set("logged_in_user_role", databaseParameterProfileResponse.LoggedInUserRole); err != nil {
 		return err
 	}
 
@@ -75,10 +71,6 @@ func setResourceData(d *schema.ResourceData, databaseParameterProfileResponse *m
 		return err
 	}
 
-	if err := d.Set("shared_with", parseEntityAclSharingInfoWithResData(databaseParameterProfileResponse.SharedWith, d)); err != nil {
-		return err
-	}
-
 	if err := d.Set("db_version", databaseParameterProfileResponse.DBVersion); err != nil {
 		return err
 	}
@@ -95,7 +87,57 @@ func setResourceData(d *schema.ResourceData, databaseParameterProfileResponse *m
 		return err
 	}
 
+	if err := d.Set("is_legacy", databaseParameterProfileResponse.IsLegacy); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func parseDatabaseParameterEngineInfoWithResData(engineInfo *model.DatabaseParameterEngineInfo, d *schema.ResourceData) []interface{} {
+	if engineInfo == nil {
+		return nil
+	}
+	parsedEngineInfo := make(map[string]interface{})
+	if d.Get("engine_info") != nil {
+		engineInfoResourceData := d.Get("engine_info").([]interface{})
+		if len(engineInfoResourceData) > 0 {
+			parsedEngineInfo = (engineInfoResourceData[0]).(map[string]interface{})
+		}
+	}
+	parsedEngineInfo["edition"] = engineInfo.Edition
+
+	var oracle *model.DatabaseParameterEngineInfoOracle
+	if engineInfo.Oracle != oracle {
+		parsedEngineInfo["oracle"] = []interface{}{parseDatabaseParameterEngineInfoOracle(engineInfo.Oracle)}
+	}
+
+	return []interface{}{parsedEngineInfo}
+}
+
+func parseDatabaseParameterEngineInfo(engineInfo *model.DatabaseParameterEngineInfo) interface{} {
+	if engineInfo == nil {
+		return nil
+	}
+	parsedEngineInfo := make(map[string]interface{})
+	parsedEngineInfo["edition"] = engineInfo.Edition
+
+	var oracle *model.DatabaseParameterEngineInfoOracle
+	if engineInfo.Oracle != oracle {
+		parsedEngineInfo["oracle"] = []interface{}{parseDatabaseParameterEngineInfoOracle(engineInfo.Oracle)}
+	}
+
+	return parsedEngineInfo
+}
+
+func parseDatabaseParameterEngineInfoOracle(databaseParameterEngineInfo_oracle *model.DatabaseParameterEngineInfoOracle) interface{} {
+	if databaseParameterEngineInfo_oracle == nil {
+		return nil
+	}
+	parsedDatabaseParameterEngineInfo_oracle := make(map[string]interface{})
+	parsedDatabaseParameterEngineInfo_oracle["multi_tenancy"] = databaseParameterEngineInfo_oracle.MultiTenancy
+
+	return parsedDatabaseParameterEngineInfo_oracle
 }
 
 func parseDatabaseProfileParameterTypeListWithResData(parameters *[]model.DatabaseProfileParameterType, d *schema.ResourceData) []interface{} {
@@ -139,10 +181,14 @@ func parseDatabaseProfileParameterType(parameters *model.DatabaseProfileParamete
 	parsedParameters["default_value"] = parameters.DefaultValue
 	parsedParameters["apply_type"] = parameters.ApplyType
 	parsedParameters["name"] = parameters.Name
+	parsedParameters["description"] = parameters.Description
 	parsedParameters["value"] = parameters.Value
 	parsedParameters["allowed_values"] = parameters.AllowedValues
 	parsedParameters["is_modified"] = parameters.IsModified
 	parsedParameters["is_formula_type"] = parameters.IsFormulaType
+	parsedParameters["source"] = parameters.Source
+	parsedParameters["top_parameter"] = parameters.TopParameter
+	parsedParameters["is_modifiable"] = parameters.IsModifiable
 
 	return parsedParameters
 }
@@ -197,65 +243,4 @@ func parseDatabaseParameterProfileDriverInfo(driverInfo *model.DatabaseParameter
 	parsedDriverInfo["data"] = driverInfo.Data
 
 	return parsedDriverInfo
-}
-
-func parseEntityAclSharingInfoWithResData(sharedWith *model.EntityAclSharingInfo, d *schema.ResourceData) []interface{} {
-	if sharedWith == nil {
-		return nil
-	}
-	parsedSharedWith := make(map[string]interface{})
-	if d.Get("shared_with") != nil {
-		sharedWithResourceData := d.Get("shared_with").([]interface{})
-		if len(sharedWithResourceData) > 0 {
-			parsedSharedWith = (sharedWithResourceData[0]).(map[string]interface{})
-		}
-	}
-
-	var users *[]model.EntityUserAclSharingInfo
-	if sharedWith.Users != users {
-		parsedSharedWith["users"] = parseEntityUserAclSharingInfoList(sharedWith.Users)
-	}
-
-	return []interface{}{parsedSharedWith}
-}
-
-func parseEntityAclSharingInfo(sharedWith *model.EntityAclSharingInfo) interface{} {
-	if sharedWith == nil {
-		return nil
-	}
-	parsedSharedWith := make(map[string]interface{})
-
-	var users *[]model.EntityUserAclSharingInfo
-	if sharedWith.Users != users {
-		parsedSharedWith["users"] = parseEntityUserAclSharingInfoList(sharedWith.Users)
-	}
-
-	return parsedSharedWith
-}
-
-func parseEntityUserAclSharingInfoList(entityUserAclSharingInfo *[]model.EntityUserAclSharingInfo) []interface{} {
-	if entityUserAclSharingInfo == nil {
-		return nil
-	}
-	entityUserAclSharingInfoList := make([]interface{}, 0)
-
-	if entityUserAclSharingInfo != nil {
-		entityUserAclSharingInfoList = make([]interface{}, len(*entityUserAclSharingInfo))
-		for i, entityUserAclSharingInfoItem := range *entityUserAclSharingInfo {
-			entityUserAclSharingInfoList[i] = parseEntityUserAclSharingInfo(&entityUserAclSharingInfoItem)
-		}
-	}
-
-	return entityUserAclSharingInfoList
-}
-
-func parseEntityUserAclSharingInfo(entityUserAclSharingInfo *model.EntityUserAclSharingInfo) interface{} {
-	if entityUserAclSharingInfo == nil {
-		return nil
-	}
-	parsedEntityUserAclSharingInfo := make(map[string]interface{})
-	parsedEntityUserAclSharingInfo["email_id"] = entityUserAclSharingInfo.EmailId
-	parsedEntityUserAclSharingInfo["role"] = entityUserAclSharingInfo.Role
-
-	return parsedEntityUserAclSharingInfo
 }

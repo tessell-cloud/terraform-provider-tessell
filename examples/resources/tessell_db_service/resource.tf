@@ -11,11 +11,11 @@ resource "tessell_db_service" "example" {
   enable_deletion_protection = false
 
   infrastructure {
-    cloud              = "aws"
-    enable_encryption  = true
-    encryption_key     = "finance-db-encyption-key-with-salt"
-    additional_storage = 0
-    timezone           = "Asia/Calcutta"
+    cloud                  = "aws"
+    enable_encryption      = true
+    encryption_key         = "finance-db-encyption-key-with-salt"
+    additional_storage     = 0
+    timezone               = "Asia/Calcutta"
     enable_compute_sharing = false
   }
 
@@ -38,58 +38,58 @@ resource "tessell_db_service" "example" {
     duration = 30
   }
 
-	rpo_policy_config {
-		enable_auto_snapshot = true
-		standard_policy {
-			retention_days = 2
-			include_transaction_logs = true
-			snapshot_start_time {
-				hour = 19
-				minute = 30
-			}
-		}
-	}
+  rpo_policy_config {
+    enable_auto_snapshot = true
+    standard_policy {
+      retention_days           = 2
+      include_transaction_logs = true
+      snapshot_start_time {
+        hour   = 19
+        minute = 30
+      }
+    }
+  }
 
-# For custom rpo_policy_config
-# 		rpo_policy_config {
-#   		enable_auto_snapshot = true
-#   		custom_policy {
-#   			name = "Test-policy"
-#   			schedule {
-#   				backup_start_time {
-#   					hour = 19
-#   					minute = 30
-#   				}
-#   				daily_schedule {
-#   					backups_per_day = 1
-#   				}
-#   				weekly_schedule {
-#   					days = [
-#   						"Wednesday",
-#   					]
-#   				}
-#   				monthly_schedule {
-#   					common_schedule {
-#   						dates = [
-#   							24,
-#   						]
-#   						last_day_of_month = false
-#   					}
-#   				}
-#   				yearly_schedule {
-#   					common_schedule {
-#   						dates = [
-#   							21,
-#   						]
-#   						months = [
-#   							"May",
-#   						]
-#   						last_day_of_month = false
-#   					}
-#   				}
-#   			}
-#   		}
-#   	}
+  # For custom rpo_policy_config
+  # 		rpo_policy_config {
+  #   		enable_auto_snapshot = true
+  #   		custom_policy {
+  #   			name = "Test-policy"
+  #   			schedule {
+  #   				backup_start_time {
+  #   					hour = 19
+  #   					minute = 30
+  #   				}
+  #   				daily_schedule {
+  #   					backups_per_day = 1
+  #   				}
+  #   				weekly_schedule {
+  #   					days = [
+  #   						"Wednesday",
+  #   					]
+  #   				}
+  #   				monthly_schedule {
+  #   					common_schedule {
+  #   						dates = [
+  #   							24,
+  #   						]
+  #   						last_day_of_month = false
+  #   					}
+  #   				}
+  #   				yearly_schedule {
+  #   					common_schedule {
+  #   						dates = [
+  #   							21,
+  #   						]
+  #   						months = [
+  #   							"May",
+  #   						]
+  #   						last_day_of_month = false
+  #   					}
+  #   				}
+  #   			}
+  #   		}
+  #   	}
 
   engine_configuration {
     postgresql_config {
@@ -107,62 +107,62 @@ resource "tessell_db_service" "example" {
   }
 
   instances {
-      name = "default-node-0"
-      role = "primary"
-      storage_config {
-              provider = "AWS_EBS"
-          }
-      aws_infra_config {
-              aws_cpu_options {
-                  vcpus = 2
-              }
-          }
-      private_subnet = "my-private-subnet"
-      region = "ap-south-1"
-      instance_group_name = "default"
-      availability_zone = "ap-south-1a"
-      vpc = "tessell-vpc-4jd48"
-      compute_type = "tesl_2h_a_p"
+    name = "default-node-0"
+    role = "primary"
+    storage_config {
+      provider = "AWS_EBS"
     }
+    aws_infra_config {
+      aws_cpu_options {
+        vcpus = 2
+      }
+    }
+    private_subnet      = "my-private-subnet"
+    region              = "ap-south-1"
+    instance_group_name = "default"
+    availability_zone   = "ap-south-1a"
+    vpc                 = "tessell-vpc-4jd48"
+    compute_type        = "tesl_2h_a_p"
+  }
 
-#  Uncomment to add new instance or in case of
-#  high_availability topology service provisioning
-#     instances {
-#       name = "default-node-1"
-#       role = "failover_replica"
-#       storage_config {
-#                provider = "AWS_EBS"
-#            }
-#       aws_infra_config {
-#                aws_cpu_options {
-#                    vcpus = 2
-#                }
-#            }
-#       private_subnet = "my-private-subnet"
-#       region = "ap-south-1"
-#       instance_group_name = "default"
-#       availability_zone = "ap-south-1b"
-#       vpc = "tessell-vpc-4jd48"
-#       compute_type = "tesl_2h_a_p"
-#     }
-#   instances {
-#       name = "default-node-2"
-#       role = "failover_replica"
-#       storage_config {
-#                provider = "AWS_EBS"
-#            }
-#       aws_infra_config {
-#                aws_cpu_options {
-#                    vcpus = 2
-#                }
-#            }
-#       private_subnet = "my-private-subnet"
-#       region = "ap-south-1"
-#       instance_group_name = "default"
-#       availability_zone = "ap-south-1b"
-#       vpc = "tessell-vpc-4jd48"
-#       compute_type = "tesl_2h_a_p"
-#     }
+  #  Uncomment to add new instance or in case of
+  #  high_availability topology service provisioning
+  #     instances {
+  #       name = "default-node-1"
+  #       role = "failover_replica"
+  #       storage_config {
+  #                provider = "AWS_EBS"
+  #            }
+  #       aws_infra_config {
+  #                aws_cpu_options {
+  #                    vcpus = 2
+  #                }
+  #            }
+  #       private_subnet = "my-private-subnet"
+  #       region = "ap-south-1"
+  #       instance_group_name = "default"
+  #       availability_zone = "ap-south-1b"
+  #       vpc = "tessell-vpc-4jd48"
+  #       compute_type = "tesl_2h_a_p"
+  #     }
+  #   instances {
+  #       name = "default-node-2"
+  #       role = "failover_replica"
+  #       storage_config {
+  #                provider = "AWS_EBS"
+  #            }
+  #       aws_infra_config {
+  #                aws_cpu_options {
+  #                    vcpus = 2
+  #                }
+  #            }
+  #       private_subnet = "my-private-subnet"
+  #       region = "ap-south-1"
+  #       instance_group_name = "default"
+  #       availability_zone = "ap-south-1b"
+  #       vpc = "tessell-vpc-4jd48"
+  #       compute_type = "tesl_2h_a_p"
+  #     }
 
   tags {
     name  = "department"
@@ -187,11 +187,11 @@ resource "tessell_db_service" "example" {
   enable_deletion_protection = false
 
   infrastructure {
-    cloud              = "aws"
-    enable_encryption  = true
-    encryption_key     = "finance-db-encyption-key-with-salt"
-    additional_storage = 0
-    timezone           = "Asia/Calcutta"
+    cloud                  = "aws"
+    enable_encryption      = true
+    encryption_key         = "finance-db-encyption-key-with-salt"
+    additional_storage     = 0
+    timezone               = "Asia/Calcutta"
     enable_compute_sharing = false
   }
 
@@ -208,63 +208,63 @@ resource "tessell_db_service" "example" {
     master_password = "MyPassword@123"
   }
 
-	rpo_policy_config {
-		enable_auto_snapshot = true
-		standard_policy {
-			retention_days = 2
-			include_transaction_logs = true
-			snapshot_start_time {
-				hour = 19
-				minute = 30
-			}
-		}
-	}
+  rpo_policy_config {
+    enable_auto_snapshot = true
+    standard_policy {
+      retention_days           = 2
+      include_transaction_logs = true
+      snapshot_start_time {
+        hour   = 19
+        minute = 30
+      }
+    }
+  }
 
-# For custom rpo_policy_config
-# 		rpo_policy_config {
-#   		enable_auto_snapshot = true
-#   		custom_policy {
-#   			name = "Test-policy"
-#   			schedule {
-#   				backup_start_time {
-#   					hour = 19
-#   					minute = 30
-#   				}
-#   				daily_schedule {
-#   					backups_per_day = 1
-#   				}
-#   				weekly_schedule {
-#   					days = [
-#   						"Wednesday",
-#   					]
-#   				}
-#   				monthly_schedule {
-#   					common_schedule {
-#   						dates = [
-#   							24,
-#   						]
-#   						last_day_of_month = false
-#   					}
-#   				}
-#   				yearly_schedule {
-#   					common_schedule {
-#   						dates = [
-#   							21,
-#   						]
-#   						months = [
-#   							"May",
-#   						]
-#   						last_day_of_month = false
-#   					}
-#   				}
-#   			}
-#   		}
-#   	}
+  # For custom rpo_policy_config
+  # 		rpo_policy_config {
+  #   		enable_auto_snapshot = true
+  #   		custom_policy {
+  #   			name = "Test-policy"
+  #   			schedule {
+  #   				backup_start_time {
+  #   					hour = 19
+  #   					minute = 30
+  #   				}
+  #   				daily_schedule {
+  #   					backups_per_day = 1
+  #   				}
+  #   				weekly_schedule {
+  #   					days = [
+  #   						"Wednesday",
+  #   					]
+  #   				}
+  #   				monthly_schedule {
+  #   					common_schedule {
+  #   						dates = [
+  #   							24,
+  #   						]
+  #   						last_day_of_month = false
+  #   					}
+  #   				}
+  #   				yearly_schedule {
+  #   					common_schedule {
+  #   						dates = [
+  #   							21,
+  #   						]
+  #   						months = [
+  #   							"May",
+  #   						]
+  #   						last_day_of_month = false
+  #   					}
+  #   				}
+  #   			}
+  #   		}
+  #   	}
 
   engine_configuration {
     oracle_config {
-      parameter_profile_id      = "parameter-profile-id"
-      options_profile        = "Oracle 12.1.0.2.0 Options Profile"
+      parameter_profile_id   = "parameter-profile-id"
+      options_profile_id        = "options-profile-id"
       character_set          = "AL32UTF8"
       national_character_set = "AL16UTF16"
     }
@@ -276,7 +276,7 @@ resource "tessell_db_service" "example" {
     database_configuration {
       oracle_config {
         parameter_profile_id = "parameter-profile-id"
-        options_profile   = "Oracle 12.1.0.2.0 Options Profile"
+        options_profile_id      = "options-profile-id"
       }
     }
   }
@@ -292,51 +292,51 @@ resource "tessell_db_service" "example" {
         vcpus = 2
       }
     }
-    private_subnet = "my-private-subnet"
-    region = "ap-south-1"
+    private_subnet      = "my-private-subnet"
+    region              = "ap-south-1"
     instance_group_name = "default"
-    availability_zone = "ap-south-1a"
-    vpc = "tessell-vpc-4jd48"
-    compute_type = "tesl_2h_a_p"
-    }
-#  Uncomment to add new instance or in case of
-#  high_availability topology service provisioning
-#     instances {
-#       name = "default-node-1"
-#       role = "failover_replica"
-#       storage_config {
-#         provider = "AWS_EBS"
-#       }
-#       aws_infra_config {
-#         aws_cpu_options {
-#            vcpus = 2
-#         }
-#       }
-#       private_subnet = "my-private-subnet"
-#       region = "ap-south-1"
-#       instance_group_name = "default"
-#       availability_zone = "ap-south-1b"
-#       vpc = "tessell-vpc-4jd48"
-#       compute_type = "tesl_2h_a_p"
-#     }
-#   instances {
-#       name = "default-node-2"
-#       role = "failover_replica"
-#       storage_config {
-#         provider = "AWS_EBS"
-#       }
-#       aws_infra_config {
-#          aws_cpu_options {
-#             vcpus = 2
-#          }
-#       }
-#       private_subnet = "my-private-subnet"
-#       region = "ap-south-1"
-#       instance_group_name = "default"
-#       availability_zone = "ap-south-1b"
-#       vpc = "tessell-vpc-4jd48"
-#       compute_type = "tesl_2h_a_p"
-#     }
+    availability_zone   = "ap-south-1a"
+    vpc                 = "tessell-vpc-4jd48"
+    compute_type        = "tesl_2h_a_p"
+  }
+  #  Uncomment to add new instance or in case of
+  #  high_availability topology service provisioning
+  #     instances {
+  #       name = "default-node-1"
+  #       role = "failover_replica"
+  #       storage_config {
+  #         provider = "AWS_EBS"
+  #       }
+  #       aws_infra_config {
+  #         aws_cpu_options {
+  #            vcpus = 2
+  #         }
+  #       }
+  #       private_subnet = "my-private-subnet"
+  #       region = "ap-south-1"
+  #       instance_group_name = "default"
+  #       availability_zone = "ap-south-1b"
+  #       vpc = "tessell-vpc-4jd48"
+  #       compute_type = "tesl_2h_a_p"
+  #     }
+  #   instances {
+  #       name = "default-node-2"
+  #       role = "failover_replica"
+  #       storage_config {
+  #         provider = "AWS_EBS"
+  #       }
+  #       aws_infra_config {
+  #          aws_cpu_options {
+  #             vcpus = 2
+  #          }
+  #       }
+  #       private_subnet = "my-private-subnet"
+  #       region = "ap-south-1"
+  #       instance_group_name = "default"
+  #       availability_zone = "ap-south-1b"
+  #       vpc = "tessell-vpc-4jd48"
+  #       compute_type = "tesl_2h_a_p"
+  #     }
 
   tags {
     name  = "department"

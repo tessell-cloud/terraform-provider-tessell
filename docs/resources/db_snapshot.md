@@ -40,13 +40,11 @@ resource "tessell_db_snapshot" "example" {
 ### Read-Only
 
 - `availability_config` (List of Object) The config information for cloud and region availability for this snapshot (see [below for nested schema](#nestedatt--availability_config))
-- `backup_status` (String)
 - `block_until_complete` (Boolean) For any operation on this resource, block the flow until the action has completed successfully
 - `cloud_availability` (List of Object) The cloud and region information where this snapshot has been made available at (see [below for nested schema](#nestedatt--cloud_availability))
 - `databases` (List of Object) The databases that are captured as part of this snapshot (see [below for nested schema](#nestedatt--databases))
 - `id` (String) ID of the snapshot
 - `manual` (Boolean) Specifies whether this snapshot is captured as per manual user request or per automated schedule
-- `shared_with` (Block List, Max: 1) Tessell Entity ACL Sharing Summary Info (see [below for nested schema](#nestedblock--shared_with))
 - `size` (Number) Size of this snapshot (in bytes)
 - `snapshot_time` (String) Capture time of the snapshot
 - `status` (String) Database Backup Status

@@ -826,6 +826,11 @@ func DataSourceDBServices() *schema.Resource {
 													Description: "The options profile for the database",
 													Computed:    true,
 												},
+												"option_profile_id": {
+													Type:        schema.TypeString,
+													Description: "The options profile for the database",
+													Computed:    true,
+												},
 												"sid": {
 													Type:        schema.TypeString,
 													Description: "SID for oracle database",
@@ -875,6 +880,11 @@ func DataSourceDBServices() *schema.Resource {
 													Description: "",
 													Computed:    true,
 												},
+												"option_profile_id": {
+													Type:        schema.TypeString,
+													Description: "The options profile for the database",
+													Computed:    true,
+												},
 											},
 										},
 									},
@@ -892,6 +902,11 @@ func DataSourceDBServices() *schema.Resource {
 												"ad_domain_id": {
 													Type:        schema.TypeString,
 													Description: "Active Directory Domain ID",
+													Computed:    true,
+												},
+												"option_profile_id": {
+													Type:        schema.TypeString,
+													Description: "The options profile for the database",
 													Computed:    true,
 												},
 											},
@@ -1024,6 +1039,11 @@ func DataSourceDBServices() *schema.Resource {
 												},
 											},
 										},
+									},
+									"backup_url": {
+										Type:        schema.TypeString,
+										Description: "The URL where the backup is stored",
+										Computed:    true,
 									},
 									"ignore_post_script_failure": {
 										Type:        schema.TypeBool,
@@ -1265,6 +1285,35 @@ func DataSourceDBServices() *schema.Resource {
 											},
 										},
 									},
+									"option_profile": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "Tessell generated UUID for the the option profile",
+													Computed:    true,
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Description: "The name used to identify the option profile",
+													Computed:    true,
+												},
+												"version": {
+													Type:        schema.TypeString,
+													Description: "The version of the option profile associated with the instance",
+													Computed:    true,
+												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
 									"monitoring_config": {
 										Type:        schema.TypeList,
 										Description: "",
@@ -1493,6 +1542,11 @@ func DataSourceDBServices() *schema.Resource {
 													Description: "",
 													Computed:    true,
 												},
+												"volume_type": {
+													Type:        schema.TypeString,
+													Description: "Data disk volume type",
+													Computed:    true,
+												},
 												"fsx_net_app_config": {
 													Type:        schema.TypeList,
 													Description: "",
@@ -1624,6 +1678,11 @@ func DataSourceDBServices() *schema.Resource {
 													Description: "",
 													Computed:    true,
 												},
+												"volume_type": {
+													Type:        schema.TypeString,
+													Description: "Data disk volume type",
+													Computed:    true,
+												},
 												"fsx_net_app_config": {
 													Type:        schema.TypeList,
 													Description: "",
@@ -1744,6 +1803,51 @@ func DataSourceDBServices() *schema.Resource {
 											},
 										},
 									},
+									"private_link_info": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"endpoint_service_name": {
+													Type:        schema.TypeString,
+													Description: "The configured endpoint as a result of configuring the service-principals",
+													Computed:    true,
+												},
+												"private_link_service_alias": {
+													Type:        schema.TypeString,
+													Description: "The Azure private link service alias",
+													Computed:    true,
+												},
+												"service_principals": {
+													Type:        schema.TypeList,
+													Description: "The list of AWS account principals that are currently enabled. This is only applicable for DB Services hosted on AWS.",
+													Computed:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"client_azure_subscription_ids": {
+													Type:        schema.TypeList,
+													Description: "The list of Azure subscription Ids. This is only applicable for DB Services hosted on AZURE.",
+													Computed:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -1829,6 +1933,11 @@ func DataSourceDBServices() *schema.Resource {
 																Description: "The options profile for the database",
 																Computed:    true,
 															},
+															"option_profile_id": {
+																Type:        schema.TypeString,
+																Description: "The options profile for the database",
+																Computed:    true,
+															},
 															"username": {
 																Type:        schema.TypeString,
 																Description: "Username for the oracle database",
@@ -1848,6 +1957,11 @@ func DataSourceDBServices() *schema.Resource {
 																Description: "The parameter profile ID for the database",
 																Computed:    true,
 															},
+															"option_profile_id": {
+																Type:        schema.TypeString,
+																Description: "The options profile for the database",
+																Computed:    true,
+															},
 														},
 													},
 												},
@@ -1860,6 +1974,11 @@ func DataSourceDBServices() *schema.Resource {
 															"parameter_profile_id": {
 																Type:        schema.TypeString,
 																Description: "The parameter profile ID for the database",
+																Computed:    true,
+															},
+															"option_profile_id": {
+																Type:        schema.TypeString,
+																Description: "The options profile for the database",
 																Computed:    true,
 															},
 														},

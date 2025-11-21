@@ -163,7 +163,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 			},
 			"rpo_policy": {
 				Type:        schema.TypeList,
-				Description: "This is a definition for RPO Policy details for Tessell DB Service",
+				Description: "This is the definition for RPO Policy details for Tessell DB Service",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1172,6 +1172,35 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 											},
 										},
 									},
+									"option_profile": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "Tessell generated UUID for the the option profile",
+													Computed:    true,
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Description: "The name used to identify the option profile",
+													Computed:    true,
+												},
+												"version": {
+													Type:        schema.TypeString,
+													Description: "The version of the option profile associated with the instance",
+													Computed:    true,
+												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
 									"monitoring_config": {
 										Type:        schema.TypeList,
 										Description: "",
@@ -1400,6 +1429,11 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 													Description: "",
 													Computed:    true,
 												},
+												"volume_type": {
+													Type:        schema.TypeString,
+													Description: "Data disk volume type",
+													Computed:    true,
+												},
 												"fsx_net_app_config": {
 													Type:        schema.TypeList,
 													Description: "",
@@ -1531,6 +1565,11 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 													Description: "",
 													Computed:    true,
 												},
+												"volume_type": {
+													Type:        schema.TypeString,
+													Description: "Data disk volume type",
+													Computed:    true,
+												},
 												"fsx_net_app_config": {
 													Type:        schema.TypeList,
 													Description: "",
@@ -1646,6 +1685,51 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 																Computed:    true,
 															},
 														},
+													},
+												},
+											},
+										},
+									},
+									"private_link_info": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"endpoint_service_name": {
+													Type:        schema.TypeString,
+													Description: "The configured endpoint as a result of configuring the service-principals",
+													Computed:    true,
+												},
+												"private_link_service_alias": {
+													Type:        schema.TypeString,
+													Description: "The Azure private link service alias",
+													Computed:    true,
+												},
+												"service_principals": {
+													Type:        schema.TypeList,
+													Description: "The list of AWS account principals that are currently enabled. This is only applicable for DB Services hosted on AWS.",
+													Computed:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"client_azure_subscription_ids": {
+													Type:        schema.TypeList,
+													Description: "The list of Azure subscription Ids. This is only applicable for DB Services hosted on AZURE.",
+													Computed:    true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
 													},
 												},
 											},
