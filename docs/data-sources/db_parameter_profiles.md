@@ -36,20 +36,19 @@ Read-Only:
 - `db_version` (String)
 - `description` (String)
 - `driver_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_parameter_profiles--driver_info))
+- `engine_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_parameter_profiles--engine_info))
 - `engine_type` (String)
 - `factory_parameter_id` (String)
 - `id` (String)
 - `infra_type` (String)
-- `logged_in_user_role` (String)
+- `is_legacy` (Boolean)
 - `maturity_status` (String)
 - `metadata` (List of Object) (see [below for nested schema](#nestedobjatt--db_parameter_profiles--metadata))
 - `name` (String)
 - `oob` (Boolean)
 - `owner` (String)
 - `parameters` (List of Object) (see [below for nested schema](#nestedobjatt--db_parameter_profiles--parameters))
-- `shared_with` (List of Object) (see [below for nested schema](#nestedobjatt--db_parameter_profiles--shared_with))
 - `status` (String)
-- `tenant_id` (String)
 - `user_id` (String)
 - `version_id` (String)
 
@@ -59,6 +58,23 @@ Read-Only:
 Read-Only:
 
 - `data` (Map of String)
+
+
+<a id="nestedobjatt--db_parameter_profiles--engine_info"></a>
+### Nested Schema for `db_parameter_profiles.engine_info`
+
+Read-Only:
+
+- `edition` (String)
+- `oracle` (List of Object) (see [below for nested schema](#nestedobjatt--db_parameter_profiles--engine_info--oracle))
+
+<a id="nestedobjatt--db_parameter_profiles--engine_info--oracle"></a>
+### Nested Schema for `db_parameter_profiles.engine_info.oracle`
+
+Read-Only:
+
+- `multi_tenancy` (String)
+
 
 
 <a id="nestedobjatt--db_parameter_profiles--metadata"></a>
@@ -78,23 +94,13 @@ Read-Only:
 - `apply_type` (String)
 - `data_type` (String)
 - `default_value` (String)
+- `description` (String)
 - `is_formula_type` (Boolean)
+- `is_modifiable` (Boolean)
 - `is_modified` (Boolean)
 - `name` (String)
+- `source` (String)
+- `top_parameter` (Boolean)
 - `value` (String)
 
 
-<a id="nestedobjatt--db_parameter_profiles--shared_with"></a>
-### Nested Schema for `db_parameter_profiles.shared_with`
-
-Read-Only:
-
-- `users` (List of Object) (see [below for nested schema](#nestedobjatt--db_parameter_profiles--shared_with--users))
-
-<a id="nestedobjatt--db_parameter_profiles--shared_with--users"></a>
-### Nested Schema for `db_parameter_profiles.shared_with.users`
-
-Read-Only:
-
-- `email_id` (String)
-- `role` (String)

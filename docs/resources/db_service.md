@@ -40,11 +40,11 @@ resource "tessell_db_service" "example" {
   enable_deletion_protection = false
 
   infrastructure {
-    cloud              = "aws"
-    enable_encryption  = true
-    encryption_key     = "finance-db-encyption-key-with-salt"
-    additional_storage = 0
-    timezone           = "Asia/Calcutta"
+    cloud                  = "aws"
+    enable_encryption      = true
+    encryption_key         = "finance-db-encyption-key-with-salt"
+    additional_storage     = 0
+    timezone               = "Asia/Calcutta"
     enable_compute_sharing = false
   }
 
@@ -67,59 +67,59 @@ resource "tessell_db_service" "example" {
     duration = 30
   }
 
-	rpo_policy_config {
-		enable_auto_snapshot = true
-		standard_policy {
-			retention_days = 2
-			include_transaction_logs = true
-			snapshot_start_time {
-				hour = 19
-				minute = 30
-			}
-		}
-	}
+  rpo_policy_config {
+    enable_auto_snapshot = true
+    standard_policy {
+      retention_days           = 2
+      include_transaction_logs = true
+      snapshot_start_time {
+        hour   = 19
+        minute = 30
+      }
+    }
+  }
 
-# For custom rpo_policy_config
-# 		rpo_policy_config {
-#   		enable_auto_snapshot = true
-#   		custom_policy {
-#   			name = "Test-policy"
-#   			schedule {
-#   				backup_start_time {
-#   					hour = 19
-#   					minute = 30
-#   				}
-#   				daily_schedule {
-#   					backups_per_day = 1
-#   					# Currently support 1 only
-#   				}
-#   				weekly_schedule {
-#   					days = [
-#   						"Wednesday",
-#   					]
-#   				}
-#   				monthly_schedule {
-#   					common_schedule {
-#   						dates = [
-#   							24,
-#   						]
-#   						last_day_of_month = false
-#   					}
-#   				}
-#   				yearly_schedule {
-#   					common_schedule {
-#   						dates = [
-#   							21,
-#   						]
-#   						months = [
-#   							"May",
-#   						]
-#   						last_day_of_month = false
-#   					}
-#   				}
-#   			}
-#   		}
-#   	}
+  # For custom rpo_policy_config
+  # 		rpo_policy_config {
+  #   		enable_auto_snapshot = true
+  #   		custom_policy {
+  #   			name = "Test-policy"
+  #   			schedule {
+  #   				backup_start_time {
+  #   					hour = 19
+  #   					minute = 30
+  #   				}
+  #   				daily_schedule {
+  #   					backups_per_day = 1
+  #             #Currently support 1 only
+  #   				}
+  #   				weekly_schedule {
+  #   					days = [
+  #   						"Wednesday",
+  #   					]
+  #   				}
+  #   				monthly_schedule {
+  #   					common_schedule {
+  #   						dates = [
+  #   							24,
+  #   						]
+  #   						last_day_of_month = false
+  #   					}
+  #   				}
+  #   				yearly_schedule {
+  #   					common_schedule {
+  #   						dates = [
+  #   							21,
+  #   						]
+  #   						months = [
+  #   							"May",
+  #   						]
+  #   						last_day_of_month = false
+  #   					}
+  #   				}
+  #   			}
+  #   		}
+  #   	}
 
   engine_configuration {
     postgresql_config {
@@ -137,62 +137,62 @@ resource "tessell_db_service" "example" {
   }
 
   instances {
-      name = "default-node-0"
-      role = "primary"
-      storage_config {
-              provider = "AWS_EBS"
-          }
-      aws_infra_config {
-              aws_cpu_options {
-                  vcpus = 2
-              }
-          }
-      private_subnet = "my-private-subnet"
-      region = "ap-south-1"
-      instance_group_name = "default"
-      availability_zone = "ap-south-1a"
-      vpc = "tessell-vpc-4jd48"
-      compute_type = "tesl_2h_a_p"
+    name = "default-node-0"
+    role = "primary"
+    storage_config {
+      provider = "AWS_EBS"
     }
+    aws_infra_config {
+      aws_cpu_options {
+        vcpus = 2
+      }
+    }
+    private_subnet      = "my-private-subnet"
+    region              = "ap-south-1"
+    instance_group_name = "default"
+    availability_zone   = "ap-south-1a"
+    vpc                 = "tessell-vpc-4jd48"
+    compute_type        = "tesl_2h_a_p"
+  }
 
-#  Uncomment to add new instance or in case of
-#  high_availability topology service provisioning
-#     instances {
-#       name = "default-node-1"
-#       role = "failover_replica"
-#       storage_config {
-#                provider = "AWS_EBS"
-#            }
-#       aws_infra_config {
-#                aws_cpu_options {
-#                    vcpus = 2
-#                }
-#            }
-#       private_subnet = "my-private-subnet"
-#       region = "ap-south-1"
-#       instance_group_name = "default"
-#       availability_zone = "ap-south-1b"
-#       vpc = "tessell-vpc-4jd48"
-#       compute_type = "tesl_2h_a_p"
-#     }
-#   instances {
-#       name = "default-node-2"
-#       role = "failover_replica"
-#       storage_config {
-#                provider = "AWS_EBS"
-#            }
-#       aws_infra_config {
-#                aws_cpu_options {
-#                    vcpus = 2
-#                }
-#            }
-#       private_subnet = "my-private-subnet"
-#       region = "ap-south-1"
-#       instance_group_name = "default"
-#       availability_zone = "ap-south-1b"
-#       vpc = "tessell-vpc-4jd48"
-#       compute_type = "tesl_2h_a_p"
-#     }
+  #  Uncomment to add new instance or in case of
+  #  high_availability topology service provisioning
+  #     instances {
+  #       name = "default-node-1"
+  #       role = "failover_replica"
+  #       storage_config {
+  #                provider = "AWS_EBS"
+  #            }
+  #       aws_infra_config {
+  #                aws_cpu_options {
+  #                    vcpus = 2
+  #                }
+  #            }
+  #       private_subnet = "my-private-subnet"
+  #       region = "ap-south-1"
+  #       instance_group_name = "default"
+  #       availability_zone = "ap-south-1b"
+  #       vpc = "tessell-vpc-4jd48"
+  #       compute_type = "tesl_2h_a_p"
+  #     }
+  #   instances {
+  #       name = "default-node-2"
+  #       role = "failover_replica"
+  #       storage_config {
+  #                provider = "AWS_EBS"
+  #            }
+  #       aws_infra_config {
+  #                aws_cpu_options {
+  #                    vcpus = 2
+  #                }
+  #            }
+  #       private_subnet = "my-private-subnet"
+  #       region = "ap-south-1"
+  #       instance_group_name = "default"
+  #       availability_zone = "ap-south-1b"
+  #       vpc = "tessell-vpc-4jd48"
+  #       compute_type = "tesl_2h_a_p"
+  #     }
 
   tags {
     name  = "department"
@@ -217,11 +217,11 @@ resource "tessell_db_service" "example" {
   enable_deletion_protection = false
 
   infrastructure {
-    cloud              = "aws"
-    enable_encryption  = true
-    encryption_key     = "finance-db-encyption-key-with-salt"
-    additional_storage = 0
-    timezone           = "Asia/Calcutta"
+    cloud                  = "aws"
+    enable_encryption      = true
+    encryption_key         = "finance-db-encyption-key-with-salt"
+    additional_storage     = 0
+    timezone               = "Asia/Calcutta"
     enable_compute_sharing = false
   }
 
@@ -238,67 +238,63 @@ resource "tessell_db_service" "example" {
     master_password = "MyPassword@123"
   }
 
-	rpo_policy_config {
-		enable_auto_snapshot = true
-		include_transaction_logs = true
-		enable_auto_backup = false
-		standard_policy {
-			retention_days = 2
-			snapshot_start_time {
-				hour = 19
-				minute = 30
-			}
-		}
-	}
+  rpo_policy_config {
+    enable_auto_snapshot = true
+    standard_policy {
+      retention_days           = 2
+      include_transaction_logs = true
+      snapshot_start_time {
+        hour   = 19
+        minute = 30
+      }
+    }
+  }
 
-# For custom rpo_policy_config
-# 		rpo_policy_config {
-#   		enable_auto_snapshot = true
-#           include_transaction_logs = true
-#		    enable_auto_backup = false
-#   		custom_policy {
-#   			name = "Test-policy"
-#   			schedule {
-#   				backup_start_time {
-#   					hour = 19
-#   					minute = 30
-#   				}
-#   				daily_schedule {
-#   					backups_per_day = 1
-#   					 # Currently support 1 only
-#   				}
-#   				weekly_schedule {
-#   					days = [
-#   						"Wednesday",
-#   					]
-#   				}
-#   				monthly_schedule {
-#   					common_schedule {
-#   						dates = [
-#   							24,
-#   						]
-#   						last_day_of_month = false
-#   					}
-#   				}
-#   				yearly_schedule {
-#   					common_schedule {
-#   						dates = [
-#   							21,
-#   						]
-#   						months = [
-#   							"May",
-#   						]
-#   						last_day_of_month = false
-#   					}
-#   				}
-#   			}
-#   		}
-#   	}
+  # For custom rpo_policy_config
+  # 		rpo_policy_config {
+  #   		enable_auto_snapshot = true
+  #   		custom_policy {
+  #   			name = "Test-policy"
+  #   			schedule {
+  #   				backup_start_time {
+  #   					hour = 19
+  #   					minute = 30
+  #   				}
+  #   				daily_schedule {
+  #   					backups_per_day = 1
+  #   				}
+  #   				weekly_schedule {
+  #   					days = [
+  #   						"Wednesday",
+  #   					]
+  #   				}
+  #   				monthly_schedule {
+  #   					common_schedule {
+  #   						dates = [
+  #   							24,
+  #   						]
+  #   						last_day_of_month = false
+  #   					}
+  #   				}
+  #   				yearly_schedule {
+  #   					common_schedule {
+  #   						dates = [
+  #   							21,
+  #   						]
+  #   						months = [
+  #   							"May",
+  #   						]
+  #   						last_day_of_month = false
+  #   					}
+  #   				}
+  #   			}
+  #   		}
+  #   	}
 
   engine_configuration {
     oracle_config {
-      parameter_profile_id      = "parameter-profile-id"
-      options_profile        = "Oracle 12.1.0.2.0 Options Profile"
+      parameter_profile_id   = "parameter-profile-id"
+      options_profile_id        = "options-profile-id"
       character_set          = "AL32UTF8"
       national_character_set = "AL16UTF16"
     }
@@ -310,7 +306,7 @@ resource "tessell_db_service" "example" {
     database_configuration {
       oracle_config {
         parameter_profile_id = "parameter-profile-id"
-        options_profile   = "Oracle 12.1.0.2.0 Options Profile"
+        options_profile_id      = "options-profile-id"
       }
     }
   }
@@ -326,51 +322,51 @@ resource "tessell_db_service" "example" {
         vcpus = 2
       }
     }
-    private_subnet = "my-private-subnet"
-    region = "ap-south-1"
+    private_subnet      = "my-private-subnet"
+    region              = "ap-south-1"
     instance_group_name = "default"
-    availability_zone = "ap-south-1a"
-    vpc = "tessell-vpc-4jd48"
-    compute_type = "tesl_2h_a_p"
-    }
-#  Uncomment to add new instance or in case of
-#  high_availability topology service provisioning
-#     instances {
-#       name = "default-node-1"
-#       role = "failover_replica"
-#       storage_config {
-#         provider = "AWS_EBS"
-#       }
-#       aws_infra_config {
-#         aws_cpu_options {
-#            vcpus = 2
-#         }
-#       }
-#       private_subnet = "my-private-subnet"
-#       region = "ap-south-1"
-#       instance_group_name = "default"
-#       availability_zone = "ap-south-1b"
-#       vpc = "tessell-vpc-4jd48"
-#       compute_type = "tesl_2h_a_p"
-#     }
-#   instances {
-#       name = "default-node-2"
-#       role = "failover_replica"
-#       storage_config {
-#         provider = "AWS_EBS"
-#       }
-#       aws_infra_config {
-#          aws_cpu_options {
-#             vcpus = 2
-#          }
-#       }
-#       private_subnet = "my-private-subnet"
-#       region = "ap-south-1"
-#       instance_group_name = "default"
-#       availability_zone = "ap-south-1b"
-#       vpc = "tessell-vpc-4jd48"
-#       compute_type = "tesl_2h_a_p"
-#     }
+    availability_zone   = "ap-south-1a"
+    vpc                 = "tessell-vpc-4jd48"
+    compute_type        = "tesl_2h_a_p"
+  }
+  #  Uncomment to add new instance or in case of
+  #  high_availability topology service provisioning
+  #     instances {
+  #       name = "default-node-1"
+  #       role = "failover_replica"
+  #       storage_config {
+  #         provider = "AWS_EBS"
+  #       }
+  #       aws_infra_config {
+  #         aws_cpu_options {
+  #            vcpus = 2
+  #         }
+  #       }
+  #       private_subnet = "my-private-subnet"
+  #       region = "ap-south-1"
+  #       instance_group_name = "default"
+  #       availability_zone = "ap-south-1b"
+  #       vpc = "tessell-vpc-4jd48"
+  #       compute_type = "tesl_2h_a_p"
+  #     }
+  #   instances {
+  #       name = "default-node-2"
+  #       role = "failover_replica"
+  #       storage_config {
+  #         provider = "AWS_EBS"
+  #       }
+  #       aws_infra_config {
+  #          aws_cpu_options {
+  #             vcpus = 2
+  #          }
+  #       }
+  #       private_subnet = "my-private-subnet"
+  #       region = "ap-south-1"
+  #       instance_group_name = "default"
+  #       availability_zone = "ap-south-1b"
+  #       vpc = "tessell-vpc-4jd48"
+  #       compute_type = "tesl_2h_a_p"
+  #     }
 
   tags {
     name  = "department"
@@ -386,22 +382,19 @@ resource "tessell_db_service" "example" {
 
 <!-- schema generated by tfplugindocs -->
 ## Schema
-(see [below for how to migrate from instance's old config to new config](#nestedblock--migrate_old_to_new))
 
 ### Required
 
 - `creds` (Block List, Min: 1, Max: 1) DB Service's credential details (see [below for nested schema](#nestedblock--creds))
 - `engine_configuration` (Block List, Min: 1, Max: 1) This field details the DB Service engine configuration details like - parameter profile, or options profile (if applicable) are used to configure the DB Service. (see [below for nested schema](#nestedblock--engine_configuration))
 - `engine_type` (String)
-- `infrastructure` (Block List, Min: 1, Max: 1) This field contains DB Service's infrastructure related information, like, where the service is hosted - cloud, encryption details, additional storage (see [below for nested schema](#nestedblock--infrastructure))
+- `infrastructure` (Block List, Min: 1, Max: 1) This field contains DB Service's infrastructure related information, like, where the service is hosted - cloud, region; what compute shape, or network is is configured with. (see [below for nested schema](#nestedblock--infrastructure))
 - `name` (String) Name of the DB Service
 - `service_connectivity` (Block List, Min: 1, Max: 1) DB Service's connectivity information (see [below for nested schema](#nestedblock--service_connectivity))
 - `software_image` (String) Software Image to be used to create the DB Service
 - `software_image_version` (String) Software Image Version to be used to create the DB Service
 - `subscription` (String) Tessell Subscription in which the DB Service is to be created
 - `topology` (String)
-- `instances` (Block List) Instances associated with this DB Service (see [below for nested schema](#nestedblock--instances))
-
 
 ### Optional
 
@@ -465,6 +458,7 @@ Required:
 Optional:
 
 - `apache_kafka_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--apache_kafka_config))
+- `backup_url` (String) The URL where the backup is stored
 - `collation_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--engine_configuration--collation_config))
 - `ignore_post_script_failure` (Boolean)
 - `ignore_pre_script_failure` (Boolean)
@@ -516,6 +510,7 @@ Optional:
 Optional:
 
 - `ad_domain_id` (String) Active Directory Domain ID
+- `option_profile_id` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile ID for the database
 
 
@@ -528,7 +523,7 @@ Optional:
 - `enable_archive_mode` (Boolean) To explicitly enable archive mode, when PITR is disabled
 - `multi_tenant` (Boolean) Specify whether the DB Service is multi-tenant.
 - `national_character_set` (String) The national-character-set for the database
-- `options_profile` (String) The options profile for the database
+- `option_profile_id` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile id for the database
 - `sid` (String) SID for oracle database
 
@@ -548,7 +543,7 @@ Optional:
 Optional:
 
 - `ad_domain_id` (String) Active Directory Domain ID
-- `options_profile` (String)
+- `option_profile_id` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile ID for the database
 - `proxy_port` (Number)
 
@@ -598,9 +593,12 @@ Optional:
 
 Read-Only:
 
+- `archive_storage_config` (List of Object) The archive storage configuration for the DB Service (see [below for nested schema](#nestedatt--infrastructure--archive_storage_config))
 - `cloud_availability` (List of Object) (see [below for nested schema](#nestedatt--infrastructure--cloud_availability))
+- `compute_provider` (String) The compute provider for the DB Service
 - `multi_disk` (Boolean) Specify whether the DB service uses multiple data disks
 - `storage` (Number) The storage (in bytes) that has been provisioned for the DB Service
+- `storage_config` (List of Object) The storage configuration for the DB Service (see [below for nested schema](#nestedatt--infrastructure--storage_config))
 - `storage_provider` (String)
 
 <a id="nestedblock--infrastructure--aws_infra_config"></a>
@@ -745,6 +743,23 @@ Required:
 
 
 
+<a id="nestedatt--infrastructure--archive_storage_config"></a>
+### Nested Schema for `infrastructure.archive_storage_config`
+
+Read-Only:
+
+- `azure_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--infrastructure--archive_storage_config--azure_net_app_config))
+- `provider` (String)
+
+<a id="nestedobjatt--infrastructure--archive_storage_config--azure_net_app_config"></a>
+### Nested Schema for `infrastructure.archive_storage_config.azure_net_app_config`
+
+Read-Only:
+
+- `service_level` (String)
+
+
+
 <a id="nestedatt--infrastructure--cloud_availability"></a>
 ### Nested Schema for `infrastructure.cloud_availability`
 
@@ -760,6 +775,23 @@ Read-Only:
 
 - `availability_zones` (List of String)
 - `region` (String)
+
+
+
+<a id="nestedatt--infrastructure--storage_config"></a>
+### Nested Schema for `infrastructure.storage_config`
+
+Read-Only:
+
+- `azure_net_app_config` (List of Object) (see [below for nested schema](#nestedobjatt--infrastructure--storage_config--azure_net_app_config))
+- `provider` (String)
+
+<a id="nestedobjatt--infrastructure--storage_config--azure_net_app_config"></a>
+### Nested Schema for `infrastructure.storage_config.azure_net_app_config`
+
+Read-Only:
+
+- `service_level` (String)
 
 
 
@@ -922,6 +954,7 @@ Optional:
 
 Optional:
 
+- `option_profile_id` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile ID for the database
 
 
@@ -930,7 +963,7 @@ Optional:
 
 Optional:
 
-- `options_profile` (String) The options profile for the database
+- `option_profile_id` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile id for the database
 - `username` (String) Username for the oracle database
 
@@ -940,6 +973,7 @@ Optional:
 
 Optional:
 
+- `option_profile_id` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile ID for the database
 
 
@@ -1003,6 +1037,7 @@ Optional:
 - `enable_perf_insights` (Boolean)
 - `encryption_key` (String) The encryption key name which is used to encrypt the data at rest
 - `engine_configuration` (Block List) This field details the DB Service Instance engine configuration details like - access mode (see [below for nested schema](#nestedblock--instances--engine_configuration))
+- `private_link_info` (Block List, Max: 1) (see [below for nested schema](#nestedblock--instances--private_link_info))
 - `private_subnet` (String) The private subnet used for creation of the DB Service Instance
 - `storage_config` (Block List) (see [below for nested schema](#nestedblock--instances--storage_config))
 - `sync_mode` (String)
@@ -1020,6 +1055,7 @@ Read-Only:
 - `last_started_at` (String) Timestamp when the service instance was last started at
 - `last_stopped_at` (String) Timestamp when the Service Instance was last stopped at
 - `monitoring_config` (List of Object) (see [below for nested schema](#nestedatt--instances--monitoring_config))
+- `option_profile` (List of Object) (see [below for nested schema](#nestedatt--instances--option_profile))
 - `parameter_profile` (List of Object) (see [below for nested schema](#nestedatt--instances--parameter_profile))
 - `public_subnet` (String) The public subnet used for creation of the DB Service Instance
 - `software_image` (String) Software Image to be used to create the instance
@@ -1130,6 +1166,58 @@ After
      }
 ```
 
+
+<a id="nestedblock--instances--archive_storage_config"></a>
+### Nested Schema for `instances.archive_storage_config`
+
+Optional:
+
+- `azure_net_app_config` (Block List, Max: 1) Service instance level Azure NetApp config (see [below for nested schema](#nestedblock--instances--archive_storage_config--azure_net_app_config))
+- `fsx_net_app_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--instances--archive_storage_config--fsx_net_app_config))
+- `provider` (String)
+- `volume_type` (String) Data disk volume type
+
+<a id="nestedblock--instances--archive_storage_config--azure_net_app_config"></a>
+### Nested Schema for `instances.archive_storage_config.azure_net_app_config`
+
+Optional:
+
+- `azure_net_app_id` (String) Azure NetApp Id registered with Tessell
+- `azure_net_app_name` (String)
+- `capacity_pool_id` (String) Capacity Pool Id of the Azure NetApp registered with Tessell
+- `capacity_pool_name` (String)
+- `delegated_subnet_id` (String) Delegated Subnet name registered with Tessell for the Azure NetApp volume
+- `delegated_subnet_name` (String) Delegated Subnet Id registered with Tessell for the Azure NetApp volume
+- `encryption_key_info` (Block List, Max: 1) Details of encryption key (see [below for nested schema](#nestedblock--instances--archive_storage_config--azure_net_app_config--encryption_key_info))
+- `network_features` (String)
+- `service_level` (String)
+- `volume_name` (String)
+
+<a id="nestedblock--instances--archive_storage_config--azure_net_app_config--encryption_key_info"></a>
+### Nested Schema for `instances.archive_storage_config.azure_net_app_config.encryption_key_info`
+
+Optional:
+
+- `id` (String) Id of the encryption key
+- `key_source` (String)
+- `key_vault_cloud_resource_id` (String) name of the encryption key vault in cloud
+- `name` (String) name of the encryption key
+
+
+
+<a id="nestedblock--instances--archive_storage_config--fsx_net_app_config"></a>
+### Nested Schema for `instances.archive_storage_config.fsx_net_app_config`
+
+Optional:
+
+- `file_system_id` (String) File System Id of the FSx NetApp registered with Tessell
+- `file_system_name` (String)
+- `svm_id` (String) Storage Virtual Machine Id of the FSx NetApp registered with Tessell
+- `svm_name` (String)
+- `volume_name` (String)
+
+
+
 <a id="nestedblock--instances--aws_infra_config"></a>
 ### Nested Schema for `instances.aws_infra_config`
 
@@ -1184,6 +1272,22 @@ Optional:
 
 
 
+<a id="nestedblock--instances--private_link_info"></a>
+### Nested Schema for `instances.private_link_info`
+
+Optional:
+
+- `client_azure_subscription_ids` (List of String) The list of Azure subscription Ids. This is only applicable for DB Services hosted on AZURE.
+- `private_link_service_alias` (String) The Azure private link service alias
+- `service_principals` (List of String) The list of AWS account principals that are currently enabled. This is only applicable for DB Services hosted on AWS.
+- `status` (String)
+
+Read-Only:
+
+- `endpoint_service_name` (String) The configured endpoint as a result of configuring the service-principals
+- `id` (String) The ID of this resource.
+
+
 <a id="nestedblock--instances--storage_config"></a>
 ### Nested Schema for `instances.storage_config`
 
@@ -1192,6 +1296,7 @@ Optional:
 - `azure_net_app_config` (Block List, Max: 1) Service instance level Azure NetApp config (see [below for nested schema](#nestedblock--instances--storage_config--azure_net_app_config))
 - `fsx_net_app_config` (Block List) (see [below for nested schema](#nestedblock--instances--storage_config--fsx_net_app_config))
 - `provider` (String)
+- `volume_type` (String) Data disk volume type
 
 <a id="nestedblock--instances--storage_config--azure_net_app_config"></a>
 ### Nested Schema for `instances.storage_config.azure_net_app_config`
@@ -1263,6 +1368,17 @@ Read-Only:
 
 
 
+<a id="nestedatt--instances--option_profile"></a>
+### Nested Schema for `instances.option_profile`
+
+Read-Only:
+
+- `id` (String)
+- `name` (String)
+- `status` (String)
+- `version` (String)
+
+
 <a id="nestedatt--instances--parameter_profile"></a>
 ### Nested Schema for `instances.parameter_profile`
 
@@ -1309,7 +1425,7 @@ Required:
 
 Required:
 
-- `enable_auto_snapshot` (Boolean) Specify whether system will take auto snapshots or not
+- `enable_auto_snapshot` (Boolean) Specify whether system will take automatic snapshots
 
 Optional:
 
@@ -1479,10 +1595,6 @@ Required:
 <a id="nestedblock--rpo_policy_config--custom_policy--schedule"></a>
 ### Nested Schema for `rpo_policy_config.custom_policy.schedule`
 
-Required:
-
-- `backup_start_time` (Block List, Min: 1, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--backup_start_time))
-
 Optional:
 
 - `backup_start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--rpo_policy_config--custom_policy--schedule--backup_start_time))
@@ -1637,7 +1749,7 @@ Optional:
 - `full_backup_schedule` (Block List, Max: 1) The schedule at which full backups would be triggered (see [below for nested schema](#nestedblock--snapshot_configuration--full_backup_schedule))
 - `include_transaction_logs` (Boolean) Flag to decide whether the transaction logs would be retained to support PITR (Point in time recoverability)
 - `retention_days` (Number) Number of days for which the snapshot of DB Service would be retained
-- `schedule` (Block List, Max: 1) Schedule Information (see [below for nested schema](#nestedblock--snapshot_configuration--schedule))
+- `schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--schedule))
 - `sla` (String) The snapshot SLA for the DB Service. If not specified, a default SLA would be associated with the DB Service
 - `snapshot_start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--snapshot_configuration--snapshot_start_time))
 - `snapshot_window` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--snapshot_window))
@@ -1647,7 +1759,17 @@ Optional:
 
 Optional:
 
+- `start_time` (Block List, Max: 1) Clock time format value in hour and minute. (see [below for nested schema](#nestedblock--snapshot_configuration--full_backup_schedule--start_time))
 - `weekly_schedule` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration--full_backup_schedule--weekly_schedule))
+
+<a id="nestedblock--snapshot_configuration--full_backup_schedule--start_time"></a>
+### Nested Schema for `snapshot_configuration.full_backup_schedule.start_time`
+
+Optional:
+
+- `hour` (Number)
+- `minute` (Number)
+
 
 <a id="nestedblock--snapshot_configuration--full_backup_schedule--weekly_schedule"></a>
 ### Nested Schema for `snapshot_configuration.full_backup_schedule.weekly_schedule`
@@ -1908,194 +2030,3 @@ Read-Only:
 - `update_type` (String)
 
 
-<a id="nestedblock--migrate_old_to_new"></a>
-### Migrate Terraform Configuration: Old to New
-### Old Config
-```terraform
-terraform {
-	required_providers {
-		tessell = {
-			source  = "tessell-cloud/tessell" # pre version 0.0.18
-		}
-	}
-}
-
-provider "tessell" {
-	api_address = "https://api.mytessell.tsl-terls.cloud"
-	tenant_id = "238c5c14-7fee-47f8-98c2-788555914712"
-	api_key = <API_KEY>
-}
-
-resource "tessell_db_service" "my_service_1e1d0a7e" {
-	name = "my-service-1e1d0a7e"
-	description = ""
-	subscription = "AWS-BYOA-18729402847"
-	edition = "COMMUNITY"
-	engine_type = "MYSQL"
-	topology = "high_availability"
-	software_image = "MySQL 8.0"
-	software_image_version = "MySQL 8.0.36"
-	auto_minor_version_update = true
-	enable_deletion_protection = false
-	enable_stop_protection = false
-	infrastructure {
-		cloud = "aws"
-		region = "ap-south-1"
-		availability_zone = "ap-south-1a"
-		vpc = "tessell-vpc-4jd48"
-		compute_type = "tesl_2_a"
-		enable_encryption = false
-		encryption_key = null
-		additional_storage = 0
-		compute_name_prefix = "server1"
-		computes {
-			role = "primary"
-		}
-		computes {
-			role = "failover_replica"
-		}
-		computes {
-			role = "failover_replica"
-		}
-	}
-	service_connectivity {
-		service_port = "3306"
-		enable_public_access = false
-		allowed_ip_addresses = [
-			"49.36.xxx.xxx",
-		]
-		enable_ssl = false
-	}
-	creds {
-		master_user = "master"
-		master_password = "Password@123#"
-	}
-	maintenance_window {
-		day = "Sunday"
-		time = "02:00"
-		duration = 30
-	}
-	snapshot_configuration {
-		sla = "2-days-pitr"
-		schedule {
-			backup_start_time {
-				hour = 19
-				minute = 30
-			}
-		}
-	}
-	engine_configuration {
-		mysql_config {
-			parameter_profile_id = "pmx"
-		}
-	}
-	databases {
-		database_name = "db1"
-		database_configuration {
-			mysql_config {
-				parameter_profile_id = "pmx"
-			}
-		}
-	}
-}
-```
-
-### New Config
-```terraform
-terraform {
-    required_providers {
-        tessell = {
-            source  = "tessell-cloud/tessell" # post version 0.0.19
-        }
-    }
-}
-
-provider "tessell" {
-    api_address = "https://api.mytessell.tsl-terls.cloud"
-    tenant_id = "238c5c14-7fee-47f8-98c2-788555914712"
-    api_key = ""
-}
-
-resource "tessell_db_service" "my_service_42a768d0-TF-3" {
-    name = "my-service-42a768d0-TF-3"
-    description = ""
-    subscription = "AWS-BYOA-18729402847"
-    edition = "COMMUNITY"
-    engine_type = "MYSQL"
-    topology = "high_availability"
-    software_image = "MySQL 8.0"
-    software_image_version = "MySQL 8.0.36"
-    auto_minor_version_update = true
-    enable_deletion_protection = false
-    enable_stop_protection = false
-    infrastructure {
-        cloud = "aws"
-    }
-    service_connectivity {
-        service_port = "3306"
-        enable_public_access = false
-        allowed_ip_addresses = [
-            "49.36.xxx.xxx",
-        ]
-        enable_ssl = false
-    }
-    creds {
-        master_user = "master"
-        master_password = "Password@123#"
-    }
-    maintenance_window {
-        day = "Sunday"
-        time = "02:00"
-        duration = 30
-    }
-    snapshot_configuration {
-        sla = "2-days-pitr"
-        schedule {
-            backup_start_time {
-                hour = 19
-                minute = 30
-            }
-        }
-    }
-    engine_configuration {
-        mysql_config {
-            parameter_profile_id = "pmx"
-        }
-    }
-    databases {
-        database_name = "db1"
-        database_configuration {
-            mysql_config {
-                parameter_profile_id = "pmx"
-            }
-        }
-    }
-  instances {
-      name = "default-node-0"
-      role = "primary"
-      region = "ap-south-1"
-      instance_group_name = "default"
-      availability_zone = "ap-south-1a"
-      vpc = "tessell-vpc-4jd48"
-      compute_type = "tesl_2h_a_p"
-    }
-    instances {
-      name = "default-node-1"
-      role = "failover_replica"
-      region = "ap-south-1"
-      instance_group_name = "default"
-      availability_zone = "ap-south-1b"
-      vpc = "tessell-vpc-4jd48"
-      compute_type = "tesl_2h_a_p"
-    }
-  instances {
-      name = "default-node-2"
-      role = "failover_replica"
-      region = "ap-south-1"
-      instance_group_name = "default"
-      availability_zone = "ap-south-1b"
-      vpc = "tessell-vpc-4jd48"
-      compute_type = "tesl_2h_a_p"
-    }
-}
-```

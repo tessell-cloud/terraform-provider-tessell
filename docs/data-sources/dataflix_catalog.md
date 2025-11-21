@@ -63,7 +63,7 @@ Read-Only:
 - `to_time` (String)
 
 <a id="nestedobjatt--pitr_catalog--regions--time_ranges--shared_with"></a>
-### Nested Schema for `pitr_catalog.regions.time_ranges.shared_with`
+### Nested Schema for `pitr_catalog.regions.time_ranges.to_time`
 
 Read-Only:
 
@@ -125,3 +125,5 @@ Read-Only:
 Read-Only:
 
 - `users` (List of String)
+
+

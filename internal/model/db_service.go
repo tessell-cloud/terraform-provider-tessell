@@ -158,6 +158,7 @@ type TessellServiceEngineInfo struct {
 	PreScriptInfo           *ScriptInfo                            `json:"preScriptInfo,omitempty"`
 	PostScriptInfo          *ScriptInfo                            `json:"postScriptInfo,omitempty"`
 	CollationConfig         *DBEngineCollationConfig               `json:"collationConfig,omitempty"`
+	BackupUrl               *string                                `json:"backupUrl,omitempty"` // The URL where the backup is stored
 	IgnorePostScriptFailure *bool                                  `json:"ignorePostScriptFailure,omitempty"`
 	IgnorePreScriptFailure  *bool                                  `json:"ignorePreScriptFailure,omitempty"`
 }
@@ -166,6 +167,7 @@ type TessellServiceOracleEngineConfig struct {
 	MultiTenant          *bool   `json:"multiTenant,omitempty"`          // Specify whether the DB Service is multi-tenant.
 	ParameterProfileId   *string `json:"parameterProfileId,omitempty"`   // The parameter profile id for the database
 	OptionsProfile       *string `json:"optionsProfile,omitempty"`       // The options profile for the database
+	OptionProfileId      *string `json:"optionProfileId,omitempty"`      // The options profile for the database
 	Sid                  *string `json:"sid,omitempty"`                  // SID for oracle database
 	CharacterSet         *string `json:"characterSet,omitempty"`         // The character-set for the database
 	NationalCharacterSet *string `json:"nationalCharacterSet,omitempty"` // The national-character-set for the database
@@ -177,11 +179,13 @@ type TessellServicePostgresqlEngineConfig struct {
 	AdDomainId         *string `json:"adDomainId,omitempty"`         // Active Directory Domain ID
 	ProxyPort          *int    `json:"proxyPort,omitempty"`
 	OptionProfileName  *string `json:"optionProfileName,omitempty"`
+	OptionProfileId    *string `json:"optionProfileId,omitempty"` // The options profile for the database
 }
 
 type TessellServiceMysqlEngineConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
 	AdDomainId         *string `json:"adDomainId,omitempty"`         // Active Directory Domain ID
+	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The options profile for the database
 }
 
 type TessellServiceSqlServerEngineConfig struct {
@@ -244,15 +248,18 @@ type DatabaseConfiguration struct {
 type OracleDatabaseConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
 	OptionsProfile     *string `json:"optionsProfile,omitempty"`     // The options profile for the database
+	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The options profile for the database
 	Username           *string `json:"username,omitempty"`           // Username for the oracle database
 }
 
 type PostgresqlDatabaseConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
+	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The options profile for the database
 }
 
 type MysqlDatabaseConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
+	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The options profile for the database
 }
 
 type SqlServerDatabaseConfig struct {
@@ -498,6 +505,7 @@ type TessellServiceEngineConfigurationPayload struct {
 	MongoDBConfig           *MongoDBEngineConfigPayload     `json:"mongodbConfig,omitempty"`
 	MilvusConfig            *MilvusEngineConfigPayload      `json:"milvusConfig,omitempty"`
 	CollationConfig         *DBEngineCollationConfig        `json:"collationConfig,omitempty"`
+	BackupUrl               *string                         `json:"backupUrl,omitempty"` // The URL where the backup is stored
 	IgnorePostScriptFailure *bool                           `json:"ignorePostScriptFailure,omitempty"`
 	IgnorePreScriptFailure  *bool                           `json:"ignorePreScriptFailure,omitempty"`
 }
@@ -506,7 +514,8 @@ type OracleEngineConfigPayload struct {
 	MultiTenant          *bool   `json:"multiTenant,omitempty"` // Specify whether the DB Service is multi-tenant.
 	Sid                  *string `json:"sid,omitempty"`
 	ParameterProfileId   *string `json:"parameterProfileId"`          // The parameter profile id for the database
-	OptionsProfile       *string `json:"optionsProfile"`              // The options profile for the database
+	OptionsProfile       *string `json:"optionsProfile,omitempty"`    // The options profile for the database
+	OptionProfileId      *string `json:"optionProfileId,omitempty"`   // The options profile for the database
 	CharacterSet         *string `json:"characterSet"`                // The character-set for the database
 	NationalCharacterSet *string `json:"nationalCharacterSet"`        // The national-character-set for the database
 	EnableArchiveMode    *bool   `json:"enableArchiveMode,omitempty"` // To explicitly enable archive mode, when PITR is disabled
@@ -516,12 +525,14 @@ type PostgresqlEngineConfigPayload struct {
 	ParameterProfileId *string `json:"parameterProfileId"`   // The parameter profile id for the database
 	AdDomainId         *string `json:"adDomainId,omitempty"` // Active Directory Domain id
 	ProxyPort          *int    `json:"proxyPort,omitempty"`
-	OptionsProfile     *string `json:"optionsProfile,omitempty"` // The options profile for the database
+	OptionsProfile     *string `json:"optionsProfile,omitempty"`  // The options profile for the database
+	OptionProfileId    *string `json:"optionProfileId,omitempty"` // The options profile for the database
 }
 
 type MysqlEngineConfigPayload struct {
-	ParameterProfileId *string `json:"parameterProfileId"`   // The parameter profile id for the database
-	AdDomainId         *string `json:"adDomainId,omitempty"` // Active Directory Domain id
+	ParameterProfileId *string `json:"parameterProfileId"`        // The parameter profile id for the database
+	AdDomainId         *string `json:"adDomainId,omitempty"`      // Active Directory Domain id
+	OptionProfileId    *string `json:"optionProfileId,omitempty"` // The options profile for the database
 }
 
 type SqlServerEngineConfigPayload struct {
@@ -551,6 +562,7 @@ type MilvusEngineConfigPayload struct {
 
 type CreateDatabasePayload struct {
 	DatabaseName          *string                                     `json:"databaseName"`               // The name of the database to be created
+	Description           *string                                     `json:"description,omitempty"`      // Description of database created
 	SourceDatabaseId      *string                                     `json:"sourceDatabaseId,omitempty"` // Required while creating a clone. It specifies the Id of the source database from which the clone is being created.
 	DatabaseConfiguration *CreateDatabasePayloadDatabaseConfiguration `json:"databaseConfiguration,omitempty"`
 	CollectionConfig      *DBCollectionCreatePayload                  `json:"collectionConfig,omitempty"`
@@ -568,6 +580,7 @@ type CreateDatabasePayloadDatabaseConfiguration struct {
 type CreateOracleDatabaseConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
 	OptionsProfile     *string `json:"optionsProfile,omitempty"`     // The options profile for the database
+	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The options profile for the database
 	Username           *string `json:"username,omitempty"`           // Username for the oracle database
 	Password           *string `json:"password,omitempty"`           // Password for the oracle database
 }
@@ -691,23 +704,26 @@ type RefreshServiceInfo struct {
 }
 
 type TessellServiceInfrastructureInfo struct {
-	Cloud                *string            `json:"cloud,omitempty"`            // The cloud-type in which the DB Service is provisioned (ex. aws, azure)
-	Region               *string            `json:"region,omitempty"`           // The region in which the DB Service provisioned
-	AvailabilityZone     *string            `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is provisioned
-	CloudAvailability    *[]CloudRegionInfo `json:"cloudAvailability,omitempty"`
-	VPC                  *string            `json:"vpc,omitempty"` // The VPC to be used for provisioning the DB Service
-	EnableEncryption     *bool              `json:"enableEncryption,omitempty"`
-	EncryptionKey        *string            `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
-	ComputeType          *string            `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
-	AwsInfraConfig       *AwsInfraConfig    `json:"awsInfraConfig,omitempty"`
-	EnableComputeSharing *bool              `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
-	Iops                 *int               `json:"iops,omitempty"`                 // IOPS requested for the DB Service
-	Throughput           *int               `json:"throughput,omitempty"`           // throughput requested for the DB Service
-	Storage              *int               `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
-	AdditionalStorage    *int               `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
-	Timezone             *string            `json:"timezone,omitempty"`             // The timezone detail
-	MultiDisk            *bool              `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
-	StorageProvider      *string            `json:"storageProvider,omitempty"`
+	Cloud                *string               `json:"cloud,omitempty"`            // The cloud-type in which the DB Service is provisioned (ex. aws, azure)
+	Region               *string               `json:"region,omitempty"`           // The region in which the DB Service provisioned
+	AvailabilityZone     *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the DB Service is provisioned
+	CloudAvailability    *[]CloudRegionInfo    `json:"cloudAvailability,omitempty"`
+	VPC                  *string               `json:"vpc,omitempty"` // The VPC to be used for provisioning the DB Service
+	EnableEncryption     *bool                 `json:"enableEncryption,omitempty"`
+	EncryptionKey        *string               `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
+	ComputeType          *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
+	AwsInfraConfig       *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`
+	EnableComputeSharing *bool                 `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
+	Iops                 *int                  `json:"iops,omitempty"`                 // IOPS requested for the DB Service
+	Throughput           *int                  `json:"throughput,omitempty"`           // throughput requested for the DB Service
+	Storage              *int                  `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
+	AdditionalStorage    *int                  `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
+	Timezone             *string               `json:"timezone,omitempty"`             // The timezone detail
+	MultiDisk            *bool                 `json:"multiDisk,omitempty"`            // Specify whether the DB service uses multiple data disks
+	StorageProvider      *string               `json:"storageProvider,omitempty"`
+	StorageConfig        *ServiceStorageConfig `json:"storageConfig,omitempty"`
+	ArchiveStorageConfig *ServiceStorageConfig `json:"archiveStorageConfig,omitempty"`
+	ComputeProvider      *string               `json:"computeProvider,omitempty"`
 }
 
 type ServiceStorageConfig struct {
@@ -779,8 +795,9 @@ type StopTessellServicePayload struct {
 }
 
 type SwitchOverTessellServicePayload struct {
-	SwitchToInstanceId *string `json:"switchToInstanceId"` // The ID of the service instance to switch to
-	Comment            *string `json:"comment,omitempty"`  // Comment for the action
+	SwitchToInstanceId *string `json:"switchToInstanceId"`  // The ID of the service instance to switch to
+	Comment            *string `json:"comment,omitempty"`   // Comment for the action
+	IsDrDrill          *bool   `json:"isDrDrill,omitempty"` // Flag to specify if the switchover is done for DR Drill
 }
 
 type UpdateTessellServicePayload struct {

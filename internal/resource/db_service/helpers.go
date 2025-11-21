@@ -589,6 +589,8 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 	parsedInfrastructure["multi_disk"] = infrastructure.MultiDisk
 	parsedInfrastructure["storage_provider"] = infrastructure.StorageProvider
 
+	parsedInfrastructure["compute_provider"] = infrastructure.ComputeProvider
+
 	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
 		parsedInfrastructure["cloud_availability"] = parseCloudRegionInfoList(infrastructure.CloudAvailability)
@@ -597,6 +599,16 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 	var awsInfraConfig *model.AwsInfraConfig
 	if infrastructure.AwsInfraConfig != awsInfraConfig {
 		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
+	}
+
+	var storageConfig *model.ServiceStorageConfig
+	if infrastructure.StorageConfig != storageConfig {
+		parsedInfrastructure["storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.StorageConfig)}
+	}
+
+	var archiveStorageConfig *model.ServiceStorageConfig
+	if infrastructure.ArchiveStorageConfig != archiveStorageConfig {
+		parsedInfrastructure["archive_storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.ArchiveStorageConfig)}
 	}
 
 	return []interface{}{parsedInfrastructure}
@@ -625,6 +637,8 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	parsedInfrastructure["multi_disk"] = infrastructure.MultiDisk
 	parsedInfrastructure["storage_provider"] = infrastructure.StorageProvider
 
+	parsedInfrastructure["compute_provider"] = infrastructure.ComputeProvider
+
 	var cloudAvailability *[]model.CloudRegionInfo
 	if infrastructure.CloudAvailability != cloudAvailability {
 		parsedInfrastructure["cloud_availability"] = parseCloudRegionInfoList(infrastructure.CloudAvailability)
@@ -633,6 +647,16 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	var awsInfraConfig *model.AwsInfraConfig
 	if infrastructure.AwsInfraConfig != awsInfraConfig {
 		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
+	}
+
+	var storageConfig *model.ServiceStorageConfig
+	if infrastructure.StorageConfig != storageConfig {
+		parsedInfrastructure["storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.StorageConfig)}
+	}
+
+	var archiveStorageConfig *model.ServiceStorageConfig
+	if infrastructure.ArchiveStorageConfig != archiveStorageConfig {
+		parsedInfrastructure["archive_storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.ArchiveStorageConfig)}
 	}
 
 	return parsedInfrastructure
@@ -787,6 +811,7 @@ func parseTessellServiceEngineInfoWithResData(engineConfiguration *model.Tessell
 		}
 	}
 
+	parsedEngineConfiguration["backup_url"] = engineConfiguration.BackupUrl
 	parsedEngineConfiguration["ignore_post_script_failure"] = engineConfiguration.IgnorePostScriptFailure
 	parsedEngineConfiguration["ignore_pre_script_failure"] = engineConfiguration.IgnorePreScriptFailure
 
@@ -849,6 +874,7 @@ func parseTessellServiceEngineInfo(engineConfiguration *model.TessellServiceEngi
 	}
 	parsedEngineConfiguration := make(map[string]interface{})
 
+	parsedEngineConfiguration["backup_url"] = engineConfiguration.BackupUrl
 	parsedEngineConfiguration["ignore_post_script_failure"] = engineConfiguration.IgnorePostScriptFailure
 	parsedEngineConfiguration["ignore_pre_script_failure"] = engineConfiguration.IgnorePreScriptFailure
 
@@ -912,7 +938,7 @@ func parseTessellServiceOracleEngineConfig(tessellServiceOracleEngineConfig *mod
 	parsedTessellServiceOracleEngineConfig := make(map[string]interface{})
 	parsedTessellServiceOracleEngineConfig["multi_tenant"] = tessellServiceOracleEngineConfig.MultiTenant
 	parsedTessellServiceOracleEngineConfig["parameter_profile_id"] = tessellServiceOracleEngineConfig.ParameterProfileId
-	parsedTessellServiceOracleEngineConfig["options_profile"] = tessellServiceOracleEngineConfig.OptionsProfile
+	parsedTessellServiceOracleEngineConfig["option_profile_id"] = tessellServiceOracleEngineConfig.OptionProfileId
 	parsedTessellServiceOracleEngineConfig["sid"] = tessellServiceOracleEngineConfig.Sid
 	parsedTessellServiceOracleEngineConfig["character_set"] = tessellServiceOracleEngineConfig.CharacterSet
 	parsedTessellServiceOracleEngineConfig["national_character_set"] = tessellServiceOracleEngineConfig.NationalCharacterSet
@@ -929,7 +955,7 @@ func parseTessellServicePostgresqlEngineConfig(tessellServicePostgresqlEngineCon
 	parsedTessellServicePostgresqlEngineConfig["parameter_profile_id"] = tessellServicePostgresqlEngineConfig.ParameterProfileId
 	parsedTessellServicePostgresqlEngineConfig["ad_domain_id"] = tessellServicePostgresqlEngineConfig.AdDomainId
 	parsedTessellServicePostgresqlEngineConfig["proxy_port"] = tessellServicePostgresqlEngineConfig.ProxyPort
-	parsedTessellServicePostgresqlEngineConfig["options_profile"] = tessellServicePostgresqlEngineConfig.OptionProfileName
+	parsedTessellServicePostgresqlEngineConfig["option_profile_id"] = tessellServicePostgresqlEngineConfig.OptionProfileId
 
 	return parsedTessellServicePostgresqlEngineConfig
 }
@@ -941,6 +967,7 @@ func parseTessellServiceMysqlEngineConfig(tessellServiceMySqlEngineConfig *model
 	parsedTessellServiceMySqlEngineConfig := make(map[string]interface{})
 	parsedTessellServiceMySqlEngineConfig["parameter_profile_id"] = tessellServiceMySqlEngineConfig.ParameterProfileId
 	parsedTessellServiceMySqlEngineConfig["ad_domain_id"] = tessellServiceMySqlEngineConfig.AdDomainId
+	parsedTessellServiceMySqlEngineConfig["option_profile_id"] = tessellServiceMySqlEngineConfig.OptionProfileId
 
 	return parsedTessellServiceMySqlEngineConfig
 }
@@ -1218,6 +1245,11 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 		parsedInstances["parameter_profile"] = []interface{}{parseParameterProfile(instances.ParameterProfile)}
 	}
 
+	var optionProfile *model.OptionProfile
+	if instances.OptionProfile != optionProfile {
+		parsedInstances["option_profile"] = []interface{}{parseOptionProfile(instances.OptionProfile)}
+	}
+
 	var monitoringConfig *model.MonitoringConfig
 	if instances.MonitoringConfig != monitoringConfig {
 		parsedInstances["monitoring_config"] = []interface{}{parseMonitoringConfig(instances.MonitoringConfig)}
@@ -1253,6 +1285,11 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 		parsedInstances["archive_storage_config"] = []interface{}{parseInstanceStorageConfig(instances.ArchiveStorageConfig)}
 	}
 
+	var privateLinkInfo *model.PrivateLinkInfo
+	if instances.PrivateLinkInfo != privateLinkInfo {
+		parsedInstances["private_link_info"] = []interface{}{parsePrivateLinkInfo(instances.PrivateLinkInfo)}
+	}
+
 	return parsedInstances
 }
 
@@ -1267,6 +1304,19 @@ func parseParameterProfile(parameterProfile *model.ParameterProfile) interface{}
 	parsedParameterProfile["status"] = parameterProfile.Status
 
 	return parsedParameterProfile
+}
+
+func parseOptionProfile(optionProfile *model.OptionProfile) interface{} {
+	if optionProfile == nil {
+		return nil
+	}
+	parsedOptionProfile := make(map[string]interface{})
+	parsedOptionProfile["id"] = optionProfile.Id
+	parsedOptionProfile["name"] = optionProfile.Name
+	parsedOptionProfile["version"] = optionProfile.Version
+	parsedOptionProfile["status"] = optionProfile.Status
+
+	return parsedOptionProfile
 }
 
 func parseMonitoringConfig(monitoringConfig *model.MonitoringConfig) interface{} {
@@ -1368,6 +1418,7 @@ func parseInstanceStorageConfig(instanceStorageConfig *model.InstanceStorageConf
 	}
 	parsedInstanceStorageConfig := make(map[string]interface{})
 	parsedInstanceStorageConfig["provider"] = instanceStorageConfig.Provider
+	parsedInstanceStorageConfig["volume_type"] = instanceStorageConfig.VolumeType
 
 	var fsxNetAppConfig *model.InstanceFsxNetAppConfig
 	if instanceStorageConfig.FsxNetAppConfig != fsxNetAppConfig {
@@ -1431,6 +1482,21 @@ func parseAzureNetAppEncryptionKeyInfo(azureNetAppEncryptionKeyInfo *model.Azure
 	parsedAzureNetAppEncryptionKeyInfo["key_source"] = azureNetAppEncryptionKeyInfo.KeySource
 
 	return parsedAzureNetAppEncryptionKeyInfo
+}
+
+func parsePrivateLinkInfo(privateLinkInfo *model.PrivateLinkInfo) interface{} {
+	if privateLinkInfo == nil {
+		return nil
+	}
+	parsedPrivateLinkInfo := make(map[string]interface{})
+	parsedPrivateLinkInfo["id"] = privateLinkInfo.Id
+	parsedPrivateLinkInfo["status"] = privateLinkInfo.Status
+	parsedPrivateLinkInfo["endpoint_service_name"] = privateLinkInfo.EndpointServiceName
+	parsedPrivateLinkInfo["private_link_service_alias"] = privateLinkInfo.PrivateLinkServiceAlias
+	parsedPrivateLinkInfo["service_principals"] = privateLinkInfo.ServicePrincipals
+	parsedPrivateLinkInfo["client_azure_subscription_ids"] = privateLinkInfo.ClientAzureSubscriptionIds
+
+	return parsedPrivateLinkInfo
 }
 
 func parseTessellDatabaseDTOListWithResData(databases *[]model.TessellDatabaseDTO, d *schema.ResourceData) []interface{} {
@@ -1552,7 +1618,7 @@ func parseOracleDatabaseConfig(oracleDatabaseConfig *model.OracleDatabaseConfig)
 	}
 	parsedOracleDatabaseConfig := make(map[string]interface{})
 	parsedOracleDatabaseConfig["parameter_profile_id"] = oracleDatabaseConfig.ParameterProfileId
-	parsedOracleDatabaseConfig["options_profile"] = oracleDatabaseConfig.OptionsProfile
+	parsedOracleDatabaseConfig["option_profile_id"] = oracleDatabaseConfig.OptionProfileId
 	parsedOracleDatabaseConfig["username"] = oracleDatabaseConfig.Username
 
 	return parsedOracleDatabaseConfig
@@ -1564,6 +1630,7 @@ func parsePostgresqlDatabaseConfig(postgresqlDatabaseConfig *model.PostgresqlDat
 	}
 	parsedPostgresqlDatabaseConfig := make(map[string]interface{})
 	parsedPostgresqlDatabaseConfig["parameter_profile_id"] = postgresqlDatabaseConfig.ParameterProfileId
+	parsedPostgresqlDatabaseConfig["option_profile_id"] = postgresqlDatabaseConfig.OptionProfileId
 
 	return parsedPostgresqlDatabaseConfig
 }
@@ -1574,6 +1641,7 @@ func parseMysqlDatabaseConfig(mySqlDatabaseConfig *model.MysqlDatabaseConfig) in
 	}
 	parsedMySqlDatabaseConfig := make(map[string]interface{})
 	parsedMySqlDatabaseConfig["parameter_profile_id"] = mySqlDatabaseConfig.ParameterProfileId
+	parsedMySqlDatabaseConfig["option_profile_id"] = mySqlDatabaseConfig.OptionProfileId
 
 	return parsedMySqlDatabaseConfig
 }
@@ -2840,6 +2908,10 @@ func formTessellServiceEngineConfigurationPayload(tessellServiceEngineConfigurat
 		CollationConfig:   formDBEngineCollationConfig(tessellServiceEngineConfigurationPayloadData["collation_config"]),
 	}
 
+	if tessellServiceEngineConfigurationPayloadFormed.BackupUrl != nil {
+		tessellServiceEngineConfigurationPayloadFormed.BackupUrl = helper.GetStringPointer(tessellServiceEngineConfigurationPayloadData["backup_url"])
+	}
+
 	if tessellServiceEngineConfigurationPayloadFormed.PreScriptInfo != nil {
 		tessellServiceEngineConfigurationPayloadFormed.IgnorePreScriptFailure = helper.GetBoolPointer(tessellServiceEngineConfigurationPayloadData["ignore_pre_script_failure"])
 	}
@@ -2862,7 +2934,7 @@ func formOracleEngineConfigPayload(oracleEngineConfigPayloadRaw interface{}) *mo
 		MultiTenant:          helper.GetBoolPointer(oracleEngineConfigPayloadData["multi_tenant"]),
 		Sid:                  helper.GetStringPointer(oracleEngineConfigPayloadData["sid"]),
 		ParameterProfileId:   helper.GetStringPointer(oracleEngineConfigPayloadData["parameter_profile_id"]),
-		OptionsProfile:       helper.GetStringPointer(oracleEngineConfigPayloadData["options_profile"]),
+		OptionProfileId:      helper.GetStringPointer(oracleEngineConfigPayloadData["option_profile_id"]),
 		CharacterSet:         helper.GetStringPointer(oracleEngineConfigPayloadData["character_set"]),
 		NationalCharacterSet: helper.GetStringPointer(oracleEngineConfigPayloadData["national_character_set"]),
 		EnableArchiveMode:    helper.GetBoolPointer(oracleEngineConfigPayloadData["enable_archive_mode"]),
@@ -2882,7 +2954,7 @@ func formPostgresqlEngineConfigPayload(postgresqlEngineConfigPayloadRaw interfac
 		ParameterProfileId: helper.GetStringPointer(postgresqlEngineConfigPayloadData["parameter_profile_id"]),
 		AdDomainId:         helper.GetStringPointer(postgresqlEngineConfigPayloadData["ad_domain_id"]),
 		ProxyPort:          helper.GetIntPointer(postgresqlEngineConfigPayloadData["proxy_port"]),
-		OptionsProfile:     helper.GetStringPointer(postgresqlEngineConfigPayloadData["options_profile"]),
+		OptionProfileId:    helper.GetStringPointer(postgresqlEngineConfigPayloadData["option_profile_id"]),
 	}
 
 	return &postgresqlEngineConfigPayloadFormed
@@ -2898,6 +2970,7 @@ func formMysqlEngineConfigPayload(mysqlEngineConfigPayloadRaw interface{}) *mode
 	mysqlEngineConfigPayloadFormed := model.MysqlEngineConfigPayload{
 		ParameterProfileId: helper.GetStringPointer(mysqlEngineConfigPayloadData["parameter_profile_id"]),
 		AdDomainId:         helper.GetStringPointer(mysqlEngineConfigPayloadData["ad_domain_id"]),
+		OptionProfileId:    helper.GetStringPointer(mysqlEngineConfigPayloadData["option_profile_id"]),
 	}
 
 	return &mysqlEngineConfigPayloadFormed
@@ -3001,6 +3074,7 @@ func formCreateDatabasePayload(createDatabasePayloadRaw interface{}) *model.Crea
 
 	createDatabasePayloadFormed := model.CreateDatabasePayload{
 		DatabaseName:          helper.GetStringPointer(createDatabasePayloadData["database_name"]),
+		Description:           helper.GetStringPointer(createDatabasePayloadData["description"]),
 		SourceDatabaseId:      helper.GetStringPointer(createDatabasePayloadData["source_database_id"]),
 		DatabaseConfiguration: formCreateDatabasePayloadDatabaseConfiguration(createDatabasePayloadData["database_configuration"]),
 		CollectionConfig:      formDBCollectionCreatePayload(createDatabasePayloadData["collection_config"]),
@@ -3049,7 +3123,7 @@ func formCreateOracleDatabaseConfig(createOracleDatabaseConfigRaw interface{}) *
 
 	createOracleDatabaseConfigFormed := model.CreateOracleDatabaseConfig{
 		ParameterProfileId: helper.GetStringPointer(createOracleDatabaseConfigData["parameter_profile_id"]),
-		OptionsProfile:     helper.GetStringPointer(createOracleDatabaseConfigData["options_profile"]),
+		OptionProfileId:    helper.GetStringPointer(createOracleDatabaseConfigData["option_profile_id"]),
 		Username:           helper.GetStringPointer(createOracleDatabaseConfigData["username"]),
 		Password:           helper.GetStringPointer(createOracleDatabaseConfigData["password"]),
 	}
@@ -3066,6 +3140,7 @@ func formPostgresqlDatabaseConfig(postgresqlDatabaseConfigRaw interface{}) *mode
 
 	postgresqlDatabaseConfigFormed := model.PostgresqlDatabaseConfig{
 		ParameterProfileId: helper.GetStringPointer(postgresqlDatabaseConfigData["parameter_profile_id"]),
+		OptionProfileId:    helper.GetStringPointer(postgresqlDatabaseConfigData["option_profile_id"]),
 	}
 
 	return &postgresqlDatabaseConfigFormed
@@ -3080,6 +3155,7 @@ func formMysqlDatabaseConfig(mysqlDatabaseConfigRaw interface{}) *model.MysqlDat
 
 	mysqlDatabaseConfigFormed := model.MysqlDatabaseConfig{
 		ParameterProfileId: helper.GetStringPointer(mysqlDatabaseConfigData["parameter_profile_id"]),
+		OptionProfileId:    helper.GetStringPointer(mysqlDatabaseConfigData["option_profile_id"]),
 	}
 
 	return &mysqlDatabaseConfigFormed

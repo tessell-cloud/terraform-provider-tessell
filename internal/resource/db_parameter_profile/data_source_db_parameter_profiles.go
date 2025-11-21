@@ -67,6 +67,34 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 							Description: "",
 							Computed:    true,
 						},
+						"engine_info": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"edition": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"oracle": {
+										Type:        schema.TypeList,
+										Description: "Oracle specific engine info parameters",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"multi_tenancy": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"factory_parameter_id": {
 							Type:        schema.TypeString,
 							Description: "Tessell parameter type UUID for the entity",
@@ -85,16 +113,6 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 						"owner": {
 							Type:        schema.TypeString,
 							Description: "",
-							Computed:    true,
-						},
-						"tenant_id": {
-							Type:        schema.TypeString,
-							Description: "",
-							Computed:    true,
-						},
-						"logged_in_user_role": {
-							Type:        schema.TypeString,
-							Description: "The role of the logged in user for accessing the db profile",
 							Computed:    true,
 						},
 						"parameters": {
@@ -123,6 +141,11 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 										Description: "",
 										Computed:    true,
 									},
+									"description": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
 									"value": {
 										Type:        schema.TypeString,
 										Description: "",
@@ -139,6 +162,21 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 										Computed:    true,
 									},
 									"is_formula_type": {
+										Type:        schema.TypeBool,
+										Description: "",
+										Computed:    true,
+									},
+									"source": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"top_parameter": {
+										Type:        schema.TypeBool,
+										Description: "Boolean variable indicating a parameter is a most modified / key parameter",
+										Computed:    true,
+									},
+									"is_modifiable": {
 										Type:        schema.TypeBool,
 										Description: "",
 										Computed:    true,
@@ -179,34 +217,6 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 							Description: "Database Parameter Profile's user id",
 							Computed:    true,
 						},
-						"shared_with": {
-							Type:        schema.TypeList,
-							Description: "Tessell Entity ACL Sharing Info",
-							Computed:    true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"users": {
-										Type:        schema.TypeList,
-										Description: "",
-										Computed:    true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"email_id": {
-													Type:        schema.TypeString,
-													Description: "",
-													Computed:    true,
-												},
-												"role": {
-													Type:        schema.TypeString,
-													Description: "",
-													Computed:    true,
-												},
-											},
-										},
-									},
-								},
-							},
-						},
 						"db_version": {
 							Type:        schema.TypeString,
 							Description: "Database Parameter Profile's version",
@@ -225,6 +235,11 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 						"infra_type": {
 							Type:        schema.TypeString,
 							Description: "",
+							Computed:    true,
+						},
+						"is_legacy": {
+							Type:        schema.TypeBool,
+							Description: "Whether this Parameter Profile is Legacy or not",
 							Computed:    true,
 						},
 					},
@@ -279,21 +294,20 @@ func setDataSourceValues(d *schema.ResourceData, DBParameterProfileList *[]model
 				"description":          DBParameterProfile.Description,
 				"oob":                  DBParameterProfile.Oob,
 				"engine_type":          DBParameterProfile.EngineType,
+				"engine_info":          []interface{}{parseDatabaseParameterEngineInfo(DBParameterProfile.EngineInfo)},
 				"factory_parameter_id": DBParameterProfile.FactoryParameterId,
 				"status":               DBParameterProfile.Status,
 				"maturity_status":      DBParameterProfile.MaturityStatus,
 				"owner":                DBParameterProfile.Owner,
-				"tenant_id":            DBParameterProfile.TenantId,
-				"logged_in_user_role":  DBParameterProfile.LoggedInUserRole,
 				"parameters":           parseDatabaseProfileParameterTypeList(DBParameterProfile.Parameters),
 				"metadata":             []interface{}{parseDatabaseParameterProfileMetadata(DBParameterProfile.Metadata)},
 				"driver_info":          []interface{}{parseDatabaseParameterProfileDriverInfo(DBParameterProfile.DriverInfo)},
 				"user_id":              DBParameterProfile.UserId,
-				"shared_with":          []interface{}{parseEntityAclSharingInfo(DBParameterProfile.SharedWith)},
 				"db_version":           DBParameterProfile.DBVersion,
 				"date_created":         DBParameterProfile.DateCreated,
 				"date_modified":        DBParameterProfile.DateModified,
 				"infra_type":           DBParameterProfile.InfraType,
+				"is_legacy":            DBParameterProfile.IsLegacy,
 			}
 		}
 	}
