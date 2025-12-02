@@ -222,6 +222,11 @@ func DataSourceDBServices() *schema.Resource {
 										Description: "If the service was created using a maximum recoverability from the parent service",
 										Computed:    true,
 									},
+									"storage_provider": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
 								},
 							},
 						},
@@ -875,7 +880,7 @@ func DataSourceDBServices() *schema.Resource {
 													Description: "",
 													Computed:    true,
 												},
-												"options_profile": {
+												"option_profile_name": {
 													Type:        schema.TypeString,
 													Description: "",
 													Computed:    true,
@@ -936,6 +941,11 @@ func DataSourceDBServices() *schema.Resource {
 												"agent_service_account_user": {
 													Type:        schema.TypeString,
 													Description: "",
+													Computed:    true,
+												},
+												"instance_name": {
+													Type:        schema.TypeString,
+													Description: "The named instance for SQL Server database (max 16 characters as per SQL Server limitation)",
 													Computed:    true,
 												},
 											},
@@ -1933,14 +1943,14 @@ func DataSourceDBServices() *schema.Resource {
 																Description: "The options profile for the database",
 																Computed:    true,
 															},
-															"option_profile_id": {
-																Type:        schema.TypeString,
-																Description: "The options profile for the database",
-																Computed:    true,
-															},
 															"username": {
 																Type:        schema.TypeString,
 																Description: "Username for the oracle database",
+																Computed:    true,
+															},
+															"option_profile_id": {
+																Type:        schema.TypeString,
+																Description: "The option profile id for the database",
 																Computed:    true,
 															},
 														},

@@ -1,8 +1,8 @@
 package model
 
 type BackupSourceInfo struct {
-	SourceSnapshotId *string `json:"sourceSnapshotId,omitempty"` // ID of snapshot from which this backup was created
-	SnapshotName     *string `json:"snapshotName,omitempty"`     // Name of snapshot from which this backup was created
+	SourceSnapshotId *string `json:"sourceSnapshotId,omitempty"` // ID of the snapshot from which this backup was created
+	SnapshotName     *string `json:"snapshotName,omitempty"`     // Name of the snapshot from which this backup was created
 	SnapshotTime     *string `json:"snapshotTime,omitempty"`     // Capture time of snapshot from which this backup was created
 }
 

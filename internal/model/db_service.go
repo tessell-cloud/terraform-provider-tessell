@@ -17,6 +17,7 @@ type TessellServiceClonedFromInfo struct {
 	SnapshotTime          *string `json:"snapshotTime,omitempty"`          // DB Service snapshot capture time
 	PITRTime              *string `json:"pitrTime,omitempty"`              // If the database was created using a Point-In-Time mechanism, it specifies the timestamp in UTC
 	MaximumRecoverability *bool   `json:"maximumRecoverability,omitempty"` // If the service was created using a maximum recoverability from the parent service
+	StorageProvider       *string `json:"storageProvider,omitempty"`
 }
 
 type TfTessellServiceInfrastructureInfo struct {
@@ -193,6 +194,7 @@ type TessellServiceSqlServerEngineConfig struct {
 	AdDomainId              *string `json:"adDomainId,omitempty"`         // Active Directory Domain ID
 	ServiceAccountUser      *string `json:"serviceAccountUser,omitempty"`
 	AgentServiceAccountUser *string `json:"agentServiceAccountUser,omitempty"`
+	InstanceName            *string `json:"instanceName,omitempty"` // The named instance for SQL Server database (max 16 characters as per SQL Server limitation)
 }
 
 type TessellServiceApacheKafkaEngineConfig struct {
@@ -248,8 +250,8 @@ type DatabaseConfiguration struct {
 type OracleDatabaseConfig struct {
 	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
 	OptionsProfile     *string `json:"optionsProfile,omitempty"`     // The options profile for the database
-	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The options profile for the database
 	Username           *string `json:"username,omitempty"`           // Username for the oracle database
+	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The option profile id for the database
 }
 
 type PostgresqlDatabaseConfig struct {
@@ -540,6 +542,7 @@ type SqlServerEngineConfigPayload struct {
 	AdDomainId               *string             `json:"adDomainId,omitempty"` // Active Directory Domain id
 	ServiceAccountCreds      *CredentialsPayload `json:"serviceAccountCreds,omitempty"`
 	AgentServiceAccountCreds *CredentialsPayload `json:"agentServiceAccountCreds,omitempty"`
+	InstanceName             *string             `json:"instanceName,omitempty"` // The named instance for SQL Server database (max 16 characters as per SQL Server limitation)
 }
 
 type CredentialsPayload struct {

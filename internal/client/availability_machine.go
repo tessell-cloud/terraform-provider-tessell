@@ -20,13 +20,13 @@ func (c *Client) GetAvailabilityMachine(id string) (*model.DMMConsumerView, int,
 		return nil, statusCode, err
 	}
 
-	tessellDMMServiceConsumerDTO := model.DMMConsumerView{}
-	err = json.Unmarshal(body, &tessellDMMServiceConsumerDTO)
+	dmmConsumerView := model.DMMConsumerView{}
+	err = json.Unmarshal(body, &dmmConsumerView)
 	if err != nil {
 		return nil, statusCode, err
 	}
 
-	return &tessellDMMServiceConsumerDTO, statusCode, nil
+	return &dmmConsumerView, statusCode, nil
 }
 
 func (c *Client) GetAvailabilityMachines(name string, status string, engineType string, loadAcls bool, owners []string) (*model.GetDMMsServiceView, int, error) {
