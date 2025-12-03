@@ -2965,7 +2965,8 @@ func ResourceDBService() *schema.Resource {
 						"compute_type": {
 							Type:        schema.TypeString,
 							Description: "The compute used for creation of the Tessell Service Instance",
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 						},
 						"aws_infra_config": {
 							Type:        schema.TypeList,
@@ -3935,9 +3936,6 @@ func ResourceDBService() *schema.Resource {
 					names[name] = true
 					if role == "primary" {
 						primaryCount++
-						if primaryCount > 1 {
-							return fmt.Errorf("more than one instance has 'primary' role")
-						}
 					}
 				}
 				if primaryCount == 0 && len(instances) != 0 {
