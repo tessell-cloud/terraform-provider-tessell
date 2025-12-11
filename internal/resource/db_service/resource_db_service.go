@@ -333,6 +333,11 @@ func ResourceDBService() *schema.Resource {
 							Optional:    true,
 							Computed:    true,
 						},
+						"private_subnet": {
+							Type:        schema.TypeString,
+							Description: "The private subnet to be used for provisioning the compute resource",
+							Optional:    true,
+						},
 						"enable_encryption": {
 							Type:        schema.TypeBool,
 							Description: "",
