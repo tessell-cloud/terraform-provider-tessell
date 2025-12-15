@@ -1899,8 +1899,8 @@ func formatTfInputInstances(d *schema.ResourceData) *[]model.AddDBServiceInstanc
 		if inputInstance["private_subnet"] != nil && inputInstance["private_subnet"] != "" {
 			instance.PrivateSubnet = helper.GetStringPointer(inputInstance["private_subnet"])
 		}
-		if inputInstance["iops"] != nil && inputInstance["iops"] != 0 {
-			instance.Iops = helper.GetIntPointer(inputInstance["iops"])
+		if inputInstance["data_volume_iops"] != nil && inputInstance["data_volume_iops"] != 0 {
+			instance.Iops = helper.GetIntPointer(inputInstance["data_volume_iops"])
 		}
 		if inputInstance["throughput"] != nil && inputInstance["throughput"] != 0 {
 			instance.Throughput = helper.GetIntPointer(inputInstance["throughput"])
