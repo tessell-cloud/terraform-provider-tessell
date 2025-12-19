@@ -32,5 +32,3 @@ data "tessell_db_service_delete_schedule" "example" {
 Read-Only:
 
 - `retain_availability_machine` (Boolean)
-
-

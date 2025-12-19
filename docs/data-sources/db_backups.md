@@ -132,10 +132,8 @@ Read-Only:
 - `user_email` (String)
 
 <a id="nestedobjatt--db_backups--shared_with--users--expiry_config"></a>
-### Nested Schema for `db_backups.shared_with.users.user_email`
+### Nested Schema for `db_backups.shared_with.users.expiry_config`
 
 Read-Only:
 
 - `expire_at` (String)
-
-

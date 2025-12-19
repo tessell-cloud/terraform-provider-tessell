@@ -102,5 +102,3 @@ Read-Only:
 - `source` (String)
 - `top_parameter` (Boolean)
 - `value` (String)
-
-

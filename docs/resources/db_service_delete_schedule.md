@@ -43,5 +43,3 @@ resource "tessell_db_service_delete_schedule" "delete_schedule_f986a9af" {
 Optional:
 
 - `retain_availability_machine` (Boolean) If specified as true, the associated Availability Machine (snapshots, sanitized-snapshots, logs) would be retained
-
-
