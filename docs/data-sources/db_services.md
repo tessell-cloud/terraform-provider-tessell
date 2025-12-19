@@ -103,6 +103,7 @@ Read-Only:
 - `snapshot_id` (String)
 - `snapshot_name` (String)
 - `snapshot_time` (String)
+- `storage_provider` (String)
 - `tessell_service` (String)
 - `tessell_service_id` (String)
 
@@ -165,7 +166,7 @@ Read-Only:
 - `sql_server_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--databases--database_configuration--sql_server_config))
 
 <a id="nestedobjatt--db_services--databases--database_configuration--milvus_config"></a>
-### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+### Nested Schema for `db_services.databases.database_configuration.milvus_config`
 
 Read-Only:
 
@@ -173,7 +174,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--db_services--databases--database_configuration--mongodb_config"></a>
-### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+### Nested Schema for `db_services.databases.database_configuration.mongodb_config`
 
 Read-Only:
 
@@ -181,7 +182,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--db_services--databases--database_configuration--mysql_config"></a>
-### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+### Nested Schema for `db_services.databases.database_configuration.mysql_config`
 
 Read-Only:
 
@@ -190,7 +191,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--db_services--databases--database_configuration--oracle_config"></a>
-### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+### Nested Schema for `db_services.databases.database_configuration.oracle_config`
 
 Read-Only:
 
@@ -201,7 +202,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--db_services--databases--database_configuration--postgresql_config"></a>
-### Nested Schema for `db_services.databases.database_configuration.sql_server_config`
+### Nested Schema for `db_services.databases.database_configuration.postgresql_config`
 
 Read-Only:
 
@@ -338,7 +339,7 @@ Read-Only:
 
 - `ad_domain_id` (String)
 - `option_profile_id` (String)
-- `options_profile` (String)
+- `option_profile_name` (String)
 - `parameter_profile_id` (String)
 - `proxy_port` (Number)
 
@@ -359,6 +360,7 @@ Read-Only:
 
 - `ad_domain_id` (String)
 - `agent_service_account_user` (String)
+- `instance_name` (String)
 - `parameter_profile_id` (String)
 - `service_account_user` (String)
 
@@ -399,7 +401,7 @@ Read-Only:
 - `provider` (String)
 
 <a id="nestedobjatt--db_services--infrastructure--archive_storage_config--azure_net_app_config"></a>
-### Nested Schema for `db_services.infrastructure.archive_storage_config.provider`
+### Nested Schema for `db_services.infrastructure.archive_storage_config.azure_net_app_config`
 
 Read-Only:
 
@@ -450,7 +452,7 @@ Read-Only:
 - `provider` (String)
 
 <a id="nestedobjatt--db_services--infrastructure--storage_config--azure_net_app_config"></a>
-### Nested Schema for `db_services.infrastructure.storage_config.provider`
+### Nested Schema for `db_services.infrastructure.storage_config.azure_net_app_config`
 
 Read-Only:
 
@@ -515,7 +517,7 @@ Read-Only:
 - `volume_type` (String)
 
 <a id="nestedobjatt--db_services--instances--archive_storage_config--azure_net_app_config"></a>
-### Nested Schema for `db_services.instances.archive_storage_config.volume_type`
+### Nested Schema for `db_services.instances.archive_storage_config.azure_net_app_config`
 
 Read-Only:
 
@@ -525,13 +527,13 @@ Read-Only:
 - `capacity_pool_name` (String)
 - `delegated_subnet_id` (String)
 - `delegated_subnet_name` (String)
-- `encryption_key_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--archive_storage_config--volume_type--encryption_key_info))
+- `encryption_key_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--archive_storage_config--azure_net_app_config--encryption_key_info))
 - `network_features` (String)
 - `service_level` (String)
 - `volume_name` (String)
 
-<a id="nestedobjatt--db_services--instances--archive_storage_config--volume_type--encryption_key_info"></a>
-### Nested Schema for `db_services.instances.archive_storage_config.volume_type.encryption_key_info`
+<a id="nestedobjatt--db_services--instances--archive_storage_config--azure_net_app_config--encryption_key_info"></a>
+### Nested Schema for `db_services.instances.archive_storage_config.azure_net_app_config.encryption_key_info`
 
 Read-Only:
 
@@ -543,7 +545,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--db_services--instances--archive_storage_config--fsx_net_app_config"></a>
-### Nested Schema for `db_services.instances.archive_storage_config.volume_type`
+### Nested Schema for `db_services.instances.archive_storage_config.fsx_net_app_config`
 
 Read-Only:
 
@@ -580,7 +582,7 @@ Read-Only:
 - `provider` (String)
 
 <a id="nestedobjatt--db_services--instances--compute_config--exadata_config"></a>
-### Nested Schema for `db_services.instances.compute_config.provider`
+### Nested Schema for `db_services.instances.compute_config.exadata_config`
 
 Read-Only:
 
@@ -684,7 +686,7 @@ Read-Only:
 - `volume_type` (String)
 
 <a id="nestedobjatt--db_services--instances--storage_config--azure_net_app_config"></a>
-### Nested Schema for `db_services.instances.storage_config.volume_type`
+### Nested Schema for `db_services.instances.storage_config.azure_net_app_config`
 
 Read-Only:
 
@@ -694,13 +696,13 @@ Read-Only:
 - `capacity_pool_name` (String)
 - `delegated_subnet_id` (String)
 - `delegated_subnet_name` (String)
-- `encryption_key_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--storage_config--volume_type--encryption_key_info))
+- `encryption_key_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--instances--storage_config--azure_net_app_config--encryption_key_info))
 - `network_features` (String)
 - `service_level` (String)
 - `volume_name` (String)
 
-<a id="nestedobjatt--db_services--instances--storage_config--volume_type--encryption_key_info"></a>
-### Nested Schema for `db_services.instances.storage_config.volume_type.encryption_key_info`
+<a id="nestedobjatt--db_services--instances--storage_config--azure_net_app_config--encryption_key_info"></a>
+### Nested Schema for `db_services.instances.storage_config.azure_net_app_config.encryption_key_info`
 
 Read-Only:
 
@@ -712,7 +714,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--db_services--instances--storage_config--fsx_net_app_config"></a>
-### Nested Schema for `db_services.instances.storage_config.volume_type`
+### Nested Schema for `db_services.instances.storage_config.fsx_net_app_config`
 
 Read-Only:
 
@@ -776,7 +778,7 @@ Read-Only:
 - `pre_script_info` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--refresh_info--script_info--pre_script_info))
 
 <a id="nestedobjatt--db_services--refresh_info--script_info--post_script_info"></a>
-### Nested Schema for `db_services.refresh_info.script_info.pre_script_info`
+### Nested Schema for `db_services.refresh_info.script_info.post_script_info`
 
 Read-Only:
 
@@ -867,15 +869,15 @@ Read-Only:
 - `private_link` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info--private_link))
 
 <a id="nestedobjatt--db_services--service_connectivity--update_in_progress_info--computes_connectivity"></a>
-### Nested Schema for `db_services.service_connectivity.update_in_progress_info.private_link`
+### Nested Schema for `db_services.service_connectivity.update_in_progress_info.computes_connectivity`
 
 Read-Only:
 
 - `compute_resource_id` (String)
-- `port_access_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info--private_link--port_access_config))
+- `port_access_config` (List of Object) (see [below for nested schema](#nestedobjatt--db_services--service_connectivity--update_in_progress_info--computes_connectivity--port_access_config))
 
-<a id="nestedobjatt--db_services--service_connectivity--update_in_progress_info--private_link--port_access_config"></a>
-### Nested Schema for `db_services.service_connectivity.update_in_progress_info.private_link.port_access_config`
+<a id="nestedobjatt--db_services--service_connectivity--update_in_progress_info--computes_connectivity--port_access_config"></a>
+### Nested Schema for `db_services.service_connectivity.update_in_progress_info.computes_connectivity.port_access_config`
 
 Read-Only:
 
@@ -967,5 +969,3 @@ Read-Only:
 - `submitted_at` (String)
 - `update_info` (Map of String)
 - `update_type` (String)
-
-

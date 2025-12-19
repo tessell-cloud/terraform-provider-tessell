@@ -64,10 +64,6 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
-	if err := d.Set("enable_perf_insights", tessellServiceDTO.EnablePerfInsights); err != nil {
-		return err
-	}
-
 	if err := d.Set("edition", tessellServiceDTO.Edition); err != nil {
 		return err
 	}
@@ -229,6 +225,7 @@ func parseTessellServiceClonedFromInfoWithResData(clonedFromInfo *model.TessellS
 	parsedClonedFromInfo["snapshot_time"] = clonedFromInfo.SnapshotTime
 	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PITRTime
 	parsedClonedFromInfo["maximum_recoverability"] = clonedFromInfo.MaximumRecoverability
+	parsedClonedFromInfo["storage_provider"] = clonedFromInfo.StorageProvider
 
 	return []interface{}{parsedClonedFromInfo}
 }
@@ -249,6 +246,7 @@ func parseTessellServiceClonedFromInfo(clonedFromInfo *model.TessellServiceClone
 	parsedClonedFromInfo["snapshot_time"] = clonedFromInfo.SnapshotTime
 	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PITRTime
 	parsedClonedFromInfo["maximum_recoverability"] = clonedFromInfo.MaximumRecoverability
+	parsedClonedFromInfo["storage_provider"] = clonedFromInfo.StorageProvider
 
 	return parsedClonedFromInfo
 }
@@ -938,6 +936,7 @@ func parseTessellServiceOracleEngineConfig(tessellServiceOracleEngineConfig *mod
 	parsedTessellServiceOracleEngineConfig := make(map[string]interface{})
 	parsedTessellServiceOracleEngineConfig["multi_tenant"] = tessellServiceOracleEngineConfig.MultiTenant
 	parsedTessellServiceOracleEngineConfig["parameter_profile_id"] = tessellServiceOracleEngineConfig.ParameterProfileId
+	parsedTessellServiceOracleEngineConfig["options_profile"] = tessellServiceOracleEngineConfig.OptionsProfile
 	parsedTessellServiceOracleEngineConfig["option_profile_id"] = tessellServiceOracleEngineConfig.OptionProfileId
 	parsedTessellServiceOracleEngineConfig["sid"] = tessellServiceOracleEngineConfig.Sid
 	parsedTessellServiceOracleEngineConfig["character_set"] = tessellServiceOracleEngineConfig.CharacterSet
@@ -955,6 +954,7 @@ func parseTessellServicePostgresqlEngineConfig(tessellServicePostgresqlEngineCon
 	parsedTessellServicePostgresqlEngineConfig["parameter_profile_id"] = tessellServicePostgresqlEngineConfig.ParameterProfileId
 	parsedTessellServicePostgresqlEngineConfig["ad_domain_id"] = tessellServicePostgresqlEngineConfig.AdDomainId
 	parsedTessellServicePostgresqlEngineConfig["proxy_port"] = tessellServicePostgresqlEngineConfig.ProxyPort
+	parsedTessellServicePostgresqlEngineConfig["option_profile_name"] = tessellServicePostgresqlEngineConfig.OptionProfileName
 	parsedTessellServicePostgresqlEngineConfig["option_profile_id"] = tessellServicePostgresqlEngineConfig.OptionProfileId
 
 	return parsedTessellServicePostgresqlEngineConfig
@@ -981,6 +981,7 @@ func parseTessellServiceSqlServerEngineConfig(tessellServiceSqlServerEngineConfi
 	parsedTessellServiceSqlServerEngineConfig["ad_domain_id"] = tessellServiceSqlServerEngineConfig.AdDomainId
 	parsedTessellServiceSqlServerEngineConfig["service_account_user"] = tessellServiceSqlServerEngineConfig.ServiceAccountUser
 	parsedTessellServiceSqlServerEngineConfig["agent_service_account_user"] = tessellServiceSqlServerEngineConfig.AgentServiceAccountUser
+	parsedTessellServiceSqlServerEngineConfig["instance_name"] = tessellServiceSqlServerEngineConfig.InstanceName
 
 	return parsedTessellServiceSqlServerEngineConfig
 }
@@ -1618,8 +1619,9 @@ func parseOracleDatabaseConfig(oracleDatabaseConfig *model.OracleDatabaseConfig)
 	}
 	parsedOracleDatabaseConfig := make(map[string]interface{})
 	parsedOracleDatabaseConfig["parameter_profile_id"] = oracleDatabaseConfig.ParameterProfileId
-	parsedOracleDatabaseConfig["option_profile_id"] = oracleDatabaseConfig.OptionProfileId
+	parsedOracleDatabaseConfig["options_profile"] = oracleDatabaseConfig.OptionsProfile
 	parsedOracleDatabaseConfig["username"] = oracleDatabaseConfig.Username
+	parsedOracleDatabaseConfig["option_profile_id"] = oracleDatabaseConfig.OptionProfileId
 
 	return parsedOracleDatabaseConfig
 }
@@ -1882,22 +1884,38 @@ func formatTfInputInstances(d *schema.ResourceData) *[]model.AddDBServiceInstanc
 	instances := make([]model.AddDBServiceInstancePayloadV2, 0)
 	for _, instanceMap := range instanceMaps {
 		inputInstance := instanceMap.(map[string]interface{})
-		instances = append(instances, model.AddDBServiceInstancePayloadV2{
+		instance := model.AddDBServiceInstancePayloadV2{
 			InstanceGroupName:  helper.GetStringPointer(inputInstance["instance_group_name"]),
 			Name:               helper.GetStringPointer(inputInstance["name"]),
 			Region:             helper.GetStringPointer(inputInstance["region"]),
 			VPC:                helper.GetStringPointer(inputInstance["vpc"]),
-			PrivateSubnet:      helper.GetStringPointer(inputInstance["private_subnet"]),
 			ComputeType:        helper.GetStringPointer(inputInstance["compute_type"]),
 			ComputeId:          helper.GetStringPointer(inputInstance["compute_id"]),
 			EnablePerfInsights: helper.GetBoolPointer(inputInstance["enable_perf_insights"]),
 			AwsInfraConfig:     formAwsInfraConfig(inputInstance["aws_infra_config"]),
 			Role:               helper.GetStringPointer(inputInstance["role"]),
 			AvailabilityZone:   helper.GetStringPointer(inputInstance["availability_zone"]),
-			Iops:               helper.GetIntPointer(inputInstance["data_volume_iops"]),
-			Throughput:         helper.GetIntPointer(inputInstance["throughput"]),
-			StorageConfig:      formStorageConfigPayload(inputInstance["storage_config"]),
-		})
+		}
+		if inputInstance["private_subnet"] != nil && inputInstance["private_subnet"] != "" {
+			instance.PrivateSubnet = helper.GetStringPointer(inputInstance["private_subnet"])
+		}
+		if inputInstance["data_volume_iops"] != nil && inputInstance["data_volume_iops"] != 0 {
+			instance.Iops = helper.GetIntPointer(inputInstance["data_volume_iops"])
+		}
+		if inputInstance["throughput"] != nil && inputInstance["throughput"] != 0 {
+			instance.Throughput = helper.GetIntPointer(inputInstance["throughput"])
+		}
+		if inputInstance["compute_name"] != nil && inputInstance["compute_name"] != "" {
+			instance.ComputeName = helper.GetStringPointer(inputInstance["compute_name"])
+		}
+		if inputInstance["storage_config"] != nil {
+			instance.StorageConfig = formStorageConfigPayload(inputInstance["storage_config"])
+		}
+		if inputInstance["archive_storage_config"] != nil {
+			instance.ArchiveStorageConfig = formStorageConfigPayload(inputInstance["archive_storage_config"])
+		}
+
+		instances = append(instances, instance)
 	}
 	return &instances
 }
@@ -2153,11 +2171,29 @@ func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceIn
 		PrivateSubnet:    tfInstancePayload.PrivateSubnet,
 	}
 
+	if tfInstancePayload.PrivateSubnet != nil {
+		newInstance.PrivateSubnet = tfInstancePayload.PrivateSubnet
+	}
+
+	if tfInstancePayload.ComputeName != nil {
+		newInstance.ComputeName = tfInstancePayload.ComputeName
+	}
+
 	if tfInstancePayload.Iops != nil && *tfInstancePayload.Iops != 0 {
 		newInstance.Iops = tfInstancePayload.Iops
 	}
 	if tfInstancePayload.Throughput != nil && *tfInstancePayload.Throughput != 0 {
 		newInstance.Throughput = tfInstancePayload.Throughput
+	}
+
+	if tfInstancePayload.ComputeConfig != nil {
+		newInstance.ComputeConfig = tfInstancePayload.ComputeConfig
+	}
+	if tfInstancePayload.StorageConfig != nil {
+		newInstance.StorageConfig = tfInstancePayload.StorageConfig
+	}
+	if tfInstancePayload.ArchiveStorageConfig != nil {
+		newInstance.ArchiveStorageConfig = tfInstancePayload.ArchiveStorageConfig
 	}
 
 	InstancesListFormed := []model.AddDBServiceInstancePayload{
@@ -2934,6 +2970,7 @@ func formOracleEngineConfigPayload(oracleEngineConfigPayloadRaw interface{}) *mo
 		MultiTenant:          helper.GetBoolPointer(oracleEngineConfigPayloadData["multi_tenant"]),
 		Sid:                  helper.GetStringPointer(oracleEngineConfigPayloadData["sid"]),
 		ParameterProfileId:   helper.GetStringPointer(oracleEngineConfigPayloadData["parameter_profile_id"]),
+		OptionsProfile:       helper.GetStringPointer(oracleEngineConfigPayloadData["options_profile"]),
 		OptionProfileId:      helper.GetStringPointer(oracleEngineConfigPayloadData["option_profile_id"]),
 		CharacterSet:         helper.GetStringPointer(oracleEngineConfigPayloadData["character_set"]),
 		NationalCharacterSet: helper.GetStringPointer(oracleEngineConfigPayloadData["national_character_set"]),
@@ -2954,6 +2991,7 @@ func formPostgresqlEngineConfigPayload(postgresqlEngineConfigPayloadRaw interfac
 		ParameterProfileId: helper.GetStringPointer(postgresqlEngineConfigPayloadData["parameter_profile_id"]),
 		AdDomainId:         helper.GetStringPointer(postgresqlEngineConfigPayloadData["ad_domain_id"]),
 		ProxyPort:          helper.GetIntPointer(postgresqlEngineConfigPayloadData["proxy_port"]),
+		OptionsProfile:     helper.GetStringPointer(postgresqlEngineConfigPayloadData["options_profile"]),
 		OptionProfileId:    helper.GetStringPointer(postgresqlEngineConfigPayloadData["option_profile_id"]),
 	}
 
@@ -2988,6 +3026,7 @@ func formSqlServerEngineConfigPayload(sqlServerEngineConfigPayloadRaw interface{
 		AdDomainId:               helper.GetStringPointer(sqlServerEngineConfigPayloadData["ad_domain_id"]),
 		ServiceAccountCreds:      formCredentialsPayload(sqlServerEngineConfigPayloadData["service_account_creds"]),
 		AgentServiceAccountCreds: formCredentialsPayload(sqlServerEngineConfigPayloadData["agent_service_account_creds"]),
+		InstanceName:             helper.GetStringPointer(sqlServerEngineConfigPayloadData["instance_name"]),
 	}
 
 	return &sqlServerEngineConfigPayloadFormed
@@ -3123,6 +3162,7 @@ func formCreateOracleDatabaseConfig(createOracleDatabaseConfigRaw interface{}) *
 
 	createOracleDatabaseConfigFormed := model.CreateOracleDatabaseConfig{
 		ParameterProfileId: helper.GetStringPointer(createOracleDatabaseConfigData["parameter_profile_id"]),
+		OptionsProfile:     helper.GetStringPointer(createOracleDatabaseConfigData["options_profile"]),
 		OptionProfileId:    helper.GetStringPointer(createOracleDatabaseConfigData["option_profile_id"]),
 		Username:           helper.GetStringPointer(createOracleDatabaseConfigData["username"]),
 		Password:           helper.GetStringPointer(createOracleDatabaseConfigData["password"]),
