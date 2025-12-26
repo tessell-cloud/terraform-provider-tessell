@@ -405,7 +405,6 @@ resource "tessell_db_service" "example" {
 - `description` (String) DB Service's description
 - `edition` (String)
 - `enable_deletion_protection` (Boolean) Specify whether to enable deletion protection for the DB Service
-- `enable_perf_insights` (Boolean) This field specifies whether to enable performance insights for the DB Service.
 - `enable_stop_protection` (Boolean) This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
 - `expected_status` (String) If provided, invoke the DB Service start/stop API
 - `instances` (Block List) Instances associated with this DB Service (see [below for nested schema](#nestedblock--instances))
@@ -524,6 +523,7 @@ Optional:
 - `multi_tenant` (Boolean) Specify whether the DB Service is multi-tenant.
 - `national_character_set` (String) The national-character-set for the database
 - `option_profile_id` (String) The options profile for the database
+- `options_profile` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile id for the database
 - `sid` (String) SID for oracle database
 
@@ -544,6 +544,7 @@ Optional:
 
 - `ad_domain_id` (String) Active Directory Domain ID
 - `option_profile_id` (String) The options profile for the database
+- `option_profile_name` (String)
 - `parameter_profile_id` (String) The parameter profile ID for the database
 - `proxy_port` (Number)
 
@@ -564,6 +565,7 @@ Optional:
 
 - `ad_domain_id` (String) Active Directory Domain ID
 - `agent_service_account_user` (String)
+- `instance_name` (String) The named instance for SQL Server database (max 16 characters as per SQL Server limitation)
 - `parameter_profile_id` (String) The parameter profile ID for the database
 - `service_account_user` (String)
 
@@ -963,7 +965,8 @@ Optional:
 
 Optional:
 
-- `option_profile_id` (String) The options profile for the database
+- `option_profile_id` (String) The option profile id for the database
+- `options_profile` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile id for the database
 - `username` (String) Username for the oracle database
 
@@ -1019,7 +1022,6 @@ Optional:
 
 Required:
 
-- `compute_type` (String) The compute used for creation of the Tessell Service Instance
 - `instance_group_name` (String) Name of the instance group
 - `name` (String) Name of the DB Service Instance
 - `region` (String) DB Service Instance's cloud region
@@ -1033,6 +1035,7 @@ Optional:
 - `aws_infra_config` (Block List) (see [below for nested schema](#nestedblock--instances--aws_infra_config))
 - `compute_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--instances--compute_config))
 - `compute_id` (String) The associated compute identifier
+- `compute_type` (String) The compute used for creation of the Tessell Service Instance
 - `data_volume_iops` (Number)
 - `enable_perf_insights` (Boolean)
 - `encryption_key` (String) The encryption key name which is used to encrypt the data at rest
@@ -1248,10 +1251,13 @@ Optional:
 Required:
 
 - `infrastructure_id` (String)
+- `vm_cluster_id` (String)
+
+Optional:
+
 - `infrastructure_name` (String)
 - `memory` (Number)
 - `vcpus` (Number)
-- `vm_cluster_id` (String)
 - `vm_cluster_name` (String)
 
 
@@ -1278,6 +1284,7 @@ Optional:
 Optional:
 
 - `client_azure_subscription_ids` (List of String) The list of Azure subscription Ids. This is only applicable for DB Services hosted on AZURE.
+- `id` (String)
 - `private_link_service_alias` (String) The Azure private link service alias
 - `service_principals` (List of String) The list of AWS account principals that are currently enabled. This is only applicable for DB Services hosted on AWS.
 - `status` (String)
@@ -1285,7 +1292,6 @@ Optional:
 Read-Only:
 
 - `endpoint_service_name` (String) The configured endpoint as a result of configuring the service-principals
-- `id` (String) The ID of this resource.
 
 
 <a id="nestedblock--instances--storage_config"></a>
@@ -1911,6 +1917,7 @@ Read-Only:
 - `snapshot_id` (String)
 - `snapshot_name` (String)
 - `snapshot_time` (String)
+- `storage_provider` (String)
 - `tessell_service` (String)
 - `tessell_service_id` (String)
 
@@ -2028,5 +2035,3 @@ Read-Only:
 - `submitted_at` (String)
 - `update_info` (Map of String)
 - `update_type` (String)
-
-

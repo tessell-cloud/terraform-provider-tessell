@@ -157,12 +157,6 @@ func ResourceDBService() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
-			"enable_perf_insights": {
-				Type:        schema.TypeBool,
-				Description: "This field specifies whether to enable performance insights for the DB Service.",
-				Optional:    true,
-				Default:     true,
-			},
 			"owner": {
 				Type:        schema.TypeString,
 				Description: "DB Service owner email address",
@@ -258,6 +252,11 @@ func ResourceDBService() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Default:     false,
+						},
+						"storage_provider": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
 						},
 					},
 				},
@@ -2261,6 +2260,12 @@ func ResourceDBService() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 									},
+									"options_profile": {
+										Type:        schema.TypeString,
+										Description: "The options profile for the database",
+										Optional:    true,
+										Computed:    true,
+									},
 									"option_profile_id": {
 										Type:        schema.TypeString,
 										Description: "The options profile for the database",
@@ -2321,6 +2326,12 @@ func ResourceDBService() *schema.Resource {
 										Description: "",
 										Optional:    true,
 										ForceNew:    true,
+									},
+									"option_profile_name": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
+										Computed:    true,
 									},
 									"option_profile_id": {
 										Type:        schema.TypeString,
@@ -2391,6 +2402,12 @@ func ResourceDBService() *schema.Resource {
 									"agent_service_account_user": {
 										Type:        schema.TypeString,
 										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"instance_name": {
+										Type:        schema.TypeString,
+										Description: "The named instance for SQL Server database (max 16 characters as per SQL Server limitation)",
 										Optional:    true,
 										ForceNew:    true,
 									},
@@ -2658,15 +2675,21 @@ func ResourceDBService() *schema.Resource {
 													Optional:    true,
 													ForceNew:    true,
 												},
-												"option_profile_id": {
+												"options_profile": {
 													Type:        schema.TypeString,
 													Description: "The options profile for the database",
 													Optional:    true,
-													ForceNew:    true,
+													Computed:    true,
 												},
 												"username": {
 													Type:        schema.TypeString,
 													Description: "Username for the oracle database",
+													Optional:    true,
+													ForceNew:    true,
+												},
+												"option_profile_id": {
+													Type:        schema.TypeString,
+													Description: "The option profile id for the database",
 													Optional:    true,
 													ForceNew:    true,
 												},
@@ -2947,7 +2970,8 @@ func ResourceDBService() *schema.Resource {
 						"compute_type": {
 							Type:        schema.TypeString,
 							Description: "The compute used for creation of the Tessell Service Instance",
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 						},
 						"aws_infra_config": {
 							Type:        schema.TypeList,
@@ -3271,31 +3295,37 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "",
 													Required:    true,
+													ForceNew:    true,
 												},
 												"infrastructure_name": {
 													Type:        schema.TypeString,
 													Description: "",
-													Required:    true,
+													Optional:    true,
+													Computed:    true,
 												},
 												"vm_cluster_id": {
 													Type:        schema.TypeString,
 													Description: "",
 													Required:    true,
+													ForceNew:    true,
 												},
 												"vm_cluster_name": {
 													Type:        schema.TypeString,
 													Description: "",
-													Required:    true,
+													Optional:    true,
+													Computed:    true,
 												},
 												"vcpus": {
 													Type:        schema.TypeInt,
 													Description: "",
-													Required:    true,
+													Optional:    true,
+													Computed:    true,
 												},
 												"memory": {
 													Type:        schema.TypeInt,
 													Description: "",
-													Required:    true,
+													Optional:    true,
+													Computed:    true,
 												},
 											},
 										},
@@ -3911,9 +3941,6 @@ func ResourceDBService() *schema.Resource {
 					names[name] = true
 					if role == "primary" {
 						primaryCount++
-						if primaryCount > 1 {
-							return fmt.Errorf("more than one instance has 'primary' role")
-						}
 					}
 				}
 				if primaryCount == 0 && len(instances) != 0 {

@@ -83,6 +83,7 @@ Read-Only:
 - `snapshot_id` (String)
 - `snapshot_name` (String)
 - `snapshot_time` (String)
+- `storage_provider` (String)
 - `tessell_service` (String)
 - `tessell_service_id` (String)
 
@@ -318,7 +319,7 @@ Read-Only:
 
 - `ad_domain_id` (String)
 - `option_profile_id` (String)
-- `options_profile` (String)
+- `option_profile_name` (String)
 - `parameter_profile_id` (String)
 - `proxy_port` (Number)
 
@@ -339,6 +340,7 @@ Read-Only:
 
 - `ad_domain_id` (String)
 - `agent_service_account_user` (String)
+- `instance_name` (String)
 - `parameter_profile_id` (String)
 - `service_account_user` (String)
 
@@ -511,7 +513,7 @@ Read-Only:
 - `volume_name` (String)
 
 <a id="nestedobjatt--instances--archive_storage_config--azure_net_app_config--encryption_key_info"></a>
-### Nested Schema for `instances.archive_storage_config.azure_net_app_config.volume_name`
+### Nested Schema for `instances.archive_storage_config.azure_net_app_config.encryption_key_info`
 
 Read-Only:
 
@@ -680,7 +682,7 @@ Read-Only:
 - `volume_name` (String)
 
 <a id="nestedobjatt--instances--storage_config--azure_net_app_config--encryption_key_info"></a>
-### Nested Schema for `instances.storage_config.azure_net_app_config.volume_name`
+### Nested Schema for `instances.storage_config.azure_net_app_config.encryption_key_info`
 
 Read-Only:
 
@@ -947,5 +949,3 @@ Read-Only:
 - `submitted_at` (String)
 - `update_info` (Map of String)
 - `update_type` (String)
-
-
