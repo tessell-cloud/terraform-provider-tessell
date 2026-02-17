@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	apiClient "terraform-provider-tessell/internal/client"
+	"terraform-provider-tessell/internal/model"
 )
 
 func ResourceDBService() *schema.Resource {
@@ -20,6 +21,10 @@ func ResourceDBService() *schema.Resource {
 		ReadContext:   resourceDBServiceRead,
 		UpdateContext: resourceDBServiceUpdate,
 		DeleteContext: resourceDBServiceDelete,
+
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
@@ -430,7 +435,7 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The timezone detail",
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 						},
 						"multi_disk": {
 							Type:        schema.TypeBool,
@@ -535,7 +540,7 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The timezone detail",
 										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"compute_config": {
 										Type:        schema.TypeList,
@@ -3799,11 +3804,10 @@ func ResourceDBService() *schema.Resource {
 						},
 						"private_link_info": {
 							Type:        schema.TypeList,
-							Description: "",
+							Description: "Private link configuration for this instance. If specified, private link will be configured after the service is created.",
 							Optional:    true,
 							Computed:    true,
 							MaxItems:    1,
-							MinItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
@@ -4131,29 +4135,27 @@ func ResourceDBService() *schema.Resource {
 				Default:     "READY",
 			},
 		},
-		CustomizeDiff: customdiff.All(
-			customdiff.ValidateChange("instances", func(ctx context.Context, oldInstances, newInstances, meta interface{}) error {
-				instances := newInstances.([]interface{})
-				names := make(map[string]bool)
-				primaryCount := 0
-				for _, instanceRaw := range instances {
-					instance := instanceRaw.(map[string]interface{})
-					name := instance["name"].(string)
-					role := instance["role"].(string)
-					if names[name] {
-						return fmt.Errorf("duplicate instance name: %s", name)
-					}
-					names[name] = true
-					if role == "primary" {
-						primaryCount++
-					}
+		CustomizeDiff: customdiff.ValidateChange("instances", func(ctx context.Context, oldInstances, newInstances, meta interface{}) error {
+			instances := newInstances.([]interface{})
+			names := make(map[string]bool)
+			primaryCount := 0
+			for _, instanceRaw := range instances {
+				instance := instanceRaw.(map[string]interface{})
+				name := instance["name"].(string)
+				role := instance["role"].(string)
+				if names[name] {
+					return fmt.Errorf("duplicate instance name: %s", name)
 				}
-				if primaryCount == 0 && len(instances) != 0 {
-					return fmt.Errorf("no instance is marked as 'primary'")
+				names[name] = true
+				if role == "primary" {
+					primaryCount++
 				}
-				return nil
-			}),
-		),
+			}
+			if primaryCount == 0 && len(instances) != 0 {
+				return fmt.Errorf("no instance is marked as 'primary'")
+			}
+			return nil
+		}),
 	}
 }
 
@@ -4162,6 +4164,21 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	var diags diag.Diagnostics
 	var id string
+
+	// Validate: private_link_info is not supported during service creation
+	// Users must create the service first, then add private link via update
+	instancesRaw := d.Get("instances").([]interface{})
+	for _, instanceRaw := range instancesRaw {
+		instance := instanceRaw.(map[string]interface{})
+		instanceName := instance["name"].(string)
+		privateLinkInfoRaw := instance["private_link_info"]
+
+		if privateLinkInfoRaw != nil {
+			if privateLinkList, ok := privateLinkInfoRaw.([]interface{}); ok && len(privateLinkList) > 0 {
+				return diag.FromErr(fmt.Errorf("private_link_info is not supported during service creation for instance '%s'. Please create the service first, then add private_link_info via a subsequent terraform apply", instanceName))
+			}
+		}
+	}
 
 	parentAvailabilityMachineId := d.Get("parent_availability_machine_id").(string)
 	snapshotId := d.Get("snapshot_id").(string)
@@ -4196,6 +4213,98 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 	resourceDBServiceRead(ctx, d, meta)
 
 	return diags
+}
+
+// handlePrivateLinkUpdates handles create and update of private links for instances
+// Uses GetRawConfig() to detect if user explicitly added private_link_info block in their .tf file
+// DELETE is not supported - to clear principals, use service_principals = []
+func handlePrivateLinkUpdates(client *apiClient.Client, d *schema.ResourceData, serviceId string, response *model.TessellServiceDTO) error {
+	instancesRaw := d.Get("instances").([]interface{})
+
+	// Get raw config to check what's actually in the .tf file
+	rawConfig := d.GetRawConfig()
+	rawInstancesConfig := rawConfig.GetAttr("instances")
+
+	for idx, instanceRaw := range instancesRaw {
+		instance := instanceRaw.(map[string]interface{})
+		instanceName := instance["name"].(string)
+
+		// Find the matching instance in API response
+		var apiInstance *model.TessellServiceInstanceDTO
+		var instanceId string
+		for i := range *response.Instances {
+			inst := &(*response.Instances)[i]
+			if inst.Name != nil && *inst.Name == instanceName {
+				apiInstance = inst
+				if inst.Id != nil {
+					instanceId = *inst.Id
+				}
+				break
+			}
+		}
+
+		if instanceId == "" || apiInstance == nil {
+			continue
+		}
+
+		// Check if private_link_info is explicitly defined in the raw config
+		hasPrivateLinkInConfig := false
+		if !rawInstancesConfig.IsNull() && rawInstancesConfig.CanIterateElements() {
+			rawInstancesList := rawInstancesConfig.AsValueSlice()
+			if idx < len(rawInstancesList) {
+				rawInstance := rawInstancesList[idx]
+				if !rawInstance.IsNull() {
+					privateLinkAttr := rawInstance.GetAttr("private_link_info")
+					if !privateLinkAttr.IsNull() && privateLinkAttr.CanIterateElements() {
+						privateLinkList := privateLinkAttr.AsValueSlice()
+						hasPrivateLinkInConfig = len(privateLinkList) > 0
+					}
+				}
+			}
+		}
+
+		// Only process if user explicitly added private_link_info block in config
+		if !hasPrivateLinkInConfig {
+			continue
+		}
+
+		// Get private_link_info data for payload construction
+		newPrivateLinkInfoRaw := instance["private_link_info"]
+
+		// Get current private_link_info from API response
+		hasCurrentPrivateLink := apiInstance.PrivateLinkInfo != nil && apiInstance.PrivateLinkInfo.Id != nil
+
+		if !hasCurrentPrivateLink {
+			// CREATE: New private link specified, but none exists
+			payload := formPrivateLinkPayload(newPrivateLinkInfoRaw)
+			if payload != nil {
+				_, _, err := client.CreatePrivateLinkForInstance(serviceId, instanceId, payload)
+				if err != nil {
+					return fmt.Errorf("failed to create private link for instance %s: %s", instanceName, err.Error())
+				}
+
+				if err := client.DBServicePollForPrivateLinkCreation(serviceId, instanceId, d.Get("timeout").(int), 30); err != nil {
+					return fmt.Errorf("failed while waiting for private link creation on instance %s: %s", instanceName, err.Error())
+				}
+			}
+		} else {
+			// UPDATE: Both exist, update the private link
+			privateLinkId := *apiInstance.PrivateLinkInfo.Id
+			payload := formPrivateLinkPayload(newPrivateLinkInfoRaw)
+			if payload != nil {
+				_, _, err := client.UpdatePrivateLinkForInstance(serviceId, instanceId, privateLinkId, payload)
+				if err != nil {
+					return fmt.Errorf("failed to update private link for instance %s: %s", instanceName, err.Error())
+				}
+
+				if err := client.DBServicePollForPrivateLinkCreation(serviceId, instanceId, d.Get("timeout").(int), 30); err != nil {
+					return fmt.Errorf("failed while waiting for private link update on instance %s: %s", instanceName, err.Error())
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 func resourceDBServiceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -4327,6 +4436,17 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 				}
 			}
 		}
+	}
+
+	// Private Link CRUD - Always run to detect removals via GetRawConfig
+	// This must be outside HasChanges("instances") because removing private_link_info
+	// from an instance doesn't change the instances list structure
+	tessellServiceResponse, _, err := client.GetTessellService(id, d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if err := handlePrivateLinkUpdates(client, d, id, tessellServiceResponse); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if (d.HasChanges("expected_status") || status == "READY") && expectedStatus == "STOPPED" {

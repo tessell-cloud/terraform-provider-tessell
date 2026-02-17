@@ -1320,9 +1320,11 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 		parsedInstances["archive_storage_config"] = []interface{}{parseInstanceStorageConfig(instances.ArchiveStorageConfig)}
 	}
 
-	var privateLinkInfo *model.PrivateLinkInfo
-	if instances.PrivateLinkInfo != privateLinkInfo {
+	if instances.PrivateLinkInfo != nil {
 		parsedInstances["private_link_info"] = []interface{}{parsePrivateLinkInfo(instances.PrivateLinkInfo)}
+	} else {
+		// Explicitly set empty slice when API returns nil to clear the old state
+		parsedInstances["private_link_info"] = []interface{}{}
 	}
 
 	var securityConfig *model.SecurityConfigOps
@@ -3654,4 +3656,22 @@ func formResetTessellServiceCredsPayloadCredsList(credsListRaw interface{}) *[]m
 	}
 
 	return &CredsListFormed
+}
+
+// formPrivateLinkPayload creates the payload for private link create/update operations
+func formPrivateLinkPayload(privateLinkInfoRaw interface{}) *model.InstanceConnectivityUpdateRequest {
+	if privateLinkInfoRaw == nil || len(privateLinkInfoRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	privateLinkInfoData := privateLinkInfoRaw.([]interface{})[0].(map[string]interface{})
+
+	privateLinkPayload := model.PrivateLinkPayload{
+		ServicePrincipals:          helper.InterfaceToStringSlice(privateLinkInfoData["service_principals"]),
+		ClientAzureSubscriptionIds: helper.InterfaceToStringSlice(privateLinkInfoData["client_azure_subscription_ids"]),
+	}
+
+	return &model.InstanceConnectivityUpdateRequest{
+		PrivateLink: &privateLinkPayload,
+	}
 }

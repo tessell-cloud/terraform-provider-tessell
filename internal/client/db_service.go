@@ -743,3 +743,183 @@ func (c *Client) DBServicePollForInstanceDeletion(id string, instanceId string, 
 		}
 	}
 }
+
+// CreatePrivateLinkForInstance creates a private link for a specific instance
+func (c *Client) CreatePrivateLinkForInstance(serviceId string, instanceId string, payload *model.InstanceConnectivityUpdateRequest) (*model.TaskSummary, int, error) {
+	rb, err := json.Marshal(*payload)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/services/%s/service-instances/%s/private-link", c.APIAddress, serviceId, instanceId), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	taskSummary := model.TaskSummary{}
+	err = json.Unmarshal(body, &taskSummary)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &taskSummary, statusCode, nil
+}
+
+// UpdatePrivateLinkForInstance updates a private link for a specific instance
+func (c *Client) UpdatePrivateLinkForInstance(serviceId string, instanceId string, privateLinkId string, payload *model.InstanceConnectivityUpdateRequest) (*model.TaskSummary, int, error) {
+	rb, err := json.Marshal(*payload)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s/service-instances/%s/private-link/%s", c.APIAddress, serviceId, instanceId, privateLinkId), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	taskSummary := model.TaskSummary{}
+	err = json.Unmarshal(body, &taskSummary)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &taskSummary, statusCode, nil
+}
+
+// DeletePrivateLinkForInstance deletes a private link for a specific instance
+func (c *Client) DeletePrivateLinkForInstance(serviceId string, instanceId string, privateLinkId string) (*model.TaskSummary, int, error) {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/services/%s/service-instances/%s/private-link/%s", c.APIAddress, serviceId, instanceId, privateLinkId), nil)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	taskSummary := model.TaskSummary{}
+	err = json.Unmarshal(body, &taskSummary)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &taskSummary, statusCode, nil
+}
+
+// DBServicePollForPrivateLinkCreation polls until private link is ACTIVE for a specific instance
+func (c *Client) DBServicePollForPrivateLinkCreation(serviceId string, instanceId string, timeout int, interval int) error {
+	loopCount := 0
+	sleepCycleDurationSmall, err := time.ParseDuration("10s")
+	if err != nil {
+		return err
+	}
+	sleepCycleDuration, err := time.ParseDuration(fmt.Sprintf("%ds", interval))
+	if err != nil {
+		return err
+	}
+
+	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
+
+	errorCountWhilePolling := 0
+
+	for {
+		response, _, err := c.GetTessellService(serviceId, nil)
+		if err != nil {
+			errorCountWhilePolling += 1
+			if errorCountWhilePolling > 3 {
+				return fmt.Errorf("error while polling: %s", err.Error())
+			} else {
+				continue
+			}
+		}
+
+		for _, instance := range *response.Instances {
+			if *instance.Id == instanceId {
+				if instance.PrivateLinkInfo != nil && instance.PrivateLinkInfo.Status != nil {
+					if *instance.PrivateLinkInfo.Status == "ACTIVE" {
+						return nil
+					} else if *instance.PrivateLinkInfo.Status == "FAILED" {
+						return fmt.Errorf("private link creation failed")
+					}
+				}
+				break
+			}
+		}
+
+		loopCount = loopCount + 1
+		if loopCount > loops {
+			return fmt.Errorf("timed out while polling for private link creation")
+		}
+		if loopCount > 6 {
+			time.Sleep(sleepCycleDuration)
+		} else {
+			time.Sleep(sleepCycleDurationSmall)
+		}
+	}
+}
+
+// DBServicePollForPrivateLinkDeletion polls until private link is removed from a specific instance
+func (c *Client) DBServicePollForPrivateLinkDeletion(serviceId string, instanceId string, timeout int, interval int) error {
+	loopCount := 0
+	sleepCycleDurationSmall, err := time.ParseDuration("10s")
+	if err != nil {
+		return err
+	}
+	sleepCycleDuration, err := time.ParseDuration(fmt.Sprintf("%ds", interval))
+	if err != nil {
+		return err
+	}
+
+	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
+
+	errorCountWhilePolling := 0
+
+	for {
+		response, _, err := c.GetTessellService(serviceId, nil)
+		if err != nil {
+			errorCountWhilePolling += 1
+			if errorCountWhilePolling > 3 {
+				return fmt.Errorf("error while polling: %s", err.Error())
+			} else {
+				continue
+			}
+		}
+
+		for _, instance := range *response.Instances {
+			if *instance.Id == instanceId {
+				if instance.PrivateLinkInfo == nil {
+					return nil
+				}
+				if instance.PrivateLinkInfo.Status != nil && *instance.PrivateLinkInfo.Status == "FAILED" {
+					return fmt.Errorf("private link deletion failed")
+				}
+				break
+			}
+		}
+
+		loopCount = loopCount + 1
+		if loopCount > loops {
+			return fmt.Errorf("timed out while polling for private link deletion")
+		}
+		if loopCount > 6 {
+			time.Sleep(sleepCycleDuration)
+		} else {
+			time.Sleep(sleepCycleDurationSmall)
+		}
+	}
+}
