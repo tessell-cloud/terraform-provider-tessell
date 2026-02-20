@@ -2297,6 +2297,35 @@ func ResourceDBService() *schema.Resource {
 										ForceNew:    true,
 										Default:     true,
 									},
+									"pdb_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Description: "Name of the PDB",
+													Required:    true,
+												},
+												"username": {
+													Type:        schema.TypeString,
+													Description: "Username for the PDB",
+													Required:    true,
+												},
+												"secret_id": {
+													Type:        schema.TypeString,
+													Description: "Password for the PDB",
+													Computed:    true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -2692,6 +2721,93 @@ func ResourceDBService() *schema.Resource {
 													Description: "The option profile id for the database",
 													Optional:    true,
 													ForceNew:    true,
+												},
+												"script_info": {
+													Type:        schema.TypeList,
+													Description: "",
+													Optional:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"post_script_info": {
+																Type:        schema.TypeList,
+																Description: "",
+																Optional:    true,
+																MaxItems:    1,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"script_id": {
+																			Type:        schema.TypeString,
+																			Description: "The Tessell Script ID",
+																			Required:    true,
+																		},
+																		"script_version": {
+																			Type:        schema.TypeString,
+																			Description: "The Tessell Script version",
+																			Required:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"pdb_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Optional:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:        schema.TypeString,
+																Description: "Name of the PDB",
+																Required:    true,
+															},
+															"username": {
+																Type:        schema.TypeString,
+																Description: "Username for the PDB",
+																Required:    true,
+															},
+															"password": {
+																Type:        schema.TypeString,
+																Description: "Password for the PDB",
+																Required:    true,
+																Sensitive:   true,
+															},
+															"script_info": {
+																Type:        schema.TypeList,
+																Description: "",
+																Optional:    true,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"post_script_info": {
+																			Type:        schema.TypeList,
+																			Description: "",
+																			Optional:    true,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"script_id": {
+																						Type:        schema.TypeString,
+																						Description: "The Tessell Script ID",
+																						Required:    true,
+																					},
+																					"script_version": {
+																						Type:        schema.TypeString,
+																						Description: "The Tessell Script version",
+																						Required:    true,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
 												},
 											},
 										},

@@ -849,6 +849,35 @@ func DataSourceDBService() *schema.Resource {
 										Description: "To explicitly enable archive mode, when PITR is disabled",
 										Computed:    true,
 									},
+									"pdb_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Description: "Name of the PDB",
+													Computed:    true,
+												},
+												"username": {
+													Type:        schema.TypeString,
+													Description: "Username for the PDB",
+													Computed:    true,
+												},
+												"secret_id": {
+													Type:        schema.TypeString,
+													Description: "Password for the PDB",
+													Computed:    true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -1945,6 +1974,34 @@ func DataSourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "The option profile id for the database",
 													Computed:    true,
+												},
+												"script_info": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"post_script_info": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"script_id": {
+																			Type:        schema.TypeString,
+																			Description: "The Tessell Script ID",
+																			Computed:    true,
+																		},
+																		"script_version": {
+																			Type:        schema.TypeString,
+																			Description: "The Tessell Script version",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
 												},
 											},
 										},

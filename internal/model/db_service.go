@@ -165,14 +165,22 @@ type TessellServiceEngineInfo struct {
 }
 
 type TessellServiceOracleEngineConfig struct {
-	MultiTenant          *bool   `json:"multiTenant,omitempty"`          // Specify whether the DB Service is multi-tenant.
-	ParameterProfileId   *string `json:"parameterProfileId,omitempty"`   // The parameter profile id for the database
-	OptionsProfile       *string `json:"optionsProfile,omitempty"`       // The options profile for the database
-	OptionProfileId      *string `json:"optionProfileId,omitempty"`      // The options profile for the database
-	Sid                  *string `json:"sid,omitempty"`                  // SID for oracle database
-	CharacterSet         *string `json:"characterSet,omitempty"`         // The character-set for the database
-	NationalCharacterSet *string `json:"nationalCharacterSet,omitempty"` // The national-character-set for the database
-	EnableArchiveMode    *bool   `json:"enableArchiveMode,omitempty"`    // To explicitly enable archive mode, when PITR is disabled
+	MultiTenant          *bool                         `json:"multiTenant,omitempty"`          // Specify whether the DB Service is multi-tenant.
+	ParameterProfileId   *string                       `json:"parameterProfileId,omitempty"`   // The parameter profile id for the database
+	OptionsProfile       *string                       `json:"optionsProfile,omitempty"`       // The options profile for the database
+	OptionProfileId      *string                       `json:"optionProfileId,omitempty"`      // The options profile for the database
+	Sid                  *string                       `json:"sid,omitempty"`                  // SID for oracle database
+	CharacterSet         *string                       `json:"characterSet,omitempty"`         // The character-set for the database
+	NationalCharacterSet *string                       `json:"nationalCharacterSet,omitempty"` // The national-character-set for the database
+	EnableArchiveMode    *bool                         `json:"enableArchiveMode,omitempty"`    // To explicitly enable archive mode, when PITR is disabled
+	PDBConfig            *[]OraclePDBConfigTaskPayload `json:"pdbConfig,omitempty"`
+}
+
+type OraclePDBConfigTaskPayload struct {
+	Id       *string `json:"id,omitempty"`
+	Name     *string `json:"name,omitempty"`     // Name of the PDB
+	Username *string `json:"username,omitempty"` // Username for the PDB
+	SecretId *string `json:"secretId,omitempty"` // Password for the PDB
 }
 
 type TessellServicePostgresqlEngineConfig struct {
@@ -248,10 +256,15 @@ type DatabaseConfiguration struct {
 }
 
 type OracleDatabaseConfig struct {
-	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
-	OptionsProfile     *string `json:"optionsProfile,omitempty"`     // The options profile for the database
-	Username           *string `json:"username,omitempty"`           // Username for the oracle database
-	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The option profile id for the database
+	ParameterProfileId *string                         `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
+	OptionsProfile     *string                         `json:"optionsProfile,omitempty"`     // The options profile for the database
+	Username           *string                         `json:"username,omitempty"`           // Username for the oracle database
+	OptionProfileId    *string                         `json:"optionProfileId,omitempty"`    // The option profile id for the database
+	ScriptInfo         *OracleDatabaseConfigScriptInfo `json:"scriptInfo,omitempty"`
+}
+
+type OracleDatabaseConfigScriptInfo struct {
+	PostScriptInfo *ScriptInfo `json:"postScriptInfo,omitempty"`
 }
 
 type PostgresqlDatabaseConfig struct {
@@ -564,7 +577,7 @@ type MilvusEngineConfigPayload struct {
 }
 
 type CreateDatabasePayload struct {
-	DatabaseName          *string                                     `json:"databaseName"`               // The name of the database to be created
+	DatabaseName          *string                                     `json:"databaseName,omitempty"`     // The name of the database to be created
 	Description           *string                                     `json:"description,omitempty"`      // Description of database created
 	SourceDatabaseId      *string                                     `json:"sourceDatabaseId,omitempty"` // Required while creating a clone. It specifies the Id of the source database from which the clone is being created.
 	DatabaseConfiguration *CreateDatabasePayloadDatabaseConfiguration `json:"databaseConfiguration,omitempty"`
@@ -581,11 +594,19 @@ type CreateDatabasePayloadDatabaseConfiguration struct {
 }
 
 type CreateOracleDatabaseConfig struct {
-	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
-	OptionsProfile     *string `json:"optionsProfile,omitempty"`     // The options profile for the database
-	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The options profile for the database
-	Username           *string `json:"username,omitempty"`           // Username for the oracle database
-	Password           *string `json:"password,omitempty"`           // Password for the oracle database
+	ParameterProfileId *string            `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
+	OptionsProfile     *string            `json:"optionsProfile,omitempty"`     // The options profile for the database
+	OptionProfileId    *string            `json:"optionProfileId,omitempty"`    // The options profile for the database
+	Username           *string            `json:"username,omitempty"`           // Username for the oracle database
+	Password           *string            `json:"password,omitempty"`           // Password for the oracle database
+	PDBConfig          *[]OraclePDBConfig `json:"pdbConfig,omitempty"`
+}
+
+type OraclePDBConfig struct {
+	Name       *string                         `json:"name,omitempty"`     // Name of the PDB
+	Username   *string                         `json:"username,omitempty"` // Username for the PDB
+	Password   *string                         `json:"password,omitempty"` // Password for the PDB
+	ScriptInfo *OracleDatabaseConfigScriptInfo `json:"scriptInfo,omitempty"`
 }
 
 type DBCollectionCreatePayload struct {

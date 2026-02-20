@@ -943,7 +943,41 @@ func parseTessellServiceOracleEngineConfig(tessellServiceOracleEngineConfig *mod
 	parsedTessellServiceOracleEngineConfig["national_character_set"] = tessellServiceOracleEngineConfig.NationalCharacterSet
 	parsedTessellServiceOracleEngineConfig["enable_archive_mode"] = tessellServiceOracleEngineConfig.EnableArchiveMode
 
+	var pdbConfig *[]model.OraclePDBConfigTaskPayload
+	if tessellServiceOracleEngineConfig.PDBConfig != pdbConfig {
+		parsedTessellServiceOracleEngineConfig["pdb_config"] = parseOraclePDBConfigTaskPayloadList(tessellServiceOracleEngineConfig.PDBConfig)
+	}
+
 	return parsedTessellServiceOracleEngineConfig
+}
+
+func parseOraclePDBConfigTaskPayloadList(oraclePdbConfigTaskPayload *[]model.OraclePDBConfigTaskPayload) []interface{} {
+	if oraclePdbConfigTaskPayload == nil {
+		return nil
+	}
+	oraclePDBConfigTaskPayloadList := make([]interface{}, 0)
+
+	if oraclePdbConfigTaskPayload != nil {
+		oraclePDBConfigTaskPayloadList = make([]interface{}, len(*oraclePdbConfigTaskPayload))
+		for i, oraclePDBConfigTaskPayloadItem := range *oraclePdbConfigTaskPayload {
+			oraclePDBConfigTaskPayloadList[i] = parseOraclePDBConfigTaskPayload(&oraclePDBConfigTaskPayloadItem)
+		}
+	}
+
+	return oraclePDBConfigTaskPayloadList
+}
+
+func parseOraclePDBConfigTaskPayload(oraclePdbConfigTaskPayload *model.OraclePDBConfigTaskPayload) interface{} {
+	if oraclePdbConfigTaskPayload == nil {
+		return nil
+	}
+	parsedOraclePdbConfigTaskPayload := make(map[string]interface{})
+	parsedOraclePdbConfigTaskPayload["id"] = oraclePdbConfigTaskPayload.Id
+	parsedOraclePdbConfigTaskPayload["name"] = oraclePdbConfigTaskPayload.Name
+	parsedOraclePdbConfigTaskPayload["username"] = oraclePdbConfigTaskPayload.Username
+	parsedOraclePdbConfigTaskPayload["secret_id"] = oraclePdbConfigTaskPayload.SecretId
+
+	return parsedOraclePdbConfigTaskPayload
 }
 
 func parseTessellServicePostgresqlEngineConfig(tessellServicePostgresqlEngineConfig *model.TessellServicePostgresqlEngineConfig) interface{} {
@@ -1623,7 +1657,26 @@ func parseOracleDatabaseConfig(oracleDatabaseConfig *model.OracleDatabaseConfig)
 	parsedOracleDatabaseConfig["username"] = oracleDatabaseConfig.Username
 	parsedOracleDatabaseConfig["option_profile_id"] = oracleDatabaseConfig.OptionProfileId
 
+	var scriptInfo *model.OracleDatabaseConfigScriptInfo
+	if oracleDatabaseConfig.ScriptInfo != scriptInfo {
+		parsedOracleDatabaseConfig["script_info"] = []interface{}{parseOracleDatabaseConfigScriptInfo(oracleDatabaseConfig.ScriptInfo)}
+	}
+
 	return parsedOracleDatabaseConfig
+}
+
+func parseOracleDatabaseConfigScriptInfo(oracleDatabaseConfig_scriptInfo *model.OracleDatabaseConfigScriptInfo) interface{} {
+	if oracleDatabaseConfig_scriptInfo == nil {
+		return nil
+	}
+	parsedOracleDatabaseConfig_scriptInfo := make(map[string]interface{})
+
+	var postScriptInfo *model.ScriptInfo
+	if oracleDatabaseConfig_scriptInfo.PostScriptInfo != postScriptInfo {
+		parsedOracleDatabaseConfig_scriptInfo["post_script_info"] = []interface{}{parseScriptInfo(oracleDatabaseConfig_scriptInfo.PostScriptInfo)}
+	}
+
+	return parsedOracleDatabaseConfig_scriptInfo
 }
 
 func parsePostgresqlDatabaseConfig(postgresqlDatabaseConfig *model.PostgresqlDatabaseConfig) interface{} {
@@ -3166,9 +3219,53 @@ func formCreateOracleDatabaseConfig(createOracleDatabaseConfigRaw interface{}) *
 		OptionProfileId:    helper.GetStringPointer(createOracleDatabaseConfigData["option_profile_id"]),
 		Username:           helper.GetStringPointer(createOracleDatabaseConfigData["username"]),
 		Password:           helper.GetStringPointer(createOracleDatabaseConfigData["password"]),
+		PDBConfig:          formOraclePDBConfigList(createOracleDatabaseConfigData["pdb_config"]),
 	}
 
 	return &createOracleDatabaseConfigFormed
+}
+
+func formOraclePDBConfig(oraclePDBConfigRaw interface{}) *model.OraclePDBConfig {
+	if oraclePDBConfigRaw == nil {
+		return nil
+	}
+
+	oraclePDBConfigData := oraclePDBConfigRaw.(map[string]interface{})
+
+	oraclePDBConfigFormed := model.OraclePDBConfig{
+		Name:       helper.GetStringPointer(oraclePDBConfigData["name"]),
+		Username:   helper.GetStringPointer(oraclePDBConfigData["username"]),
+		Password:   helper.GetStringPointer(oraclePDBConfigData["password"]),
+		ScriptInfo: formOracleDatabaseConfigScriptInfo(oraclePDBConfigData["script_info"]),
+	}
+
+	return &oraclePDBConfigFormed
+}
+func formOraclePDBConfigList(oraclePDBConfigListRaw interface{}) *[]model.OraclePDBConfig {
+	if oraclePDBConfigListRaw == nil || len(oraclePDBConfigListRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	OraclePDBConfigListFormed := make([]model.OraclePDBConfig, len(oraclePDBConfigListRaw.([]interface{})))
+
+	for i, oraclePDBConfig := range oraclePDBConfigListRaw.([]interface{}) {
+		OraclePDBConfigListFormed[i] = *formOraclePDBConfig(oraclePDBConfig)
+	}
+
+	return &OraclePDBConfigListFormed
+}
+func formOracleDatabaseConfigScriptInfo(oracleDatabaseConfigScriptInfoRaw interface{}) *model.OracleDatabaseConfigScriptInfo {
+	if oracleDatabaseConfigScriptInfoRaw == nil || len(oracleDatabaseConfigScriptInfoRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	oracleDatabaseConfigScriptInfoData := oracleDatabaseConfigScriptInfoRaw.([]interface{})[0].(map[string]interface{})
+
+	oracleDatabaseConfigScriptInfoFormed := model.OracleDatabaseConfigScriptInfo{
+		PostScriptInfo: formScriptInfo(oracleDatabaseConfigScriptInfoData["post_script_info"]),
+	}
+
+	return &oracleDatabaseConfigScriptInfoFormed
 }
 
 func formPostgresqlDatabaseConfig(postgresqlDatabaseConfigRaw interface{}) *model.PostgresqlDatabaseConfig {
