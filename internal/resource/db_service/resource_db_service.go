@@ -2714,7 +2714,7 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "Username for the oracle database",
 													Optional:    true,
-													ForceNew:    true,
+													Computed:    true,
 												},
 												"option_profile_id": {
 													Type:        schema.TypeString,
