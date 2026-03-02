@@ -48,6 +48,11 @@ func ResourceDBService() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 			},
+			"tessell_service_precheck_id": {
+				Type:        schema.TypeString,
+				Description: "The precheck ID from a previously run precheck validation. If provided, the system will verify the precheck results before provisioning.",
+				Optional:    true,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the DB Service",
@@ -810,6 +815,22 @@ func ResourceDBService() *schema.Resource {
 												},
 											},
 										},
+									},
+								},
+							},
+						},
+						"security_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"security_profile_id": {
+										Type:        schema.TypeString,
+										Description: "Security Profile Id to be associated with the compute",
+										Optional:    true,
 									},
 								},
 							},
@@ -3824,6 +3845,67 @@ func ResourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"security_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"security_profile_id": {
+										Type:        schema.TypeString,
+										Description: "Security Profile Id to be associated with the compute",
+										Optional:    true,
+									},
+									"security_profile": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "Id of the Security Profile",
+													Optional:    true,
+												},
+												"version_id": {
+													Type:        schema.TypeString,
+													Description: "Version Id of the Security Profile",
+													Computed:    true,
+												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"context_info": {
+							Type:        schema.TypeList,
+							Description: "Provide more context of Service Instance state",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"sub_status": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"description": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -3852,6 +3934,18 @@ func ResourceDBService() *schema.Resource {
 									"role": {
 										Type:        schema.TypeString,
 										Description: "",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"shared_by": {
+										Type:        schema.TypeString,
+										Description: "Email of the user who shared the entity",
+										Optional:    true,
+										ForceNew:    true,
+									},
+									"shared_on": {
+										Type:        schema.TypeString,
+										Description: "Date when the entity was shared",
 										Optional:    true,
 										ForceNew:    true,
 									},

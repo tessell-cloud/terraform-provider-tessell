@@ -189,6 +189,7 @@ func parseDatabaseProfileParameterType(parameters *model.DatabaseProfileParamete
 	parsedParameters["source"] = parameters.Source
 	parsedParameters["top_parameter"] = parameters.TopParameter
 	parsedParameters["is_modifiable"] = parameters.IsModifiable
+	parsedParameters["usage_type"] = parameters.UsageType
 
 	return parsedParameters
 }

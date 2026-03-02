@@ -1325,6 +1325,16 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 		parsedInstances["private_link_info"] = []interface{}{parsePrivateLinkInfo(instances.PrivateLinkInfo)}
 	}
 
+	var securityConfig *model.SecurityConfigOps
+	if instances.SecurityConfig != securityConfig {
+		parsedInstances["security_config"] = []interface{}{parseSecurityConfigOps(instances.SecurityConfig)}
+	}
+
+	var contextInfo *model.TessellServiceInstanceContextInfo
+	if instances.ContextInfo != contextInfo {
+		parsedInstances["context_info"] = []interface{}{parseTessellServiceInstanceContextInfo(instances.ContextInfo)}
+	}
+
 	return parsedInstances
 }
 
@@ -1532,6 +1542,43 @@ func parsePrivateLinkInfo(privateLinkInfo *model.PrivateLinkInfo) interface{} {
 	parsedPrivateLinkInfo["client_azure_subscription_ids"] = privateLinkInfo.ClientAzureSubscriptionIds
 
 	return parsedPrivateLinkInfo
+}
+
+func parseSecurityConfigOps(securityConfigOps *model.SecurityConfigOps) interface{} {
+	if securityConfigOps == nil {
+		return nil
+	}
+	parsedSecurityConfigOps := make(map[string]interface{})
+
+	var securityProfile *model.SecurityProfileInfoOps
+	if securityConfigOps.SecurityProfile != securityProfile {
+		parsedSecurityConfigOps["security_profile"] = []interface{}{parseSecurityProfileInfoOps(securityConfigOps.SecurityProfile)}
+	}
+
+	return parsedSecurityConfigOps
+}
+
+func parseSecurityProfileInfoOps(securityProfileInfoOps *model.SecurityProfileInfoOps) interface{} {
+	if securityProfileInfoOps == nil {
+		return nil
+	}
+	parsedSecurityProfileInfoOps := make(map[string]interface{})
+	parsedSecurityProfileInfoOps["id"] = securityProfileInfoOps.Id
+	parsedSecurityProfileInfoOps["version_id"] = securityProfileInfoOps.VersionId
+	parsedSecurityProfileInfoOps["status"] = securityProfileInfoOps.Status
+
+	return parsedSecurityProfileInfoOps
+}
+
+func parseTessellServiceInstanceContextInfo(contextInfo *model.TessellServiceInstanceContextInfo) interface{} {
+	if contextInfo == nil {
+		return nil
+	}
+	parsedContextInfo := make(map[string]interface{})
+	parsedContextInfo["sub_status"] = contextInfo.SubStatus
+	parsedContextInfo["description"] = contextInfo.Description
+
+	return parsedContextInfo
 }
 
 func parseTessellDatabaseDTOListWithResData(databases *[]model.TessellDatabaseDTO, d *schema.ResourceData) []interface{} {
@@ -1801,6 +1848,8 @@ func parseEntityUserAclSharingInfo(entityUserAclSharingInfo *model.EntityUserAcl
 	parsedEntityUserAclSharingInfo := make(map[string]interface{})
 	parsedEntityUserAclSharingInfo["email_id"] = entityUserAclSharingInfo.EmailId
 	parsedEntityUserAclSharingInfo["role"] = entityUserAclSharingInfo.Role
+	parsedEntityUserAclSharingInfo["shared_by"] = entityUserAclSharingInfo.ShareDBy
+	parsedEntityUserAclSharingInfo["shared_on"] = entityUserAclSharingInfo.SharedOn
 
 	return parsedEntityUserAclSharingInfo
 }
@@ -2038,6 +2087,7 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		Databases:                formCreateDatabasePayloadList(d.Get("databases")),
 		IntegrationsConfig:       formTessellServiceIntegrationsPayload(d.Get("integrations_config")),
 		Tags:                     formTessellTagList(d.Get("tags")),
+		TessellServicePrecheckId: helper.GetStringPointer(d.Get("tessell_service_precheck_id")),
 	}
 
 	return cloneTessellServicePayloadFormed
@@ -2088,6 +2138,7 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		Databases:                formCreateDatabasePayloadList(d.Get("databases")),
 		IntegrationsConfig:       formTessellServiceIntegrationsPayload(d.Get("integrations_config")),
 		Tags:                     formTessellTagList(d.Get("tags")),
+		TessellServicePrecheckId: helper.GetStringPointer(d.Get("tessell_service_precheck_id")),
 	}
 
 	return provisionServicePayloadFormed
@@ -2248,6 +2299,9 @@ func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceIn
 	if tfInstancePayload.ArchiveStorageConfig != nil {
 		newInstance.ArchiveStorageConfig = tfInstancePayload.ArchiveStorageConfig
 	}
+	if tfInstancePayload.SecurityConfig != nil {
+		newInstance.SecurityConfig = tfInstancePayload.SecurityConfig
+	}
 
 	InstancesListFormed := []model.AddDBServiceInstancePayload{
 		newInstance,
@@ -2255,7 +2309,6 @@ func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceIn
 
 	return &InstancesListFormed
 }
-
 func formServiceInstanceEngineInfo(engineConfigurationRaw interface{}) *model.ServiceInstanceEngineInfo {
 	if engineConfigurationRaw == nil || len(engineConfigurationRaw.([]interface{})) == 0 {
 		return nil
@@ -2374,6 +2427,25 @@ func formAzureNetAppConfigPayloadConfigurations(azureNetAppConfigPayloadConfigur
 	}
 
 	return &azureNetAppConfigPayloadConfigurationsFormed
+}
+
+func formSecurityConfigPayload(securityConfigPayloadRaw interface{}) *model.SecurityConfigPayload {
+	if securityConfigPayloadRaw == nil || len(securityConfigPayloadRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	firstElem := securityConfigPayloadRaw.([]interface{})[0]
+	if firstElem == nil {
+		return nil
+	}
+
+	securityConfigPayloadData := firstElem.(map[string]interface{})
+
+	securityConfigPayloadFormed := model.SecurityConfigPayload{
+		SecurityProfileId: helper.GetStringPointer(securityConfigPayloadData["security_profile_id"]),
+	}
+
+	return &securityConfigPayloadFormed
 }
 
 func formCreateUpdateRefreshSchedulePayload(refreshScheduleRaw interface{}) *model.CreateUpdateRefreshSchedulePayload {
@@ -2571,6 +2643,7 @@ func formProvisionComputePayload(provisionComputePayloadRaw interface{}) *model.
 		ComputeConfig:        formComputeConfigPayload(provisionComputePayloadData["compute_config"]),
 		StorageConfig:        formStorageConfigPayload(provisionComputePayloadData["storage_config"]),
 		ArchiveStorageConfig: formStorageConfigPayload(provisionComputePayloadData["archive_storage_config"]),
+		SecurityConfig:       formSecurityConfigPayload(provisionComputePayloadData["security_config"]),
 	}
 
 	if provisionComputePayloadData["compute_name"] != nil && provisionComputePayloadData["compute_name"] != "" {
@@ -2614,6 +2687,7 @@ func formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2Raw interfac
 		ComputeConfig:        formComputeConfigPayload(addDBServiceInstancePayloadV2Data["compute_config"]),
 		StorageConfig:        formStorageConfigPayload(addDBServiceInstancePayloadV2Data["storage_config"]),
 		ArchiveStorageConfig: formStorageConfigPayload(addDBServiceInstancePayloadV2Data["archive_storage_config"]),
+		SecurityConfig:       formSecurityConfigPayload(addDBServiceInstancePayloadV2Data["security_config"]),
 	}
 
 	if addDBServiceInstancePayloadV2Data["compute_name"] != nil && addDBServiceInstancePayloadV2Data["compute_name"] != "" {

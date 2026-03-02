@@ -13,6 +13,7 @@ type DatabaseProfileParameterType struct {
 	Source        *string `json:"source,omitempty"`
 	TopParameter  *bool   `json:"topParameter,omitempty"` // Boolean variable indicating a parameter is a most modified / key parameter
 	IsModifiable  *bool   `json:"isModifiable,omitempty"`
+	UsageType     *string `json:"usageType,omitempty"`
 }
 
 type TerraformDBParameterProfile struct {

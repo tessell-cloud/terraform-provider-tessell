@@ -181,6 +181,11 @@ func DataSourceDBParameterProfiles() *schema.Resource {
 										Description: "",
 										Computed:    true,
 									},
+									"usage_type": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
 								},
 							},
 						},
