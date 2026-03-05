@@ -3062,6 +3062,11 @@ func ResourceDBService() *schema.Resource {
 							Description: "Name of the instance group",
 							Required:    true,
 						},
+						"tessell_service_precheck_id": {
+							Type:        schema.TypeString,
+							Description: "The precheck ID for adding this instance to an existing service.",
+							Optional:    true,
+						},
 						"type": {
 							Type:        schema.TypeString,
 							Description: "DB Service instance type",

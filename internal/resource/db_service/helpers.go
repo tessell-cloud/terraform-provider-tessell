@@ -2016,6 +2016,9 @@ func formatTfInputInstances(d *schema.ResourceData) *[]model.AddDBServiceInstanc
 		if inputInstance["archive_storage_config"] != nil {
 			instance.ArchiveStorageConfig = formStorageConfigPayload(inputInstance["archive_storage_config"])
 		}
+		if inputInstance["security_config"] != nil {
+			instance.SecurityConfig = formSecurityConfigPayload(inputInstance["security_config"])
+		}
 
 		instances = append(instances, instance)
 	}
@@ -2043,15 +2046,27 @@ func getNewTFInstances(d *schema.ResourceData, remoteInstances *[]model.TessellS
 }
 
 func formPayloadForAddTessellServiceInstances(d *schema.ResourceData, tfInstancePayload *model.AddDBServiceInstancePayloadV2) *model.AddDBServiceInstancesPayload {
+	// Find the precheck ID from the instances list by matching instance name
+	var precheckId *string
+	instances := d.Get("instances").([]interface{})
+	for _, inst := range instances {
+		instData := inst.(map[string]interface{})
+		if instData["name"] == *tfInstancePayload.Name {
+			precheckId = helper.GetStringPointer(instData["tessell_service_precheck_id"])
+			break
+		}
+	}
+
 	addDBServiceInstancesPayloadFormed := model.AddDBServiceInstancesPayload{
-		InstanceNamePrefix: tfInstancePayload.InstanceGroupName,
-		Cloud:              helper.GetStringPointer(d.Get("infrastructure.0.cloud")),
-		Region:             tfInstancePayload.Region,
-		VPC:                tfInstancePayload.VPC,
-		ComputeType:        tfInstancePayload.ComputeType,
-		EnablePerfInsights: tfInstancePayload.EnablePerfInsights,
-		AwsInfraConfig:     tfInstancePayload.AwsInfraConfig,
-		Instances:          formAddDBServiceInstancePayloadList(tfInstancePayload),
+		InstanceNamePrefix:       tfInstancePayload.InstanceGroupName,
+		Cloud:                    helper.GetStringPointer(d.Get("infrastructure.0.cloud")),
+		Region:                   tfInstancePayload.Region,
+		VPC:                      tfInstancePayload.VPC,
+		ComputeType:              tfInstancePayload.ComputeType,
+		EnablePerfInsights:       tfInstancePayload.EnablePerfInsights,
+		AwsInfraConfig:           tfInstancePayload.AwsInfraConfig,
+		Instances:                formAddDBServiceInstancePayloadList(tfInstancePayload),
+		TessellServicePrecheckId: precheckId,
 	}
 
 	return &addDBServiceInstancesPayloadFormed
