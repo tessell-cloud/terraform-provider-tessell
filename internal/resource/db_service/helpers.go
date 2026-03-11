@@ -1848,7 +1848,7 @@ func parseEntityUserAclSharingInfo(entityUserAclSharingInfo *model.EntityUserAcl
 	parsedEntityUserAclSharingInfo := make(map[string]interface{})
 	parsedEntityUserAclSharingInfo["email_id"] = entityUserAclSharingInfo.EmailId
 	parsedEntityUserAclSharingInfo["role"] = entityUserAclSharingInfo.Role
-	parsedEntityUserAclSharingInfo["shared_by"] = entityUserAclSharingInfo.ShareDBy
+	parsedEntityUserAclSharingInfo["shared_by"] = entityUserAclSharingInfo.SharedBy
 	parsedEntityUserAclSharingInfo["shared_on"] = entityUserAclSharingInfo.SharedOn
 
 	return parsedEntityUserAclSharingInfo

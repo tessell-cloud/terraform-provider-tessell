@@ -262,7 +262,7 @@ type InstanceAzureNetAppConfig struct {
 type EntityUserAclSharingInfo struct {
 	EmailId  *string `json:"emailId,omitempty"`
 	Role     *string `json:"role,omitempty"`
-	ShareDBy *string `json:"sharedBy,omitempty"` // Email of the user who shared the entity
+	SharedBy *string `json:"sharedBy,omitempty"` // Email of the user who shared the entity
 	SharedOn *string `json:"sharedOn,omitempty"` // Date when the entity was shared
 }
 

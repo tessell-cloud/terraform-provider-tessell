@@ -1760,7 +1760,7 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 															"id": {
 																Type:        schema.TypeString,
 																Description: "Id of the Security Profile",
-																Required:    true,
+																Computed:    true,
 															},
 															"version_id": {
 																Type:        schema.TypeString,

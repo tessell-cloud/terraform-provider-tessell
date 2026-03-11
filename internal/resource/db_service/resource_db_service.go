@@ -3866,7 +3866,7 @@ func ResourceDBService() *schema.Resource {
 									"security_profile": {
 										Type:        schema.TypeList,
 										Description: "",
-										Optional:    true,
+										Computed:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -3874,7 +3874,7 @@ func ResourceDBService() *schema.Resource {
 												"id": {
 													Type:        schema.TypeString,
 													Description: "Id of the Security Profile",
-													Optional:    true,
+													Computed:    true,
 												},
 												"version_id": {
 													Type:        schema.TypeString,
