@@ -3915,42 +3915,34 @@ func ResourceDBService() *schema.Resource {
 			"shared_with": {
 				Type:        schema.TypeList,
 				Description: "Tessell Entity ACL Sharing Info",
-				Optional:    true,
-				ForceNew:    true,
-				MaxItems:    1,
-				MinItems:    1,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"users": {
 							Type:        schema.TypeList,
 							Description: "",
-							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"email_id": {
 										Type:        schema.TypeString,
 										Description: "",
-										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"role": {
 										Type:        schema.TypeString,
 										Description: "",
-										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"shared_by": {
 										Type:        schema.TypeString,
 										Description: "Email of the user who shared the entity",
-										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"shared_on": {
 										Type:        schema.TypeString,
 										Description: "Date when the entity was shared",
-										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 								},
 							},
