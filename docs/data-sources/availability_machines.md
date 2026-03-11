@@ -122,6 +122,7 @@ Read-Only:
 - `compute_name` (String)
 - `compute_type` (String)
 - `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--clones--instances--connect_string))
+- `context_info` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--clones--instances--context_info))
 - `data_volume_iops` (Number)
 - `date_created` (String)
 - `enable_perf_insights` (Boolean)
@@ -141,6 +142,7 @@ Read-Only:
 - `public_subnet` (String)
 - `region` (String)
 - `role` (String)
+- `security_config` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--clones--instances--security_config))
 - `software_image` (String)
 - `software_image_version` (String)
 - `status` (String)
@@ -253,6 +255,15 @@ Read-Only:
 - `service_port` (String)
 
 
+<a id="nestedobjatt--availability_machines--clones--instances--context_info"></a>
+### Nested Schema for `availability_machines.clones.instances.context_info`
+
+Read-Only:
+
+- `description` (String)
+- `sub_status` (String)
+
+
 <a id="nestedobjatt--availability_machines--clones--instances--engine_configuration"></a>
 ### Nested Schema for `availability_machines.clones.instances.engine_configuration`
 
@@ -320,6 +331,24 @@ Read-Only:
 - `private_link_service_alias` (String)
 - `service_principals` (List of String)
 - `status` (String)
+
+
+<a id="nestedobjatt--availability_machines--clones--instances--security_config"></a>
+### Nested Schema for `availability_machines.clones.instances.security_config`
+
+Read-Only:
+
+- `security_profile` (List of Object) (see [below for nested schema](#nestedobjatt--availability_machines--clones--instances--security_config--security_profile))
+
+<a id="nestedobjatt--availability_machines--clones--instances--security_config--security_profile"></a>
+### Nested Schema for `availability_machines.clones.instances.security_config.security_profile`
+
+Read-Only:
+
+- `id` (String)
+- `status` (String)
+- `version_id` (String)
+
 
 
 <a id="nestedobjatt--availability_machines--clones--instances--storage_config"></a>
@@ -832,6 +861,8 @@ Read-Only:
 
 - `email_id` (String)
 - `role` (String)
+- `shared_by` (String)
+- `shared_on` (String)
 
 
 
