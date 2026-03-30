@@ -3804,7 +3804,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"private_link_info": {
 							Type:        schema.TypeList,
-							Description: "Private link configuration for this instance. If specified, private link will be configured after the service is created.",
+							Description: "Private link configuration for this instance. Not supported during service creation — must be added in a subsequent apply after the service has been created.",
 							Optional:    true,
 							Computed:    true,
 							MaxItems:    1,
@@ -4312,7 +4312,10 @@ func resourceDBServiceRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	var diags diag.Diagnostics
 
-	id := d.Get("id").(string)
+	id := d.Id()
+	if id == "" {
+		id = d.Get("id").(string)
+	}
 
 	response, _, err := client.GetTessellService(id, d)
 	if err != nil {

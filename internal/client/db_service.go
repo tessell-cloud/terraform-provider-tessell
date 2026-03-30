@@ -746,6 +746,9 @@ func (c *Client) DBServicePollForInstanceDeletion(id string, instanceId string, 
 
 // CreatePrivateLinkForInstance creates a private link for a specific instance
 func (c *Client) CreatePrivateLinkForInstance(serviceId string, instanceId string, payload *model.InstanceConnectivityUpdateRequest) (*model.TaskSummary, int, error) {
+	if payload == nil {
+		return nil, 0, fmt.Errorf("payload must not be nil")
+	}
 	rb, err := json.Marshal(*payload)
 	if err != nil {
 		return nil, 0, err
@@ -774,6 +777,9 @@ func (c *Client) CreatePrivateLinkForInstance(serviceId string, instanceId strin
 
 // UpdatePrivateLinkForInstance updates a private link for a specific instance
 func (c *Client) UpdatePrivateLinkForInstance(serviceId string, instanceId string, privateLinkId string, payload *model.InstanceConnectivityUpdateRequest) (*model.TaskSummary, int, error) {
+	if payload == nil {
+		return nil, 0, fmt.Errorf("payload must not be nil")
+	}
 	rb, err := json.Marshal(*payload)
 	if err != nil {
 		return nil, 0, err
@@ -823,6 +829,9 @@ func (c *Client) DeletePrivateLinkForInstance(serviceId string, instanceId strin
 
 // DBServicePollForPrivateLinkCreation polls until private link is ACTIVE for a specific instance
 func (c *Client) DBServicePollForPrivateLinkCreation(serviceId string, instanceId string, timeout int, interval int) error {
+	if interval <= 0 {
+		return fmt.Errorf("interval must be greater than 0, got %d", interval)
+	}
 	loopCount := 0
 	sleepCycleDurationSmall, err := time.ParseDuration("10s")
 	if err != nil {
@@ -844,6 +853,7 @@ func (c *Client) DBServicePollForPrivateLinkCreation(serviceId string, instanceI
 			if errorCountWhilePolling > 3 {
 				return fmt.Errorf("error while polling: %s", err.Error())
 			} else {
+				time.Sleep(sleepCycleDurationSmall)
 				continue
 			}
 		}
@@ -875,6 +885,9 @@ func (c *Client) DBServicePollForPrivateLinkCreation(serviceId string, instanceI
 
 // DBServicePollForPrivateLinkDeletion polls until private link is removed from a specific instance
 func (c *Client) DBServicePollForPrivateLinkDeletion(serviceId string, instanceId string, timeout int, interval int) error {
+	if interval <= 0 {
+		return fmt.Errorf("interval must be greater than 0, got %d", interval)
+	}
 	loopCount := 0
 	sleepCycleDurationSmall, err := time.ParseDuration("10s")
 	if err != nil {
@@ -896,6 +909,7 @@ func (c *Client) DBServicePollForPrivateLinkDeletion(serviceId string, instanceI
 			if errorCountWhilePolling > 3 {
 				return fmt.Errorf("error while polling: %s", err.Error())
 			} else {
+				time.Sleep(sleepCycleDurationSmall)
 				continue
 			}
 		}
