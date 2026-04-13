@@ -30,6 +30,7 @@ type TfTessellServiceInfrastructureInfo struct {
 	EncryptionKey        *string                    `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
 	ComputeType          *string                    `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
 	AwsInfraConfig       *AwsInfraConfig            `json:"awsInfraConfig,omitempty"`
+	GcpInfraConfig       *GcpInfraConfig            `json:"gcpInfraConfig,omitempty"`
 	Storage              *int                       `json:"storage,omitempty"`              // The storage (in bytes) that has been provisioned for the DB Service
 	AdditionalStorage    *int                       `json:"additionalStorage,omitempty"`    // Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.
 	EnableComputeSharing *bool                      `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
@@ -145,9 +146,9 @@ type TessellServiceCredsPayload struct {
 }
 
 type TessellServiceMaintenanceWindow struct {
-	Day      *string `json:"day"`
+	Cadence  *string `json:"cadence"`  // The cadence type for maintenance window
 	Time     *string `json:"time"`     // Time value in (hh:mm) format. ex. &#39;02:00&#39;
-	Duration *int    `json:"duration"` // The duration during which the maintenance window will be allowed to trigger
+	Duration *int    `json:"duration"` // The duration during which the maintenance window will be allowed to trigger (in minutes)
 }
 
 type SnapshotConfigurationPayload struct {
@@ -235,8 +236,10 @@ type TessellServiceMilvusEngineConfig struct {
 }
 
 type ScriptInfo struct {
-	ScriptId      *string `json:"scriptId,omitempty"`      // The Tessell Script ID
-	ScriptVersion *string `json:"scriptVersion,omitempty"` // The Tessell Script version
+	ScriptId         *string `json:"scriptId,omitempty"`         // The Tessell Script ID
+	ScriptName       *string `json:"scriptName,omitempty"`       // The Tessell Script Name
+	ScriptVersion    *string `json:"scriptVersion,omitempty"`    // The Tessell Script version
+	UseActiveVersion *bool   `json:"useActiveVersion,omitempty"` // When set to true, the scriptVersion field should be null and the system will automatically use the active version of the script. When set to false (default), the scriptVersion field specifies the exact version to use.
 }
 
 type DBEngineCollationConfig struct {
@@ -397,6 +400,7 @@ type AddDBServiceInstancesPayload struct {
 	ComputeType              *string                        `json:"computeType,omitempty"`        // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
 	EnablePerfInsights       *bool                          `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
 	AwsInfraConfig           *AwsInfraConfig                `json:"awsInfraConfig,omitempty"`
+	GcpInfraConfig           *GcpInfraConfig                `json:"gcpInfraConfig,omitempty"`
 	Instances                *[]AddDBServiceInstancePayload `json:"instances"`
 	TessellServicePrecheckId *string                        `json:"tessellServicePrecheckId,omitempty"` // The precheck ID from a previously run precheck validation. If provided, the system will verify the precheck results before adding service instances.
 }
@@ -441,6 +445,8 @@ type CloneTessellServicePayload struct {
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
+	AutoPatchConfig          *AutoPatchConfig                          `json:"autoPatchConfig,omitempty"`
+	ServerPatchingConfig     *ServerPatchingConfig                     `json:"serverPatchingConfig,omitempty"`
 	DeletionConfig           *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
 	SnapshotConfiguration    *SnapshotConfigurationPayload             `json:"snapshotConfiguration,omitempty"`
 	RPOPolicyConfig          *RPOPolicyConfig                          `json:"rpoPolicyConfig,omitempty"`
@@ -491,7 +497,8 @@ type ProvisionInfraPayload struct {
 	EncryptionKey        *string                    `json:"encryptionKey,omitempty"`    // The encryption key name which is to be used to encrypt the data at rest. This is honoured only if &#39;enableEncryption&#39; is true. If this is not specified, Tessell will use a default out-of-the-box encryption key.
 	ComputeType          *string                    `json:"computeType,omitempty"`      // The compute-type to be used for provisioning the DB Service
 	AwsInfraConfig       *AwsInfraConfig            `json:"awsInfraConfig,omitempty"`
-	AdditionalStorage    *int                       `json:"additionalStorage,omitempty"`    // The additional storage (in bytes) to be provisioned for the DB Service for cloud native storages. \\nThis is in addition to what is specified in the compute type.\\n
+	GcpInfraConfig       *GcpInfraConfig            `json:"gcpInfraConfig,omitempty"`
+	AdditionalStorage    *int                       `json:"additionalStorage,omitempty"`    // The additional storage (in bytes) to be provisioned for the DB Service for cloud native storages. This is in addition to what is specified in the compute type.
 	EnableComputeSharing *bool                      `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
 	ComputeNamePrefix    *string                    `json:"computeNamePrefix,omitempty"`    // If not specified, it will be autogenerated
 	Timezone             *string                    `json:"timezone,omitempty"`             // The timezone detail
@@ -511,6 +518,7 @@ type AddDBServiceInstancePayloadV2 struct {
 	ComputeId            *string                `json:"computeId,omitempty"`
 	EnablePerfInsights   *bool                  `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
 	AwsInfraConfig       *AwsInfraConfig        `json:"awsInfraConfig,omitempty"`
+	GcpInfraConfig       *GcpInfraConfig        `json:"gcpInfraConfig,omitempty"`
 	Role                 *string                `json:"role"`
 	AvailabilityZone     *string                `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
 	Iops                 *int                   `json:"iops,omitempty"`
@@ -527,6 +535,20 @@ type TessellServiceConnectivityInfoPayload struct {
 	ServicePort        *int      `json:"servicePort"`                  // The connection port for the DB Service
 	EnablePublicAccess *bool     `json:"enablePublicAccess,omitempty"` // Specify whether to enable public access to the DB Service, default false
 	AllowedIpAddresses *[]string `json:"allowedIpAddresses,omitempty"` // The list of allowed ipv4 addresses that can connect to the DB Service
+}
+
+type AutoPatchConfig struct {
+	OsAutoPatchEnabled *bool   `json:"osAutoPatchEnabled,omitempty"` // Enable automatic OS patching to latest certified minor version. Only minor version patches are applied automatically. Major version upgrades require manual intervention.
+	DBAutoPatchEnabled *bool   `json:"dbAutoPatchEnabled,omitempty"` // Enable automatic DB patching. Note: Currently not supported as DB patches require customer approval due to application compatibility concerns.
+	PatchStrategy      *string `json:"patchStrategy,omitempty"`      // Strategy for selecting patch versions: - LATEST_CERTIFIED: Apply the latest certified patch version (recommended) - SPECIFIC_VERSION: Apply a specific version (requires specificOsVersion/specificDbVersion)
+	SpecificOsVersion  *string `json:"specificOsVersion,omitempty"`  // Specific OS version to patch to (only when patchStrategy is SPECIFIC_VERSION). Example: 'RHEL-8.7', 'Ubuntu-22.04.3'
+	SpecificDBVersion  *string `json:"specificDbVersion,omitempty"`  // Specific DB version to patch to (only when patchStrategy is SPECIFIC_VERSION). Example: 'PostgreSQL-14.9', 'Oracle-19.21'
+}
+
+type ServerPatchingConfig struct {
+	EnableAutoOsPatching *bool       `json:"enableAutoOSPatching,omitempty"` // Enable automatic OS patching for the server
+	PreScriptInfo        *ScriptInfo `json:"preScriptInfo,omitempty"`
+	PostScriptInfo       *ScriptInfo `json:"postScriptInfo,omitempty"`
 }
 
 type TessellServiceEngineConfigurationPayload struct {
@@ -735,6 +757,8 @@ type TessellServiceDTO struct {
 	SharedWith                 *EntityAclSharingInfo             `json:"sharedWith,omitempty"`
 	DeletionSchedule           *DeletionScheduleDTO              `json:"deletionSchedule,omitempty"`
 	UpcomingScheduledActions   *ServiceUpcomingScheduledActions  `json:"upcomingScheduledActions,omitempty"`
+	UpdatesInfo                *ServiceUpdates                   `json:"updatesInfo,omitempty"`
+	ServerPatchingConfig       *ServerPatchingConfig             `json:"serverPatchingConfig,omitempty"`
 }
 
 type RefreshServiceInfo struct {
@@ -757,6 +781,7 @@ type TessellServiceInfrastructureInfo struct {
 	EncryptionKey        *string               `json:"encryptionKey,omitempty"` // The encryption key name which is used to encrypt the data at rest
 	ComputeType          *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the DB Service
 	AwsInfraConfig       *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`
+	GcpInfraConfig       *GcpInfraConfig       `json:"gcpInfraConfig,omitempty"`
 	EnableComputeSharing *bool                 `json:"enableComputeSharing,omitempty"` // Specify if the computes should be shared across DB Services
 	Iops                 *int                  `json:"iops,omitempty"`                 // IOPS requested for the DB Service
 	Throughput           *int                  `json:"throughput,omitempty"`           // throughput requested for the DB Service
@@ -797,6 +822,39 @@ type TessellDatabaseDTO struct {
 	ConnectString         *TessellServiceDatabaseConnectString `json:"connectString,omitempty"`
 }
 
+type ServiceUpdates struct {
+	AvailableUpdates          *AvailableUpdatesSimple        `json:"availableUpdates,omitempty"`
+	UpcomingMaintenanceWindow *UpcomingMaintenanceWindowInfo `json:"upcomingMaintenanceWindow,omitempty"`
+}
+
+type AvailableUpdatesSimple struct {
+	OsPatch *bool `json:"osPatch,omitempty"` // Whether an OS patch update is available
+	DBPatch *bool `json:"dbPatch,omitempty"` // Whether a DB patch update is available
+}
+
+type UpcomingMaintenanceWindowInfo struct {
+	MaintenanceWindowId  *string               `json:"maintenanceWindowId,omitempty"` // Unique identifier of the maintenance window
+	Cadence              *string               `json:"cadence,omitempty"`
+	Date                 *string               `json:"date,omitempty"`     // Date in YYYY-MM-DD format (ISO 8601)
+	Time                 *string               `json:"time,omitempty"`     // Time in HH:mm format
+	Duration             *int                  `json:"duration,omitempty"` // Duration in minutes
+	Downtime             *string               `json:"downtime,omitempty"` // Expected downtime description
+	AssociatedActivities *AssociatedActivities `json:"associatedActivities,omitempty"`
+}
+
+type AssociatedActivities struct {
+	DBPatch *PatchActivity `json:"dbPatch,omitempty"`
+	OsPatch *PatchActivity `json:"osPatch,omitempty"`
+}
+
+type PatchActivity struct {
+	VersionNo   *string `json:"versionNo,omitempty"`
+	TypeOfPatch *string `json:"typeOfPatch,omitempty"`
+	Impact      *string `json:"impact,omitempty"`
+	ScheduleDBy *string `json:"scheduledBy,omitempty"`
+	Status      *string `json:"status,omitempty"`
+}
+
 type TessellServicesResponse struct {
 	Metadata *APIMetadata         `json:"metadata,omitempty"`
 	Response *[]TessellServiceDTO `json:"response,omitempty"`
@@ -821,6 +879,8 @@ type ProvisionServicePayload struct {
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
+	AutoPatchConfig          *AutoPatchConfig                          `json:"autoPatchConfig,omitempty"`
+	ServerPatchingConfig     *ServerPatchingConfig                     `json:"serverPatchingConfig,omitempty"`
 	DeletionConfig           *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
 	SnapshotConfiguration    *SnapshotConfigurationPayload             `json:"snapshotConfiguration,omitempty"`
 	RPOPolicyConfig          *RPOPolicyConfig                          `json:"rpoPolicyConfig,omitempty"`

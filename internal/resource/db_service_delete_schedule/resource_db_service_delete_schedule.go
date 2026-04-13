@@ -43,6 +43,9 @@ func ResourceDBServiceDeleteSchedule() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Time at which the DB Service should be deleted at",
 				Required:    true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return suppressRFC3339Diff(old, new)
+				},
 			},
 			"deletion_config": {
 				Type:        schema.TypeList,
@@ -100,7 +103,10 @@ func resourceDBServiceDeleteScheduleRead(_ context.Context, d *schema.ResourceDa
 	var diags diag.Diagnostics
 
 	serviceId := d.Get("service_id").(string)
-	id := d.Get("id").(string)
+	id := d.Id()
+	if id == "" {
+		id = d.Get("id").(string)
+	}
 
 	response, _, err := client.GetServiceDeletionScheduleTFP(serviceId, id)
 	if err != nil {

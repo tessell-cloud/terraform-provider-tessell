@@ -179,6 +179,14 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("updates_info", parseServiceUpdates(tessellServiceDTO.UpdatesInfo)); err != nil {
+		return err
+	}
+
+	if err := d.Set("server_patching_config", parseServerPatchingConfig(tessellServiceDTO.ServerPatchingConfig)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -347,7 +355,9 @@ func parseScriptInfo(scriptInfo *model.ScriptInfo) interface{} {
 	}
 	parsedScriptInfo := make(map[string]interface{})
 	parsedScriptInfo["script_id"] = scriptInfo.ScriptId
+	parsedScriptInfo["script_name"] = scriptInfo.ScriptName
 	parsedScriptInfo["script_version"] = scriptInfo.ScriptVersion
+	parsedScriptInfo["use_active_version"] = scriptInfo.UseActiveVersion
 
 	return parsedScriptInfo
 }
@@ -606,6 +616,11 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
 	}
 
+	var gcpInfraConfig *model.GcpInfraConfig
+	if infrastructure.GcpInfraConfig != gcpInfraConfig {
+		parsedInfrastructure["gcp_infra_config"] = []interface{}{parseGcpInfraConfig(infrastructure.GcpInfraConfig)}
+	}
+
 	var storageConfig *model.ServiceStorageConfig
 	if infrastructure.StorageConfig != storageConfig {
 		parsedInfrastructure["storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.StorageConfig)}
@@ -652,6 +667,11 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	var awsInfraConfig *model.AwsInfraConfig
 	if infrastructure.AwsInfraConfig != awsInfraConfig {
 		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
+	}
+
+	var gcpInfraConfig *model.GcpInfraConfig
+	if infrastructure.GcpInfraConfig != gcpInfraConfig {
+		parsedInfrastructure["gcp_infra_config"] = []interface{}{parseGcpInfraConfig(infrastructure.GcpInfraConfig)}
 	}
 
 	var storageConfig *model.ServiceStorageConfig
@@ -749,6 +769,31 @@ func parseAwsCpuOptions(awsCpuOptions *model.AwsCpuOptions) interface{} {
 	return parsedAwsCpuOptions
 }
 
+func parseGcpInfraConfig(gcpInfraConfig *model.GcpInfraConfig) interface{} {
+	if gcpInfraConfig == nil {
+		return nil
+	}
+	parsedGcpInfraConfig := make(map[string]interface{})
+
+	var gcpCpuOptions *model.GcpCpuOptions
+	if gcpInfraConfig.GcpCpuOptions != gcpCpuOptions {
+		parsedGcpInfraConfig["gcp_cpu_options"] = []interface{}{parseGcpCpuOptions(gcpInfraConfig.GcpCpuOptions)}
+	}
+
+	return parsedGcpInfraConfig
+}
+
+func parseGcpCpuOptions(gcpCpuOptions *model.GcpCpuOptions) interface{} {
+	if gcpCpuOptions == nil {
+		return nil
+	}
+	parsedGcpCpuOptions := make(map[string]interface{})
+	parsedGcpCpuOptions["vcpus"] = gcpCpuOptions.Vcpus
+	parsedGcpCpuOptions["memory"] = gcpCpuOptions.Memory
+
+	return parsedGcpCpuOptions
+}
+
 func parseServiceStorageConfig(serviceStorageConfig *model.ServiceStorageConfig) interface{} {
 	if serviceStorageConfig == nil {
 		return nil
@@ -785,7 +830,7 @@ func parseTessellServiceMaintenanceWindowWithResData(maintenanceWindow *model.Te
 			parsedMaintenanceWindow = (maintenanceWindowResourceData[0]).(map[string]interface{})
 		}
 	}
-	parsedMaintenanceWindow["day"] = maintenanceWindow.Day
+	parsedMaintenanceWindow["cadence"] = maintenanceWindow.Cadence
 	parsedMaintenanceWindow["time"] = maintenanceWindow.Time
 	parsedMaintenanceWindow["duration"] = maintenanceWindow.Duration
 
@@ -797,11 +842,72 @@ func parseTessellServiceMaintenanceWindow(maintenanceWindow *model.TessellServic
 		return nil
 	}
 	parsedMaintenanceWindow := make(map[string]interface{})
-	parsedMaintenanceWindow["day"] = maintenanceWindow.Day
+	parsedMaintenanceWindow["cadence"] = maintenanceWindow.Cadence
 	parsedMaintenanceWindow["time"] = maintenanceWindow.Time
 	parsedMaintenanceWindow["duration"] = maintenanceWindow.Duration
 
 	return parsedMaintenanceWindow
+}
+
+func parseAutoPatchConfig(autoPatchConfig *model.AutoPatchConfig) interface{} {
+	if autoPatchConfig == nil {
+		return nil
+	}
+	parsed := make(map[string]interface{})
+	parsed["os_auto_patch_enabled"] = autoPatchConfig.OsAutoPatchEnabled
+	parsed["db_auto_patch_enabled"] = autoPatchConfig.DBAutoPatchEnabled
+	parsed["patch_strategy"] = autoPatchConfig.PatchStrategy
+	parsed["specific_os_version"] = autoPatchConfig.SpecificOsVersion
+	parsed["specific_db_version"] = autoPatchConfig.SpecificDBVersion
+
+	return parsed
+}
+
+func parseServerPatchingConfig(serverPatchingConfig *model.ServerPatchingConfig) []interface{} {
+	if serverPatchingConfig == nil {
+		return nil
+	}
+	parsed := make(map[string]interface{})
+	parsed["enable_auto_os_patching"] = serverPatchingConfig.EnableAutoOsPatching
+
+	var preScriptInfo *model.ScriptInfo
+	if serverPatchingConfig.PreScriptInfo != preScriptInfo {
+		parsed["pre_script_info"] = []interface{}{parseScriptInfo(serverPatchingConfig.PreScriptInfo)}
+	}
+
+	var postScriptInfo *model.ScriptInfo
+	if serverPatchingConfig.PostScriptInfo != postScriptInfo {
+		parsed["post_script_info"] = []interface{}{parseScriptInfo(serverPatchingConfig.PostScriptInfo)}
+	}
+
+	return []interface{}{parsed}
+}
+
+func parseServiceUpdates(updatesInfo *model.ServiceUpdates) []interface{} {
+	if updatesInfo == nil {
+		return nil
+	}
+	parsed := make(map[string]interface{})
+
+	if updatesInfo.AvailableUpdates != nil {
+		availableUpdates := make(map[string]interface{})
+		availableUpdates["os_patch"] = updatesInfo.AvailableUpdates.OsPatch
+		availableUpdates["db_patch"] = updatesInfo.AvailableUpdates.DBPatch
+		parsed["available_updates"] = []interface{}{availableUpdates}
+	}
+
+	if updatesInfo.UpcomingMaintenanceWindow != nil {
+		upcoming := make(map[string]interface{})
+		upcoming["maintenance_window_id"] = updatesInfo.UpcomingMaintenanceWindow.MaintenanceWindowId
+		upcoming["cadence"] = updatesInfo.UpcomingMaintenanceWindow.Cadence
+		upcoming["date"] = updatesInfo.UpcomingMaintenanceWindow.Date
+		upcoming["time"] = updatesInfo.UpcomingMaintenanceWindow.Time
+		upcoming["duration"] = updatesInfo.UpcomingMaintenanceWindow.Duration
+		upcoming["downtime"] = updatesInfo.UpcomingMaintenanceWindow.Downtime
+		parsed["upcoming_maintenance_window"] = []interface{}{upcoming}
+	}
+
+	return []interface{}{parsed}
 }
 
 func parseTessellServiceEngineInfoWithResData(engineConfiguration *model.TessellServiceEngineInfo, d *schema.ResourceData) []interface{} {
@@ -1280,6 +1386,11 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	var awsInfraConfig *model.AwsInfraConfig
 	if instances.AwsInfraConfig != awsInfraConfig {
 		parsedInstances["aws_infra_config"] = []interface{}{parseAwsInfraConfig(instances.AwsInfraConfig)}
+	}
+
+	var gcpInfraConfig *model.GcpInfraConfig
+	if instances.GcpInfraConfig != gcpInfraConfig {
+		parsedInstances["gcp_infra_config"] = []interface{}{parseGcpInfraConfig(instances.GcpInfraConfig)}
 	}
 
 	var parameterProfile *model.ParameterProfile
@@ -2017,6 +2128,7 @@ func formatTfInputInstances(d *schema.ResourceData) *[]model.AddDBServiceInstanc
 			ComputeId:          helper.GetStringPointer(inputInstance["compute_id"]),
 			EnablePerfInsights: helper.GetBoolPointer(inputInstance["enable_perf_insights"]),
 			AwsInfraConfig:     formAwsInfraConfig(inputInstance["aws_infra_config"]),
+			GcpInfraConfig:     formGcpInfraConfig(inputInstance["gcp_infra_config"]),
 			Role:               helper.GetStringPointer(inputInstance["role"]),
 			AvailabilityZone:   helper.GetStringPointer(inputInstance["availability_zone"]),
 		}
@@ -2087,6 +2199,7 @@ func formPayloadForAddTessellServiceInstances(d *schema.ResourceData, tfInstance
 		ComputeType:              tfInstancePayload.ComputeType,
 		EnablePerfInsights:       tfInstancePayload.EnablePerfInsights,
 		AwsInfraConfig:           tfInstancePayload.AwsInfraConfig,
+		GcpInfraConfig:           tfInstancePayload.GcpInfraConfig,
 		Instances:                formAddDBServiceInstancePayloadList(tfInstancePayload),
 		TessellServicePrecheckId: precheckId,
 	}
@@ -2117,6 +2230,8 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
+		AutoPatchConfig:          formAutoPatchConfig(d.Get("auto_patch_config")),
+		ServerPatchingConfig:     formServerPatchingConfig(d.Get("server_patching_config")),
 		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
 		SnapshotConfiguration:    formSnapshotConfigurationPayload(d.Get("snapshot_configuration")),
 		RPOPolicyConfig:          formRPOPolicyConfig(d.Get("rpo_policy_config")),
@@ -2168,6 +2283,8 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
+		AutoPatchConfig:          formAutoPatchConfig(d.Get("auto_patch_config")),
+		ServerPatchingConfig:     formServerPatchingConfig(d.Get("server_patching_config")),
 		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
 		SnapshotConfiguration:    formSnapshotConfigurationPayload(d.Get("snapshot_configuration")),
 		RPOPolicyConfig:          formRPOPolicyConfig(d.Get("rpo_policy_config")),
@@ -2297,6 +2414,35 @@ func formAwsCpuOptions(awsCpuOptionsRaw interface{}) *model.AwsCpuOptions {
 	}
 
 	return &awsCpuOptionsFormed
+}
+
+func formGcpInfraConfig(gcpInfraConfigRaw interface{}) *model.GcpInfraConfig {
+	if gcpInfraConfigRaw == nil || len(gcpInfraConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	gcpInfraConfigData := gcpInfraConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	gcpInfraConfigFormed := model.GcpInfraConfig{
+		GcpCpuOptions: formGcpCpuOptions(gcpInfraConfigData["gcp_cpu_options"]),
+	}
+
+	return &gcpInfraConfigFormed
+}
+
+func formGcpCpuOptions(gcpCpuOptionsRaw interface{}) *model.GcpCpuOptions {
+	if gcpCpuOptionsRaw == nil || len(gcpCpuOptionsRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	gcpCpuOptionsData := gcpCpuOptionsRaw.([]interface{})[0].(map[string]interface{})
+
+	gcpCpuOptionsFormed := model.GcpCpuOptions{
+		Vcpus:  helper.GetIntPointer(gcpCpuOptionsData["vcpus"]),
+		Memory: helper.GetIntPointer(gcpCpuOptionsData["memory"]),
+	}
+
+	return &gcpCpuOptionsFormed
 }
 
 func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceInstancePayloadV2) *[]model.AddDBServiceInstancePayload {
@@ -2525,8 +2671,10 @@ func formScriptInfo(scriptInfoRaw interface{}) *model.ScriptInfo {
 	scriptInfoData := scriptInfoRaw.([]interface{})[0].(map[string]interface{})
 
 	scriptInfoFormed := model.ScriptInfo{
-		ScriptId:      helper.GetStringPointer(scriptInfoData["script_id"]),
-		ScriptVersion: helper.GetStringPointer(scriptInfoData["script_version"]),
+		ScriptId:         helper.GetStringPointer(scriptInfoData["script_id"]),
+		ScriptName:       helper.GetStringPointer(scriptInfoData["script_name"]),
+		ScriptVersion:    helper.GetStringPointer(scriptInfoData["script_version"]),
+		UseActiveVersion: helper.GetBoolPointer(scriptInfoData["use_active_version"]),
 	}
 
 	return &scriptInfoFormed
@@ -2647,6 +2795,7 @@ func formProvisionInfraPayload(provisionInfraPayloadRaw interface{}) *model.Prov
 		EncryptionKey:        helper.GetStringPointer(provisionInfraPayloadData["encryption_key"]),
 		ComputeType:          helper.GetStringPointer(provisionInfraPayloadData["compute_type"]),
 		AwsInfraConfig:       formAwsInfraConfig(provisionInfraPayloadData["aws_infra_config"]),
+		GcpInfraConfig:       formGcpInfraConfig(provisionInfraPayloadData["gcp_infra_config"]),
 		AdditionalStorage:    helper.GetIntPointer(provisionInfraPayloadData["additional_storage"]),
 		EnableComputeSharing: helper.GetBoolPointer(provisionInfraPayloadData["enable_compute_sharing"]),
 		ComputeNamePrefix:    helper.GetStringPointer(provisionInfraPayloadData["compute_name_prefix"]),
@@ -2719,6 +2868,7 @@ func formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2Raw interfac
 		ComputeId:            helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_id"]),
 		EnablePerfInsights:   helper.GetBoolPointer(addDBServiceInstancePayloadV2Data["enable_perf_insights"]),
 		AwsInfraConfig:       formAwsInfraConfig(addDBServiceInstancePayloadV2Data["aws_infra_config"]),
+		GcpInfraConfig:       formGcpInfraConfig(addDBServiceInstancePayloadV2Data["gcp_infra_config"]),
 		Role:                 helper.GetStringPointer(addDBServiceInstancePayloadV2Data["role"]),
 		AvailabilityZone:     helper.GetStringPointer(addDBServiceInstancePayloadV2Data["availability_zone"]),
 		ComputeConfig:        formComputeConfigPayload(addDBServiceInstancePayloadV2Data["compute_config"]),
@@ -2787,12 +2937,46 @@ func formTessellServiceMaintenanceWindow(tessellServiceMaintenanceWindowRaw inte
 	tessellServiceMaintenanceWindowData := tessellServiceMaintenanceWindowRaw.([]interface{})[0].(map[string]interface{})
 
 	tessellServiceMaintenanceWindowFormed := model.TessellServiceMaintenanceWindow{
-		Day:      helper.GetStringPointer(tessellServiceMaintenanceWindowData["day"]),
+		Cadence:  helper.GetStringPointer(tessellServiceMaintenanceWindowData["cadence"]),
 		Time:     helper.GetStringPointer(tessellServiceMaintenanceWindowData["time"]),
 		Duration: helper.GetIntPointer(tessellServiceMaintenanceWindowData["duration"]),
 	}
 
 	return &tessellServiceMaintenanceWindowFormed
+}
+
+func formAutoPatchConfig(autoPatchConfigRaw interface{}) *model.AutoPatchConfig {
+	if autoPatchConfigRaw == nil || len(autoPatchConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	autoPatchConfigData := autoPatchConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	autoPatchConfigFormed := model.AutoPatchConfig{
+		OsAutoPatchEnabled: helper.GetBoolPointer(autoPatchConfigData["os_auto_patch_enabled"]),
+		DBAutoPatchEnabled: helper.GetBoolPointer(autoPatchConfigData["db_auto_patch_enabled"]),
+		PatchStrategy:      helper.GetStringPointer(autoPatchConfigData["patch_strategy"]),
+		SpecificOsVersion:  helper.GetStringPointer(autoPatchConfigData["specific_os_version"]),
+		SpecificDBVersion:  helper.GetStringPointer(autoPatchConfigData["specific_db_version"]),
+	}
+
+	return &autoPatchConfigFormed
+}
+
+func formServerPatchingConfig(serverPatchingConfigRaw interface{}) *model.ServerPatchingConfig {
+	if serverPatchingConfigRaw == nil || len(serverPatchingConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	serverPatchingConfigData := serverPatchingConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	serverPatchingConfigFormed := model.ServerPatchingConfig{
+		EnableAutoOsPatching: helper.GetBoolPointer(serverPatchingConfigData["enable_auto_os_patching"]),
+		PreScriptInfo:        formScriptInfo(serverPatchingConfigData["pre_script_info"]),
+		PostScriptInfo:       formScriptInfo(serverPatchingConfigData["post_script_info"]),
+	}
+
+	return &serverPatchingConfigFormed
 }
 
 func formTessellServiceDeletionConfig(tessellServiceDeletionConfigRaw interface{}) *model.TessellServiceDeletionConfig {

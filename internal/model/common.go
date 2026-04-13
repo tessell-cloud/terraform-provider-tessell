@@ -1,5 +1,10 @@
 package model
 
+type GcpCpuOptions struct {
+	Vcpus  *int `json:"vcpus,omitempty"`  // Number of vCPUs for GCP custom machine type
+	Memory *int `json:"memory,omitempty"` // Memory in MB for GCP custom machine type (optional)
+}
+
 type AzureNetAppConfigPayloadConfigurations struct {
 	NetworkFeatures *string `json:"networkFeatures,omitempty"`
 }
@@ -200,6 +205,7 @@ type TessellServiceInstanceDTO struct {
 	InstanceGroupId      *string                              `json:"instanceGroupId,omitempty"`   // The instance groupd Id
 	ComputeType          *string                              `json:"computeType,omitempty"`       // The compute used for creation of the Tessell Service Instance
 	AwsInfraConfig       *AwsInfraConfig                      `json:"awsInfraConfig,omitempty"`
+	GcpInfraConfig       *GcpInfraConfig                      `json:"gcpInfraConfig,omitempty"`
 	ComputeId            *string                              `json:"computeId,omitempty"`   // The associated compute identifier
 	ComputeName          *string                              `json:"computeName,omitempty"` // The associated compute name
 	Storage              *int                                 `json:"storage,omitempty"`     // The storage (in bytes) that has been provisioned for the DB Service instance.
@@ -244,6 +250,10 @@ type AzureNetAppEncryptionKeyInfo struct {
 
 type AwsInfraConfig struct {
 	AwsCpuOptions *AwsCpuOptions `json:"awsCpuOptions,omitempty"`
+}
+
+type GcpInfraConfig struct {
+	GcpCpuOptions *GcpCpuOptions `json:"gcpCpuOptions,omitempty"`
 }
 
 type InstanceAzureNetAppConfig struct {
