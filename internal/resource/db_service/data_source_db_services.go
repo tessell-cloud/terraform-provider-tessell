@@ -836,7 +836,7 @@ func DataSourceDBServices() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"cadence": {
 										Type:        schema.TypeString,
-										Description: "The cadence type for maintenance window",
+										Description: "The cadence type for maintenance window. Allowed values: WEEKLY, MONTHLY, QUARTERLY",
 										Computed:    true,
 									},
 									"time": {
@@ -847,6 +847,21 @@ func DataSourceDBServices() *schema.Resource {
 									"duration": {
 										Type:        schema.TypeInt,
 										Description: "The duration during which the maintenance window will be allowed to trigger (in minutes)",
+										Computed:    true,
+									},
+									"day": {
+										Type:        schema.TypeString,
+										Description: "Day of the week when maintenance should be performed. Set when cadence is WEEKLY.",
+										Computed:    true,
+									},
+									"day_of_month": {
+										Type:        schema.TypeInt,
+										Description: "Day of the month when maintenance should be performed (1-31). Set when cadence is MONTHLY.",
+										Computed:    true,
+									},
+									"start_date": {
+										Type:        schema.TypeString,
+										Description: "Start date for quarterly maintenance in YYYY-MM-DD format. Set when cadence is QUARTERLY.",
 										Computed:    true,
 									},
 								},

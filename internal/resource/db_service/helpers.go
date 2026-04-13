@@ -833,6 +833,9 @@ func parseTessellServiceMaintenanceWindowWithResData(maintenanceWindow *model.Te
 	parsedMaintenanceWindow["cadence"] = maintenanceWindow.Cadence
 	parsedMaintenanceWindow["time"] = maintenanceWindow.Time
 	parsedMaintenanceWindow["duration"] = maintenanceWindow.Duration
+	parsedMaintenanceWindow["day"] = maintenanceWindow.Day
+	parsedMaintenanceWindow["day_of_month"] = maintenanceWindow.DayOfMonth
+	parsedMaintenanceWindow["start_date"] = maintenanceWindow.StartDate
 
 	return []interface{}{parsedMaintenanceWindow}
 }
@@ -845,6 +848,9 @@ func parseTessellServiceMaintenanceWindow(maintenanceWindow *model.TessellServic
 	parsedMaintenanceWindow["cadence"] = maintenanceWindow.Cadence
 	parsedMaintenanceWindow["time"] = maintenanceWindow.Time
 	parsedMaintenanceWindow["duration"] = maintenanceWindow.Duration
+	parsedMaintenanceWindow["day"] = maintenanceWindow.Day
+	parsedMaintenanceWindow["day_of_month"] = maintenanceWindow.DayOfMonth
+	parsedMaintenanceWindow["start_date"] = maintenanceWindow.StartDate
 
 	return parsedMaintenanceWindow
 }
@@ -2937,9 +2943,12 @@ func formTessellServiceMaintenanceWindow(tessellServiceMaintenanceWindowRaw inte
 	tessellServiceMaintenanceWindowData := tessellServiceMaintenanceWindowRaw.([]interface{})[0].(map[string]interface{})
 
 	tessellServiceMaintenanceWindowFormed := model.TessellServiceMaintenanceWindow{
-		Cadence:  helper.GetStringPointer(tessellServiceMaintenanceWindowData["cadence"]),
-		Time:     helper.GetStringPointer(tessellServiceMaintenanceWindowData["time"]),
-		Duration: helper.GetIntPointer(tessellServiceMaintenanceWindowData["duration"]),
+		Cadence:    helper.GetStringPointer(tessellServiceMaintenanceWindowData["cadence"]),
+		Time:       helper.GetStringPointer(tessellServiceMaintenanceWindowData["time"]),
+		Duration:   helper.GetIntPointer(tessellServiceMaintenanceWindowData["duration"]),
+		Day:        helper.GetStringPointer(tessellServiceMaintenanceWindowData["day"]),
+		DayOfMonth: helper.GetIntPointer(tessellServiceMaintenanceWindowData["day_of_month"]),
+		StartDate:  helper.GetStringPointer(tessellServiceMaintenanceWindowData["start_date"]),
 	}
 
 	return &tessellServiceMaintenanceWindowFormed

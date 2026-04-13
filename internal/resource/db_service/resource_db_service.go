@@ -1229,7 +1229,7 @@ func ResourceDBService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"cadence": {
 							Type:        schema.TypeString,
-							Description: "The cadence type for maintenance window",
+							Description: "The cadence type for maintenance window. Allowed values: WEEKLY, MONTHLY, QUARTERLY",
 							Required:    true,
 						},
 						"time": {
@@ -1239,8 +1239,23 @@ func ResourceDBService() *schema.Resource {
 						},
 						"duration": {
 							Type:        schema.TypeInt,
-							Description: "The duration during which the maintenance window will be allowed to trigger",
+							Description: "The duration during which the maintenance window will be allowed to trigger (in minutes)",
 							Required:    true,
+						},
+						"day": {
+							Type:        schema.TypeString,
+							Description: "Day of the week when maintenance should be performed. Required when cadence is WEEKLY. Allowed values: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday",
+							Optional:    true,
+						},
+						"day_of_month": {
+							Type:        schema.TypeInt,
+							Description: "Day of the month when maintenance should be performed (1-31). Required when cadence is MONTHLY.",
+							Optional:    true,
+						},
+						"start_date": {
+							Type:        schema.TypeString,
+							Description: "Start date for quarterly maintenance in YYYY-MM-DD format. Required when cadence is QUARTERLY.",
+							Optional:    true,
 						},
 					},
 				},
