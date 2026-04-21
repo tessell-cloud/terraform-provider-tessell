@@ -2570,6 +2570,112 @@ func DataSourceDBService() *schema.Resource {
 					},
 				},
 			},
+			"auto_patch_config": {
+				Type:        schema.TypeList,
+				Description: "Auto patch configuration for the DB Service",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"os_auto_patch_enabled": {
+							Type:        schema.TypeBool,
+							Description: "Enable automatic OS patching to latest certified minor version",
+							Computed:    true,
+						},
+						"db_auto_patch_enabled": {
+							Type:        schema.TypeBool,
+							Description: "Enable automatic DB patching",
+							Computed:    true,
+						},
+						"patch_strategy": {
+							Type:        schema.TypeString,
+							Description: "Strategy for selecting patch versions: LATEST_CERTIFIED or SPECIFIC_VERSION",
+							Computed:    true,
+						},
+						"specific_os_version": {
+							Type:        schema.TypeString,
+							Description: "Specific OS version to patch to (only when patchStrategy is SPECIFIC_VERSION)",
+							Computed:    true,
+						},
+						"specific_db_version": {
+							Type:        schema.TypeString,
+							Description: "Specific DB version to patch to (only when patchStrategy is SPECIFIC_VERSION)",
+							Computed:    true,
+						},
+					},
+				},
+			},
+			"server_patching_config": {
+				Type:        schema.TypeList,
+				Description: "Server patching configuration for the DB Service",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_auto_os_patching": {
+							Type:        schema.TypeBool,
+							Description: "Enable automatic OS patching for the server",
+							Computed:    true,
+						},
+						"pre_script_info": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"script_id": {
+										Type:        schema.TypeString,
+										Description: "The Tessell Script ID",
+										Computed:    true,
+									},
+									"script_name": {
+										Type:        schema.TypeString,
+										Description: "The Tessell Script Name",
+										Computed:    true,
+									},
+									"script_version": {
+										Type:        schema.TypeString,
+										Description: "The Tessell Script version",
+										Computed:    true,
+									},
+									"use_active_version": {
+										Type:        schema.TypeBool,
+										Description: "When set to true, the system will automatically use the active version of the script",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"post_script_info": {
+							Type:        schema.TypeList,
+							Description: "",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"script_id": {
+										Type:        schema.TypeString,
+										Description: "The Tessell Script ID",
+										Computed:    true,
+									},
+									"script_name": {
+										Type:        schema.TypeString,
+										Description: "The Tessell Script Name",
+										Computed:    true,
+									},
+									"script_version": {
+										Type:        schema.TypeString,
+										Description: "The Tessell Script version",
+										Computed:    true,
+									},
+									"use_active_version": {
+										Type:        schema.TypeBool,
+										Description: "When set to true, the system will automatically use the active version of the script",
+										Computed:    true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }

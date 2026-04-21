@@ -187,6 +187,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("auto_patch_config", parseAutoPatchConfig(tessellServiceDTO.AutoPatchConfig)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -855,7 +859,7 @@ func parseTessellServiceMaintenanceWindow(maintenanceWindow *model.TessellServic
 	return parsedMaintenanceWindow
 }
 
-func parseAutoPatchConfig(autoPatchConfig *model.AutoPatchConfig) interface{} {
+func parseAutoPatchConfig(autoPatchConfig *model.AutoPatchConfig) []interface{} {
 	if autoPatchConfig == nil {
 		return nil
 	}
@@ -866,7 +870,7 @@ func parseAutoPatchConfig(autoPatchConfig *model.AutoPatchConfig) interface{} {
 	parsed["specific_os_version"] = autoPatchConfig.SpecificOsVersion
 	parsed["specific_db_version"] = autoPatchConfig.SpecificDBVersion
 
-	return parsed
+	return []interface{}{parsed}
 }
 
 func parseServerPatchingConfig(serverPatchingConfig *model.ServerPatchingConfig) []interface{} {

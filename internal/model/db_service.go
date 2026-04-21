@@ -18,6 +18,7 @@ type TessellServiceClonedFromInfo struct {
 	PITRTime              *string `json:"pitrTime,omitempty"`              // If the database was created using a Point-In-Time mechanism, it specifies the timestamp in UTC
 	MaximumRecoverability *bool   `json:"maximumRecoverability,omitempty"` // If the service was created using a maximum recoverability from the parent service
 	StorageProvider       *string `json:"storageProvider,omitempty"`
+	IsHpc                 *bool   `json:"isHpc,omitempty"` // Specifies whether the parent DB Service was using High Performance Compute (HPC)
 }
 
 type TfTessellServiceInfrastructureInfo struct {
@@ -375,6 +376,7 @@ type TerraformTessellServiceDTO struct {
 	DateCreated                *string                             `json:"dateCreated,omitempty"`                // Timestamp when the DB Service was created at
 	StartedAt                  *string                             `json:"startedAt,omitempty"`                  // Timestamp when the DB Service was last started at
 	StoppedAt                  *string                             `json:"stoppedAt,omitempty"`                  // Timestamp when the DB Service was last stopped at
+	IsHpc                      *bool                               `json:"isHpc,omitempty"`                      // Specifies whether the DB Service is using High Performance Compute (HPC)
 	ClonedFromInfo             *TessellServiceClonedFromInfo       `json:"clonedFromInfo,omitempty"`
 	Infrastructure             *TfTessellServiceInfrastructureInfo `json:"infrastructure"`
 	ServiceConnectivity        *TessellServiceConnectivityInfo     `json:"serviceConnectivity"`
@@ -744,6 +746,7 @@ type TessellServiceDTO struct {
 	DateCreated                *string                           `json:"dateCreated,omitempty"`                // This field specifies the timestamp when the DB Service was created at
 	StartedAt                  *string                           `json:"startedAt,omitempty"`                  // This field specifies the timestamp when the DB Service was last started at
 	StoppedAt                  *string                           `json:"stoppedAt,omitempty"`                  // This field specifies the timestamp when the DB Service was last stopped at
+	IsHpc                      *bool                             `json:"isHpc,omitempty"`                      // Specifies whether the DB Service is using High Performance Compute (HPC)
 	ClonedFromInfo             *TessellServiceClonedFromInfo     `json:"clonedFromInfo,omitempty"`
 	RefreshInfo                *RefreshServiceInfo               `json:"refreshInfo,omitempty"`
 	ServiceConnectivity        *TessellServiceConnectivityInfo   `json:"serviceConnectivity,omitempty"`
@@ -762,6 +765,7 @@ type TessellServiceDTO struct {
 	UpcomingScheduledActions   *ServiceUpcomingScheduledActions  `json:"upcomingScheduledActions,omitempty"`
 	UpdatesInfo                *ServiceUpdates                   `json:"updatesInfo,omitempty"`
 	ServerPatchingConfig       *ServerPatchingConfig             `json:"serverPatchingConfig,omitempty"`
+	AutoPatchConfig            *AutoPatchConfig                  `json:"autoPatchConfig,omitempty"`
 }
 
 type RefreshServiceInfo struct {
