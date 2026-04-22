@@ -3,7 +3,7 @@
 page_title: "tessell_db_service_start_stop_schedule Resource - terraform-provider-tessell"
 subcategory: ""
 description: |-
-  
+
 ---
 
 # tessell_db_service_start_stop_schedule (Resource)
@@ -97,3 +97,12 @@ Optional:
 Read-Only:
 
 - `schedule_counter` (Number)
+
+## Import
+
+DB Service Start/Stop Schedules can be imported using `service_id/schedule_id`, e.g.
+
+```
+terraform import tessell_db_service_start_stop_schedule.example <service_id>/<schedule_id>
+```
+
