@@ -3,7 +3,7 @@
 page_title: "tessell_db_snapshot Resource - terraform-provider-tessell"
 subcategory: ""
 description: |-
-  
+
 ---
 
 # tessell_db_snapshot (Resource)
@@ -112,3 +112,12 @@ Read-Only:
 - `id` (String)
 - `name` (String)
 - `status` (String)
+
+## Import
+
+DB Snapshots can be imported using `availability_machine_id/snapshot_id`, e.g.
+
+```
+terraform import tessell_db_snapshot.example <availability_machine_id>/<snapshot_id>
+```
+

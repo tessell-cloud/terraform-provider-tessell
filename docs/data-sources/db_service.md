@@ -178,7 +178,25 @@ Read-Only:
 - `option_profile_id` (String)
 - `options_profile` (String)
 - `parameter_profile_id` (String)
+- `script_info` (List of Object) (see [below for nested schema](#nestedobjatt--databases--database_configuration--oracle_config--script_info))
 - `username` (String)
+
+<a id="nestedobjatt--databases--database_configuration--oracle_config--script_info"></a>
+### Nested Schema for `databases.database_configuration.oracle_config.script_info`
+
+Read-Only:
+
+- `post_script_info` (List of Object) (see [below for nested schema](#nestedobjatt--databases--database_configuration--oracle_config--script_info--post_script_info))
+
+<a id="nestedobjatt--databases--database_configuration--oracle_config--script_info--post_script_info"></a>
+### Nested Schema for `databases.database_configuration.oracle_config.script_info.post_script_info`
+
+Read-Only:
+
+- `script_id` (String)
+- `script_version` (String)
+
+
 
 
 <a id="nestedobjatt--databases--database_configuration--postgresql_config"></a>
@@ -300,7 +318,19 @@ Read-Only:
 - `option_profile_id` (String)
 - `options_profile` (String)
 - `parameter_profile_id` (String)
+- `pdb_config` (List of Object) (see [below for nested schema](#nestedobjatt--engine_configuration--oracle_config--pdb_config))
 - `sid` (String)
+
+<a id="nestedobjatt--engine_configuration--oracle_config--pdb_config"></a>
+### Nested Schema for `engine_configuration.oracle_config.pdb_config`
+
+Read-Only:
+
+- `id` (String)
+- `name` (String)
+- `secret_id` (String)
+- `username` (String)
+
 
 
 <a id="nestedobjatt--engine_configuration--post_script_info"></a>
@@ -455,6 +485,7 @@ Read-Only:
 - `compute_name` (String)
 - `compute_type` (String)
 - `connect_string` (List of Object) (see [below for nested schema](#nestedobjatt--instances--connect_string))
+- `context_info` (List of Object) (see [below for nested schema](#nestedobjatt--instances--context_info))
 - `data_volume_iops` (Number)
 - `date_created` (String)
 - `enable_perf_insights` (Boolean)
@@ -474,6 +505,7 @@ Read-Only:
 - `public_subnet` (String)
 - `region` (String)
 - `role` (String)
+- `security_config` (List of Object) (see [below for nested schema](#nestedobjatt--instances--security_config))
 - `software_image` (String)
 - `software_image_version` (String)
 - `status` (String)
@@ -586,6 +618,15 @@ Read-Only:
 - `service_port` (String)
 
 
+<a id="nestedobjatt--instances--context_info"></a>
+### Nested Schema for `instances.context_info`
+
+Read-Only:
+
+- `description` (String)
+- `sub_status` (String)
+
+
 <a id="nestedobjatt--instances--engine_configuration"></a>
 ### Nested Schema for `instances.engine_configuration`
 
@@ -653,6 +694,24 @@ Read-Only:
 - `private_link_service_alias` (String)
 - `service_principals` (List of String)
 - `status` (String)
+
+
+<a id="nestedobjatt--instances--security_config"></a>
+### Nested Schema for `instances.security_config`
+
+Read-Only:
+
+- `security_profile` (List of Object) (see [below for nested schema](#nestedobjatt--instances--security_config--security_profile))
+
+<a id="nestedobjatt--instances--security_config--security_profile"></a>
+### Nested Schema for `instances.security_config.security_profile`
+
+Read-Only:
+
+- `id` (String)
+- `status` (String)
+- `version_id` (String)
+
 
 
 <a id="nestedobjatt--instances--storage_config"></a>
@@ -892,6 +951,8 @@ Read-Only:
 
 - `email_id` (String)
 - `role` (String)
+- `shared_by` (String)
+- `shared_on` (String)
 
 
 

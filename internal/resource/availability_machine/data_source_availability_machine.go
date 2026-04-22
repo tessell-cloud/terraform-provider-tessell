@@ -87,6 +87,16 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 										Description: "",
 										Computed:    true,
 									},
+									"shared_by": {
+										Type:        schema.TypeString,
+										Description: "Email of the user who shared the entity",
+										Computed:    true,
+									},
+									"shared_on": {
+										Type:        schema.TypeString,
+										Description: "Date when the entity was shared",
+										Computed:    true,
+									},
 								},
 							},
 						},
@@ -1731,6 +1741,58 @@ func DataSourceAvailabilityMachine() *schema.Resource {
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
+												},
+											},
+										},
+									},
+									"security_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"security_profile": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"id": {
+																Type:        schema.TypeString,
+																Description: "Id of the Security Profile",
+																Computed:    true,
+															},
+															"version_id": {
+																Type:        schema.TypeString,
+																Description: "Version Id of the Security Profile",
+																Computed:    true,
+															},
+															"status": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"context_info": {
+										Type:        schema.TypeList,
+										Description: "Provide more context of Service Instance state",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"sub_status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"description": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
 												},
 											},
 										},

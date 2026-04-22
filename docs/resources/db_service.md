@@ -413,10 +413,10 @@ resource "tessell_db_service" "example" {
 - `parent_availability_machine_id` (String) Id of the parent AvailabilityMachine, required when creating a clone
 - `pitr` (String) PITR Timestamp, using which the clone is to be created
 - `rpo_policy_config` (Block List, Max: 1) This is the definition for RPO Policy details for Tessell DB Service (see [below for nested schema](#nestedblock--rpo_policy_config))
-- `shared_with` (Block List, Max: 1) Tessell Entity ACL Sharing Info (see [below for nested schema](#nestedblock--shared_with))
 - `snapshot_configuration` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration))
 - `snapshot_id` (String) Tessell service snapshot Id, using which the clone is to be created
 - `tags` (Block List) The tags to be associated with the DB Service (see [below for nested schema](#nestedblock--tags))
+- `tessell_service_precheck_id` (String) The precheck ID from a previously run precheck validation. If provided, the system will verify the precheck results before provisioning.
 - `timeout` (Number) Timeout for terraform polling, when block_until_complete is true (default true). (In seconds)
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
@@ -433,6 +433,7 @@ resource "tessell_db_service" "example" {
 - `num_of_instances` (Number) Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.
 - `owner` (String) DB Service owner email address
 - `refresh_info` (List of Object) Service refresh details (see [below for nested schema](#nestedatt--refresh_info))
+- `shared_with` (List of Object) Tessell Entity ACL Sharing Info (see [below for nested schema](#nestedatt--shared_with))
 - `software_image_version_family` (String) Software Image Family DB Service belongs to
 - `started_at` (String) Timestamp when the DB Service was last started at
 - `status` (String) The current status of the DB Service
@@ -525,7 +526,22 @@ Optional:
 - `option_profile_id` (String) The options profile for the database
 - `options_profile` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile id for the database
+- `pdb_config` (Block List) (see [below for nested schema](#nestedblock--engine_configuration--oracle_config--pdb_config))
 - `sid` (String) SID for oracle database
+
+<a id="nestedblock--engine_configuration--oracle_config--pdb_config"></a>
+### Nested Schema for `engine_configuration.oracle_config.pdb_config`
+
+Required:
+
+- `id` (String)
+- `name` (String) Name of the PDB
+- `username` (String) Username for the PDB
+
+Read-Only:
+
+- `secret_id` (String) Password for the PDB
+
 
 
 <a id="nestedblock--engine_configuration--post_script_info"></a>
@@ -589,6 +605,7 @@ Optional:
 - `iops` (Number) IOPS requested for the DB Service
 - `private_subnet` (String) The private subnet to be used for provisioning the compute resource
 - `region` (String) The region in which the DB Service provisioned
+- `security_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--infrastructure--security_config))
 - `throughput` (Number) throughput requested for the DB Service
 - `timezone` (String) The timezone detail
 - `vpc` (String) The VPC to be used for provisioning the DB Service
@@ -743,6 +760,14 @@ Required:
 - `svm_id` (String) Storage Virtual Machine Id of the FSx NetApp registered with Tessell
 
 
+
+
+<a id="nestedblock--infrastructure--security_config"></a>
+### Nested Schema for `infrastructure.security_config`
+
+Optional:
+
+- `security_profile_id` (String) Security Profile Id to be associated with the compute
 
 
 <a id="nestedatt--infrastructure--archive_storage_config"></a>
@@ -968,7 +993,57 @@ Optional:
 - `option_profile_id` (String) The option profile id for the database
 - `options_profile` (String) The options profile for the database
 - `parameter_profile_id` (String) The parameter profile id for the database
+- `pdb_config` (Block List) (see [below for nested schema](#nestedblock--databases--database_configuration--oracle_config--pdb_config))
+- `script_info` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--oracle_config--script_info))
 - `username` (String) Username for the oracle database
+
+<a id="nestedblock--databases--database_configuration--oracle_config--pdb_config"></a>
+### Nested Schema for `databases.database_configuration.oracle_config.pdb_config`
+
+Required:
+
+- `name` (String) Name of the PDB
+- `password` (String, Sensitive) Password for the PDB
+- `username` (String) Username for the PDB
+
+Optional:
+
+- `script_info` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--oracle_config--pdb_config--script_info))
+
+<a id="nestedblock--databases--database_configuration--oracle_config--pdb_config--script_info"></a>
+### Nested Schema for `databases.database_configuration.oracle_config.pdb_config.script_info`
+
+Optional:
+
+- `post_script_info` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--oracle_config--pdb_config--script_info--post_script_info))
+
+<a id="nestedblock--databases--database_configuration--oracle_config--pdb_config--script_info--post_script_info"></a>
+### Nested Schema for `databases.database_configuration.oracle_config.pdb_config.script_info.post_script_info`
+
+Required:
+
+- `script_id` (String) The Tessell Script ID
+- `script_version` (String) The Tessell Script version
+
+
+
+
+<a id="nestedblock--databases--database_configuration--oracle_config--script_info"></a>
+### Nested Schema for `databases.database_configuration.oracle_config.script_info`
+
+Optional:
+
+- `post_script_info` (Block List, Max: 1) (see [below for nested schema](#nestedblock--databases--database_configuration--oracle_config--script_info--post_script_info))
+
+<a id="nestedblock--databases--database_configuration--oracle_config--script_info--post_script_info"></a>
+### Nested Schema for `databases.database_configuration.oracle_config.script_info.post_script_info`
+
+Required:
+
+- `script_id` (String) The Tessell Script ID
+- `script_version` (String) The Tessell Script version
+
+
 
 
 <a id="nestedblock--databases--database_configuration--postgresql_config"></a>
@@ -1042,8 +1117,10 @@ Optional:
 - `engine_configuration` (Block List) This field details the DB Service Instance engine configuration details like - access mode (see [below for nested schema](#nestedblock--instances--engine_configuration))
 - `private_link_info` (Block List, Max: 1) (see [below for nested schema](#nestedblock--instances--private_link_info))
 - `private_subnet` (String) The private subnet used for creation of the DB Service Instance
+- `security_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--instances--security_config))
 - `storage_config` (Block List) (see [below for nested schema](#nestedblock--instances--storage_config))
 - `sync_mode` (String)
+- `tessell_service_precheck_id` (String) The precheck ID for adding this instance to an existing service.
 - `throughput` (Number) Throughput requested for this DB Service instance
 - `type` (String) DB Service instance type
 
@@ -1052,6 +1129,7 @@ Read-Only:
 - `cloud` (String) DB Service Instance's cloud type
 - `compute_name` (String) The associated compute name
 - `connect_string` (List of Object) (see [below for nested schema](#nestedatt--instances--connect_string))
+- `context_info` (List of Object) Provide more context of Service Instance state (see [below for nested schema](#nestedatt--instances--context_info))
 - `date_created` (String) Timestamp when the entity was created
 - `id` (String) Tessell generated UUID for the DB Service Instance
 - `instance_group_id` (String) The instance groupd Id
@@ -1294,6 +1372,28 @@ Read-Only:
 - `endpoint_service_name` (String) The configured endpoint as a result of configuring the service-principals
 
 
+<a id="nestedblock--instances--security_config"></a>
+### Nested Schema for `instances.security_config`
+
+Optional:
+
+- `security_profile_id` (String) Security Profile Id to be associated with the compute
+
+Read-Only:
+
+- `security_profile` (List of Object) (see [below for nested schema](#nestedatt--instances--security_config--security_profile))
+
+<a id="nestedatt--instances--security_config--security_profile"></a>
+### Nested Schema for `instances.security_config.security_profile`
+
+Read-Only:
+
+- `id` (String)
+- `status` (String)
+- `version_id` (String)
+
+
+
 <a id="nestedblock--instances--storage_config"></a>
 ### Nested Schema for `instances.storage_config`
 
@@ -1354,6 +1454,15 @@ Read-Only:
 - `endpoint` (String)
 - `master_user` (String)
 - `service_port` (String)
+
+
+<a id="nestedatt--instances--context_info"></a>
+### Nested Schema for `instances.context_info`
+
+Read-Only:
+
+- `description` (String)
+- `sub_status` (String)
 
 
 <a id="nestedatt--instances--monitoring_config"></a>
@@ -1730,23 +1839,6 @@ Required:
 
 
 
-<a id="nestedblock--shared_with"></a>
-### Nested Schema for `shared_with`
-
-Optional:
-
-- `users` (Block List) (see [below for nested schema](#nestedblock--shared_with--users))
-
-<a id="nestedblock--shared_with--users"></a>
-### Nested Schema for `shared_with.users`
-
-Optional:
-
-- `email_id` (String)
-- `role` (String)
-
-
-
 <a id="nestedblock--snapshot_configuration"></a>
 ### Nested Schema for `snapshot_configuration`
 
@@ -1987,6 +2079,25 @@ Read-Only:
 - `script_id` (String)
 - `script_version` (String)
 
+
+
+
+<a id="nestedatt--shared_with"></a>
+### Nested Schema for `shared_with`
+
+Read-Only:
+
+- `users` (List of Object) (see [below for nested schema](#nestedobjatt--shared_with--users))
+
+<a id="nestedobjatt--shared_with--users"></a>
+### Nested Schema for `shared_with.users`
+
+Read-Only:
+
+- `email_id` (String)
+- `role` (String)
+- `shared_by` (String)
+- `shared_on` (String)
 
 
 

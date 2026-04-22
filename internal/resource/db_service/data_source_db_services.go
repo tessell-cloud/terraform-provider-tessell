@@ -856,6 +856,35 @@ func DataSourceDBServices() *schema.Resource {
 													Description: "To explicitly enable archive mode, when PITR is disabled",
 													Computed:    true,
 												},
+												"pdb_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"id": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Description: "Name of the PDB",
+																Computed:    true,
+															},
+															"username": {
+																Type:        schema.TypeString,
+																Description: "Username for the PDB",
+																Computed:    true,
+															},
+															"secret_id": {
+																Type:        schema.TypeString,
+																Description: "Password for the PDB",
+																Computed:    true,
+															},
+														},
+													},
+												},
 											},
 										},
 									},
@@ -1858,6 +1887,58 @@ func DataSourceDBServices() *schema.Resource {
 											},
 										},
 									},
+									"security_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"security_profile": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"id": {
+																Type:        schema.TypeString,
+																Description: "Id of the Security Profile",
+																Computed:    true,
+															},
+															"version_id": {
+																Type:        schema.TypeString,
+																Description: "Version Id of the Security Profile",
+																Computed:    true,
+															},
+															"status": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"context_info": {
+										Type:        schema.TypeList,
+										Description: "Provide more context of Service Instance state",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"sub_status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+												"description": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -1952,6 +2033,34 @@ func DataSourceDBServices() *schema.Resource {
 																Type:        schema.TypeString,
 																Description: "The option profile id for the database",
 																Computed:    true,
+															},
+															"script_info": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"post_script_info": {
+																			Type:        schema.TypeList,
+																			Description: "",
+																			Computed:    true,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"script_id": {
+																						Type:        schema.TypeString,
+																						Description: "The Tessell Script ID",
+																						Computed:    true,
+																					},
+																					"script_version": {
+																						Type:        schema.TypeString,
+																						Description: "The Tessell Script version",
+																						Computed:    true,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
 															},
 														},
 													},
@@ -2091,6 +2200,16 @@ func DataSourceDBServices() *schema.Resource {
 												"role": {
 													Type:        schema.TypeString,
 													Description: "",
+													Computed:    true,
+												},
+												"shared_by": {
+													Type:        schema.TypeString,
+													Description: "Email of the user who shared the entity",
+													Computed:    true,
+												},
+												"shared_on": {
+													Type:        schema.TypeString,
+													Description: "Date when the entity was shared",
 													Computed:    true,
 												},
 											},

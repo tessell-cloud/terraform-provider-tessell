@@ -155,6 +155,8 @@ func parseEntityUserAclSharingInfo(entityUserAclSharingInfo *model.EntityUserAcl
 	parsedEntityUserAclSharingInfo := make(map[string]interface{})
 	parsedEntityUserAclSharingInfo["email_id"] = entityUserAclSharingInfo.EmailId
 	parsedEntityUserAclSharingInfo["role"] = entityUserAclSharingInfo.Role
+	parsedEntityUserAclSharingInfo["shared_by"] = entityUserAclSharingInfo.SharedBy
+	parsedEntityUserAclSharingInfo["shared_on"] = entityUserAclSharingInfo.SharedOn
 
 	return parsedEntityUserAclSharingInfo
 }
@@ -991,6 +993,16 @@ func parseTessellServiceInstanceDTO(tessellServiceInstanceDTO *model.TessellServ
 		parsedTessellServiceInstanceDTO["private_link_info"] = []interface{}{parsePrivateLinkInfo(tessellServiceInstanceDTO.PrivateLinkInfo)}
 	}
 
+	var securityConfig *model.SecurityConfigOps
+	if tessellServiceInstanceDTO.SecurityConfig != securityConfig {
+		parsedTessellServiceInstanceDTO["security_config"] = []interface{}{parseSecurityConfigOps(tessellServiceInstanceDTO.SecurityConfig)}
+	}
+
+	var contextInfo *model.TessellServiceInstanceContextInfo
+	if tessellServiceInstanceDTO.ContextInfo != contextInfo {
+		parsedTessellServiceInstanceDTO["context_info"] = []interface{}{parseTessellServiceInstanceContextInfo(tessellServiceInstanceDTO.ContextInfo)}
+	}
+
 	return parsedTessellServiceInstanceDTO
 }
 
@@ -1251,6 +1263,43 @@ func parsePrivateLinkInfo(privateLinkInfo *model.PrivateLinkInfo) interface{} {
 	parsedPrivateLinkInfo["client_azure_subscription_ids"] = privateLinkInfo.ClientAzureSubscriptionIds
 
 	return parsedPrivateLinkInfo
+}
+
+func parseSecurityConfigOps(securityConfigOps *model.SecurityConfigOps) interface{} {
+	if securityConfigOps == nil {
+		return nil
+	}
+	parsedSecurityConfigOps := make(map[string]interface{})
+
+	var securityProfile *model.SecurityProfileInfoOps
+	if securityConfigOps.SecurityProfile != securityProfile {
+		parsedSecurityConfigOps["security_profile"] = []interface{}{parseSecurityProfileInfoOps(securityConfigOps.SecurityProfile)}
+	}
+
+	return parsedSecurityConfigOps
+}
+
+func parseSecurityProfileInfoOps(securityProfileInfoOps *model.SecurityProfileInfoOps) interface{} {
+	if securityProfileInfoOps == nil {
+		return nil
+	}
+	parsedSecurityProfileInfoOps := make(map[string]interface{})
+	parsedSecurityProfileInfoOps["id"] = securityProfileInfoOps.Id
+	parsedSecurityProfileInfoOps["version_id"] = securityProfileInfoOps.VersionId
+	parsedSecurityProfileInfoOps["status"] = securityProfileInfoOps.Status
+
+	return parsedSecurityProfileInfoOps
+}
+
+func parseTessellServiceInstanceContextInfo(tessellServiceInstanceContextInfo *model.TessellServiceInstanceContextInfo) interface{} {
+	if tessellServiceInstanceContextInfo == nil {
+		return nil
+	}
+	parsedTessellServiceInstanceContextInfo := make(map[string]interface{})
+	parsedTessellServiceInstanceContextInfo["sub_status"] = tessellServiceInstanceContextInfo.SubStatus
+	parsedTessellServiceInstanceContextInfo["description"] = tessellServiceInstanceContextInfo.Description
+
+	return parsedTessellServiceInstanceContextInfo
 }
 
 func parseBackupDownloadConfigWithResData(backupDownloadConfig *model.BackupDownloadConfig, d *schema.ResourceData) []interface{} {

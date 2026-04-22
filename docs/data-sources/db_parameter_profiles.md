@@ -101,4 +101,5 @@ Read-Only:
 - `name` (String)
 - `source` (String)
 - `top_parameter` (Boolean)
+- `usage_type` (String)
 - `value` (String)

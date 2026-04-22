@@ -126,6 +126,12 @@ type EntityAclSharingSummaryInfo struct {
 	Users *[]string `json:"users,omitempty"`
 }
 
+type SecurityProfileInfoOps struct {
+	Id        *string `json:"id,omitempty"`        // Id of the Security Profile
+	VersionId *string `json:"versionId,omitempty"` // Version Id of the Security Profile
+	Status    *string `json:"status,omitempty"`
+}
+
 type MonthlySchedule struct {
 	CommonSchedule *DatesForEachMonth `json:"commonSchedule,omitempty"`
 }
@@ -220,6 +226,8 @@ type TessellServiceInstanceDTO struct {
 	StorageConfig        *InstanceStorageConfig               `json:"storageConfig,omitempty"`
 	ArchiveStorageConfig *InstanceStorageConfig               `json:"archiveStorageConfig,omitempty"`
 	PrivateLinkInfo      *PrivateLinkInfo                     `json:"privateLinkInfo,omitempty"`
+	SecurityConfig       *SecurityConfigOps                   `json:"securityConfig,omitempty"`
+	ContextInfo          *TessellServiceInstanceContextInfo   `json:"contextInfo,omitempty"`
 }
 
 type APIStatus struct {
@@ -252,8 +260,10 @@ type InstanceAzureNetAppConfig struct {
 }
 
 type EntityUserAclSharingInfo struct {
-	EmailId *string `json:"emailId,omitempty"`
-	Role    *string `json:"role,omitempty"`
+	EmailId  *string `json:"emailId,omitempty"`
+	Role     *string `json:"role,omitempty"`
+	SharedBy *string `json:"sharedBy,omitempty"` // Email of the user who shared the entity
+	SharedOn *string `json:"sharedOn,omitempty"` // Date when the entity was shared
 }
 
 type TessellServiceInstanceConnectString struct {
@@ -270,6 +280,11 @@ type CustomRPOPolicy struct {
 
 type MonitoringConfig struct {
 	PerfInsights *PerfInsightsConfig `json:"perfInsights,omitempty"`
+}
+
+type TessellServiceInstanceContextInfo struct {
+	SubStatus   *string `json:"subStatus,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 type MonthWiseDates struct {
@@ -291,6 +306,10 @@ type AzureNetAppConfigPayload struct {
 	AzureNetAppId  *string                                 `json:"azureNetAppId,omitempty"`  // Azure NetApp Id registered with Tessell
 	CapacityPoolId *string                                 `json:"capacityPoolId,omitempty"` // Capacity pool Id of the Azure NetApp registered with Tessell
 	Configurations *AzureNetAppConfigPayloadConfigurations `json:"configurations,omitempty"`
+}
+
+type SecurityConfigOps struct {
+	SecurityProfile *SecurityProfileInfoOps `json:"securityProfile,omitempty"`
 }
 
 type DatabaseSnapshotRegionInfo struct {
