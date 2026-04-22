@@ -12,6 +12,8 @@ Tessell offers a fully managed database service offering. The 'DB Service' resou
 
 Changes to a DB Service can occur when you wish to update its state. Example: A DB Service can be stopped, and started back at a later point of time.
 
+> **Note:** `ForceNew` behavior is being removed for certain attributes. As a result, changes to those attributes will no longer trigger a service destroy and recreate.
+
 DB Service Engine Types:
 Tessell supports managed database service for four types of database engines: Oracle, Microsoft SQL Server, Postgresql, and MySQL.
 
