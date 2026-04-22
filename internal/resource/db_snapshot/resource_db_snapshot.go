@@ -3,6 +3,7 @@ package db_snapshot
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,6 +18,20 @@ func ResourceDBSnapshot() *schema.Resource {
 		ReadContext:   resourceDBSnapshotRead,
 		UpdateContext: resourceDBSnapshotUpdate,
 		DeleteContext: resourceDBSnapshotDelete,
+
+		Importer: &schema.ResourceImporter{
+			StateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+				parts := strings.SplitN(d.Id(), "/", 2)
+				if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+					return nil, fmt.Errorf("invalid import ID format, expected availability_machine_id/snapshot_id, got: %q", d.Id())
+				}
+				if err := d.Set("availability_machine_id", parts[0]); err != nil {
+					return nil, err
+				}
+				d.SetId(parts[1])
+				return []*schema.ResourceData{d}, nil
+			},
+		},
 
 		Schema: map[string]*schema.Schema{
 			"id": {
