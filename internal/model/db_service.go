@@ -42,20 +42,21 @@ type TfTessellServiceInfrastructureInfo struct {
 }
 
 type ProvisionComputePayload struct {
-	Name                 *string               `json:"name,omitempty"`
-	InstanceGroupName    *string               `json:"instanceGroupName,omitempty"`
-	Region               *string               `json:"region,omitempty"`           // The region in which the compute is to be provisioned
-	AvailabilityZone     *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the compute is to be provisioned
-	Role                 *string               `json:"role,omitempty"`
-	VPC                  *string               `json:"vpc,omitempty"`           // The VPC to be used for provisioning the compute resource
-	PrivateSubnet        *string               `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the compute resource
-	ComputeType          *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the compute resource
-	ComputeName          *string               `json:"computeName,omitempty"`   // The compute-name of instance provided by the User
-	ComputeId            *string               `json:"computeId,omitempty"`     // Specify the compute resource if it has to be shared
-	Timezone             *string               `json:"timezone,omitempty"`      // The timezone detail
-	ComputeConfig        *ComputeConfigPayload `json:"computeConfig,omitempty"`
-	StorageConfig        *StorageConfigPayload `json:"storageConfig,omitempty"`
-	ArchiveStorageConfig *StorageConfigPayload `json:"archiveStorageConfig,omitempty"`
+	Name                 *string                `json:"name,omitempty"`
+	InstanceGroupName    *string                `json:"instanceGroupName,omitempty"`
+	Region               *string                `json:"region,omitempty"`           // The region in which the compute is to be provisioned
+	AvailabilityZone     *string                `json:"availabilityZone,omitempty"` // The availability-zone in which the compute is to be provisioned
+	Role                 *string                `json:"role,omitempty"`
+	VPC                  *string                `json:"vpc,omitempty"`           // The VPC to be used for provisioning the compute resource
+	PrivateSubnet        *string                `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the compute resource
+	ComputeType          *string                `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the compute resource
+	ComputeName          *string                `json:"computeName,omitempty"`   // The compute-name of instance provided by the User
+	ComputeId            *string                `json:"computeId,omitempty"`     // Specify the compute resource if it has to be shared
+	Timezone             *string                `json:"timezone,omitempty"`      // The timezone detail
+	ComputeConfig        *ComputeConfigPayload  `json:"computeConfig,omitempty"`
+	StorageConfig        *StorageConfigPayload  `json:"storageConfig,omitempty"`
+	ArchiveStorageConfig *StorageConfigPayload  `json:"archiveStorageConfig,omitempty"`
+	SecurityConfig       *SecurityConfigPayload `json:"securityConfig,omitempty"`
 }
 
 type ComputeConfigPayload struct {
@@ -67,6 +68,10 @@ type ExadataComputeConfigPayload struct {
 	InfrastructureId *string `json:"infrastructureId"`
 	VmClusterId      *string `json:"vmClusterId"`
 	ComputeId        *string `json:"computeId,omitempty"`
+}
+
+type SecurityConfigPayload struct {
+	SecurityProfileId *string `json:"securityProfileId,omitempty"` // Security Profile Id to be associated with the compute
 }
 
 type TessellServiceConnectivityInfo struct {
@@ -165,14 +170,22 @@ type TessellServiceEngineInfo struct {
 }
 
 type TessellServiceOracleEngineConfig struct {
-	MultiTenant          *bool   `json:"multiTenant,omitempty"`          // Specify whether the DB Service is multi-tenant.
-	ParameterProfileId   *string `json:"parameterProfileId,omitempty"`   // The parameter profile id for the database
-	OptionsProfile       *string `json:"optionsProfile,omitempty"`       // The options profile for the database
-	OptionProfileId      *string `json:"optionProfileId,omitempty"`      // The options profile for the database
-	Sid                  *string `json:"sid,omitempty"`                  // SID for oracle database
-	CharacterSet         *string `json:"characterSet,omitempty"`         // The character-set for the database
-	NationalCharacterSet *string `json:"nationalCharacterSet,omitempty"` // The national-character-set for the database
-	EnableArchiveMode    *bool   `json:"enableArchiveMode,omitempty"`    // To explicitly enable archive mode, when PITR is disabled
+	MultiTenant          *bool                         `json:"multiTenant,omitempty"`          // Specify whether the DB Service is multi-tenant.
+	ParameterProfileId   *string                       `json:"parameterProfileId,omitempty"`   // The parameter profile id for the database
+	OptionsProfile       *string                       `json:"optionsProfile,omitempty"`       // The options profile for the database
+	OptionProfileId      *string                       `json:"optionProfileId,omitempty"`      // The options profile for the database
+	Sid                  *string                       `json:"sid,omitempty"`                  // SID for oracle database
+	CharacterSet         *string                       `json:"characterSet,omitempty"`         // The character-set for the database
+	NationalCharacterSet *string                       `json:"nationalCharacterSet,omitempty"` // The national-character-set for the database
+	EnableArchiveMode    *bool                         `json:"enableArchiveMode,omitempty"`    // To explicitly enable archive mode, when PITR is disabled
+	PDBConfig            *[]OraclePDBConfigTaskPayload `json:"pdbConfig,omitempty"`
+}
+
+type OraclePDBConfigTaskPayload struct {
+	Id       *string `json:"id,omitempty"`
+	Name     *string `json:"name,omitempty"`     // Name of the PDB
+	Username *string `json:"username,omitempty"` // Username for the PDB
+	SecretId *string `json:"secretId,omitempty"` // Password for the PDB
 }
 
 type TessellServicePostgresqlEngineConfig struct {
@@ -248,10 +261,15 @@ type DatabaseConfiguration struct {
 }
 
 type OracleDatabaseConfig struct {
-	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
-	OptionsProfile     *string `json:"optionsProfile,omitempty"`     // The options profile for the database
-	Username           *string `json:"username,omitempty"`           // Username for the oracle database
-	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The option profile id for the database
+	ParameterProfileId *string                         `json:"parameterProfileId,omitempty"` // The parameter profile id for the database
+	OptionsProfile     *string                         `json:"optionsProfile,omitempty"`     // The options profile for the database
+	Username           *string                         `json:"username,omitempty"`           // Username for the oracle database
+	OptionProfileId    *string                         `json:"optionProfileId,omitempty"`    // The option profile id for the database
+	ScriptInfo         *OracleDatabaseConfigScriptInfo `json:"scriptInfo,omitempty"`
+}
+
+type OracleDatabaseConfigScriptInfo struct {
+	PostScriptInfo *ScriptInfo `json:"postScriptInfo,omitempty"`
 }
 
 type PostgresqlDatabaseConfig struct {
@@ -361,14 +379,15 @@ type TerraformTessellServiceDTO struct {
 }
 
 type AddDBServiceInstancesPayload struct {
-	InstanceNamePrefix *string                        `json:"instanceNamePrefix"`
-	Cloud              *string                        `json:"cloud"`                        // The cloud-type in which the instance is to be provisioned (ex. aws, azure)
-	Region             *string                        `json:"region"`                       // The region in which the instance is to be provisioned
-	VPC                *string                        `json:"vpc,omitempty"`                // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
-	ComputeType        *string                        `json:"computeType,omitempty"`        // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
-	EnablePerfInsights *bool                          `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
-	AwsInfraConfig     *AwsInfraConfig                `json:"awsInfraConfig,omitempty"`
-	Instances          *[]AddDBServiceInstancePayload `json:"instances"`
+	InstanceNamePrefix       *string                        `json:"instanceNamePrefix"`
+	Cloud                    *string                        `json:"cloud"`                        // The cloud-type in which the instance is to be provisioned (ex. aws, azure)
+	Region                   *string                        `json:"region"`                       // The region in which the instance is to be provisioned
+	VPC                      *string                        `json:"vpc,omitempty"`                // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
+	ComputeType              *string                        `json:"computeType,omitempty"`        // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
+	EnablePerfInsights       *bool                          `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
+	AwsInfraConfig           *AwsInfraConfig                `json:"awsInfraConfig,omitempty"`
+	Instances                *[]AddDBServiceInstancePayload `json:"instances"`
+	TessellServicePrecheckId *string                        `json:"tessellServicePrecheckId,omitempty"` // The precheck ID from a previously run precheck validation. If provided, the system will verify the precheck results before adding service instances.
 }
 
 type AddDBServiceInstancePayload struct {
@@ -386,6 +405,7 @@ type AddDBServiceInstancePayload struct {
 	ComputeConfig        *ComputeConfigPayload      `json:"computeConfig,omitempty"`
 	StorageConfig        *StorageConfigPayload      `json:"storageConfig,omitempty"`
 	ArchiveStorageConfig *StorageConfigPayload      `json:"archiveStorageConfig,omitempty"`
+	SecurityConfig       *SecurityConfigPayload     `json:"securityConfig,omitempty"`
 }
 
 type CloneTessellServicePayload struct {
@@ -416,7 +436,8 @@ type CloneTessellServicePayload struct {
 	EngineConfiguration      *TessellServiceEngineConfigurationPayload `json:"engineConfiguration"`
 	Databases                *[]CreateDatabasePayload                  `json:"databases,omitempty"` // Specify the databases to be created in the DB Service
 	IntegrationsConfig       *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`
-	Tags                     *[]TessellTag                             `json:"tags,omitempty"` // The tags to be associated with the DB Service
+	Tags                     *[]TessellTag                             `json:"tags,omitempty"`                     // The tags to be associated with the DB Service
+	TessellServicePrecheckId *string                                   `json:"tessellServicePrecheckId,omitempty"` // The precheck ID from a previously run precheck validation. If provided, the system will verify the precheck results before provisioning.
 }
 
 type CreateUpdateRefreshSchedulePayload struct {
@@ -469,23 +490,24 @@ type ProvisionInfraPayload struct {
 }
 
 type AddDBServiceInstancePayloadV2 struct {
-	InstanceGroupName    *string               `json:"instanceGroupName"`
-	Name                 *string               `json:"name"`                    // Name of the instance to be created, should be unique for a dbservice
-	Region               *string               `json:"region"`                  // The region in which the instance is to be provisioned
-	VPC                  *string               `json:"vpc,omitempty"`           // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
-	PrivateSubnet        *string               `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the instance.
-	ComputeType          *string               `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
-	ComputeName          *string               `json:"computeName,omitempty"`   // The compute-name of instance provided by the User
-	ComputeId            *string               `json:"computeId,omitempty"`
-	EnablePerfInsights   *bool                 `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
-	AwsInfraConfig       *AwsInfraConfig       `json:"awsInfraConfig,omitempty"`
-	Role                 *string               `json:"role"`
-	AvailabilityZone     *string               `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
-	Iops                 *int                  `json:"iops,omitempty"`
-	Throughput           *int                  `json:"throughput,omitempty"`
-	ComputeConfig        *ComputeConfigPayload `json:"computeConfig,omitempty"`
-	StorageConfig        *StorageConfigPayload `json:"storageConfig,omitempty"`
-	ArchiveStorageConfig *StorageConfigPayload `json:"archiveStorageConfig,omitempty"`
+	InstanceGroupName    *string                `json:"instanceGroupName"`
+	Name                 *string                `json:"name"`                    // Name of the instance to be created, should be unique for a dbservice
+	Region               *string                `json:"region"`                  // The region in which the instance is to be provisioned
+	VPC                  *string                `json:"vpc,omitempty"`           // The VPC to be used for provisioning the instance. If not specified, it will be inherited from the current instances that are in the same region. If no instances are present in the target region, this is a required input.
+	PrivateSubnet        *string                `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the instance.
+	ComputeType          *string                `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
+	ComputeName          *string                `json:"computeName,omitempty"`   // The compute-name of instance provided by the User
+	ComputeId            *string                `json:"computeId,omitempty"`
+	EnablePerfInsights   *bool                  `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
+	AwsInfraConfig       *AwsInfraConfig        `json:"awsInfraConfig,omitempty"`
+	Role                 *string                `json:"role"`
+	AvailabilityZone     *string                `json:"availabilityZone,omitempty"` // The availability-zone in which the instance is to be provisioned
+	Iops                 *int                   `json:"iops,omitempty"`
+	Throughput           *int                   `json:"throughput,omitempty"`
+	ComputeConfig        *ComputeConfigPayload  `json:"computeConfig,omitempty"`
+	StorageConfig        *StorageConfigPayload  `json:"storageConfig,omitempty"`
+	ArchiveStorageConfig *StorageConfigPayload  `json:"archiveStorageConfig,omitempty"`
+	SecurityConfig       *SecurityConfigPayload `json:"securityConfig,omitempty"`
 }
 
 type TessellServiceConnectivityInfoPayload struct {
@@ -564,7 +586,7 @@ type MilvusEngineConfigPayload struct {
 }
 
 type CreateDatabasePayload struct {
-	DatabaseName          *string                                     `json:"databaseName"`               // The name of the database to be created
+	DatabaseName          *string                                     `json:"databaseName,omitempty"`     // The name of the database to be created
 	Description           *string                                     `json:"description,omitempty"`      // Description of database created
 	SourceDatabaseId      *string                                     `json:"sourceDatabaseId,omitempty"` // Required while creating a clone. It specifies the Id of the source database from which the clone is being created.
 	DatabaseConfiguration *CreateDatabasePayloadDatabaseConfiguration `json:"databaseConfiguration,omitempty"`
@@ -581,11 +603,19 @@ type CreateDatabasePayloadDatabaseConfiguration struct {
 }
 
 type CreateOracleDatabaseConfig struct {
-	ParameterProfileId *string `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
-	OptionsProfile     *string `json:"optionsProfile,omitempty"`     // The options profile for the database
-	OptionProfileId    *string `json:"optionProfileId,omitempty"`    // The options profile for the database
-	Username           *string `json:"username,omitempty"`           // Username for the oracle database
-	Password           *string `json:"password,omitempty"`           // Password for the oracle database
+	ParameterProfileId *string            `json:"parameterProfileId,omitempty"` // The parameter profile ID for the database
+	OptionsProfile     *string            `json:"optionsProfile,omitempty"`     // The options profile for the database
+	OptionProfileId    *string            `json:"optionProfileId,omitempty"`    // The options profile for the database
+	Username           *string            `json:"username,omitempty"`           // Username for the oracle database
+	Password           *string            `json:"password,omitempty"`           // Password for the oracle database
+	PDBConfig          *[]OraclePDBConfig `json:"pdbConfig,omitempty"`
+}
+
+type OraclePDBConfig struct {
+	Name       *string                         `json:"name,omitempty"`     // Name of the PDB
+	Username   *string                         `json:"username,omitempty"` // Username for the PDB
+	Password   *string                         `json:"password,omitempty"` // Password for the PDB
+	ScriptInfo *OracleDatabaseConfigScriptInfo `json:"scriptInfo,omitempty"`
 }
 
 type DBCollectionCreatePayload struct {
@@ -786,7 +816,8 @@ type ProvisionServicePayload struct {
 	EngineConfiguration      *TessellServiceEngineConfigurationPayload `json:"engineConfiguration"`
 	Databases                *[]CreateDatabasePayload                  `json:"databases,omitempty"` // Specify the databases to be created in the DB Service
 	IntegrationsConfig       *TessellServiceIntegrationsPayload        `json:"integrationsConfig,omitempty"`
-	Tags                     *[]TessellTag                             `json:"tags,omitempty"` // The tags to be associated with the DB Service
+	Tags                     *[]TessellTag                             `json:"tags,omitempty"`                     // The tags to be associated with the DB Service
+	TessellServicePrecheckId *string                                   `json:"tessellServicePrecheckId,omitempty"` // The precheck ID from a previously run precheck validation. If provided, the system will verify the precheck results before provisioning.
 }
 
 type StartTessellServicePayload struct {

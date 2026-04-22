@@ -21,6 +21,10 @@ func ResourceDBService() *schema.Resource {
 		UpdateContext: resourceDBServiceUpdate,
 		DeleteContext: resourceDBServiceDelete,
 
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
 		},
@@ -40,13 +44,16 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Tessell service snapshot Id, using which the clone is to be created",
 				Optional:    true,
-				ForceNew:    true,
 			},
 			"pitr": {
 				Type:        schema.TypeString,
 				Description: "PITR Timestamp, using which the clone is to be created",
 				Optional:    true,
-				ForceNew:    true,
+			},
+			"tessell_service_precheck_id": {
+				Type:        schema.TypeString,
+				Description: "The precheck ID from a previously run precheck validation. If provided, the system will verify the precheck results before provisioning.",
+				Optional:    true,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -67,13 +74,11 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Tessell Subscription in which the DB Service is to be created",
 				Required:    true,
-				ForceNew:    true,
 			},
 			"engine_type": {
 				Type:        schema.TypeString,
 				Description: "",
 				Required:    true,
-				ForceNew:    true,
 			},
 			"topology": {
 				Type:        schema.TypeString,
@@ -100,13 +105,11 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"description": {
 							Type:        schema.TypeString,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 						},
 					},
 				},
@@ -120,19 +123,16 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "",
 				Optional:    true,
-				ForceNew:    true,
 			},
 			"software_image": {
 				Type:        schema.TypeString,
 				Description: "Software Image to be used to create the DB Service",
 				Required:    true,
-				ForceNew:    true,
 			},
 			"software_image_version": {
 				Type:        schema.TypeString,
 				Description: "Software Image Version to be used to create the DB Service",
 				Required:    true,
-				ForceNew:    true,
 			},
 			"software_image_version_family": {
 				Type:        schema.TypeString,
@@ -202,55 +202,46 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The DB Service ID using which this DB Service clone is created",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"availability_machine_id": {
 							Type:        schema.TypeString,
 							Description: "The Availability Machine ID using which this DB Service clone is created",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"tessell_service": {
 							Type:        schema.TypeString,
 							Description: "The DB Service name using which this DB Service clone is created",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"availability_machine": {
 							Type:        schema.TypeString,
 							Description: "The Availability Machine name using which this DB Service clone is created",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"snapshot_name": {
 							Type:        schema.TypeString,
 							Description: "The snapshot using which this DB Service clone is created",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"snapshot_id": {
 							Type:        schema.TypeString,
 							Description: "The snapshot ID using which this DB Service clone is created",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"snapshot_time": {
 							Type:        schema.TypeString,
 							Description: "DB Service snapshot capture time",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"pitr_time": {
 							Type:        schema.TypeString,
 							Description: "If the database was created using a Point-In-Time mechanism, it specifies the timestamp in UTC",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"maximum_recoverability": {
 							Type:        schema.TypeBool,
 							Description: "If the service was created using a maximum recoverability from the parent service",
 							Optional:    true,
-							ForceNew:    true,
 							Default:     false,
 						},
 						"storage_provider": {
@@ -273,7 +264,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The cloud-type in which the DB Service is provisioned (ex. aws, azure)",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"region": {
 							Type:        schema.TypeString,
@@ -297,26 +287,22 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "",
 										Required:    true,
-										ForceNew:    true,
 									},
 									"regions": {
 										Type:        schema.TypeList,
 										Description: "The regions details",
 										Optional:    true,
-										ForceNew:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"region": {
 													Type:        schema.TypeString,
 													Description: "The cloud region name",
 													Required:    true,
-													ForceNew:    true,
 												},
 												"availability_zones": {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -342,7 +328,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeBool,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							Default:     false,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								if old != "" {
@@ -356,7 +341,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The encryption key name which is used to encrypt the data at rest",
 							Optional:    true,
-							ForceNew:    true,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								if old != "" {
 									encryptionKey := d.Get(k)
@@ -376,7 +360,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -385,7 +368,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -394,7 +376,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeInt,
 													Description: "Number of vcpus for aws cpu options",
 													Optional:    true,
-													ForceNew:    true,
 												},
 											},
 										},
@@ -411,21 +392,18 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeInt,
 							Description: "Storage in bytes that is over and above the storage included with compute. This is maintained for backward compatibility and would be deprecated soon.",
 							Optional:    true,
-							ForceNew:    true,
 							Default:     0,
 						},
 						"enable_compute_sharing": {
 							Type:        schema.TypeBool,
 							Description: "Specify if the computes should be shared across DB Services",
 							Optional:    true,
-							ForceNew:    true,
 							Default:     false,
 						},
 						"timezone": {
 							Type:        schema.TypeString,
 							Description: "The timezone detail",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"multi_disk": {
 							Type:        schema.TypeBool,
@@ -460,7 +438,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "If not specified, it will be autogenerated",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"computes": {
 							Type:        schema.TypeList,
@@ -483,25 +460,21 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The region in which the compute is to be provisioned",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"availability_zone": {
 										Type:        schema.TypeString,
 										Description: "The availability-zone in which the compute is to be provisioned",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"role": {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"vpc": {
 										Type:        schema.TypeString,
 										Description: "The VPC to be used for provisioning the compute resource",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"private_subnet": {
 										Type:        schema.TypeString,
@@ -512,25 +485,21 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The compute-type to be used for provisioning the compute resource",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"compute_name": {
 										Type:        schema.TypeString,
 										Description: "The compute-name of instance provided by the User",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"compute_id": {
 										Type:        schema.TypeString,
 										Description: "Specify the compute resource if it has to be shared",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"timezone": {
 										Type:        schema.TypeString,
 										Description: "The timezone detail",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"compute_config": {
 										Type:        schema.TypeList,
@@ -558,19 +527,16 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeString,
 																Description: "",
 																Required:    true,
-																ForceNew:    true,
 															},
 															"vm_cluster_id": {
 																Type:        schema.TypeString,
 																Description: "",
 																Required:    true,
-																ForceNew:    true,
 															},
 															"compute_id": {
 																Type:        schema.TypeString,
 																Description: "",
 																Optional:    true,
-																ForceNew:    true,
 															},
 														},
 													},
@@ -582,7 +548,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "The storage details to be provisioned.",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -591,13 +556,11 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "",
 													Required:    true,
-													ForceNew:    true,
 												},
 												"fsx_net_app_config": {
 													Type:        schema.TypeList,
 													Description: "The FSx NetApp details to be provisioned",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -606,13 +569,11 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeString,
 																Description: "File System Id of the FSx NetApp registered with Tessell",
 																Required:    true,
-																ForceNew:    true,
 															},
 															"svm_id": {
 																Type:        schema.TypeString,
 																Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
 																Required:    true,
-																ForceNew:    true,
 															},
 														},
 													},
@@ -621,7 +582,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -630,19 +590,16 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeString,
 																Description: "Azure NetApp Id registered with Tessell",
 																Optional:    true,
-																ForceNew:    true,
 															},
 															"capacity_pool_id": {
 																Type:        schema.TypeString,
 																Description: "Capacity pool Id of the Azure NetApp registered with Tessell",
 																Optional:    true,
-																ForceNew:    true,
 															},
 															"configurations": {
 																Type:        schema.TypeList,
 																Description: "Azure NetApp configurations",
 																Optional:    true,
-																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -651,7 +608,6 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeString,
 																			Description: "",
 																			Optional:    true,
-																			ForceNew:    true,
 																		},
 																	},
 																},
@@ -674,13 +630,11 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "",
 													Required:    true,
-													ForceNew:    true,
 												},
 												"fsx_net_app_config": {
 													Type:        schema.TypeList,
 													Description: "The FSx NetApp details to be provisioned",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -689,13 +643,11 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeString,
 																Description: "File System Id of the FSx NetApp registered with Tessell",
 																Required:    true,
-																ForceNew:    true,
 															},
 															"svm_id": {
 																Type:        schema.TypeString,
 																Description: "Storage Virtual Machine Id of the FSx NetApp registered with Tessell",
 																Required:    true,
-																ForceNew:    true,
 															},
 														},
 													},
@@ -704,7 +656,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -713,19 +664,16 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeString,
 																Description: "Azure NetApp Id registered with Tessell",
 																Optional:    true,
-																ForceNew:    true,
 															},
 															"capacity_pool_id": {
 																Type:        schema.TypeString,
 																Description: "Capacity pool Id of the Azure NetApp registered with Tessell",
 																Optional:    true,
-																ForceNew:    true,
 															},
 															"configurations": {
 																Type:        schema.TypeList,
 																Description: "Azure NetApp configurations",
 																Optional:    true,
-																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -734,7 +682,6 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeString,
 																			Description: "",
 																			Optional:    true,
-																			ForceNew:    true,
 																		},
 																	},
 																},
@@ -810,6 +757,22 @@ func ResourceDBService() *schema.Resource {
 												},
 											},
 										},
+									},
+								},
+							},
+						},
+						"security_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"security_profile_id": {
+										Type:        schema.TypeString,
+										Description: "Security Profile Id to be associated with the compute",
+										Optional:    true,
 									},
 								},
 							},
@@ -915,7 +878,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeBool,
 							Description: "Specify whether to enable SSL to the DB Service, default false",
 							Optional:    true,
-							ForceNew:    true,
 							Default:     false,
 						},
 						"ca_cert_id": {
@@ -942,7 +904,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeInt,
 							Description: "The connection port for the DB Service",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"enable_public_access": {
 							Type:        schema.TypeBool,
@@ -967,37 +928,31 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"usage_type": {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"connect_descriptor": {
 										Type:        schema.TypeString,
 										Description: "The connection description for the DB Service",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"endpoint": {
 										Type:        schema.TypeString,
 										Description: "The connection end point for the DB Service",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"master_user": {
 										Type:        schema.TypeString,
 										Description: "The master user name for the DB Service",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"service_port": {
 										Type:        schema.TypeInt,
 										Description: "The connection port for the DB Service",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -1012,7 +967,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"service_principals": {
 										Type:        schema.TypeList,
@@ -1031,7 +985,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "The list of Azure subscription Ids",
 										Optional:    true,
-										ForceNew:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -1040,7 +993,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The Azure private link service alias",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -1096,19 +1048,16 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The DNS prefix associated with the DB Service",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"enable_public_access": {
 										Type:        schema.TypeBool,
 										Description: "Specify whether to enable public access to the DB Service, default false",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"allowed_ip_addresses": {
 										Type:        schema.TypeList,
 										Description: "The list of allowed ipv4 addresses that can connect to the DB Service",
 										Optional:    true,
-										ForceNew:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -1117,7 +1066,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "The interface endpoint or Gateway Load Balancer endpoint to connect to your DB service.",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1126,7 +1074,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "The list of AWS account principals that are currently enabled",
 													Optional:    true,
-													ForceNew:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -1135,7 +1082,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "The list of Azure subscription Ids",
 													Optional:    true,
-													ForceNew:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -1199,7 +1145,6 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "DB Service's credential details",
 				Required:    true,
-				ForceNew:    true,
 				MaxItems:    1,
 				MinItems:    1,
 				Elem: &schema.Resource{
@@ -1221,7 +1166,6 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "This field details the DB Service maintenance related details.",
 				Optional:    true,
-				ForceNew:    true,
 				MaxItems:    1,
 				MinItems:    1,
 				Elem: &schema.Resource{
@@ -1230,19 +1174,16 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "",
 							Required:    true,
-							ForceNew:    true,
 						},
 						"time": {
 							Type:        schema.TypeString,
 							Description: "Time value in (hh:mm) format. ex. '02:00'",
 							Required:    true,
-							ForceNew:    true,
 						},
 						"duration": {
 							Type:        schema.TypeInt,
 							Description: "The duration during which the maintenance window will be allowed to trigger",
 							Required:    true,
-							ForceNew:    true,
 						},
 					},
 				},
@@ -1280,7 +1221,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -1289,7 +1229,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "Clock time format value in hour and minute.",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1298,14 +1237,12 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeInt,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													Default:     1,
 												},
 												"minute": {
 													Type:        schema.TypeInt,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													Default:     0,
 												},
 											},
@@ -1315,7 +1252,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1324,7 +1260,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeInt,
 													Description: "The number of backups to be captured per day.",
 													Optional:    true,
-													ForceNew:    true,
 												},
 											},
 										},
@@ -1333,7 +1268,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1342,7 +1276,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "Days in a week to retain weekly backups for",
 													Optional:    true,
-													ForceNew:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -1354,7 +1287,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "Definition for taking month specific schedule.",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1363,7 +1295,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1372,7 +1303,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "Dates in a month to retain monthly backups",
 																Optional:    true,
-																ForceNew:    true,
 																Elem: &schema.Schema{
 																	Type: schema.TypeInt,
 																},
@@ -1381,7 +1311,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeBool,
 																Description: "",
 																Optional:    true,
-																ForceNew:    true,
 																Default:     false,
 															},
 														},
@@ -1394,7 +1323,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1403,7 +1331,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1412,7 +1339,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "Dates in a month to retain monthly backups",
 																Optional:    true,
-																ForceNew:    true,
 																Elem: &schema.Schema{
 																	Type: schema.TypeInt,
 																},
@@ -1421,14 +1347,12 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeBool,
 																Description: "",
 																Optional:    true,
-																ForceNew:    true,
 																Default:     false,
 															},
 															"months": {
 																Type:        schema.TypeList,
 																Description: "",
 																Optional:    true,
-																ForceNew:    true,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -1440,20 +1364,17 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"month": {
 																Type:        schema.TypeString,
 																Description: "Name of a month",
 																Required:    true,
-																ForceNew:    true,
 															},
 															"dates": {
 																Type:        schema.TypeList,
 																Description: "",
 																Required:    true,
-																ForceNew:    true,
 																Elem: &schema.Schema{
 																	Type: schema.TypeInt,
 																},
@@ -1471,7 +1392,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "The schedule at which full backups would be triggered",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -1480,7 +1400,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "Clock time format value in hour and minute.",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1489,14 +1408,12 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeInt,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													Default:     1,
 												},
 												"minute": {
 													Type:        schema.TypeInt,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													Default:     0,
 												},
 											},
@@ -1506,7 +1423,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1515,7 +1431,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "Days in a week to retain weekly backups for",
 													Optional:    true,
-													ForceNew:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -1535,14 +1450,12 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeBool,
 							Description: "Flag to decide whether the transaction logs would be retained to support PITR (Point in time recoverability)",
 							Optional:    true,
-							ForceNew:    true,
 							Default:     false,
 						},
 						"snapshot_start_time": {
 							Type:        schema.TypeList,
 							Description: "Clock time format value in hour and minute.",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -1550,7 +1463,6 @@ func ResourceDBService() *schema.Resource {
 									"hour": {
 										Type:        schema.TypeInt,
 										Description: "",
-										ForceNew:    true,
 										Optional:    true,
 										Default:     1,
 									},
@@ -1558,7 +1470,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeInt,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										Default:     0,
 									},
 								},
@@ -1579,20 +1490,17 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeBool,
 							Description: "Determines whether transaction logs should be retained to enable Point-In-Time Recovery (PITR) functionality",
 							Optional:    true,
-							ForceNew:    true,
 							Default:     false,
 						},
 						"enable_auto_snapshot": {
 							Type:        schema.TypeBool,
 							Description: "Specify whether system will take automatic snapshots",
 							Required:    true,
-							ForceNew:    true,
 						},
 						"standard_policy": {
 							Type:        schema.TypeList,
 							Description: "This is the definition of Standard RPO Policy for Snapshot for Tessell DB Service",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -1601,20 +1509,17 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeInt,
 										Description: "Number of days for which the snapshot of DB Service would be retained",
 										Required:    true,
-										ForceNew:    true,
 									},
 									"include_transaction_logs": {
 										Type:        schema.TypeBool,
 										Description: "Determines whether transaction logs should be retained to enable Point-In-Time Recovery (PITR) functionality",
 										Optional:    true,
-										ForceNew:    true,
 										Default:     false,
 									},
 									"snapshot_start_time": {
 										Type:        schema.TypeList,
 										Description: "Clock time format value in hour and minute.",
 										Required:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1623,13 +1528,11 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeInt,
 													Description: "",
 													Required:    true,
-													ForceNew:    true,
 												},
 												"minute": {
 													Type:        schema.TypeInt,
 													Description: "",
 													Required:    true,
-													ForceNew:    true,
 												},
 											},
 										},
@@ -1641,7 +1544,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "This is the definition of Custom RPO Policy for Snapshot for Tessell DB Service",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -1650,13 +1552,11 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "Custom RPO policy name",
 										Required:    true,
-										ForceNew:    true,
 									},
 									"schedule": {
 										Type:        schema.TypeList,
 										Description: "",
 										Required:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1665,7 +1565,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "Clock time format value in hour and minute.",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1674,13 +1573,11 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeInt,
 																Description: "",
 																Required:    true,
-																ForceNew:    true,
 															},
 															"minute": {
 																Type:        schema.TypeInt,
 																Description: "",
 																Required:    true,
-																ForceNew:    true,
 															},
 														},
 													},
@@ -1689,7 +1586,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1698,7 +1594,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeInt,
 																Description: "The number of backups to be captured per day.",
 																Optional:    true,
-																ForceNew:    true,
 															},
 														},
 													},
@@ -1707,7 +1602,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1716,7 +1610,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "Days in a week to retain weekly backups for",
 																Optional:    true,
-																ForceNew:    true,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -1728,7 +1621,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "Definition for taking month specific schedule.",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1737,7 +1629,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "",
 																Optional:    true,
-																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -1746,7 +1637,6 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeList,
 																			Description: "Dates in a month to retain monthly backups",
 																			Optional:    true,
-																			ForceNew:    true,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeInt,
 																			},
@@ -1755,7 +1645,6 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeBool,
 																			Description: "",
 																			Optional:    true,
-																			ForceNew:    true,
 																			Default:     false,
 																		},
 																	},
@@ -1768,7 +1657,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1777,7 +1665,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "",
 																Optional:    true,
-																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -1786,7 +1673,6 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeList,
 																			Description: "Dates in a month to retain monthly backups",
 																			Optional:    true,
-																			ForceNew:    true,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeInt,
 																			},
@@ -1795,14 +1681,12 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeBool,
 																			Description: "",
 																			Optional:    true,
-																			ForceNew:    true,
 																			Default:     false,
 																		},
 																		"months": {
 																			Type:        schema.TypeList,
 																			Description: "",
 																			Optional:    true,
-																			ForceNew:    true,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -1814,20 +1698,17 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "",
 																Optional:    true,
-																ForceNew:    true,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"month": {
 																			Type:        schema.TypeString,
 																			Description: "Name of a month",
 																			Required:    true,
-																			ForceNew:    true,
 																		},
 																		"dates": {
 																			Type:        schema.TypeList,
 																			Description: "",
 																			Required:    true,
-																			ForceNew:    true,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeInt,
 																			},
@@ -1848,7 +1729,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "The schedule at which full backups would be triggered",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -1857,7 +1737,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "Clock time format value in hour and minute.",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1866,13 +1745,11 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeInt,
 													Description: "",
 													Required:    true,
-													ForceNew:    true,
 												},
 												"minute": {
 													Type:        schema.TypeInt,
 													Description: "",
 													Required:    true,
-													ForceNew:    true,
 												},
 											},
 										},
@@ -1881,7 +1758,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1890,7 +1766,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "Days in a week to retain weekly backups for",
 													Optional:    true,
-													ForceNew:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -1905,14 +1780,12 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeBool,
 							Description: "Specify whether system will take automatic backups",
 							Optional:    true,
-							ForceNew:    true,
 							Default:     false,
 						},
 						"backup_rpo_config": {
 							Type:        schema.TypeList,
 							Description: "Config for the Native Backup RPO policies",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -1921,7 +1794,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "The schedule at which full backups would be triggered",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1930,7 +1802,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "Clock time format value in hour and minute.",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1939,13 +1810,11 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeInt,
 																Description: "",
 																Required:    true,
-																ForceNew:    true,
 															},
 															"minute": {
 																Type:        schema.TypeInt,
 																Description: "",
 																Required:    true,
-																ForceNew:    true,
 															},
 														},
 													},
@@ -1954,7 +1823,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeList,
 													Description: "",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -1963,7 +1831,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "Days in a week to retain weekly backups for",
 																Optional:    true,
-																ForceNew:    true,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -1978,7 +1845,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "This is the definition of Standard RPO Policy for Backup for Tessell DB Service",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -1987,13 +1853,11 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeInt,
 													Description: "Number of days for which the backup of DB Service would be retained",
 													Required:    true,
-													ForceNew:    true,
 												},
 												"backup_start_time": {
 													Type:        schema.TypeList,
 													Description: "Clock time format value in hour and minute.",
 													Optional:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -2002,13 +1866,11 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeInt,
 																Description: "",
 																Required:    true,
-																ForceNew:    true,
 															},
 															"minute": {
 																Type:        schema.TypeInt,
 																Description: "",
 																Required:    true,
-																ForceNew:    true,
 															},
 														},
 													},
@@ -2020,7 +1882,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "This is the definition of Custom RPO Policy for Backup for Tessell DB Service",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -2029,13 +1890,11 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "Custom RPO policy name",
 													Required:    true,
-													ForceNew:    true,
 												},
 												"schedule": {
 													Type:        schema.TypeList,
 													Description: "",
 													Required:    true,
-													ForceNew:    true,
 													MaxItems:    1,
 													MinItems:    1,
 													Elem: &schema.Resource{
@@ -2044,7 +1903,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "Clock time format value in hour and minute.",
 																Optional:    true,
-																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -2053,13 +1911,11 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeInt,
 																			Description: "",
 																			Required:    true,
-																			ForceNew:    true,
 																		},
 																		"minute": {
 																			Type:        schema.TypeInt,
 																			Description: "",
 																			Required:    true,
-																			ForceNew:    true,
 																		},
 																	},
 																},
@@ -2068,7 +1924,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "",
 																Optional:    true,
-																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -2077,7 +1932,6 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeInt,
 																			Description: "The number of backups to be captured per day.",
 																			Optional:    true,
-																			ForceNew:    true,
 																		},
 																	},
 																},
@@ -2086,7 +1940,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "",
 																Optional:    true,
-																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -2095,7 +1948,6 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeList,
 																			Description: "Days in a week to retain weekly backups for",
 																			Optional:    true,
-																			ForceNew:    true,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -2107,7 +1959,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "Definition for taking month specific schedule.",
 																Optional:    true,
-																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -2116,7 +1967,6 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeList,
 																			Description: "",
 																			Optional:    true,
-																			ForceNew:    true,
 																			MaxItems:    1,
 																			MinItems:    1,
 																			Elem: &schema.Resource{
@@ -2125,7 +1975,6 @@ func ResourceDBService() *schema.Resource {
 																						Type:        schema.TypeList,
 																						Description: "Dates in a month to retain monthly backups",
 																						Optional:    true,
-																						ForceNew:    true,
 																						Elem: &schema.Schema{
 																							Type: schema.TypeInt,
 																						},
@@ -2134,7 +1983,6 @@ func ResourceDBService() *schema.Resource {
 																						Type:        schema.TypeBool,
 																						Description: "",
 																						Optional:    true,
-																						ForceNew:    true,
 																						Default:     false,
 																					},
 																				},
@@ -2147,7 +1995,6 @@ func ResourceDBService() *schema.Resource {
 																Type:        schema.TypeList,
 																Description: "",
 																Optional:    true,
-																ForceNew:    true,
 																MaxItems:    1,
 																MinItems:    1,
 																Elem: &schema.Resource{
@@ -2156,7 +2003,6 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeList,
 																			Description: "",
 																			Optional:    true,
-																			ForceNew:    true,
 																			MaxItems:    1,
 																			MinItems:    1,
 																			Elem: &schema.Resource{
@@ -2165,7 +2011,6 @@ func ResourceDBService() *schema.Resource {
 																						Type:        schema.TypeList,
 																						Description: "Dates in a month to retain monthly backups",
 																						Optional:    true,
-																						ForceNew:    true,
 																						Elem: &schema.Schema{
 																							Type: schema.TypeInt,
 																						},
@@ -2174,14 +2019,12 @@ func ResourceDBService() *schema.Resource {
 																						Type:        schema.TypeBool,
 																						Description: "",
 																						Optional:    true,
-																						ForceNew:    true,
 																						Default:     false,
 																					},
 																					"months": {
 																						Type:        schema.TypeList,
 																						Description: "",
 																						Optional:    true,
-																						ForceNew:    true,
 																						Elem: &schema.Schema{
 																							Type: schema.TypeString,
 																						},
@@ -2193,20 +2036,17 @@ func ResourceDBService() *schema.Resource {
 																			Type:        schema.TypeList,
 																			Description: "",
 																			Optional:    true,
-																			ForceNew:    true,
 																			Elem: &schema.Resource{
 																				Schema: map[string]*schema.Schema{
 																					"month": {
 																						Type:        schema.TypeString,
 																						Description: "Name of a month",
 																						Required:    true,
-																						ForceNew:    true,
 																					},
 																					"dates": {
 																						Type:        schema.TypeList,
 																						Description: "",
 																						Required:    true,
-																						ForceNew:    true,
 																						Elem: &schema.Schema{
 																							Type: schema.TypeInt,
 																						},
@@ -2233,7 +2073,6 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "This field details the DB Service engine configuration details like - parameter profile, or options profile (if applicable) are used to configure the DB Service.",
 				Required:    true,
-				ForceNew:    true,
 				MaxItems:    1,
 				MinItems:    1,
 				Elem: &schema.Resource{
@@ -2242,7 +2081,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2251,14 +2089,12 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeBool,
 										Description: "Specify whether the DB Service is multi-tenant.",
 										Optional:    true,
-										ForceNew:    true,
 										Default:     false,
 									},
 									"parameter_profile_id": {
 										Type:        schema.TypeString,
 										Description: "The parameter profile id for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"options_profile": {
 										Type:        schema.TypeString,
@@ -2270,7 +2106,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The options profile for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"sid": {
 										Type:        schema.TypeString,
@@ -2282,20 +2117,46 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The character-set for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"national_character_set": {
 										Type:        schema.TypeString,
 										Description: "The national-character-set for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"enable_archive_mode": {
 										Type:        schema.TypeBool,
 										Description: "To explicitly enable archive mode, when PITR is disabled",
 										Optional:    true,
-										ForceNew:    true,
 										Default:     true,
+									},
+									"pdb_config": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Required:    true,
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Description: "Name of the PDB",
+													Required:    true,
+												},
+												"username": {
+													Type:        schema.TypeString,
+													Description: "Username for the PDB",
+													Required:    true,
+												},
+												"secret_id": {
+													Type:        schema.TypeString,
+													Description: "Password for the PDB",
+													Computed:    true,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -2304,7 +2165,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2313,19 +2173,16 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The parameter profile ID for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"ad_domain_id": {
 										Type:        schema.TypeString,
 										Description: "Active Directory Domain ID",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"proxy_port": {
 										Type:        schema.TypeInt,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"option_profile_name": {
 										Type:        schema.TypeString,
@@ -2337,7 +2194,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The options profile for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -2346,7 +2202,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2355,19 +2210,16 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The parameter profile ID for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"ad_domain_id": {
 										Type:        schema.TypeString,
 										Description: "Active Directory Domain ID",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"option_profile_id": {
 										Type:        schema.TypeString,
 										Description: "The options profile for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -2376,7 +2228,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2385,31 +2236,26 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The parameter profile ID for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"ad_domain_id": {
 										Type:        schema.TypeString,
 										Description: "Active Directory Domain ID",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"service_account_user": {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"agent_service_account_user": {
 										Type:        schema.TypeString,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"instance_name": {
 										Type:        schema.TypeString,
 										Description: "The named instance for SQL Server database (max 16 characters as per SQL Server limitation)",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -2418,7 +2264,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2427,7 +2272,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The parameter profile id for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -2436,7 +2280,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2445,13 +2288,11 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The MongoDB Cluster name",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"parameter_profile_id": {
 										Type:        schema.TypeString,
 										Description: "The parameter profile ID for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -2460,7 +2301,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2469,7 +2309,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The parameter profile ID for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -2478,7 +2317,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2487,13 +2325,11 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The Tessell Script ID",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"script_version": {
 										Type:        schema.TypeString,
 										Description: "The Tessell Script version",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -2502,7 +2338,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2511,13 +2346,11 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "The Tessell Script ID",
 										Optional:    true,
-										ForceNew:    true,
 									},
 									"script_version": {
 										Type:        schema.TypeString,
 										Description: "The Tessell Script version",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -2526,7 +2359,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2535,7 +2367,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "Collation name for the database",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -2544,7 +2375,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "The URL where the backup is stored",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"ignore_post_script_failure": {
 							Type:        schema.TypeBool,
@@ -2569,7 +2399,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Required while creating a clone. It specifies the Id of the source database from which the clone is being created.",
 							Optional:    true,
-							ForceNew:    true,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								sourceDatabaseId := d.Get(k)
 								if old == "" && new == sourceDatabaseId && !d.GetRawState().IsNull() {
@@ -2655,7 +2484,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -2664,7 +2492,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -2673,7 +2500,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "The parameter profile id for the database",
 													Optional:    true,
-													ForceNew:    true,
 												},
 												"options_profile": {
 													Type:        schema.TypeString,
@@ -2685,13 +2511,99 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "Username for the oracle database",
 													Optional:    true,
-													ForceNew:    true,
+													Computed:    true,
 												},
 												"option_profile_id": {
 													Type:        schema.TypeString,
 													Description: "The option profile id for the database",
 													Optional:    true,
-													ForceNew:    true,
+												},
+												"script_info": {
+													Type:        schema.TypeList,
+													Description: "",
+													Optional:    true,
+													MaxItems:    1,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"post_script_info": {
+																Type:        schema.TypeList,
+																Description: "",
+																Optional:    true,
+																MaxItems:    1,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"script_id": {
+																			Type:        schema.TypeString,
+																			Description: "The Tessell Script ID",
+																			Required:    true,
+																		},
+																		"script_version": {
+																			Type:        schema.TypeString,
+																			Description: "The Tessell Script version",
+																			Required:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"pdb_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Optional:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:        schema.TypeString,
+																Description: "Name of the PDB",
+																Required:    true,
+															},
+															"username": {
+																Type:        schema.TypeString,
+																Description: "Username for the PDB",
+																Required:    true,
+															},
+															"password": {
+																Type:        schema.TypeString,
+																Description: "Password for the PDB",
+																Required:    true,
+																Sensitive:   true,
+															},
+															"script_info": {
+																Type:        schema.TypeList,
+																Description: "",
+																Optional:    true,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"post_script_info": {
+																			Type:        schema.TypeList,
+																			Description: "",
+																			Optional:    true,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"script_id": {
+																						Type:        schema.TypeString,
+																						Description: "The Tessell Script ID",
+																						Required:    true,
+																					},
+																					"script_version": {
+																						Type:        schema.TypeString,
+																						Description: "The Tessell Script version",
+																						Required:    true,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
 												},
 											},
 										},
@@ -2700,7 +2612,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -2709,13 +2620,11 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "The parameter profile ID for the database",
 													Optional:    true,
-													ForceNew:    true,
 												},
 												"option_profile_id": {
 													Type:        schema.TypeString,
 													Description: "The options profile for the database",
 													Optional:    true,
-													ForceNew:    true,
 												},
 											},
 										},
@@ -2724,7 +2633,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -2733,13 +2641,11 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "The parameter profile ID for the database",
 													Optional:    true,
-													ForceNew:    true,
 												},
 												"option_profile_id": {
 													Type:        schema.TypeString,
 													Description: "The options profile for the database",
 													Optional:    true,
-													ForceNew:    true,
 												},
 											},
 										},
@@ -2748,7 +2654,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -2757,7 +2662,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "The parameter profile ID for the database",
 													Optional:    true,
-													ForceNew:    true,
 												},
 											},
 										},
@@ -2766,7 +2670,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -2775,7 +2678,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "The parameter profile ID for the database",
 													Optional:    true,
-													ForceNew:    true,
 												},
 											},
 										},
@@ -2784,7 +2686,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeList,
 										Description: "",
 										Optional:    true,
-										ForceNew:    true,
 										MaxItems:    1,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -2793,7 +2694,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "The parameter profile ID for the database",
 													Optional:    true,
-													ForceNew:    true,
 												},
 											},
 										},
@@ -2845,7 +2745,6 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "",
 							Optional:    true,
-							ForceNew:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -2878,13 +2777,11 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Case sensitive, tag name",
 							Optional:    true,
-							ForceNew:    true,
 						},
 						"value": {
 							Type:        schema.TypeString,
 							Description: "Case sensitive, tag value",
 							Optional:    true,
-							ForceNew:    true,
 						},
 					},
 				},
@@ -2924,6 +2821,11 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Name of the instance group",
 							Required:    true,
+						},
+						"tessell_service_precheck_id": {
+							Type:        schema.TypeString,
+							Description: "The precheck ID for adding this instance to an existing service.",
+							Optional:    true,
 						},
 						"type": {
 							Type:        schema.TypeString,
@@ -3295,7 +3197,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "",
 													Required:    true,
-													ForceNew:    true,
 												},
 												"infrastructure_name": {
 													Type:        schema.TypeString,
@@ -3307,7 +3208,6 @@ func ResourceDBService() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "",
 													Required:    true,
-													ForceNew:    true,
 												},
 												"vm_cluster_name": {
 													Type:        schema.TypeString,
@@ -3708,36 +3608,99 @@ func ResourceDBService() *schema.Resource {
 								},
 							},
 						},
+						"security_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"security_profile_id": {
+										Type:        schema.TypeString,
+										Description: "Security Profile Id to be associated with the compute",
+										Optional:    true,
+									},
+									"security_profile": {
+										Type:        schema.TypeList,
+										Description: "",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Description: "Id of the Security Profile",
+													Computed:    true,
+												},
+												"version_id": {
+													Type:        schema.TypeString,
+													Description: "Version Id of the Security Profile",
+													Computed:    true,
+												},
+												"status": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"context_info": {
+							Type:        schema.TypeList,
+							Description: "Provide more context of Service Instance state",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"sub_status": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"description": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
 			"shared_with": {
 				Type:        schema.TypeList,
 				Description: "Tessell Entity ACL Sharing Info",
-				Optional:    true,
-				ForceNew:    true,
-				MaxItems:    1,
-				MinItems:    1,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"users": {
 							Type:        schema.TypeList,
 							Description: "",
-							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"email_id": {
 										Type:        schema.TypeString,
 										Description: "",
-										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"role": {
 										Type:        schema.TypeString,
 										Description: "",
-										Optional:    true,
-										ForceNew:    true,
+										Computed:    true,
+									},
+									"shared_by": {
+										Type:        schema.TypeString,
+										Description: "Email of the user who shared the entity",
+										Computed:    true,
+									},
+									"shared_on": {
+										Type:        schema.TypeString,
+										Description: "Date when the entity was shared",
+										Computed:    true,
 									},
 								},
 							},
@@ -3785,7 +3748,6 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "Details for the update",
 										Optional:    true,
-										ForceNew:    true,
 									},
 								},
 							},
@@ -3905,7 +3867,6 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Id of the parent AvailabilityMachine, required when creating a clone",
 				Optional:    true,
-				ForceNew:    true,
 			},
 			"block_until_complete": {
 				Type:        schema.TypeBool,
