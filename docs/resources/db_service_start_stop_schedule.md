@@ -102,7 +102,7 @@ Read-Only:
 
 DB Service Start/Stop Schedules can be imported using `service_id/schedule_id`, e.g.
 
-```
-terraform import tessell_db_service_start_stop_schedule.example <service_id>/<schedule_id>
+```shell
+terraform import tessell_db_service_start_stop_schedule.example {service_id}/{schedule_id}
 ```
 

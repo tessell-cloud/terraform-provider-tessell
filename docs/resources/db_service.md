@@ -2224,3 +2224,13 @@ Read-Only:
 - `submitted_at` (String)
 - `update_info` (Map of String)
 - `update_type` (String)
+
+## Import
+
+DB Services can be imported using the service `id` (Tessell generated UUID), e.g.
+
+```shell
+terraform import tessell_db_service.example {service_id}
+```
+
+The `id` is available in the Tessell UI under the DB Service details, or from the `id` attribute in the Terraform state after the first `apply`.
