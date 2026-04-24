@@ -156,6 +156,12 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	// Populate service-level private_link_info from the primary instance so the block
+	// persists in state after a read and does not disappear on terraform refresh.
+	if err := d.Set("private_link_info", parseServiceLevelPrivateLinkInfo(tessellServiceDTO.Instances)); err != nil {
+		return err
+	}
+
 	if err := d.Set("databases", parseTessellDatabaseDTOListWithResData(tessellServiceDTO.Databases, d)); err != nil {
 		return err
 	}
@@ -3674,4 +3680,20 @@ func formPrivateLinkPayload(privateLinkInfoRaw interface{}) *model.InstanceConne
 	return &model.InstanceConnectivityUpdateRequest{
 		PrivateLink: &privateLinkPayload,
 	}
+}
+
+// parseServiceLevelPrivateLinkInfo finds the primary instance and returns its PrivateLinkInfo
+// as a []interface{} suitable for setting the service-level private_link_info attribute.
+// Returns an empty slice if no primary instance or no private link is found.
+func parseServiceLevelPrivateLinkInfo(instances *[]model.TessellServiceInstanceDTO) []interface{} {
+	if instances == nil {
+		return []interface{}{}
+	}
+	for i := range *instances {
+		inst := &(*instances)[i]
+		if inst.Role != nil && *inst.Role == "primary" && inst.PrivateLinkInfo != nil {
+			return []interface{}{parsePrivateLinkInfo(inst.PrivateLinkInfo)}
+		}
+	}
+	return []interface{}{}
 }

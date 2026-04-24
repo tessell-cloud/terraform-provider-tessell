@@ -172,6 +172,22 @@ resource "tessell_db_service" "example" {
     name  = "finance"
     value = ""
   }
+
+  # Configure private link at the service level (applied to primary instance only).
+  # Not supported during service creation — add this block in a subsequent apply
+  # after the service has been created.
+  #
+  # Behavior:
+  #   - Applied exclusively to the primary instance.
+  #   - Standby and read replica instances are NOT affected.
+  #   - Removing this block is a no-op: the backend private link is preserved.
+  #   - In state, this mirrors the primary instance's private_link_info (no drift).
+  #   - For AWS: provide IAM principal ARNs in service_principals.
+  #   - For Azure: provide subscription IDs in client_azure_subscription_ids.
+  #
+  # private_link_info {
+  #   service_principals = ["arn:aws:iam::111122223333:root"]
+  # }
 }
 
 # Create a clone of a Oracle DB service

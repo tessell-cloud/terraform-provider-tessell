@@ -3,9 +3,11 @@ package db_service
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -3560,7 +3562,7 @@ func ResourceDBService() *schema.Resource {
 						},
 						"private_link_info": {
 							Type:        schema.TypeList,
-							Description: "Private link configuration for this instance. Not supported during service creation — must be added in a subsequent apply after the service has been created.",
+							Description: "Private link configuration for this instance. Not supported during service creation — must be added in a subsequent apply after the service has been created. For the primary instance, this is kept in sync with the service-level private_link_info block. Each instance (primary, standby, read replica) maintains its own independent private link configuration.",
 							Optional:    true,
 							Computed:    true,
 							MaxItems:    1,
@@ -3870,6 +3872,58 @@ func ResourceDBService() *schema.Resource {
 				Description: "Id of the parent AvailabilityMachine, required when creating a clone",
 				Optional:    true,
 			},
+			"private_link_info": {
+				Type:        schema.TypeList,
+				Description: "Service-level shorthand for configuring private link on the primary instance. When set, the configuration is applied exclusively to the primary instance — standby and read replica instances are never affected. Removing this block is a no-op: the backend private link configuration is preserved. Not supported during service creation; must be added in a subsequent apply after the service has been created. In Terraform state, this value mirrors the primary instance's private_link_info and does not cause drift.",
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+							Computed:    true,
+						},
+						"status": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+							Computed:    true,
+						},
+						"endpoint_service_name": {
+							Type:        schema.TypeString,
+							Description: "The configured endpoint as a result of configuring the service-principals",
+							Computed:    true,
+						},
+						"private_link_service_alias": {
+							Type:        schema.TypeString,
+							Description: "The Azure private link service alias",
+							Optional:    true,
+							Computed:    true,
+						},
+						"service_principals": {
+							Type:        schema.TypeList,
+							Description: "The list of AWS account principals that are currently enabled. This is only applicable for DB Services hosted on AWS.",
+							Optional:    true,
+							Computed:    true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"client_azure_subscription_ids": {
+							Type:        schema.TypeList,
+							Description: "The list of Azure subscription Ids. This is only applicable for DB Services hosted on AZURE.",
+							Optional:    true,
+							Computed:    true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"block_until_complete": {
 				Type:        schema.TypeBool,
 				Description: "For any operation on this resource, block the flow until the action has completed successfully",
@@ -3889,27 +3943,32 @@ func ResourceDBService() *schema.Resource {
 				Default:     "READY",
 			},
 		},
-		CustomizeDiff: customdiff.ValidateChange("instances", func(ctx context.Context, oldInstances, newInstances, meta interface{}) error {
-			instances := newInstances.([]interface{})
-			names := make(map[string]bool)
-			primaryCount := 0
-			for _, instanceRaw := range instances {
-				instance := instanceRaw.(map[string]interface{})
-				name := instance["name"].(string)
-				role := instance["role"].(string)
-				if names[name] {
-					return fmt.Errorf("duplicate instance name: %s", name)
+		CustomizeDiff: customdiff.All(
+			customdiff.ValidateChange("instances", func(ctx context.Context, oldInstances, newInstances, meta interface{}) error {
+				instances := newInstances.([]interface{})
+				names := make(map[string]bool)
+				primaryCount := 0
+				for _, instanceRaw := range instances {
+					instance := instanceRaw.(map[string]interface{})
+					name := instance["name"].(string)
+					role := instance["role"].(string)
+					if names[name] {
+						return fmt.Errorf("duplicate instance name: %s", name)
+					}
+					names[name] = true
+					if role == "primary" {
+						primaryCount++
+					}
 				}
-				names[name] = true
-				if role == "primary" {
-					primaryCount++
+				if primaryCount == 0 && len(instances) != 0 {
+					return fmt.Errorf("no instance is marked as 'primary'")
 				}
-			}
-			if primaryCount == 0 && len(instances) != 0 {
-				return fmt.Errorf("no instance is marked as 'primary'")
-			}
-			return nil
-		}),
+				return nil
+			}),
+			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+				return validatePrivateLinkMismatchRaw(d.GetRawConfig())
+			},
+		),
 	}
 }
 
@@ -3921,6 +3980,15 @@ func resourceDBServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	// Validate: private_link_info is not supported during service creation
 	// Users must create the service first, then add private link via update
+
+	// Service-level private_link_info check
+	if servicePvtLinkRaw, ok := d.GetOk("private_link_info"); ok {
+		if pvtLinkList, ok := servicePvtLinkRaw.([]interface{}); ok && len(pvtLinkList) > 0 {
+			return diag.FromErr(fmt.Errorf("service-level private_link_info is not supported during service creation. Please create the service first, then add private_link_info via a subsequent terraform apply"))
+		}
+	}
+
+	// Instance-level private_link_info check
 	instancesRaw := d.Get("instances").([]interface{})
 	for _, instanceRaw := range instancesRaw {
 		instance := instanceRaw.(map[string]interface{})
@@ -4055,6 +4123,163 @@ func handlePrivateLinkUpdates(client *apiClient.Client, d *schema.ResourceData, 
 					return fmt.Errorf("failed while waiting for private link update on instance %s: %s", instanceName, err.Error())
 				}
 			}
+		}
+	}
+
+	return nil
+}
+
+// ctyListToStrings extracts string elements from a cty list/tuple value.
+// Returns a sorted slice so comparisons are order-independent.
+func ctyListToStrings(listVal cty.Value) []string {
+	if listVal.IsNull() || !listVal.IsKnown() || !listVal.CanIterateElements() {
+		return []string{}
+	}
+	var result []string
+	for it := listVal.ElementIterator(); it.Next(); {
+		_, v := it.Element()
+		if !v.IsNull() && v.IsKnown() {
+			result = append(result, v.AsString())
+		}
+	}
+	sort.Strings(result)
+	return result
+}
+
+// stringSlicesEqual returns true if two string slices contain the same elements (order-independent).
+func stringSlicesEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// validatePrivateLinkMismatchRaw validates that service-level and primary-instance-level
+// private_link_info are not both EXPLICITLY defined in raw config with differing values.
+// Accepts a cty.Value so it can be used in both CustomizeDiff (plan time) and Update (apply time).
+func validatePrivateLinkMismatchRaw(rawCfg cty.Value) error {
+	if rawCfg.IsNull() || !rawCfg.IsKnown() {
+		return nil
+	}
+
+	// Check if service-level private_link_info is explicitly set in config
+	svcPvtLinkVal := rawCfg.GetAttr("private_link_info")
+	if svcPvtLinkVal.IsNull() || !svcPvtLinkVal.IsKnown() || svcPvtLinkVal.LengthInt() == 0 {
+		return nil
+	}
+	svcPvtLink := svcPvtLinkVal.Index(cty.NumberIntVal(0))
+
+	// Check if the primary instance also explicitly defines private_link_info in config
+	instancesVal := rawCfg.GetAttr("instances")
+	if instancesVal.IsNull() || !instancesVal.IsKnown() {
+		return nil
+	}
+
+	for it := instancesVal.ElementIterator(); it.Next(); {
+		_, instanceVal := it.Element()
+
+		roleVal := instanceVal.GetAttr("role")
+		if roleVal.IsNull() || !roleVal.IsKnown() {
+			continue
+		}
+		if roleVal.AsString() != "primary" {
+			continue
+		}
+
+		instPvtLinkVal := instanceVal.GetAttr("private_link_info")
+		if instPvtLinkVal.IsNull() || !instPvtLinkVal.IsKnown() || instPvtLinkVal.LengthInt() == 0 {
+			return nil
+		}
+		instPvtLink := instPvtLinkVal.Index(cty.NumberIntVal(0))
+
+		// Compare service_principals
+		svcPrincipals := ctyListToStrings(svcPvtLink.GetAttr("service_principals"))
+		instPrincipals := ctyListToStrings(instPvtLink.GetAttr("service_principals"))
+		if !stringSlicesEqual(svcPrincipals, instPrincipals) {
+			return fmt.Errorf("conflicting private_link_info: service-level service_principals %v differs from primary instance service_principals %v. Define it in only one place or ensure values match",
+				svcPrincipals, instPrincipals)
+		}
+
+		// Compare client_azure_subscription_ids
+		svcSubIds := ctyListToStrings(svcPvtLink.GetAttr("client_azure_subscription_ids"))
+		instSubIds := ctyListToStrings(instPvtLink.GetAttr("client_azure_subscription_ids"))
+		if !stringSlicesEqual(svcSubIds, instSubIds) {
+			return fmt.Errorf("conflicting private_link_info: service-level client_azure_subscription_ids %v differs from primary instance client_azure_subscription_ids %v. Define it in only one place or ensure values match",
+				svcSubIds, instSubIds)
+		}
+	}
+	return nil
+}
+
+// validatePrivateLinkMismatch is a convenience wrapper for use in Update where *schema.ResourceData is available.
+func validatePrivateLinkMismatch(d *schema.ResourceData) error {
+	return validatePrivateLinkMismatchRaw(d.GetRawConfig())
+}
+
+// handleServiceLevelPrivateLinkUpdates handles create/update of private link at the service level.
+// It applies the configuration to the primary instance. Removing the block is a no-op (no hard delete).
+func handleServiceLevelPrivateLinkUpdates(client *apiClient.Client, d *schema.ResourceData, serviceId string, response *model.TessellServiceDTO) error {
+	// Skip if no actual change to avoid redundant API calls (e.g., when another field changed)
+	if !d.HasChange("private_link_info") {
+		return nil
+	}
+
+	// Use GetRawConfig to detect if user explicitly defined service-level private_link_info
+	rawConfig := d.GetRawConfig()
+	rawPvtLink := rawConfig.GetAttr("private_link_info")
+	if rawPvtLink.IsNull() || !rawPvtLink.CanIterateElements() {
+		return nil
+	}
+	pvtLinkList := rawPvtLink.AsValueSlice()
+	if len(pvtLinkList) == 0 {
+		return nil
+	}
+
+	// Find primary instance from API response
+	var primaryInstance *model.TessellServiceInstanceDTO
+	for i := range *response.Instances {
+		inst := &(*response.Instances)[i]
+		if inst.Role != nil && *inst.Role == "primary" {
+			primaryInstance = inst
+			break
+		}
+	}
+	if primaryInstance == nil || primaryInstance.Id == nil {
+		return fmt.Errorf("could not find primary instance to apply service-level private_link_info")
+	}
+	primaryInstanceId := *primaryInstance.Id
+
+	newPrivateLinkInfoRaw := d.Get("private_link_info")
+	payload := formPrivateLinkPayload(newPrivateLinkInfoRaw)
+	if payload == nil {
+		return nil
+	}
+
+	hasCurrentPrivateLink := primaryInstance.PrivateLinkInfo != nil && primaryInstance.PrivateLinkInfo.Id != nil
+
+	if !hasCurrentPrivateLink {
+		// CREATE: No existing private link on primary
+		_, _, err := client.CreatePrivateLinkForInstance(serviceId, primaryInstanceId, payload)
+		if err != nil {
+			return fmt.Errorf("failed to create service-level private link on primary instance: %s", err.Error())
+		}
+		if err := client.DBServicePollForPrivateLinkCreation(serviceId, primaryInstanceId, d.Get("timeout").(int), 30); err != nil {
+			return fmt.Errorf("failed while waiting for service-level private link creation on primary instance: %s", err.Error())
+		}
+	} else {
+		// UPDATE: Private link already exists on primary
+		privateLinkId := *primaryInstance.PrivateLinkInfo.Id
+		_, _, err := client.UpdatePrivateLinkForInstance(serviceId, primaryInstanceId, privateLinkId, payload)
+		if err != nil {
+			return fmt.Errorf("failed to update service-level private link on primary instance: %s", err.Error())
+		}
+		if err := client.DBServicePollForPrivateLinkCreation(serviceId, primaryInstanceId, d.Get("timeout").(int), 30); err != nil {
+			return fmt.Errorf("failed while waiting for service-level private link update on primary instance: %s", err.Error())
 		}
 	}
 
@@ -4202,7 +4427,17 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
+	// Validate no mismatch between service-level and primary instance private_link_info
+	if err := validatePrivateLinkMismatch(d); err != nil {
+		return diag.FromErr(err)
+	}
+
 	if err := handlePrivateLinkUpdates(client, d, id, tessellServiceResponse); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := handleServiceLevelPrivateLinkUpdates(client, d, id, tessellServiceResponse); err != nil {
 		return diag.FromErr(err)
 	}
 

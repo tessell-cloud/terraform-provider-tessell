@@ -412,6 +412,7 @@ resource "tessell_db_service" "example" {
 - `maintenance_window` (Block List, Max: 1) This field details the DB Service maintenance related details. (see [below for nested schema](#nestedblock--maintenance_window))
 - `parent_availability_machine_id` (String) Id of the parent AvailabilityMachine, required when creating a clone
 - `pitr` (String) PITR Timestamp, using which the clone is to be created
+- `private_link_info` (Block List, Max: 1) Service-level shorthand for configuring private link on the primary instance. When set, the configuration is applied exclusively to the primary instance — standby and read replica instances are never affected. Removing this block is a no-op: the backend private link configuration is preserved. Not supported during service creation; must be added in a subsequent apply after the service has been created. In Terraform state, this value mirrors the primary instance's private_link_info and does not cause drift. (see [below for nested schema](#nestedblock--private_link_info))
 - `rpo_policy_config` (Block List, Max: 1) This is the definition for RPO Policy details for Tessell DB Service (see [below for nested schema](#nestedblock--rpo_policy_config))
 - `snapshot_configuration` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration))
 - `snapshot_id` (String) Tessell service snapshot Id, using which the clone is to be created
@@ -1115,7 +1116,7 @@ Optional:
 - `enable_perf_insights` (Boolean)
 - `encryption_key` (String) The encryption key name which is used to encrypt the data at rest
 - `engine_configuration` (Block List) This field details the DB Service Instance engine configuration details like - access mode (see [below for nested schema](#nestedblock--instances--engine_configuration))
-- `private_link_info` (Block List, Max: 1) (see [below for nested schema](#nestedblock--instances--private_link_info))
+- `private_link_info` (Block List, Max: 1) Private link configuration for this instance. Not supported during service creation — must be added in a subsequent apply after the service has been created. For the primary instance, this is kept in sync with the service-level private_link_info block. Each instance (primary, standby, read replica) maintains its own independent private link configuration. (see [below for nested schema](#nestedblock--instances--private_link_info))
 - `private_subnet` (String) The private subnet used for creation of the DB Service Instance
 - `security_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--instances--security_config))
 - `storage_config` (Block List) (see [below for nested schema](#nestedblock--instances--storage_config))
@@ -1371,6 +1372,67 @@ Read-Only:
 
 - `endpoint_service_name` (String) The configured endpoint as a result of configuring the service-principals
 
+### Private Link Info Behavior
+
+The `private_link_info` block can be configured at two levels: **service level** (top-level on the resource) and **instance level** (inside an `instances` block). Understanding how they interact is important.
+
+#### Service-Level vs Primary Instance
+
+Configuring `private_link_info` at the **service level** is a shorthand that targets the **primary instance only**. It is functionally equivalent to setting it inside the primary instance's `instances` block.
+
+| Behavior | Detail |
+|---|---|
+| Applies to | Primary instance only |
+| Standby instances | Not affected |
+| Read replica instances | Not affected |
+| State representation | Mirrored at both service level and primary instance level — no drift |
+| Removing the block | No-op: backend private link is preserved |
+| At creation time | Not supported — add in a subsequent `terraform apply` after the service is created |
+
+#### Relationship Between Service Level and Primary Instance Level
+
+- Setting `private_link_info` at service level and letting `terraform apply` succeed will cause the primary instance's `private_link_info` in state to reflect the same value.
+- If both service-level and primary instance-level `private_link_info` are defined in config with **different values**, Terraform will raise a plan-time error.
+- If both are defined with the **same values**, no error is raised and only one API call is made.
+
+#### Read Replica and Standby Instances
+
+- Private link configured on a **read replica** or **standby** instance (via the instance-level block) is completely independent of the service-level configuration.
+- Updating service-level `private_link_info` does **not** modify or remove private link on replicas.
+- Updating a replica's `private_link_info` does **not** affect service-level or primary instance configuration.
+
+#### Example: Service-Level (Recommended for Primary)
+
+```terraform
+resource "tessell_db_service" "example" {
+  # ... other fields ...
+
+  # Step 1: Create the service first (no private_link_info block)
+  # Step 2: Add private_link_info in a subsequent apply
+  private_link_info {
+    service_principals = ["arn:aws:iam::111122223333:root"]  # AWS
+    # client_azure_subscription_ids = ["xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"]  # Azure
+  }
+}
+```
+
+#### Example: Instance-Level (For Read Replicas or Per-Instance Control)
+
+```terraform
+resource "tessell_db_service" "example" {
+  # ... other fields ...
+
+  instances {
+    name = "rr-node-0"
+    role = "read_only_replica"
+    # ... other instance fields ...
+
+    private_link_info {
+      service_principals = ["arn:aws:iam::999988887777:root"]
+    }
+  }
+}
+```
 
 <a id="nestedblock--instances--security_config"></a>
 ### Nested Schema for `instances.security_config`
@@ -1523,6 +1585,22 @@ Read-Only:
 Optional:
 
 - `integrations` (List of String)
+
+
+<a id="nestedblock--private_link_info"></a>
+### Nested Schema for `private_link_info`
+
+Optional:
+
+- `client_azure_subscription_ids` (List of String) The list of Azure subscription Ids. This is only applicable for DB Services hosted on AZURE.
+- `private_link_service_alias` (String) The Azure private link service alias
+- `service_principals` (List of String) The list of AWS account principals that are currently enabled. This is only applicable for DB Services hosted on AWS.
+- `status` (String)
+
+Read-Only:
+
+- `endpoint_service_name` (String) The configured endpoint as a result of configuring the service-principals
+- `id` (String) The ID of this resource.
 
 
 <a id="nestedblock--maintenance_window"></a>
