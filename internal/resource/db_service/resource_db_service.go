@@ -185,6 +185,11 @@ func ResourceDBService() *schema.Resource {
 				Description: "Timestamp when the DB Service was last stopped at",
 				Computed:    true,
 			},
+			"is_hpc": {
+				Type:        schema.TypeBool,
+				Description: "Specifies whether the DB Service is using High Performance Compute (HPC)",
+				Computed:    true,
+			},
 			"cloned_from_info": {
 				Type:        schema.TypeList,
 				Description: "If the DB Service is created as a clone from some other DB Service, this section describes the parent DB Service and cloning details",
@@ -251,6 +256,11 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "",
 							Optional:    true,
+						},
+						"is_hpc": {
+							Type:        schema.TypeBool,
+							Description: "Specifies whether the parent DB Service was using High Performance Compute (HPC)",
+							Computed:    true,
 						},
 					},
 				},
@@ -4366,6 +4376,38 @@ func ResourceDBService() *schema.Resource {
 			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 				return validatePrivateLinkMismatchRaw(d.GetRawConfig())
 			},
+			customdiff.ValidateChange("maintenance_window", func(ctx context.Context, old, new, meta interface{}) error {
+				windows := new.([]interface{})
+				if len(windows) == 0 {
+					return nil
+				}
+				w, ok := windows[0].(map[string]interface{})
+				if !ok {
+					return nil
+				}
+				cadence, _ := w["cadence"].(string)
+				if cadence == "" {
+					return nil
+				}
+				switch cadence {
+				case "WEEKLY":
+					day, _ := w["day"].(string)
+					if day == "" {
+						return fmt.Errorf("'day' is required when maintenance_window cadence is WEEKLY")
+					}
+				case "MONTHLY":
+					dayOfMonth, _ := w["day_of_month"].(int)
+					if dayOfMonth == 0 {
+						return fmt.Errorf("'day_of_month' is required when maintenance_window cadence is MONTHLY")
+					}
+				case "QUARTERLY":
+					startDate, _ := w["start_date"].(string)
+					if startDate == "" {
+						return fmt.Errorf("'start_date' is required when maintenance_window cadence is QUARTERLY")
+					}
+				}
+				return nil
+			}),
 		),
 	}
 }
@@ -4721,6 +4763,15 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	expectedStatus := d.Get("expected_status").(string)
 	status := d.GetRawState().GetAttr("status").AsString()
 	id := d.Get("id").(string)
+
+	// auto_patch_config and server_patching_config are create-only fields.
+	// The API does not support updating them after provisioning.
+	if d.HasChanges("auto_patch_config") {
+		return diag.Errorf("auto_patch_config can only be set at creation time and cannot be updated. Please revert the change or recreate the resource.")
+	}
+	if d.HasChanges("server_patching_config") {
+		return diag.Errorf("server_patching_config can only be set at creation time and cannot be updated. Please revert the change or recreate the resource.")
+	}
 
 	if expectedStatus == "READY" && status == "STOPPED" {
 		payload := formPayloadForStartTessellService(d)

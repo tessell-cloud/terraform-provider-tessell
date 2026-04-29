@@ -161,6 +161,11 @@ func DataSourceDBServices() *schema.Resource {
 							Description: "This field specifies the timestamp when the DB Service was last stopped at",
 							Computed:    true,
 						},
+						"is_hpc": {
+							Type:        schema.TypeBool,
+							Description: "Specifies whether the DB Service is using High Performance Compute (HPC)",
+							Computed:    true,
+						},
 						"cloned_from_info": {
 							Type:        schema.TypeList,
 							Description: "If the DB Service is created as a clone from some other DB Service, this section describes the parent DB Service and cloning details",
@@ -225,6 +230,11 @@ func DataSourceDBServices() *schema.Resource {
 									"storage_provider": {
 										Type:        schema.TypeString,
 										Description: "",
+										Computed:    true,
+									},
+									"is_hpc": {
+										Type:        schema.TypeBool,
+										Description: "Specifies whether the parent DB Service was using High Performance Compute (HPC)",
 										Computed:    true,
 									},
 								},
@@ -2808,6 +2818,7 @@ func setDataSourceValues(d *schema.ResourceData, DBServiceList *[]model.TessellS
 				"date_created":                  DBService.DateCreated,
 				"started_at":                    DBService.StartedAt,
 				"stopped_at":                    DBService.StoppedAt,
+				"is_hpc":                        DBService.IsHpc,
 				"cloned_from_info":              []interface{}{parseTessellServiceClonedFromInfo(DBService.ClonedFromInfo)},
 				"refresh_info":                  []interface{}{parseRefreshServiceInfo(DBService.RefreshInfo)},
 				"service_connectivity":          []interface{}{parseTessellServiceConnectivityInfo(DBService.ServiceConnectivity)},

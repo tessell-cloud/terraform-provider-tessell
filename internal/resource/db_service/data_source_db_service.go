@@ -154,6 +154,11 @@ func DataSourceDBService() *schema.Resource {
 				Description: "This field specifies the timestamp when the DB Service was last stopped at",
 				Computed:    true,
 			},
+			"is_hpc": {
+				Type:        schema.TypeBool,
+				Description: "Specifies whether the DB Service is using High Performance Compute (HPC)",
+				Computed:    true,
+			},
 			"cloned_from_info": {
 				Type:        schema.TypeList,
 				Description: "If the DB Service is created as a clone from some other DB Service, this section describes the parent DB Service and cloning details",
@@ -218,6 +223,11 @@ func DataSourceDBService() *schema.Resource {
 						"storage_provider": {
 							Type:        schema.TypeString,
 							Description: "",
+							Computed:    true,
+						},
+						"is_hpc": {
+							Type:        schema.TypeBool,
+							Description: "Specifies whether the parent DB Service was using High Performance Compute (HPC)",
 							Computed:    true,
 						},
 					},

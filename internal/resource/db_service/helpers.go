@@ -109,6 +109,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("is_hpc", tessellServiceDTO.IsHpc); err != nil {
+		return err
+	}
+
 	if err := d.Set("cloned_from_info", parseTessellServiceClonedFromInfoWithResData(tessellServiceDTO.ClonedFromInfo, d)); err != nil {
 		return err
 	}
@@ -245,6 +249,7 @@ func parseTessellServiceClonedFromInfoWithResData(clonedFromInfo *model.TessellS
 	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PITRTime
 	parsedClonedFromInfo["maximum_recoverability"] = clonedFromInfo.MaximumRecoverability
 	parsedClonedFromInfo["storage_provider"] = clonedFromInfo.StorageProvider
+	parsedClonedFromInfo["is_hpc"] = clonedFromInfo.IsHpc
 
 	return []interface{}{parsedClonedFromInfo}
 }
@@ -266,6 +271,7 @@ func parseTessellServiceClonedFromInfo(clonedFromInfo *model.TessellServiceClone
 	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PITRTime
 	parsedClonedFromInfo["maximum_recoverability"] = clonedFromInfo.MaximumRecoverability
 	parsedClonedFromInfo["storage_provider"] = clonedFromInfo.StorageProvider
+	parsedClonedFromInfo["is_hpc"] = clonedFromInfo.IsHpc
 
 	return parsedClonedFromInfo
 }
