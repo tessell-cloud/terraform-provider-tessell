@@ -65,6 +65,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("enable_perf_insights", tessellServiceDTO.EnablePerfInsights); err != nil {
+		return err
+	}
+
 	if err := d.Set("edition", tessellServiceDTO.Edition); err != nil {
 		return err
 	}

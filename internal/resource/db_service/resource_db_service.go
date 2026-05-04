@@ -160,6 +160,12 @@ func ResourceDBService() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"enable_perf_insights": {
+				Type:        schema.TypeBool,
+				Description: "This field specifies whether to enable performance insights for the DB Service.",
+				Optional:    true,
+				Computed:    true,
+			},
 			"owner": {
 				Type:        schema.TypeString,
 				Description: "DB Service owner email address",
@@ -4772,6 +4778,9 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	if d.HasChanges("server_patching_config") {
 		return diag.Errorf("server_patching_config can only be set at creation time and cannot be updated. Please revert the change or recreate the resource.")
 	}
+	if d.HasChanges("enable_perf_insights") {
+		return diag.Errorf("enable_perf_insights can only be set at creation time and cannot be updated. Please revert the change or recreate the resource.")
+	}
 
 	if expectedStatus == "READY" && status == "STOPPED" {
 		payload := formPayloadForStartTessellService(d)
@@ -4797,6 +4806,16 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		_, _, err := client.UpdateTessellService(id, payload)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("maintenance_window") {
+		payload := formTessellServiceMaintenanceWindow(d.Get("maintenance_window"))
+		if payload != nil {
+			_, _, err := client.UpdateTessellServiceMaintenanceWindow(id, *payload)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
