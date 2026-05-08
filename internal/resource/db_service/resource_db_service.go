@@ -1246,7 +1246,8 @@ func ResourceDBService() *schema.Resource {
 						"cadence": {
 							Type:        schema.TypeString,
 							Description: "The cadence type for maintenance window. Allowed values: WEEKLY, MONTHLY, QUARTERLY",
-							Required:    true,
+							Optional:    true,
+							Default:     "WEEKLY",
 						},
 						"time": {
 							Type:        schema.TypeString,

@@ -1618,11 +1618,12 @@ Read-Only:
 
 Required:
 
-- `cadence` (String) The cadence type for maintenance window. Allowed values: WEEKLY, MONTHLY, QUARTERLY
 - `duration` (Number) The duration during which the maintenance window will be allowed to trigger (in minutes)
 - `time` (String) Time value in (hh:mm) format. ex. '02:00'
 
 Optional:
+
+- `cadence` (String) The cadence type for maintenance window. Allowed values: WEEKLY, MONTHLY, QUARTERLY. Defaults to WEEKLY.
 
 - `day` (String) Day of the week when maintenance should be performed. Required when cadence is WEEKLY. Allowed values: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
 - `day_of_month` (Number) Day of the month when maintenance should be performed (1-31). Required when cadence is MONTHLY.
