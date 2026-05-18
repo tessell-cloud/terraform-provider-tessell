@@ -882,6 +882,28 @@ func parseServiceUpdates(updatesInfo *model.ServiceUpdates) []interface{} {
 		upcoming["time"] = updatesInfo.UpcomingMaintenanceWindow.Time
 		upcoming["duration"] = updatesInfo.UpcomingMaintenanceWindow.Duration
 		upcoming["downtime"] = updatesInfo.UpcomingMaintenanceWindow.Downtime
+		if acts := updatesInfo.UpcomingMaintenanceWindow.AssociatedActivities; acts != nil {
+			parsedActs := make(map[string]interface{})
+			if acts.DBPatch != nil {
+				parsedActs["db_patch"] = []interface{}{map[string]interface{}{
+					"version_no":    acts.DBPatch.VersionNo,
+					"type_of_patch": acts.DBPatch.TypeOfPatch,
+					"impact":        acts.DBPatch.Impact,
+					"scheduled_by":  acts.DBPatch.ScheduledBy,
+					"status":        acts.DBPatch.Status,
+				}}
+			}
+			if acts.OsPatch != nil {
+				parsedActs["os_patch"] = []interface{}{map[string]interface{}{
+					"version_no":    acts.OsPatch.VersionNo,
+					"type_of_patch": acts.OsPatch.TypeOfPatch,
+					"impact":        acts.OsPatch.Impact,
+					"scheduled_by":  acts.OsPatch.ScheduledBy,
+					"status":        acts.OsPatch.Status,
+				}}
+			}
+			upcoming["associated_activities"] = []interface{}{parsedActs}
+		}
 		parsed["upcoming_maintenance_window"] = []interface{}{upcoming}
 	}
 

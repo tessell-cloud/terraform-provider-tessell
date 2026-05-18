@@ -2,37 +2,12 @@ package db_service_delete_schedule
 
 import (
 	//"fmt"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"terraform-provider-tessell/internal/helper"
 	"terraform-provider-tessell/internal/model"
 )
-
-// suppressRFC3339Diff suppresses diff when two timestamps represent the same point in time
-// regardless of formatting differences (e.g. "Z" vs "+00:00", or milliseconds).
-func suppressRFC3339Diff(old, new string) bool {
-	if old == new {
-		return true
-	}
-	formats := []string{time.RFC3339, time.RFC3339Nano, "2006-01-02T15:04:05.000Z07:00"}
-	var oldT, newT time.Time
-	var err error
-	for _, f := range formats {
-		oldT, err = time.Parse(f, old)
-		if err == nil {
-			break
-		}
-	}
-	for _, f := range formats {
-		newT, err = time.Parse(f, new)
-		if err == nil {
-			break
-		}
-	}
-	return oldT.Equal(newT)
-}
 
 func setResourceData(d *schema.ResourceData, deletionScheduleDTO *model.DeletionScheduleDTO) error {
 

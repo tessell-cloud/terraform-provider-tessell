@@ -80,17 +80,11 @@ func ResourceDBServiceStartStopSchedule() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: "Time at which the DB Service should be started at",
 										Optional:    true,
-										DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-											return suppressRFC3339Diff(old, new)
-										},
 									},
 									"db_service_stop_at": {
 										Type:        schema.TypeString,
 										Description: "Time at which the DB Service should be stopped at",
 										Optional:    true,
-										DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-											return suppressRFC3339Diff(old, new)
-										},
 									},
 								},
 							},

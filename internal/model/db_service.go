@@ -840,7 +840,7 @@ type PatchActivity struct {
 	VersionNo   *string `json:"versionNo,omitempty"`
 	TypeOfPatch *string `json:"typeOfPatch,omitempty"`
 	Impact      *string `json:"impact,omitempty"`
-	ScheduleDBy *string `json:"scheduledBy,omitempty"`
+	ScheduledBy *string `json:"scheduledBy,omitempty"`
 	Status      *string `json:"status,omitempty"`
 }
 
