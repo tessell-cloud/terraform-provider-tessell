@@ -399,7 +399,6 @@ resource "tessell_db_service" "example" {
 ### Optional
 
 - `auto_minor_version_update` (Boolean) Specify whether to automatically update minor version for DB Service
-- `auto_patch_config` (Block List, Max: 1) Auto patch configuration for the DB Service (see [below for nested schema](#nestedblock--auto_patch_config))
 - `block_until_complete` (Boolean) For any operation on this resource, block the flow until the action has completed successfully
 - `databases` (Block List) Databases that are part of this DB Service (see [below for nested schema](#nestedblock--databases))
 - `deletion_config` (Block List, Max: 1) If the DB Service is to be deleted, this config would be honoured if no preference is provided during deleting the service (see [below for nested schema](#nestedblock--deletion_config))
@@ -416,7 +415,6 @@ resource "tessell_db_service" "example" {
 - `pitr` (String) PITR Timestamp, using which the clone is to be created
 - `private_link_info` (Block List, Max: 1) Service-level shorthand for configuring private link on the primary instance. When set, the configuration is applied exclusively to the primary instance — standby and read replica instances are never affected. Removing this block is a no-op: the backend private link configuration is preserved. Not supported during service creation; must be added in a subsequent apply after the service has been created. In Terraform state, this value mirrors the primary instance's private_link_info and does not cause drift. (see [below for nested schema](#nestedblock--private_link_info))
 - `rpo_policy_config` (Block List, Max: 1) This is the definition for RPO Policy details for Tessell DB Service (see [below for nested schema](#nestedblock--rpo_policy_config))
-- `server_patching_config` (Block List, Max: 1) Server patching configuration for the DB Service (see [below for nested schema](#nestedblock--server_patching_config))
 - `snapshot_configuration` (Block List, Max: 1) (see [below for nested schema](#nestedblock--snapshot_configuration))
 - `snapshot_id` (String) Tessell service snapshot Id, using which the clone is to be created
 - `tags` (Block List) The tags to be associated with the DB Service (see [below for nested schema](#nestedblock--tags))

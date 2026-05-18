@@ -450,8 +450,6 @@ type CloneTessellServicePayload struct {
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
-	AutoPatchConfig          *AutoPatchConfig                          `json:"autoPatchConfig,omitempty"`
-	ServerPatchingConfig     *ServerPatchingConfig                     `json:"serverPatchingConfig,omitempty"`
 	DeletionConfig           *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
 	SnapshotConfiguration    *SnapshotConfigurationPayload             `json:"snapshotConfiguration,omitempty"`
 	RPOPolicyConfig          *RPOPolicyConfig                          `json:"rpoPolicyConfig,omitempty"`
@@ -540,20 +538,6 @@ type TessellServiceConnectivityInfoPayload struct {
 	ServicePort        *int      `json:"servicePort"`                  // The connection port for the DB Service
 	EnablePublicAccess *bool     `json:"enablePublicAccess,omitempty"` // Specify whether to enable public access to the DB Service, default false
 	AllowedIpAddresses *[]string `json:"allowedIpAddresses,omitempty"` // The list of allowed ipv4 addresses that can connect to the DB Service
-}
-
-type AutoPatchConfig struct {
-	OsAutoPatchEnabled *bool   `json:"osAutoPatchEnabled,omitempty"` // Enable automatic OS patching to latest certified minor version. Only minor version patches are applied automatically. Major version upgrades require manual intervention.
-	DBAutoPatchEnabled *bool   `json:"dbAutoPatchEnabled,omitempty"` // Enable automatic DB patching. Note: Currently not supported as DB patches require customer approval due to application compatibility concerns.
-	PatchStrategy      *string `json:"patchStrategy,omitempty"`      // Strategy for selecting patch versions: - LATEST_CERTIFIED: Apply the latest certified patch version (recommended) - SPECIFIC_VERSION: Apply a specific version (requires specificOsVersion/specificDbVersion)
-	SpecificOsVersion  *string `json:"specificOsVersion,omitempty"`  // Specific OS version to patch to (only when patchStrategy is SPECIFIC_VERSION). Example: 'RHEL-8.7', 'Ubuntu-22.04.3'
-	SpecificDBVersion  *string `json:"specificDbVersion,omitempty"`  // Specific DB version to patch to (only when patchStrategy is SPECIFIC_VERSION). Example: 'PostgreSQL-14.9', 'Oracle-19.21'
-}
-
-type ServerPatchingConfig struct {
-	EnableAutoOsPatching *bool       `json:"enableAutoOSPatching,omitempty"` // Enable automatic OS patching for the server
-	PreScriptInfo        *ScriptInfo `json:"preScriptInfo,omitempty"`
-	PostScriptInfo       *ScriptInfo `json:"postScriptInfo,omitempty"`
 }
 
 type TessellServiceEngineConfigurationPayload struct {
@@ -764,8 +748,6 @@ type TessellServiceDTO struct {
 	DeletionSchedule           *DeletionScheduleDTO              `json:"deletionSchedule,omitempty"`
 	UpcomingScheduledActions   *ServiceUpcomingScheduledActions  `json:"upcomingScheduledActions,omitempty"`
 	UpdatesInfo                *ServiceUpdates                   `json:"updatesInfo,omitempty"`
-	ServerPatchingConfig       *ServerPatchingConfig             `json:"serverPatchingConfig,omitempty"`
-	AutoPatchConfig            *AutoPatchConfig                  `json:"autoPatchConfig,omitempty"`
 }
 
 type RefreshServiceInfo struct {
@@ -886,8 +868,6 @@ type ProvisionServicePayload struct {
 	ServiceConnectivity      *TessellServiceConnectivityInfoPayload    `json:"serviceConnectivity"`
 	Creds                    *TessellServiceCredsPayload               `json:"creds"`
 	MaintenanceWindow        *TessellServiceMaintenanceWindow          `json:"maintenanceWindow,omitempty"`
-	AutoPatchConfig          *AutoPatchConfig                          `json:"autoPatchConfig,omitempty"`
-	ServerPatchingConfig     *ServerPatchingConfig                     `json:"serverPatchingConfig,omitempty"`
 	DeletionConfig           *TessellServiceDeletionConfig             `json:"deletionConfig,omitempty"`
 	SnapshotConfiguration    *SnapshotConfigurationPayload             `json:"snapshotConfiguration,omitempty"`
 	RPOPolicyConfig          *RPOPolicyConfig                          `json:"rpoPolicyConfig,omitempty"`

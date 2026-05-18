@@ -191,14 +191,6 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
-	if err := d.Set("server_patching_config", parseServerPatchingConfig(tessellServiceDTO.ServerPatchingConfig)); err != nil {
-		return err
-	}
-
-	if err := d.Set("auto_patch_config", parseAutoPatchConfig(tessellServiceDTO.AutoPatchConfig)); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -867,40 +859,6 @@ func parseTessellServiceMaintenanceWindow(maintenanceWindow *model.TessellServic
 	parsedMaintenanceWindow["start_date"] = maintenanceWindow.StartDate
 
 	return parsedMaintenanceWindow
-}
-
-func parseAutoPatchConfig(autoPatchConfig *model.AutoPatchConfig) []interface{} {
-	if autoPatchConfig == nil {
-		return nil
-	}
-	parsed := make(map[string]interface{})
-	parsed["os_auto_patch_enabled"] = autoPatchConfig.OsAutoPatchEnabled
-	parsed["db_auto_patch_enabled"] = autoPatchConfig.DBAutoPatchEnabled
-	parsed["patch_strategy"] = autoPatchConfig.PatchStrategy
-	parsed["specific_os_version"] = autoPatchConfig.SpecificOsVersion
-	parsed["specific_db_version"] = autoPatchConfig.SpecificDBVersion
-
-	return []interface{}{parsed}
-}
-
-func parseServerPatchingConfig(serverPatchingConfig *model.ServerPatchingConfig) []interface{} {
-	if serverPatchingConfig == nil {
-		return nil
-	}
-	parsed := make(map[string]interface{})
-	parsed["enable_auto_os_patching"] = serverPatchingConfig.EnableAutoOsPatching
-
-	var preScriptInfo *model.ScriptInfo
-	if serverPatchingConfig.PreScriptInfo != preScriptInfo {
-		parsed["pre_script_info"] = []interface{}{parseScriptInfo(serverPatchingConfig.PreScriptInfo)}
-	}
-
-	var postScriptInfo *model.ScriptInfo
-	if serverPatchingConfig.PostScriptInfo != postScriptInfo {
-		parsed["post_script_info"] = []interface{}{parseScriptInfo(serverPatchingConfig.PostScriptInfo)}
-	}
-
-	return []interface{}{parsed}
 }
 
 func parseServiceUpdates(updatesInfo *model.ServiceUpdates) []interface{} {
@@ -2250,8 +2208,6 @@ func formPayloadForCloneTessellService(d *schema.ResourceData) model.CloneTessel
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
-		AutoPatchConfig:          formAutoPatchConfig(d.Get("auto_patch_config")),
-		ServerPatchingConfig:     formServerPatchingConfig(d.Get("server_patching_config")),
 		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
 		SnapshotConfiguration:    formSnapshotConfigurationPayload(d.Get("snapshot_configuration")),
 		RPOPolicyConfig:          formRPOPolicyConfig(d.Get("rpo_policy_config")),
@@ -2303,8 +2259,6 @@ func formPayloadForProvisionTessellService(d *schema.ResourceData) model.Provisi
 		ServiceConnectivity:      formTessellServiceConnectivityInfoPayload(d.Get("service_connectivity")),
 		Creds:                    formTessellServiceCredsPayload(d.Get("creds")),
 		MaintenanceWindow:        formTessellServiceMaintenanceWindow(d.Get("maintenance_window")),
-		AutoPatchConfig:          formAutoPatchConfig(d.Get("auto_patch_config")),
-		ServerPatchingConfig:     formServerPatchingConfig(d.Get("server_patching_config")),
 		DeletionConfig:           formTessellServiceDeletionConfig(d.Get("deletion_config")),
 		SnapshotConfiguration:    formSnapshotConfigurationPayload(d.Get("snapshot_configuration")),
 		RPOPolicyConfig:          formRPOPolicyConfig(d.Get("rpo_policy_config")),
@@ -2968,40 +2922,6 @@ func formTessellServiceMaintenanceWindow(tessellServiceMaintenanceWindowRaw inte
 	return &tessellServiceMaintenanceWindowFormed
 }
 
-func formAutoPatchConfig(autoPatchConfigRaw interface{}) *model.AutoPatchConfig {
-	if autoPatchConfigRaw == nil || len(autoPatchConfigRaw.([]interface{})) == 0 {
-		return nil
-	}
-
-	autoPatchConfigData := autoPatchConfigRaw.([]interface{})[0].(map[string]interface{})
-
-	autoPatchConfigFormed := model.AutoPatchConfig{
-		OsAutoPatchEnabled: helper.GetBoolPointer(autoPatchConfigData["os_auto_patch_enabled"]),
-		DBAutoPatchEnabled: helper.GetBoolPointer(autoPatchConfigData["db_auto_patch_enabled"]),
-		PatchStrategy:      helper.GetStringPointer(autoPatchConfigData["patch_strategy"]),
-		SpecificOsVersion:  helper.GetStringPointer(autoPatchConfigData["specific_os_version"]),
-		SpecificDBVersion:  helper.GetStringPointer(autoPatchConfigData["specific_db_version"]),
-	}
-
-	return &autoPatchConfigFormed
-}
-
-func formServerPatchingConfig(serverPatchingConfigRaw interface{}) *model.ServerPatchingConfig {
-	if serverPatchingConfigRaw == nil || len(serverPatchingConfigRaw.([]interface{})) == 0 {
-		return nil
-	}
-
-	serverPatchingConfigData := serverPatchingConfigRaw.([]interface{})[0].(map[string]interface{})
-
-	serverPatchingConfigFormed := model.ServerPatchingConfig{
-		EnableAutoOsPatching: helper.GetBoolPointer(serverPatchingConfigData["enable_auto_os_patching"]),
-		PreScriptInfo:        formScriptInfo(serverPatchingConfigData["pre_script_info"]),
-		PostScriptInfo:       formScriptInfo(serverPatchingConfigData["post_script_info"]),
-	}
-
-	return &serverPatchingConfigFormed
-}
-
 func formTessellServiceDeletionConfig(tessellServiceDeletionConfigRaw interface{}) *model.TessellServiceDeletionConfig {
 	if tessellServiceDeletionConfigRaw == nil || len(tessellServiceDeletionConfigRaw.([]interface{})) == 0 {
 		return nil
@@ -3528,6 +3448,9 @@ func formCreateOracleDatabaseConfig(createOracleDatabaseConfigRaw interface{}) *
 	if createOracleDatabaseConfigRaw == nil || len(createOracleDatabaseConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
+	if createOracleDatabaseConfigRaw.([]interface{})[0] == nil {
+		return nil
+	}
 
 	createOracleDatabaseConfigData := createOracleDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
@@ -3590,6 +3513,9 @@ func formPostgresqlDatabaseConfig(postgresqlDatabaseConfigRaw interface{}) *mode
 	if postgresqlDatabaseConfigRaw == nil || len(postgresqlDatabaseConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
+	if postgresqlDatabaseConfigRaw.([]interface{})[0] == nil {
+		return nil
+	}
 
 	postgresqlDatabaseConfigData := postgresqlDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
@@ -3603,6 +3529,9 @@ func formPostgresqlDatabaseConfig(postgresqlDatabaseConfigRaw interface{}) *mode
 
 func formMysqlDatabaseConfig(mysqlDatabaseConfigRaw interface{}) *model.MysqlDatabaseConfig {
 	if mysqlDatabaseConfigRaw == nil || len(mysqlDatabaseConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+	if mysqlDatabaseConfigRaw.([]interface{})[0] == nil {
 		return nil
 	}
 
@@ -3620,6 +3549,9 @@ func formSqlServerDatabaseConfig(sqlServerDatabaseConfigRaw interface{}) *model.
 	if sqlServerDatabaseConfigRaw == nil || len(sqlServerDatabaseConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
+	if sqlServerDatabaseConfigRaw.([]interface{})[0] == nil {
+		return nil
+	}
 
 	sqlServerDatabaseConfigData := sqlServerDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
@@ -3634,6 +3566,9 @@ func formMongoDBDatabaseConfig(mongoDBDatabaseConfigRaw interface{}) *model.Mong
 	if mongoDBDatabaseConfigRaw == nil || len(mongoDBDatabaseConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
+	if mongoDBDatabaseConfigRaw.([]interface{})[0] == nil {
+		return nil
+	}
 
 	mongoDBDatabaseConfigData := mongoDBDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
@@ -3646,6 +3581,9 @@ func formMongoDBDatabaseConfig(mongoDBDatabaseConfigRaw interface{}) *model.Mong
 
 func formMilvusDatabaseConfig(milvusDatabaseConfigRaw interface{}) *model.MilvusDatabaseConfig {
 	if milvusDatabaseConfigRaw == nil || len(milvusDatabaseConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+	if milvusDatabaseConfigRaw.([]interface{})[0] == nil {
 		return nil
 	}
 

@@ -1277,119 +1277,6 @@ func ResourceDBService() *schema.Resource {
 					},
 				},
 			},
-			"auto_patch_config": {
-				Type:        schema.TypeList,
-				Description: "Auto patch configuration for the DB Service",
-				Optional:    true,
-				Computed:    true,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"os_auto_patch_enabled": {
-							Type:        schema.TypeBool,
-							Description: "Enable automatic OS patching to latest certified minor version",
-							Optional:    true,
-						},
-						"db_auto_patch_enabled": {
-							Type:        schema.TypeBool,
-							Description: "Enable automatic DB patching",
-							Optional:    true,
-						},
-						"patch_strategy": {
-							Type:        schema.TypeString,
-							Description: "Strategy for selecting patch versions: LATEST_CERTIFIED or SPECIFIC_VERSION",
-							Optional:    true,
-						},
-						"specific_os_version": {
-							Type:        schema.TypeString,
-							Description: "Specific OS version to patch to (only when patchStrategy is SPECIFIC_VERSION)",
-							Optional:    true,
-						},
-						"specific_db_version": {
-							Type:        schema.TypeString,
-							Description: "Specific DB version to patch to (only when patchStrategy is SPECIFIC_VERSION)",
-							Optional:    true,
-						},
-					},
-				},
-			},
-			"server_patching_config": {
-				Type:        schema.TypeList,
-				Description: "Server patching configuration for the DB Service",
-				Optional:    true,
-				Computed:    true,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enable_auto_os_patching": {
-							Type:        schema.TypeBool,
-							Description: "Enable automatic OS patching for the server",
-							Optional:    true,
-							Computed:    true,
-						},
-						"pre_script_info": {
-							Type:        schema.TypeList,
-							Description: "",
-							Optional:    true,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"script_id": {
-										Type:        schema.TypeString,
-										Description: "The Tessell Script ID",
-										Optional:    true,
-									},
-									"script_name": {
-										Type:        schema.TypeString,
-										Description: "The Tessell Script Name",
-										Optional:    true,
-									},
-									"script_version": {
-										Type:        schema.TypeString,
-										Description: "The Tessell Script version",
-										Optional:    true,
-									},
-									"use_active_version": {
-										Type:        schema.TypeBool,
-										Description: "When set to true, the system will automatically use the active version of the script",
-										Optional:    true,
-									},
-								},
-							},
-						},
-						"post_script_info": {
-							Type:        schema.TypeList,
-							Description: "",
-							Optional:    true,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"script_id": {
-										Type:        schema.TypeString,
-										Description: "The Tessell Script ID",
-										Optional:    true,
-									},
-									"script_name": {
-										Type:        schema.TypeString,
-										Description: "The Tessell Script Name",
-										Optional:    true,
-									},
-									"script_version": {
-										Type:        schema.TypeString,
-										Description: "The Tessell Script version",
-										Optional:    true,
-									},
-									"use_active_version": {
-										Type:        schema.TypeBool,
-										Description: "When set to true, the system will automatically use the active version of the script",
-										Optional:    true,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
 			"snapshot_configuration": {
 				Type:        schema.TypeList,
 				Description: "",
@@ -4771,14 +4658,6 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	status := d.GetRawState().GetAttr("status").AsString()
 	id := d.Get("id").(string)
 
-	// auto_patch_config and server_patching_config are create-only fields.
-	// The API does not support updating them after provisioning.
-	if d.HasChanges("auto_patch_config") {
-		return diag.Errorf("auto_patch_config can only be set at creation time and cannot be updated. Please revert the change or recreate the resource.")
-	}
-	if d.HasChanges("server_patching_config") {
-		return diag.Errorf("server_patching_config can only be set at creation time and cannot be updated. Please revert the change or recreate the resource.")
-	}
 	if d.HasChanges("enable_perf_insights") {
 		return diag.Errorf("enable_perf_insights can only be set at creation time and cannot be updated. Please revert the change or recreate the resource.")
 	}
