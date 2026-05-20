@@ -2,6 +2,7 @@ package db_service
 
 import (
 	//"fmt"
+	"sort"
 	//"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -1546,8 +1547,21 @@ func parsePrivateLinkInfo(privateLinkInfo *model.PrivateLinkInfo) interface{} {
 	parsedPrivateLinkInfo["status"] = privateLinkInfo.Status
 	parsedPrivateLinkInfo["endpoint_service_name"] = privateLinkInfo.EndpointServiceName
 	parsedPrivateLinkInfo["private_link_service_alias"] = privateLinkInfo.PrivateLinkServiceAlias
-	parsedPrivateLinkInfo["service_principals"] = privateLinkInfo.ServicePrincipals
-	parsedPrivateLinkInfo["client_azure_subscription_ids"] = privateLinkInfo.ClientAzureSubscriptionIds
+	// Sort service_principals and client_azure_subscription_ids so that state is
+	// deterministic regardless of the order the API returns them in. This prevents
+	// perpetual plan drift caused by non-deterministic API response ordering.
+	if sp := privateLinkInfo.ServicePrincipals; sp != nil {
+		sorted := make([]string, len(*sp))
+		copy(sorted, *sp)
+		sort.Strings(sorted)
+		parsedPrivateLinkInfo["service_principals"] = sorted
+	}
+	if ids := privateLinkInfo.ClientAzureSubscriptionIds; ids != nil {
+		sorted := make([]string, len(*ids))
+		copy(sorted, *ids)
+		sort.Strings(sorted)
+		parsedPrivateLinkInfo["client_azure_subscription_ids"] = sorted
+	}
 
 	return parsedPrivateLinkInfo
 }

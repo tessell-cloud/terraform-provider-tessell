@@ -4090,6 +4090,11 @@ func handlePrivateLinkUpdates(client *apiClient.Client, d *schema.ResourceData, 
 			continue
 		}
 
+		// Skip if private_link_info hasn't changed — avoids redundant API calls on unrelated updates
+		if !d.HasChange(fmt.Sprintf("instances.%d.private_link_info", idx)) {
+			continue
+		}
+
 		// Get private_link_info data for payload construction
 		newPrivateLinkInfoRaw := instance["private_link_info"]
 
@@ -4110,7 +4115,7 @@ func handlePrivateLinkUpdates(client *apiClient.Client, d *schema.ResourceData, 
 				}
 			}
 		} else {
-			// UPDATE: Both exist, update the private link
+			// UPDATE: Private link already exists and principals have changed
 			privateLinkId := *apiInstance.PrivateLinkInfo.Id
 			payload := formPrivateLinkPayload(newPrivateLinkInfoRaw)
 			if payload != nil {
@@ -4119,7 +4124,7 @@ func handlePrivateLinkUpdates(client *apiClient.Client, d *schema.ResourceData, 
 					return fmt.Errorf("failed to update private link for instance %s: %s", instanceName, err.Error())
 				}
 
-				if err := client.DBServicePollForPrivateLinkCreation(serviceId, instanceId, d.Get("timeout").(int), 30); err != nil {
+				if err := client.DBServicePollForPrivateLinkUpdate(serviceId, instanceId, d.Get("timeout").(int), 30); err != nil {
 					return fmt.Errorf("failed while waiting for private link update on instance %s: %s", instanceName, err.Error())
 				}
 			}
@@ -4278,7 +4283,7 @@ func handleServiceLevelPrivateLinkUpdates(client *apiClient.Client, d *schema.Re
 		if err != nil {
 			return fmt.Errorf("failed to update service-level private link on primary instance: %s", err.Error())
 		}
-		if err := client.DBServicePollForPrivateLinkCreation(serviceId, primaryInstanceId, d.Get("timeout").(int), 30); err != nil {
+		if err := client.DBServicePollForPrivateLinkUpdate(serviceId, primaryInstanceId, d.Get("timeout").(int), 30); err != nil {
 			return fmt.Errorf("failed while waiting for service-level private link update on primary instance: %s", err.Error())
 		}
 	}

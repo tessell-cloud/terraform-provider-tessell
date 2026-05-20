@@ -883,6 +883,91 @@ func (c *Client) DBServicePollForPrivateLinkCreation(serviceId string, instanceI
 	}
 }
 
+// DBServicePollForPrivateLinkUpdate polls until a private link update is complete for a specific instance.
+// For updates the private link starts ACTIVE, transitions to an intermediate state, then returns to ACTIVE.
+// Phase 1: wait for status to leave ACTIVE (up to a short grace period).
+// Phase 2: wait for status to return to ACTIVE.
+func (c *Client) DBServicePollForPrivateLinkUpdate(serviceId string, instanceId string, timeout int, interval int) error {
+	if interval <= 0 {
+		return fmt.Errorf("interval must be greater than 0, got %d", interval)
+	}
+	sleepCycleDurationSmall, err := time.ParseDuration("10s")
+	if err != nil {
+		return err
+	}
+	sleepCycleDuration, err := time.ParseDuration(fmt.Sprintf("%ds", interval))
+	if err != nil {
+		return err
+	}
+
+	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
+
+	// Phase 1: wait for status to leave ACTIVE (backend starts the transition).
+	// Allow up to ~60 s for the backend to kick off the update before giving up.
+	transitionGraceLoops := 6 // 6 × 10 s = 60 s
+	for i := 0; i < transitionGraceLoops; i++ {
+		response, _, err := c.GetTessellService(serviceId, nil)
+		if err != nil {
+			time.Sleep(sleepCycleDurationSmall)
+			continue
+		}
+		for _, instance := range *response.Instances {
+			if *instance.Id == instanceId {
+				if instance.PrivateLinkInfo != nil && instance.PrivateLinkInfo.Status != nil {
+					if *instance.PrivateLinkInfo.Status != "ACTIVE" {
+						// Backend has started the transition — proceed to Phase 2.
+						goto phase2
+					}
+				}
+				break
+			}
+		}
+		time.Sleep(sleepCycleDurationSmall)
+	}
+	// If the status never left ACTIVE within the grace period it may be a very fast
+	// no-op update on the backend side; fall through to Phase 2 which will return
+	// immediately when it finds ACTIVE.
+
+phase2:
+	// Phase 2: wait for status to return to ACTIVE.
+	errorCountWhilePolling := 0
+	loopCount := 0
+	for {
+		response, _, err := c.GetTessellService(serviceId, nil)
+		if err != nil {
+			errorCountWhilePolling++
+			if errorCountWhilePolling > 3 {
+				return fmt.Errorf("error while polling for private link update: %s", err.Error())
+			}
+			time.Sleep(sleepCycleDurationSmall)
+			continue
+		}
+
+		for _, instance := range *response.Instances {
+			if *instance.Id == instanceId {
+				if instance.PrivateLinkInfo != nil && instance.PrivateLinkInfo.Status != nil {
+					if *instance.PrivateLinkInfo.Status == "ACTIVE" {
+						return nil
+					} else if *instance.PrivateLinkInfo.Status == "FAILED" {
+						return fmt.Errorf("private link update failed")
+					}
+				}
+				break
+			}
+		}
+
+		loopCount++
+		if loopCount > loops {
+			return fmt.Errorf("timed out while polling for private link update")
+		}
+		if loopCount > 6 {
+			time.Sleep(sleepCycleDuration)
+		} else {
+			time.Sleep(sleepCycleDurationSmall)
+		}
+	}
+}
+
 // DBServicePollForPrivateLinkDeletion polls until private link is removed from a specific instance
 func (c *Client) DBServicePollForPrivateLinkDeletion(serviceId string, instanceId string, timeout int, interval int) error {
 	if interval <= 0 {
