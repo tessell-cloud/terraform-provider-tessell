@@ -128,6 +128,17 @@ type ServiceConnectivityUpdateInProgressInfo struct {
 	ClientAzureSubscriptionIds *[]string `json:"clientAzureSubscriptionIds,omitempty"` // The list of Azure subscription Ids
 }
 
+// InstanceConnectivityUpdateRequest - Request payload for private link operations
+type InstanceConnectivityUpdateRequest struct {
+	PrivateLink *PrivateLinkPayload `json:"privateLink,omitempty"`
+}
+
+// PrivateLinkPayload - Payload for creating/updating private link
+type PrivateLinkPayload struct {
+	ServicePrincipals          *[]string `json:"servicePrincipals,omitempty"`          // AWS account principals
+	ClientAzureSubscriptionIds *[]string `json:"clientAzureSubscriptionIds,omitempty"` // Azure subscription IDs
+}
+
 type TessellServiceCredsPayload struct {
 	MasterUser     *string `json:"masterUser"`     // DB Service&#39;s master username
 	MasterPassword *string `json:"masterPassword"` // DB Service&#39;s master password
