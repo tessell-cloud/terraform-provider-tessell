@@ -2,6 +2,7 @@ package db_service
 
 import (
 	//"fmt"
+	"sort"
 	//"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -153,6 +154,12 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 	}
 
 	if err := d.Set("instances", parseTessellServiceInstanceDTOListWithResData(tessellServiceDTO.Instances, d)); err != nil {
+		return err
+	}
+
+	// Populate service-level private_link_info from the primary instance so the block
+	// persists in state after a read and does not disappear on terraform refresh.
+	if err := d.Set("private_link_info", parseServiceLevelPrivateLinkInfo(tessellServiceDTO.Instances)); err != nil {
 		return err
 	}
 
@@ -1320,9 +1327,11 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 		parsedInstances["archive_storage_config"] = []interface{}{parseInstanceStorageConfig(instances.ArchiveStorageConfig)}
 	}
 
-	var privateLinkInfo *model.PrivateLinkInfo
-	if instances.PrivateLinkInfo != privateLinkInfo {
+	if instances.PrivateLinkInfo != nil {
 		parsedInstances["private_link_info"] = []interface{}{parsePrivateLinkInfo(instances.PrivateLinkInfo)}
+	} else {
+		// Explicitly set empty slice when API returns nil to clear the old state
+		parsedInstances["private_link_info"] = []interface{}{}
 	}
 
 	var securityConfig *model.SecurityConfigOps
@@ -1538,8 +1547,21 @@ func parsePrivateLinkInfo(privateLinkInfo *model.PrivateLinkInfo) interface{} {
 	parsedPrivateLinkInfo["status"] = privateLinkInfo.Status
 	parsedPrivateLinkInfo["endpoint_service_name"] = privateLinkInfo.EndpointServiceName
 	parsedPrivateLinkInfo["private_link_service_alias"] = privateLinkInfo.PrivateLinkServiceAlias
-	parsedPrivateLinkInfo["service_principals"] = privateLinkInfo.ServicePrincipals
-	parsedPrivateLinkInfo["client_azure_subscription_ids"] = privateLinkInfo.ClientAzureSubscriptionIds
+	// Sort service_principals and client_azure_subscription_ids so that state is
+	// deterministic regardless of the order the API returns them in. This prevents
+	// perpetual plan drift caused by non-deterministic API response ordering.
+	if sp := privateLinkInfo.ServicePrincipals; sp != nil {
+		sorted := make([]string, len(*sp))
+		copy(sorted, *sp)
+		sort.Strings(sorted)
+		parsedPrivateLinkInfo["service_principals"] = sorted
+	}
+	if ids := privateLinkInfo.ClientAzureSubscriptionIds; ids != nil {
+		sorted := make([]string, len(*ids))
+		copy(sorted, *ids)
+		sort.Strings(sorted)
+		parsedPrivateLinkInfo["client_azure_subscription_ids"] = sorted
+	}
 
 	return parsedPrivateLinkInfo
 }
@@ -3654,4 +3676,38 @@ func formResetTessellServiceCredsPayloadCredsList(credsListRaw interface{}) *[]m
 	}
 
 	return &CredsListFormed
+}
+
+// formPrivateLinkPayload creates the payload for private link create/update operations
+func formPrivateLinkPayload(privateLinkInfoRaw interface{}) *model.InstanceConnectivityUpdateRequest {
+	if privateLinkInfoRaw == nil || len(privateLinkInfoRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	privateLinkInfoData := privateLinkInfoRaw.([]interface{})[0].(map[string]interface{})
+
+	privateLinkPayload := model.PrivateLinkPayload{
+		ServicePrincipals:          helper.InterfaceToStringSlice(privateLinkInfoData["service_principals"]),
+		ClientAzureSubscriptionIds: helper.InterfaceToStringSlice(privateLinkInfoData["client_azure_subscription_ids"]),
+	}
+
+	return &model.InstanceConnectivityUpdateRequest{
+		PrivateLink: &privateLinkPayload,
+	}
+}
+
+// parseServiceLevelPrivateLinkInfo finds the primary instance and returns its PrivateLinkInfo
+// as a []interface{} suitable for setting the service-level private_link_info attribute.
+// Returns an empty slice if no primary instance or no private link is found.
+func parseServiceLevelPrivateLinkInfo(instances *[]model.TessellServiceInstanceDTO) []interface{} {
+	if instances == nil {
+		return []interface{}{}
+	}
+	for i := range *instances {
+		inst := &(*instances)[i]
+		if inst.Role != nil && *inst.Role == "primary" && inst.PrivateLinkInfo != nil {
+			return []interface{}{parsePrivateLinkInfo(inst.PrivateLinkInfo)}
+		}
+	}
+	return []interface{}{}
 }

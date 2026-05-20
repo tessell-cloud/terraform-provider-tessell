@@ -117,7 +117,7 @@ Read-Only:
 
 DB Snapshots can be imported using `availability_machine_id/snapshot_id`, e.g.
 
-```
-terraform import tessell_db_snapshot.example <availability_machine_id>/<snapshot_id>
+```shell
+terraform import tessell_db_snapshot.example {availability_machine_id}/{snapshot_id}
 ```
 
