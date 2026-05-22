@@ -103,3 +103,71 @@ type DatabaseParameterProfileListResponse struct {
 	Response *[]DatabaseParameterProfileResponse `json:"response,omitempty"`
 	Metadata *APIMetadata                        `json:"metadata,omitempty"`
 }
+
+// Request payload for creating a Parameter Profile
+type DatabaseParameterProfileRequest struct {
+	Name                     *string                            `json:"name"`
+	Description              *string                            `json:"description,omitempty"`
+	EngineType               *string                            `json:"engineType"`
+	EngineInfo               *DatabaseParameterEngineInfo       `json:"engineInfo,omitempty"`
+	Parameters               *[]DatabaseProfileParameterRequest `json:"parameters"`
+	DBVersion                *string                            `json:"dbVersion"`
+	InfraType                *string                            `json:"infraType,omitempty"`
+	SourceParameterProfileId *string                            `json:"sourceParameterProfileId,omitempty"`
+}
+
+// Parameter request for create/update
+type DatabaseProfileParameterRequest struct {
+	Name  *string `json:"name"`
+	Value *string `json:"value"`
+}
+
+// Request payload for updating a Parameter Profile
+type DatabaseParameterProfilePatchRequest struct {
+	ParameterProfileInfo *DatabaseParameterProfilePatchInfo `json:"parameterProfileInfo"`
+	PropagationPolicy    *UpdatePropagationPolicy           `json:"propagationPolicy"`
+	ServiceInstances     *[]ServiceInstancesPatchRequest    `json:"serviceInstances,omitempty"`
+}
+
+type DatabaseParameterProfilePatchInfo struct {
+	Description *string                            `json:"description,omitempty"`
+	Parameters  *[]DatabaseProfileParameterRequest `json:"parameters"`
+}
+
+type UpdatePropagationPolicy struct {
+	Strategy *string `json:"strategy"` // IMMEDIATELY, MAINTENANCE_WINDOW, CUSTOM_DATE_TIME, DO_NOT_APPLY
+	Time     *string `json:"time,omitempty"`
+}
+
+// ServiceInstancesPatchRequest for targeting specific service instances during update
+type ServiceInstancesPatchRequest struct {
+	Service   *GovernanceServiceInfo            `json:"service,omitempty"`
+	Instances *[]GovernancePatchInstanceRequest `json:"instances,omitempty"`
+}
+
+type GovernanceServiceInfo struct {
+	Name *string `json:"name,omitempty"`
+	Id   *string `json:"id,omitempty"`
+}
+
+type GovernancePatchInstanceRequest struct {
+	Name *string `json:"name,omitempty"`
+	Id   *string `json:"id,omitempty"`
+}
+
+// Response from GET /governance/parameter-profiles/{id}/usages
+type ParameterProfileUsageResponse struct {
+	ServiceInstances *[]ServiceInstances `json:"serviceInstances,omitempty"`
+}
+
+type ServiceInstances struct {
+	Service   *GovernanceServiceInfo    `json:"service,omitempty"`
+	Instances *[]GovernanceInstanceInfo `json:"instances,omitempty"`
+}
+
+type GovernanceInstanceInfo struct {
+	Name   *string `json:"name,omitempty"`
+	Id     *string `json:"id,omitempty"`
+	Role   *string `json:"role,omitempty"`
+	Status *string `json:"status,omitempty"`
+}

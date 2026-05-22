@@ -81,6 +81,7 @@ func New(terraformVersion string) func() *schema.Provider {
 				"tessell_db_service_start_stop_schedule": db_service_start_stop_schedule.ResourceDBServiceStartStopSchedule(),
 				"tessell_db_service_delete_schedule":     db_service_delete_schedule.ResourceDBServiceDeleteSchedule(),
 				"tessell_db_snapshot":                    db_snapshot.ResourceDBSnapshot(),
+				"tessell_parameter_profile":              db_parameter_profile.ResourceDBParameterProfile(),
 			},
 		}
 

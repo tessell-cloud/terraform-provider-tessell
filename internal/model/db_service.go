@@ -49,12 +49,13 @@ type ProvisionComputePayload struct {
 	Region               *string                `json:"region,omitempty"`           // The region in which the compute is to be provisioned
 	AvailabilityZone     *string                `json:"availabilityZone,omitempty"` // The availability-zone in which the compute is to be provisioned
 	Role                 *string                `json:"role,omitempty"`
-	VPC                  *string                `json:"vpc,omitempty"`           // The VPC to be used for provisioning the compute resource
-	PrivateSubnet        *string                `json:"privateSubnet,omitempty"` // The private subnet to be used for provisioning the compute resource
-	ComputeType          *string                `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the compute resource
-	ComputeName          *string                `json:"computeName,omitempty"`   // The compute-name of instance provided by the User
-	ComputeId            *string                `json:"computeId,omitempty"`     // Specify the compute resource if it has to be shared
-	Timezone             *string                `json:"timezone,omitempty"`      // The timezone detail
+	VPC                  *string                `json:"vpc,omitempty"`                // The VPC to be used for provisioning the compute resource
+	PrivateSubnet        *string                `json:"privateSubnet,omitempty"`      // The private subnet to be used for provisioning the compute resource
+	ComputeType          *string                `json:"computeType,omitempty"`        // The compute-type to be used for provisioning the compute resource
+	ComputeName          *string                `json:"computeName,omitempty"`        // The compute-name of instance provided by the User
+	ComputeId            *string                `json:"computeId,omitempty"`          // Specify the compute resource if it has to be shared
+	ParameterProfileId   *string                `json:"parameterProfileId,omitempty"` // ID of the Parameter Profile to be used for instance
+	Timezone             *string                `json:"timezone,omitempty"`           // The timezone detail
 	ComputeConfig        *ComputeConfigPayload  `json:"computeConfig,omitempty"`
 	StorageConfig        *StorageConfigPayload  `json:"storageConfig,omitempty"`
 	ArchiveStorageConfig *StorageConfigPayload  `json:"archiveStorageConfig,omitempty"`
@@ -519,6 +520,7 @@ type AddDBServiceInstancePayloadV2 struct {
 	ComputeType          *string                `json:"computeType,omitempty"`   // The compute-type to be used for provisioning the instance. If not specified, it will be inherited from the current primary instance.
 	ComputeName          *string                `json:"computeName,omitempty"`   // The compute-name of instance provided by the User
 	ComputeId            *string                `json:"computeId,omitempty"`
+	ParameterProfileId   *string                `json:"parameterProfileId,omitempty"` // ID of the Parameter Profile to be used for instance
 	EnablePerfInsights   *bool                  `json:"enablePerfInsights,omitempty"` // Specify whether to enable perf insights for the DB instances
 	AwsInfraConfig       *AwsInfraConfig        `json:"awsInfraConfig,omitempty"`
 	GcpInfraConfig       *GcpInfraConfig        `json:"gcpInfraConfig,omitempty"`
@@ -907,4 +909,25 @@ type ResetTessellServiceCredsPayload struct {
 type ResetTessellServiceCredsPayloadCreds struct {
 	UserName    *string `json:"userName"`    // Username
 	NewPassword *string `json:"newPassword"` // New password (which is to be reset)
+}
+
+// DBServiceParameterProfileUpdateRequest represents the request to update parameter profiles for instances
+type DBServiceParameterProfileUpdateRequest struct {
+	InstanceParameterProfileConfig *[]DBServiceInstanceParameterProfileUpdateRequest `json:"instanceParameterProfileConfig,omitempty"`
+	ApplyConfig                    *ApplyConfig                                      `json:"applyConfig,omitempty"`
+}
+
+// DBServiceInstanceParameterProfileUpdateRequest represents the update request for a single instance's parameter profile
+type DBServiceInstanceParameterProfileUpdateRequest struct {
+	InstanceId              *string `json:"instanceId,omitempty"`              // The instance ID for which parameter profile update needs to be triggered
+	ParameterProfileId      *string `json:"parameterProfileId,omitempty"`      // The parameter profile ID to which instance needs to be updated
+	ParameterProfileVersion *string `json:"parameterProfileVersion,omitempty"` // The parameter profile version to which instance needs to be updated
+}
+
+// ApplyConfig represents application details for any operation
+type ApplyConfig struct {
+	OverriddenTaskIds   *[]string `json:"overriddenTaskIds,omitempty"`   // Task ids that this request will override
+	Strategy            *string   `json:"strategy,omitempty"`            // Apply strategy: IMMEDIATELY, MAINTENANCE_WINDOW, CUSTOM_DATE_TIME, DO_NOT_APPLY
+	MaintenanceWindowId *string   `json:"maintenanceWindowId,omitempty"` // Needed when strategy is MAINTENANCE_WINDOW
+	Time                *string   `json:"time,omitempty"`                // Needed when strategy is CUSTOM_DATE_TIME
 }

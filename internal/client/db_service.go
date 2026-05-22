@@ -461,6 +461,33 @@ func (c *Client) UpdateTessellServiceMaintenanceWindow(id string, payload model.
 	return &tessellServiceDTO, statusCode, nil
 }
 
+func (c *Client) UpdateDBServiceParameterProfiles(id string, payload *model.DBServiceParameterProfileUpdateRequest) (*model.TaskSummary, int, error) {
+	rb, err := json.Marshal(payload)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s/parameter-profiles", c.APIAddress, id), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	taskSummary := model.TaskSummary{}
+	err = json.Unmarshal(body, &taskSummary)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &taskSummary, statusCode, nil
+}
+
 func (c *Client) DBServicePollForStatusCode(id string, statusCodeRequired int, timeout int, interval int) error {
 
 	loopCount := 0
@@ -911,9 +938,8 @@ func (c *Client) DBServicePollForPrivateLinkCreation(serviceId string, instanceI
 }
 
 // DBServicePollForPrivateLinkUpdate polls until a private link update is complete for a specific instance.
-// For updates the private link starts ACTIVE, transitions to an intermediate state, then returns to ACTIVE.
-// Phase 1: wait for status to leave ACTIVE (up to a short grace period).
-// Phase 2: wait for status to return to ACTIVE.
+// Phase 1: wait for status to leave ACTIVE (backend starts the transition).
+// Phase 2: wait for status to return to ACTIVE (backend completes update).
 func (c *Client) DBServicePollForPrivateLinkUpdate(serviceId string, instanceId string, timeout int, interval int) error {
 	if interval <= 0 {
 		return fmt.Errorf("interval must be greater than 0, got %d", interval)
@@ -929,9 +955,8 @@ func (c *Client) DBServicePollForPrivateLinkUpdate(serviceId string, instanceId 
 
 	loops := timeout/int(sleepCycleDuration.Seconds()) + 5
 
-	// Phase 1: wait for status to leave ACTIVE (backend starts the transition).
-	// Allow up to ~60 s for the backend to kick off the update before giving up.
-	transitionGraceLoops := 6 // 6 × 10 s = 60 s
+	// Phase 1: wait for status to leave ACTIVE (up to ~60s grace period).
+	transitionGraceLoops := 6
 	for i := 0; i < transitionGraceLoops; i++ {
 		response, _, err := c.GetTessellService(serviceId, nil)
 		if err != nil {
@@ -942,7 +967,6 @@ func (c *Client) DBServicePollForPrivateLinkUpdate(serviceId string, instanceId 
 			if *instance.Id == instanceId {
 				if instance.PrivateLinkInfo != nil && instance.PrivateLinkInfo.Status != nil {
 					if *instance.PrivateLinkInfo.Status != "ACTIVE" {
-						// Backend has started the transition — proceed to Phase 2.
 						goto phase2
 					}
 				}
@@ -951,9 +975,6 @@ func (c *Client) DBServicePollForPrivateLinkUpdate(serviceId string, instanceId 
 		}
 		time.Sleep(sleepCycleDurationSmall)
 	}
-	// If the status never left ACTIVE within the grace period it may be a very fast
-	// no-op update on the backend side; fall through to Phase 2 which will return
-	// immediately when it finds ACTIVE.
 
 phase2:
 	// Phase 2: wait for status to return to ACTIVE.
@@ -969,7 +990,6 @@ phase2:
 			time.Sleep(sleepCycleDurationSmall)
 			continue
 		}
-
 		for _, instance := range *response.Instances {
 			if *instance.Id == instanceId {
 				if instance.PrivateLinkInfo != nil && instance.PrivateLinkInfo.Status != nil {
@@ -982,7 +1002,6 @@ phase2:
 				break
 			}
 		}
-
 		loopCount++
 		if loopCount > loops {
 			return fmt.Errorf("timed out while polling for private link update")

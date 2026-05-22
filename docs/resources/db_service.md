@@ -2285,7 +2285,6 @@ Read-Only:
 - `duration` (Number) Duration in minutes
 - `maintenance_window_id` (String) Unique identifier of the maintenance window
 - `time` (String) Time in HH:mm format
-
 ## Import
 
 DB Services can be imported using the service `id` (Tessell generated UUID), e.g.
