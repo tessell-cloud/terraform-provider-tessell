@@ -147,7 +147,7 @@ type TessellServiceCredsPayload struct {
 }
 
 type TessellServiceMaintenanceWindow struct {
-	Cadence    *string `json:"cadence"`              // The cadence type for maintenance window
+	Cadence    *string `json:"cadence,omitempty"`    // The cadence type for maintenance window
 	Time       *string `json:"time"`                 // Time value in (hh:mm) format. ex. '02:00'
 	Duration   *int    `json:"duration"`             // The duration during which the maintenance window will be allowed to trigger (in minutes)
 	Day        *string `json:"day,omitempty"`        // Day of the week for WEEKLY cadence (e.g. Monday, Sunday)
