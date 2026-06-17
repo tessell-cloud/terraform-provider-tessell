@@ -43,6 +43,7 @@ func (c *Client) GetDatabaseOptionProfilesForConsumption(status string, engineTy
 	if version != "" {
 		q.Add("version", fmt.Sprintf("%v", version))
 	}
+	q.Add("page-size", "1000")
 	req.URL.RawQuery = q.Encode()
 
 	body, statusCode, err := c.doRequest(req)
