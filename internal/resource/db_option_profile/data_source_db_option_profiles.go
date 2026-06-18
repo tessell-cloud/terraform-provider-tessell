@@ -184,7 +184,7 @@ func dataSourceDBOptionProfilesRead(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	d.SetId("DBOptionProfileList")
+	d.SetId("DBOptionProfileList_" + engineType + "_" + version + "_" + status)
 
 	return diags
 }
@@ -197,11 +197,11 @@ func setDataSourceValues(d *schema.ResourceData, DBOptionProfileList *[]model.Te
 		for i, DBOptionProfile := range *DBOptionProfileList {
 			parsedDBOptionProfileList[i] = map[string]interface{}{
 				"description":     DBOptionProfile.Description,
-				"driver_info":     []interface{}{parseDatabaseOptionProfileDriverInfo(DBOptionProfile.DriverInfo)},
+				"driver_info":     parseDatabaseOptionProfileDriverInfo(DBOptionProfile.DriverInfo),
 				"engine_type":     DBOptionProfile.EngineType,
 				"id":              DBOptionProfile.Id,
 				"option_type_id":  DBOptionProfile.OptionTypeId,
-				"metadata":        []interface{}{parseDatabaseOptionProfileMetadata(DBOptionProfile.Metadata)},
+				"metadata":        parseDatabaseOptionProfileMetadata(DBOptionProfile.Metadata),
 				"name":            DBOptionProfile.Name,
 				"maturity_status": DBOptionProfile.MaturityStatus,
 				"options":         parseDatabaseProfileOptionTypeList(DBOptionProfile.Options),
