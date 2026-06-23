@@ -1130,6 +1130,34 @@ func DataSourceAvailabilityMachines() *schema.Resource {
 														},
 													},
 												},
+												"gcp_infra_config": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"gcp_cpu_options": {
+																Type:        schema.TypeList,
+																Description: "",
+																Computed:    true,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"vcpus": {
+																			Type:        schema.TypeInt,
+																			Description: "Number of vCPUs for GCP custom machine type",
+																			Computed:    true,
+																		},
+																		"memory": {
+																			Type:        schema.TypeInt,
+																			Description: "Memory in MB for GCP custom machine type (optional)",
+																			Computed:    true,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
 												"compute_id": {
 													Type:        schema.TypeString,
 													Description: "The associated compute identifier",

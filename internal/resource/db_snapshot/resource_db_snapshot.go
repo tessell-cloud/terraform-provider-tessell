@@ -49,6 +49,7 @@ func ResourceDBSnapshot() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Description of the snapshot",
 				Optional:    true,
+				Computed:    true,
 			},
 			"snapshot_time": {
 				Type:        schema.TypeString,
@@ -287,7 +288,10 @@ func resourceDBSnapshotRead(_ context.Context, d *schema.ResourceData, meta inte
 	var diags diag.Diagnostics
 
 	availabilityMachineId := d.Get("availability_machine_id").(string)
-	id := d.Get("id").(string)
+	id := d.Id()
+	if id == "" {
+		id = d.Get("id").(string)
+	}
 
 	response, _, err := client.GetDatabaseSnapshot(availabilityMachineId, id)
 	if err != nil {

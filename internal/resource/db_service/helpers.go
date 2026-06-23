@@ -65,6 +65,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("enable_perf_insights", tessellServiceDTO.EnablePerfInsights); err != nil {
+		return err
+	}
+
 	if err := d.Set("edition", tessellServiceDTO.Edition); err != nil {
 		return err
 	}
@@ -106,6 +110,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 	}
 
 	if err := d.Set("stopped_at", tessellServiceDTO.StoppedAt); err != nil {
+		return err
+	}
+
+	if err := d.Set("is_hpc", tessellServiceDTO.IsHpc); err != nil {
 		return err
 	}
 
@@ -179,6 +187,10 @@ func setResourceData(d *schema.ResourceData, tessellServiceDTO *model.TessellSer
 		return err
 	}
 
+	if err := d.Set("updates_info", parseServiceUpdates(tessellServiceDTO.UpdatesInfo)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -233,6 +245,7 @@ func parseTessellServiceClonedFromInfoWithResData(clonedFromInfo *model.TessellS
 	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PITRTime
 	parsedClonedFromInfo["maximum_recoverability"] = clonedFromInfo.MaximumRecoverability
 	parsedClonedFromInfo["storage_provider"] = clonedFromInfo.StorageProvider
+	parsedClonedFromInfo["is_hpc"] = clonedFromInfo.IsHpc
 
 	return []interface{}{parsedClonedFromInfo}
 }
@@ -254,6 +267,7 @@ func parseTessellServiceClonedFromInfo(clonedFromInfo *model.TessellServiceClone
 	parsedClonedFromInfo["pitr_time"] = clonedFromInfo.PITRTime
 	parsedClonedFromInfo["maximum_recoverability"] = clonedFromInfo.MaximumRecoverability
 	parsedClonedFromInfo["storage_provider"] = clonedFromInfo.StorageProvider
+	parsedClonedFromInfo["is_hpc"] = clonedFromInfo.IsHpc
 
 	return parsedClonedFromInfo
 }
@@ -347,7 +361,9 @@ func parseScriptInfo(scriptInfo *model.ScriptInfo) interface{} {
 	}
 	parsedScriptInfo := make(map[string]interface{})
 	parsedScriptInfo["script_id"] = scriptInfo.ScriptId
+	parsedScriptInfo["script_name"] = scriptInfo.ScriptName
 	parsedScriptInfo["script_version"] = scriptInfo.ScriptVersion
+	parsedScriptInfo["use_active_version"] = scriptInfo.UseActiveVersion
 
 	return parsedScriptInfo
 }
@@ -606,6 +622,11 @@ func parseTessellServiceInfrastructureInfoWithResData(infrastructure *model.Tess
 		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
 	}
 
+	var gcpInfraConfig *model.GcpInfraConfig
+	if infrastructure.GcpInfraConfig != gcpInfraConfig {
+		parsedInfrastructure["gcp_infra_config"] = []interface{}{parseGcpInfraConfig(infrastructure.GcpInfraConfig)}
+	}
+
 	var storageConfig *model.ServiceStorageConfig
 	if infrastructure.StorageConfig != storageConfig {
 		parsedInfrastructure["storage_config"] = []interface{}{parseServiceStorageConfig(infrastructure.StorageConfig)}
@@ -652,6 +673,11 @@ func parseTessellServiceInfrastructureInfo(infrastructure *model.TessellServiceI
 	var awsInfraConfig *model.AwsInfraConfig
 	if infrastructure.AwsInfraConfig != awsInfraConfig {
 		parsedInfrastructure["aws_infra_config"] = []interface{}{parseAwsInfraConfig(infrastructure.AwsInfraConfig)}
+	}
+
+	var gcpInfraConfig *model.GcpInfraConfig
+	if infrastructure.GcpInfraConfig != gcpInfraConfig {
+		parsedInfrastructure["gcp_infra_config"] = []interface{}{parseGcpInfraConfig(infrastructure.GcpInfraConfig)}
 	}
 
 	var storageConfig *model.ServiceStorageConfig
@@ -749,6 +775,31 @@ func parseAwsCpuOptions(awsCpuOptions *model.AwsCpuOptions) interface{} {
 	return parsedAwsCpuOptions
 }
 
+func parseGcpInfraConfig(gcpInfraConfig *model.GcpInfraConfig) interface{} {
+	if gcpInfraConfig == nil {
+		return nil
+	}
+	parsedGcpInfraConfig := make(map[string]interface{})
+
+	var gcpCpuOptions *model.GcpCpuOptions
+	if gcpInfraConfig.GcpCpuOptions != gcpCpuOptions {
+		parsedGcpInfraConfig["gcp_cpu_options"] = []interface{}{parseGcpCpuOptions(gcpInfraConfig.GcpCpuOptions)}
+	}
+
+	return parsedGcpInfraConfig
+}
+
+func parseGcpCpuOptions(gcpCpuOptions *model.GcpCpuOptions) interface{} {
+	if gcpCpuOptions == nil {
+		return nil
+	}
+	parsedGcpCpuOptions := make(map[string]interface{})
+	parsedGcpCpuOptions["vcpus"] = gcpCpuOptions.Vcpus
+	parsedGcpCpuOptions["memory"] = gcpCpuOptions.Memory
+
+	return parsedGcpCpuOptions
+}
+
 func parseServiceStorageConfig(serviceStorageConfig *model.ServiceStorageConfig) interface{} {
 	if serviceStorageConfig == nil {
 		return nil
@@ -785,9 +836,12 @@ func parseTessellServiceMaintenanceWindowWithResData(maintenanceWindow *model.Te
 			parsedMaintenanceWindow = (maintenanceWindowResourceData[0]).(map[string]interface{})
 		}
 	}
-	parsedMaintenanceWindow["day"] = maintenanceWindow.Day
+	parsedMaintenanceWindow["cadence"] = maintenanceWindow.Cadence
 	parsedMaintenanceWindow["time"] = maintenanceWindow.Time
 	parsedMaintenanceWindow["duration"] = maintenanceWindow.Duration
+	parsedMaintenanceWindow["day"] = maintenanceWindow.Day
+	parsedMaintenanceWindow["day_of_month"] = maintenanceWindow.DayOfMonth
+	parsedMaintenanceWindow["start_date"] = maintenanceWindow.StartDate
 
 	return []interface{}{parsedMaintenanceWindow}
 }
@@ -797,11 +851,63 @@ func parseTessellServiceMaintenanceWindow(maintenanceWindow *model.TessellServic
 		return nil
 	}
 	parsedMaintenanceWindow := make(map[string]interface{})
-	parsedMaintenanceWindow["day"] = maintenanceWindow.Day
+	parsedMaintenanceWindow["cadence"] = maintenanceWindow.Cadence
 	parsedMaintenanceWindow["time"] = maintenanceWindow.Time
 	parsedMaintenanceWindow["duration"] = maintenanceWindow.Duration
+	parsedMaintenanceWindow["day"] = maintenanceWindow.Day
+	parsedMaintenanceWindow["day_of_month"] = maintenanceWindow.DayOfMonth
+	parsedMaintenanceWindow["start_date"] = maintenanceWindow.StartDate
 
 	return parsedMaintenanceWindow
+}
+
+func parseServiceUpdates(updatesInfo *model.ServiceUpdates) []interface{} {
+	if updatesInfo == nil {
+		return nil
+	}
+	parsed := make(map[string]interface{})
+
+	if updatesInfo.AvailableUpdates != nil {
+		availableUpdates := make(map[string]interface{})
+		availableUpdates["os_patch"] = updatesInfo.AvailableUpdates.OsPatch
+		availableUpdates["db_patch"] = updatesInfo.AvailableUpdates.DBPatch
+		parsed["available_updates"] = []interface{}{availableUpdates}
+	}
+
+	if updatesInfo.UpcomingMaintenanceWindow != nil {
+		upcoming := make(map[string]interface{})
+		upcoming["maintenance_window_id"] = updatesInfo.UpcomingMaintenanceWindow.MaintenanceWindowId
+		upcoming["cadence"] = updatesInfo.UpcomingMaintenanceWindow.Cadence
+		upcoming["date"] = updatesInfo.UpcomingMaintenanceWindow.Date
+		upcoming["time"] = updatesInfo.UpcomingMaintenanceWindow.Time
+		upcoming["duration"] = updatesInfo.UpcomingMaintenanceWindow.Duration
+		upcoming["downtime"] = updatesInfo.UpcomingMaintenanceWindow.Downtime
+		if acts := updatesInfo.UpcomingMaintenanceWindow.AssociatedActivities; acts != nil {
+			parsedActs := make(map[string]interface{})
+			if acts.DBPatch != nil {
+				parsedActs["db_patch"] = []interface{}{map[string]interface{}{
+					"version_no":    acts.DBPatch.VersionNo,
+					"type_of_patch": acts.DBPatch.TypeOfPatch,
+					"impact":        acts.DBPatch.Impact,
+					"scheduled_by":  acts.DBPatch.ScheduledBy,
+					"status":        acts.DBPatch.Status,
+				}}
+			}
+			if acts.OsPatch != nil {
+				parsedActs["os_patch"] = []interface{}{map[string]interface{}{
+					"version_no":    acts.OsPatch.VersionNo,
+					"type_of_patch": acts.OsPatch.TypeOfPatch,
+					"impact":        acts.OsPatch.Impact,
+					"scheduled_by":  acts.OsPatch.ScheduledBy,
+					"status":        acts.OsPatch.Status,
+				}}
+			}
+			upcoming["associated_activities"] = []interface{}{parsedActs}
+		}
+		parsed["upcoming_maintenance_window"] = []interface{}{upcoming}
+	}
+
+	return []interface{}{parsed}
 }
 
 func parseTessellServiceEngineInfoWithResData(engineConfiguration *model.TessellServiceEngineInfo, d *schema.ResourceData) []interface{} {
@@ -1280,6 +1386,11 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	var awsInfraConfig *model.AwsInfraConfig
 	if instances.AwsInfraConfig != awsInfraConfig {
 		parsedInstances["aws_infra_config"] = []interface{}{parseAwsInfraConfig(instances.AwsInfraConfig)}
+	}
+
+	var gcpInfraConfig *model.GcpInfraConfig
+	if instances.GcpInfraConfig != gcpInfraConfig {
+		parsedInstances["gcp_infra_config"] = []interface{}{parseGcpInfraConfig(instances.GcpInfraConfig)}
 	}
 
 	var parameterProfile *model.ParameterProfile
@@ -2017,6 +2128,7 @@ func formatTfInputInstances(d *schema.ResourceData) *[]model.AddDBServiceInstanc
 			ComputeId:          helper.GetStringPointer(inputInstance["compute_id"]),
 			EnablePerfInsights: helper.GetBoolPointer(inputInstance["enable_perf_insights"]),
 			AwsInfraConfig:     formAwsInfraConfig(inputInstance["aws_infra_config"]),
+			GcpInfraConfig:     formGcpInfraConfig(inputInstance["gcp_infra_config"]),
 			Role:               helper.GetStringPointer(inputInstance["role"]),
 			AvailabilityZone:   helper.GetStringPointer(inputInstance["availability_zone"]),
 		}
@@ -2087,6 +2199,7 @@ func formPayloadForAddTessellServiceInstances(d *schema.ResourceData, tfInstance
 		ComputeType:              tfInstancePayload.ComputeType,
 		EnablePerfInsights:       tfInstancePayload.EnablePerfInsights,
 		AwsInfraConfig:           tfInstancePayload.AwsInfraConfig,
+		GcpInfraConfig:           tfInstancePayload.GcpInfraConfig,
 		Instances:                formAddDBServiceInstancePayloadList(tfInstancePayload),
 		TessellServicePrecheckId: precheckId,
 	}
@@ -2297,6 +2410,35 @@ func formAwsCpuOptions(awsCpuOptionsRaw interface{}) *model.AwsCpuOptions {
 	}
 
 	return &awsCpuOptionsFormed
+}
+
+func formGcpInfraConfig(gcpInfraConfigRaw interface{}) *model.GcpInfraConfig {
+	if gcpInfraConfigRaw == nil || len(gcpInfraConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	gcpInfraConfigData := gcpInfraConfigRaw.([]interface{})[0].(map[string]interface{})
+
+	gcpInfraConfigFormed := model.GcpInfraConfig{
+		GcpCpuOptions: formGcpCpuOptions(gcpInfraConfigData["gcp_cpu_options"]),
+	}
+
+	return &gcpInfraConfigFormed
+}
+
+func formGcpCpuOptions(gcpCpuOptionsRaw interface{}) *model.GcpCpuOptions {
+	if gcpCpuOptionsRaw == nil || len(gcpCpuOptionsRaw.([]interface{})) == 0 {
+		return nil
+	}
+
+	gcpCpuOptionsData := gcpCpuOptionsRaw.([]interface{})[0].(map[string]interface{})
+
+	gcpCpuOptionsFormed := model.GcpCpuOptions{
+		Vcpus:  helper.GetIntPointer(gcpCpuOptionsData["vcpus"]),
+		Memory: helper.GetIntPointer(gcpCpuOptionsData["memory"]),
+	}
+
+	return &gcpCpuOptionsFormed
 }
 
 func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceInstancePayloadV2) *[]model.AddDBServiceInstancePayload {
@@ -2525,8 +2667,10 @@ func formScriptInfo(scriptInfoRaw interface{}) *model.ScriptInfo {
 	scriptInfoData := scriptInfoRaw.([]interface{})[0].(map[string]interface{})
 
 	scriptInfoFormed := model.ScriptInfo{
-		ScriptId:      helper.GetStringPointer(scriptInfoData["script_id"]),
-		ScriptVersion: helper.GetStringPointer(scriptInfoData["script_version"]),
+		ScriptId:         helper.GetStringPointer(scriptInfoData["script_id"]),
+		ScriptName:       helper.GetStringPointer(scriptInfoData["script_name"]),
+		ScriptVersion:    helper.GetStringPointer(scriptInfoData["script_version"]),
+		UseActiveVersion: helper.GetBoolPointer(scriptInfoData["use_active_version"]),
 	}
 
 	return &scriptInfoFormed
@@ -2647,6 +2791,7 @@ func formProvisionInfraPayload(provisionInfraPayloadRaw interface{}) *model.Prov
 		EncryptionKey:        helper.GetStringPointer(provisionInfraPayloadData["encryption_key"]),
 		ComputeType:          helper.GetStringPointer(provisionInfraPayloadData["compute_type"]),
 		AwsInfraConfig:       formAwsInfraConfig(provisionInfraPayloadData["aws_infra_config"]),
+		GcpInfraConfig:       formGcpInfraConfig(provisionInfraPayloadData["gcp_infra_config"]),
 		AdditionalStorage:    helper.GetIntPointer(provisionInfraPayloadData["additional_storage"]),
 		EnableComputeSharing: helper.GetBoolPointer(provisionInfraPayloadData["enable_compute_sharing"]),
 		ComputeNamePrefix:    helper.GetStringPointer(provisionInfraPayloadData["compute_name_prefix"]),
@@ -2719,6 +2864,7 @@ func formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2Raw interfac
 		ComputeId:            helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_id"]),
 		EnablePerfInsights:   helper.GetBoolPointer(addDBServiceInstancePayloadV2Data["enable_perf_insights"]),
 		AwsInfraConfig:       formAwsInfraConfig(addDBServiceInstancePayloadV2Data["aws_infra_config"]),
+		GcpInfraConfig:       formGcpInfraConfig(addDBServiceInstancePayloadV2Data["gcp_infra_config"]),
 		Role:                 helper.GetStringPointer(addDBServiceInstancePayloadV2Data["role"]),
 		AvailabilityZone:     helper.GetStringPointer(addDBServiceInstancePayloadV2Data["availability_zone"]),
 		ComputeConfig:        formComputeConfigPayload(addDBServiceInstancePayloadV2Data["compute_config"]),
@@ -2787,9 +2933,12 @@ func formTessellServiceMaintenanceWindow(tessellServiceMaintenanceWindowRaw inte
 	tessellServiceMaintenanceWindowData := tessellServiceMaintenanceWindowRaw.([]interface{})[0].(map[string]interface{})
 
 	tessellServiceMaintenanceWindowFormed := model.TessellServiceMaintenanceWindow{
-		Day:      helper.GetStringPointer(tessellServiceMaintenanceWindowData["day"]),
-		Time:     helper.GetStringPointer(tessellServiceMaintenanceWindowData["time"]),
-		Duration: helper.GetIntPointer(tessellServiceMaintenanceWindowData["duration"]),
+		Cadence:    helper.GetStringPointer(tessellServiceMaintenanceWindowData["cadence"]),
+		Time:       helper.GetStringPointer(tessellServiceMaintenanceWindowData["time"]),
+		Duration:   helper.GetIntPointer(tessellServiceMaintenanceWindowData["duration"]),
+		Day:        helper.GetStringPointer(tessellServiceMaintenanceWindowData["day"]),
+		DayOfMonth: helper.GetIntPointer(tessellServiceMaintenanceWindowData["day_of_month"]),
+		StartDate:  helper.GetStringPointer(tessellServiceMaintenanceWindowData["start_date"]),
 	}
 
 	return &tessellServiceMaintenanceWindowFormed
@@ -3321,6 +3470,9 @@ func formCreateOracleDatabaseConfig(createOracleDatabaseConfigRaw interface{}) *
 	if createOracleDatabaseConfigRaw == nil || len(createOracleDatabaseConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
+	if createOracleDatabaseConfigRaw.([]interface{})[0] == nil {
+		return nil
+	}
 
 	createOracleDatabaseConfigData := createOracleDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
@@ -3383,6 +3535,9 @@ func formPostgresqlDatabaseConfig(postgresqlDatabaseConfigRaw interface{}) *mode
 	if postgresqlDatabaseConfigRaw == nil || len(postgresqlDatabaseConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
+	if postgresqlDatabaseConfigRaw.([]interface{})[0] == nil {
+		return nil
+	}
 
 	postgresqlDatabaseConfigData := postgresqlDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
@@ -3396,6 +3551,9 @@ func formPostgresqlDatabaseConfig(postgresqlDatabaseConfigRaw interface{}) *mode
 
 func formMysqlDatabaseConfig(mysqlDatabaseConfigRaw interface{}) *model.MysqlDatabaseConfig {
 	if mysqlDatabaseConfigRaw == nil || len(mysqlDatabaseConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+	if mysqlDatabaseConfigRaw.([]interface{})[0] == nil {
 		return nil
 	}
 
@@ -3413,6 +3571,9 @@ func formSqlServerDatabaseConfig(sqlServerDatabaseConfigRaw interface{}) *model.
 	if sqlServerDatabaseConfigRaw == nil || len(sqlServerDatabaseConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
+	if sqlServerDatabaseConfigRaw.([]interface{})[0] == nil {
+		return nil
+	}
 
 	sqlServerDatabaseConfigData := sqlServerDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
@@ -3427,6 +3588,9 @@ func formMongoDBDatabaseConfig(mongoDBDatabaseConfigRaw interface{}) *model.Mong
 	if mongoDBDatabaseConfigRaw == nil || len(mongoDBDatabaseConfigRaw.([]interface{})) == 0 {
 		return nil
 	}
+	if mongoDBDatabaseConfigRaw.([]interface{})[0] == nil {
+		return nil
+	}
 
 	mongoDBDatabaseConfigData := mongoDBDatabaseConfigRaw.([]interface{})[0].(map[string]interface{})
 
@@ -3439,6 +3603,9 @@ func formMongoDBDatabaseConfig(mongoDBDatabaseConfigRaw interface{}) *model.Mong
 
 func formMilvusDatabaseConfig(milvusDatabaseConfigRaw interface{}) *model.MilvusDatabaseConfig {
 	if milvusDatabaseConfigRaw == nil || len(milvusDatabaseConfigRaw.([]interface{})) == 0 {
+		return nil
+	}
+	if milvusDatabaseConfigRaw.([]interface{})[0] == nil {
 		return nil
 	}
 

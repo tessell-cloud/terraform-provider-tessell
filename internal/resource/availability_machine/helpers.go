@@ -943,6 +943,11 @@ func parseTessellServiceInstanceDTO(tessellServiceInstanceDTO *model.TessellServ
 		parsedTessellServiceInstanceDTO["aws_infra_config"] = []interface{}{parseAwsInfraConfig(tessellServiceInstanceDTO.AwsInfraConfig)}
 	}
 
+	var gcpInfraConfig *model.GcpInfraConfig
+	if tessellServiceInstanceDTO.GcpInfraConfig != gcpInfraConfig {
+		parsedTessellServiceInstanceDTO["gcp_infra_config"] = []interface{}{parseGcpInfraConfig(tessellServiceInstanceDTO.GcpInfraConfig)}
+	}
+
 	var parameterProfile *model.ParameterProfile
 	if tessellServiceInstanceDTO.ParameterProfile != parameterProfile {
 		parsedTessellServiceInstanceDTO["parameter_profile"] = []interface{}{parseParameterProfile(tessellServiceInstanceDTO.ParameterProfile)}
@@ -1028,6 +1033,31 @@ func parseAwsCpuOptions(awsCpuOptions *model.AwsCpuOptions) interface{} {
 	parsedAwsCpuOptions["vcpus"] = awsCpuOptions.Vcpus
 
 	return parsedAwsCpuOptions
+}
+
+func parseGcpInfraConfig(gcpInfraConfig *model.GcpInfraConfig) interface{} {
+	if gcpInfraConfig == nil {
+		return nil
+	}
+	parsedGcpInfraConfig := make(map[string]interface{})
+
+	var gcpCpuOptions *model.GcpCpuOptions
+	if gcpInfraConfig.GcpCpuOptions != gcpCpuOptions {
+		parsedGcpInfraConfig["gcp_cpu_options"] = []interface{}{parseGcpCpuOptions(gcpInfraConfig.GcpCpuOptions)}
+	}
+
+	return parsedGcpInfraConfig
+}
+
+func parseGcpCpuOptions(gcpCpuOptions *model.GcpCpuOptions) interface{} {
+	if gcpCpuOptions == nil {
+		return nil
+	}
+	parsedGcpCpuOptions := make(map[string]interface{})
+	parsedGcpCpuOptions["vcpus"] = gcpCpuOptions.Vcpus
+	parsedGcpCpuOptions["memory"] = gcpCpuOptions.Memory
+
+	return parsedGcpCpuOptions
 }
 
 func parseParameterProfile(parameterProfile *model.ParameterProfile) interface{} {

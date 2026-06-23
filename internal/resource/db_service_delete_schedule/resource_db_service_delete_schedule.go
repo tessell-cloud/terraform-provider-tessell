@@ -100,7 +100,10 @@ func resourceDBServiceDeleteScheduleRead(_ context.Context, d *schema.ResourceDa
 	var diags diag.Diagnostics
 
 	serviceId := d.Get("service_id").(string)
-	id := d.Get("id").(string)
+	id := d.Id()
+	if id == "" {
+		id = d.Get("id").(string)
+	}
 
 	response, _, err := client.GetServiceDeletionScheduleTFP(serviceId, id)
 	if err != nil {

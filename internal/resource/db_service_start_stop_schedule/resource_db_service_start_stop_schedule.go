@@ -230,7 +230,10 @@ func resourceDBServiceStartStopScheduleRead(_ context.Context, d *schema.Resourc
 	var diags diag.Diagnostics
 
 	serviceId := d.Get("service_id").(string)
-	id := d.Get("id").(string)
+	id := d.Id()
+	if id == "" {
+		id = d.Get("id").(string)
+	}
 
 	response, _, err := client.GetServiceStartStopSchedule(serviceId, id)
 	if err != nil {

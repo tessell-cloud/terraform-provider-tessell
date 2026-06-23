@@ -434,6 +434,33 @@ func (c *Client) UpdateTessellServiceCredentials(id string, payload model.ResetT
 	return &taskSummary, statusCode, nil
 }
 
+func (c *Client) UpdateTessellServiceMaintenanceWindow(id string, payload model.TessellServiceMaintenanceWindow) (*model.TessellServiceDTO, int, error) {
+	rb, err := json.Marshal(payload)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/services/%s/maintenance-windows", c.APIAddress, id), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer req.Body.Close()
+
+	body, statusCode, err := c.doRequest(req)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	tessellServiceDTO := model.TessellServiceDTO{}
+	err = json.Unmarshal(body, &tessellServiceDTO)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return &tessellServiceDTO, statusCode, nil
+}
+
 func (c *Client) DBServicePollForStatusCode(id string, statusCodeRequired int, timeout int, interval int) error {
 
 	loopCount := 0
