@@ -160,6 +160,12 @@ func ResourceDBService() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"enable_perf_insights": {
+				Type:        schema.TypeBool,
+				Description: "This field specifies whether to enable performance insights for the DB Service.",
+				Optional:    true,
+				Computed:    true,
+			},
 			"owner": {
 				Type:        schema.TypeString,
 				Description: "DB Service owner email address",
@@ -183,6 +189,11 @@ func ResourceDBService() *schema.Resource {
 			"stopped_at": {
 				Type:        schema.TypeString,
 				Description: "Timestamp when the DB Service was last stopped at",
+				Computed:    true,
+			},
+			"is_hpc": {
+				Type:        schema.TypeBool,
+				Description: "Specifies whether the DB Service is using High Performance Compute (HPC)",
 				Computed:    true,
 			},
 			"cloned_from_info": {
@@ -251,6 +262,11 @@ func ResourceDBService() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "",
 							Optional:    true,
+						},
+						"is_hpc": {
+							Type:        schema.TypeBool,
+							Description: "Specifies whether the parent DB Service was using High Performance Compute (HPC)",
+							Computed:    true,
 						},
 					},
 				},
@@ -378,6 +394,38 @@ func ResourceDBService() *schema.Resource {
 												"vcpus": {
 													Type:        schema.TypeInt,
 													Description: "Number of vcpus for aws cpu options",
+													Optional:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"gcp_infra_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"gcp_cpu_options": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"vcpus": {
+													Type:        schema.TypeInt,
+													Description: "Number of vCPUs for GCP custom machine type",
+													Optional:    true,
+												},
+												"memory": {
+													Type:        schema.TypeInt,
+													Description: "Memory in MB for GCP custom machine type (optional)",
 													Optional:    true,
 												},
 											},
@@ -828,9 +876,19 @@ func ResourceDBService() *schema.Resource {
 													Description: "The Tessell Script ID",
 													Computed:    true,
 												},
+												"script_name": {
+													Type:        schema.TypeString,
+													Description: "The Tessell Script Name",
+													Computed:    true,
+												},
 												"script_version": {
 													Type:        schema.TypeString,
 													Description: "The Tessell Script version",
+													Computed:    true,
+												},
+												"use_active_version": {
+													Type:        schema.TypeBool,
+													Description: "When set to true, the system will automatically use the active version of the script",
 													Computed:    true,
 												},
 											},
@@ -847,9 +905,19 @@ func ResourceDBService() *schema.Resource {
 													Description: "The Tessell Script ID",
 													Computed:    true,
 												},
+												"script_name": {
+													Type:        schema.TypeString,
+													Description: "The Tessell Script Name",
+													Computed:    true,
+												},
 												"script_version": {
 													Type:        schema.TypeString,
 													Description: "The Tessell Script version",
+													Computed:    true,
+												},
+												"use_active_version": {
+													Type:        schema.TypeBool,
+													Description: "When set to true, the system will automatically use the active version of the script",
 													Computed:    true,
 												},
 											},
@@ -1175,10 +1243,11 @@ func ResourceDBService() *schema.Resource {
 				MinItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"day": {
+						"cadence": {
 							Type:        schema.TypeString,
-							Description: "",
-							Required:    true,
+							Description: "The cadence type for maintenance window. Allowed values: WEEKLY, MONTHLY, QUARTERLY",
+							Optional:    true,
+							Default:     "WEEKLY",
 						},
 						"time": {
 							Type:        schema.TypeString,
@@ -1187,8 +1256,23 @@ func ResourceDBService() *schema.Resource {
 						},
 						"duration": {
 							Type:        schema.TypeInt,
-							Description: "The duration during which the maintenance window will be allowed to trigger",
+							Description: "The duration during which the maintenance window will be allowed to trigger (in minutes)",
 							Required:    true,
+						},
+						"day": {
+							Type:        schema.TypeString,
+							Description: "Day of the week when maintenance should be performed. Required when cadence is WEEKLY. Allowed values: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday",
+							Optional:    true,
+						},
+						"day_of_month": {
+							Type:        schema.TypeInt,
+							Description: "Day of the month when maintenance should be performed (1-31). Required when cadence is MONTHLY.",
+							Optional:    true,
+						},
+						"start_date": {
+							Type:        schema.TypeString,
+							Description: "Start date for quarterly maintenance in YYYY-MM-DD format. Required when cadence is QUARTERLY.",
+							Optional:    true,
 						},
 					},
 				},
@@ -2188,6 +2272,7 @@ func ResourceDBService() *schema.Resource {
 										Type:        schema.TypeInt,
 										Description: "",
 										Optional:    true,
+										Computed:    true,
 									},
 									"option_profile_name": {
 										Type:        schema.TypeString,
@@ -2331,9 +2416,19 @@ func ResourceDBService() *schema.Resource {
 										Description: "The Tessell Script ID",
 										Optional:    true,
 									},
+									"script_name": {
+										Type:        schema.TypeString,
+										Description: "The Tessell Script Name",
+										Optional:    true,
+									},
 									"script_version": {
 										Type:        schema.TypeString,
 										Description: "The Tessell Script version",
+										Optional:    true,
+									},
+									"use_active_version": {
+										Type:        schema.TypeBool,
+										Description: "When set to true, the system will automatically use the active version of the script",
 										Optional:    true,
 									},
 								},
@@ -2352,9 +2447,19 @@ func ResourceDBService() *schema.Resource {
 										Description: "The Tessell Script ID",
 										Optional:    true,
 									},
+									"script_name": {
+										Type:        schema.TypeString,
+										Description: "The Tessell Script Name",
+										Optional:    true,
+									},
 									"script_version": {
 										Type:        schema.TypeString,
 										Description: "The Tessell Script version",
+										Optional:    true,
+									},
+									"use_active_version": {
+										Type:        schema.TypeBool,
+										Description: "When set to true, the system will automatically use the active version of the script",
 										Optional:    true,
 									},
 								},
@@ -2398,6 +2503,7 @@ func ResourceDBService() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Databases that are part of this DB Service",
 				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source_database_id": {
@@ -2544,10 +2650,20 @@ func ResourceDBService() *schema.Resource {
 																			Description: "The Tessell Script ID",
 																			Required:    true,
 																		},
+																		"script_name": {
+																			Type:        schema.TypeString,
+																			Description: "The Tessell Script Name",
+																			Optional:    true,
+																		},
 																		"script_version": {
 																			Type:        schema.TypeString,
 																			Description: "The Tessell Script version",
-																			Required:    true,
+																			Optional:    true,
+																		},
+																		"use_active_version": {
+																			Type:        schema.TypeBool,
+																			Description: "When set to true, the system will automatically use the active version of the script",
+																			Optional:    true,
 																		},
 																	},
 																},
@@ -2596,10 +2712,20 @@ func ResourceDBService() *schema.Resource {
 																						Description: "The Tessell Script ID",
 																						Required:    true,
 																					},
+																					"script_name": {
+																						Type:        schema.TypeString,
+																						Description: "The Tessell Script Name",
+																						Optional:    true,
+																					},
 																					"script_version": {
 																						Type:        schema.TypeString,
 																						Description: "The Tessell Script version",
-																						Required:    true,
+																						Optional:    true,
+																					},
+																					"use_active_version": {
+																						Type:        schema.TypeBool,
+																						Description: "When set to true, the system will automatically use the active version of the script",
+																						Optional:    true,
 																					},
 																				},
 																			},
@@ -2897,6 +3023,38 @@ func ResourceDBService() *schema.Resource {
 												"vcpus": {
 													Type:        schema.TypeInt,
 													Description: "Number of vcpus for aws cpu options",
+													Optional:    true,
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"gcp_infra_config": {
+							Type:        schema.TypeList,
+							Description: "",
+							Optional:    true,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"gcp_cpu_options": {
+										Type:        schema.TypeList,
+										Description: "",
+										Optional:    true,
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"vcpus": {
+													Type:        schema.TypeInt,
+													Description: "Number of vCPUs for GCP custom machine type",
+													Optional:    true,
+													Computed:    true,
+												},
+												"memory": {
+													Type:        schema.TypeInt,
+													Description: "Memory in MB for GCP custom machine type",
 													Optional:    true,
 													Computed:    true,
 												},
@@ -3867,6 +4025,150 @@ func ResourceDBService() *schema.Resource {
 					},
 				},
 			},
+			"updates_info": {
+				Type:        schema.TypeList,
+				Description: "Information about available updates and upcoming maintenance windows",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"available_updates": {
+							Type:        schema.TypeList,
+							Description: "Available updates for the service",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"os_patch": {
+										Type:        schema.TypeBool,
+										Description: "Whether an OS patch update is available",
+										Computed:    true,
+									},
+									"db_patch": {
+										Type:        schema.TypeBool,
+										Description: "Whether a DB patch update is available",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"upcoming_maintenance_window": {
+							Type:        schema.TypeList,
+							Description: "Upcoming maintenance window details",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"maintenance_window_id": {
+										Type:        schema.TypeString,
+										Description: "Unique identifier of the maintenance window",
+										Computed:    true,
+									},
+									"cadence": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+									"date": {
+										Type:        schema.TypeString,
+										Description: "Date in YYYY-MM-DD format",
+										Computed:    true,
+									},
+									"time": {
+										Type:        schema.TypeString,
+										Description: "Time in HH:mm format",
+										Computed:    true,
+									},
+									"duration": {
+										Type:        schema.TypeInt,
+										Description: "Duration in minutes",
+										Computed:    true,
+									},
+									"downtime": {
+										Type:        schema.TypeString,
+										Description: "Expected downtime description",
+										Computed:    true,
+									},
+									"associated_activities": {
+										Type:        schema.TypeList,
+										Description: "Activities associated with this maintenance window",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"db_patch": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"version_no": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"type_of_patch": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"impact": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"scheduled_by": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"status": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+														},
+													},
+												},
+												"os_patch": {
+													Type:        schema.TypeList,
+													Description: "",
+													Computed:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"version_no": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"type_of_patch": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"impact": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"scheduled_by": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+															"status": {
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"parent_availability_machine_id": {
 				Type:        schema.TypeString,
 				Description: "Id of the parent AvailabilityMachine, required when creating a clone",
@@ -3968,6 +4270,38 @@ func ResourceDBService() *schema.Resource {
 			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 				return validatePrivateLinkMismatchRaw(d.GetRawConfig())
 			},
+			customdiff.ValidateChange("maintenance_window", func(ctx context.Context, old, new, meta interface{}) error {
+				windows := new.([]interface{})
+				if len(windows) == 0 {
+					return nil
+				}
+				w, ok := windows[0].(map[string]interface{})
+				if !ok {
+					return nil
+				}
+				cadence, _ := w["cadence"].(string)
+				if cadence == "" {
+					return nil
+				}
+				switch cadence {
+				case "WEEKLY":
+					day, _ := w["day"].(string)
+					if day == "" {
+						return fmt.Errorf("'day' is required when maintenance_window cadence is WEEKLY")
+					}
+				case "MONTHLY":
+					dayOfMonth, _ := w["day_of_month"].(int)
+					if dayOfMonth == 0 {
+						return fmt.Errorf("'day_of_month' is required when maintenance_window cadence is MONTHLY")
+					}
+				case "QUARTERLY":
+					startDate, _ := w["start_date"].(string)
+					if startDate == "" {
+						return fmt.Errorf("'start_date' is required when maintenance_window cadence is QUARTERLY")
+					}
+				}
+				return nil
+			}),
 		),
 	}
 }
@@ -4324,7 +4658,11 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	status := d.GetRawState().GetAttr("status").AsString()
 	id := d.Get("id").(string)
 
-	if (d.HasChanges("expected_status") || status == "STOPPED") && expectedStatus == "READY" {
+	if d.HasChanges("enable_perf_insights") {
+		return diag.Errorf("enable_perf_insights can only be set at creation time and cannot be updated. Please revert the change or recreate the resource.")
+	}
+
+	if expectedStatus == "READY" && status == "STOPPED" {
 		payload := formPayloadForStartTessellService(d)
 
 		_, _, err := client.StartTessellService(id, payload)
@@ -4348,6 +4686,16 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		_, _, err := client.UpdateTessellService(id, payload)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("maintenance_window") {
+		payload := formTessellServiceMaintenanceWindow(d.Get("maintenance_window"))
+		if payload != nil {
+			_, _, err := client.UpdateTessellServiceMaintenanceWindow(id, *payload)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 

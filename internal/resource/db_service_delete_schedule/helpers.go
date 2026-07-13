@@ -2,7 +2,6 @@ package db_service_delete_schedule
 
 import (
 	//"fmt"
-	//"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 

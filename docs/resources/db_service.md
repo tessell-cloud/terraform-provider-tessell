@@ -405,6 +405,7 @@ resource "tessell_db_service" "example" {
 - `description` (String) DB Service's description
 - `edition` (String)
 - `enable_deletion_protection` (Boolean) Specify whether to enable deletion protection for the DB Service
+- `enable_perf_insights` (Boolean) This field specifies whether to enable performance insights for the DB Service.
 - `enable_stop_protection` (Boolean) This field specifies whether to enable stop protection for the DB Service. If this is enabled, the stop for the DB Service would be disallowed until this setting is disabled.
 - `expected_status` (String) If provided, invoke the DB Service start/stop API
 - `instances` (Block List) Instances associated with this DB Service (see [below for nested schema](#nestedblock--instances))
@@ -429,6 +430,7 @@ resource "tessell_db_service" "example" {
 - `date_created` (String) Timestamp when the DB Service was created at
 - `deletion_schedule` (List of Object) Details of the deletion schedule on a DB Service (see [below for nested schema](#nestedatt--deletion_schedule))
 - `id` (String) Tessell generated UUID for the DB Service. This is the unique identifier for the DB Service.
+- `is_hpc` (Boolean) Specifies whether the DB Service is using High Performance Compute (HPC)
 - `license_type` (String) DB Service License Type
 - `logged_in_user_role` (String) Access role for the currently logged in user
 - `num_of_instances` (Number) Number of instance (nodes) to be created for the DB Service. This is a required input for Apache Kafka. For all other engines, this input would be ignored even if specified.
@@ -443,6 +445,7 @@ resource "tessell_db_service" "example" {
 - `tessell_genie_status` (String) DB Service's Genie status
 - `upcoming_scheduled_actions` (List of Object) (see [below for nested schema](#nestedatt--upcoming_scheduled_actions))
 - `updates_in_progress` (List of Object) The updates that are in progress for this resource (see [below for nested schema](#nestedatt--updates_in_progress))
+- `updates_info` (List of Object) Information about available updates and upcoming maintenance windows (see [below for nested schema](#nestedatt--updates_info))
 
 <a id="nestedblock--creds"></a>
 ### Nested Schema for `creds`
@@ -551,7 +554,9 @@ Read-Only:
 Optional:
 
 - `script_id` (String) The Tessell Script ID
+- `script_name` (String) The Tessell Script Name
 - `script_version` (String) The Tessell Script version
+- `use_active_version` (Boolean) When set to true, the system will automatically use the active version of the script
 
 
 <a id="nestedblock--engine_configuration--postgresql_config"></a>
@@ -572,7 +577,9 @@ Optional:
 Optional:
 
 - `script_id` (String) The Tessell Script ID
+- `script_name` (String) The Tessell Script Name
 - `script_version` (String) The Tessell Script version
+- `use_active_version` (Boolean) When set to true, the system will automatically use the active version of the script
 
 
 <a id="nestedblock--engine_configuration--sql_server_config"></a>
@@ -603,6 +610,7 @@ Optional:
 - `enable_compute_sharing` (Boolean) Specify if the computes should be shared across DB Services
 - `enable_encryption` (Boolean)
 - `encryption_key` (String) The encryption key name which is used to encrypt the data at rest
+- `gcp_infra_config` (Block List, Max: 1) GCP-specific infrastructure configuration for custom machine types (see [below for nested schema](#nestedblock--infrastructure--gcp_infra_config))
 - `iops` (Number) IOPS requested for the DB Service
 - `private_subnet` (String) The private subnet to be used for provisioning the compute resource
 - `region` (String) The region in which the DB Service provisioned
@@ -1608,9 +1616,16 @@ Read-Only:
 
 Required:
 
-- `day` (String)
-- `duration` (Number) The duration during which the maintenance window will be allowed to trigger
+- `duration` (Number) The duration during which the maintenance window will be allowed to trigger (in minutes)
 - `time` (String) Time value in (hh:mm) format. ex. '02:00'
+
+Optional:
+
+- `cadence` (String) The cadence type for maintenance window. Allowed values: WEEKLY, MONTHLY, QUARTERLY. Defaults to WEEKLY.
+
+- `day` (String) Day of the week when maintenance should be performed. Required when cadence is WEEKLY. Allowed values: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+- `day_of_month` (Number) Day of the month when maintenance should be performed (1-31). Required when cadence is MONTHLY.
+- `start_date` (String) Start date for quarterly maintenance in YYYY-MM-DD format. Required when cadence is QUARTERLY.
 
 
 <a id="nestedblock--rpo_policy_config"></a>
@@ -2224,6 +2239,52 @@ Read-Only:
 - `submitted_at` (String)
 - `update_info` (Map of String)
 - `update_type` (String)
+
+
+<a id="nestedblock--infrastructure--gcp_infra_config"></a>
+### Nested Schema for `infrastructure.gcp_infra_config`
+
+Optional:
+
+- `gcp_cpu_options` (Block List, Max: 1) GCP CPU options for custom machine type configuration (see [below for nested schema](#nestedblock--infrastructure--gcp_infra_config--gcp_cpu_options))
+
+<a id="nestedblock--infrastructure--gcp_infra_config--gcp_cpu_options"></a>
+### Nested Schema for `infrastructure.gcp_infra_config.gcp_cpu_options`
+
+Optional:
+
+- `memory` (Number) Memory in MB for GCP custom machine type (optional)
+- `vcpus` (Number) Number of vCPUs for GCP custom machine type
+
+
+<a id="nestedatt--updates_info"></a>
+### Nested Schema for `updates_info`
+
+Read-Only:
+
+- `available_updates` (List of Object) Available updates for the service (see [below for nested schema](#nestedatt--updates_info--available_updates))
+- `upcoming_maintenance_window` (List of Object) Upcoming maintenance window details (see [below for nested schema](#nestedatt--updates_info--upcoming_maintenance_window))
+
+<a id="nestedobjatt--updates_info--available_updates"></a>
+### Nested Schema for `updates_info.available_updates`
+
+Read-Only:
+
+- `db_patch` (Boolean) Whether a DB patch update is available
+- `os_patch` (Boolean) Whether an OS patch update is available
+
+<a id="nestedobjatt--updates_info--upcoming_maintenance_window"></a>
+### Nested Schema for `updates_info.upcoming_maintenance_window`
+
+Read-Only:
+
+- `associated_activities` (List of Object)
+- `cadence` (String)
+- `date` (String) Date in YYYY-MM-DD format
+- `downtime` (String) Expected downtime description
+- `duration` (Number) Duration in minutes
+- `maintenance_window_id` (String) Unique identifier of the maintenance window
+- `time` (String) Time in HH:mm format
 
 ## Import
 
