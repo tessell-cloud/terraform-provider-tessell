@@ -52,8 +52,7 @@ resource "tessell_parameter_profile" "example" {
 - `infra_type` (String) Infrastructure type (e.g., AWS, AZURE, GCP)
 - `maturity_status` (String) Action to change the maturity status of the Parameter Profile. Allowed values: `draft`, `publish`, `unpublish`.
 - `parameters` (Block List) Parameters to manage in this profile. State stores all parameters returned by the API (for accurate import). Only changes to parameters declared here are planned. (see [below for nested schema](#nestedblock--parameters))
-- `propagation_strategy` (String) Update propagation strategy: IMMEDIATELY, MAINTENANCE_WINDOW, CUSTOM_DATE_TIME, DO_NOT_APPLY. If not provided, the API will handle defaults.
-- `propagation_time` (String) Propagation time (required when strategy is CUSTOM_DATE_TIME)
+- `propagation_policy` (Block List, Max: 1) Update propagation policy. If not provided, the API will handle defaults. (see [below for nested schema](#nestedblock--propagation_policy))
 - `source_parameter_profile_id` (String) ID of the parameter profile to duplicate from
 
 ### Read-Only
@@ -109,6 +108,18 @@ Read-Only:
 - `source` (String) Source of the parameter
 - `top_parameter` (Boolean) Boolean variable indicating a parameter is a most modified / key parameter
 - `usage_type` (String) Usage type of the parameter
+
+
+<a id="nestedblock--propagation_policy"></a>
+### Nested Schema for `propagation_policy`
+
+Required:
+
+- `strategy` (String) Update propagation strategy: IMMEDIATELY, MAINTENANCE_WINDOW, CUSTOM_DATE_TIME, DO_NOT_APPLY.
+
+Optional:
+
+- `time` (String) Propagation time, required when strategy is CUSTOM_DATE_TIME (e.g. 2026-05-15T10:00:00Z).
 
 
 <a id="nestedatt--driver_info"></a>
