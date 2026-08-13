@@ -350,7 +350,15 @@ func ResourceDBService() *schema.Resource {
 							Default:     false,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								if old != "" {
-									clonedFromDatabaseId := d.GetRawState().GetAttr("databases").AsValueSlice()[0].GetAttr("cloned_from_info").AsValueSlice()[0].GetAttr("database_id").AsString()
+									databasesSlice := d.GetRawState().GetAttr("databases").AsValueSlice()
+									if len(databasesSlice) == 0 {
+										return false
+									}
+									clonedFromInfoNested := databasesSlice[0].GetAttr("cloned_from_info").AsValueSlice()
+									if len(clonedFromInfoNested) == 0 {
+										return false
+									}
+									clonedFromDatabaseId := clonedFromInfoNested[0].GetAttr("database_id").AsString()
 									return clonedFromDatabaseId != ""
 								}
 								return false
@@ -363,7 +371,15 @@ func ResourceDBService() *schema.Resource {
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								if old != "" {
 									encryptionKey := d.Get(k)
-									clonedFromDatabaseId := d.GetRawState().GetAttr("databases").AsValueSlice()[0].GetAttr("cloned_from_info").AsValueSlice()[0].GetAttr("database_id").AsString()
+									databasesSlice := d.GetRawState().GetAttr("databases").AsValueSlice()
+									if len(databasesSlice) == 0 {
+										return false
+									}
+									clonedFromInfoNested := databasesSlice[0].GetAttr("cloned_from_info").AsValueSlice()
+									if len(clonedFromInfoNested) == 0 {
+										return false
+									}
+									clonedFromDatabaseId := clonedFromInfoNested[0].GetAttr("database_id").AsString()
 									return old == encryptionKey && new == "" && clonedFromDatabaseId != ""
 								}
 								return false
@@ -965,7 +981,11 @@ func ResourceDBService() *schema.Resource {
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								dnsPrefix := d.Get(k)
 								if old != "" && new == "" && !d.GetRawState().IsNull() {
-									dnsPrefixInState := d.GetRawState().GetAttr("service_connectivity").AsValueSlice()[0].GetAttr("dns_prefix").AsString()
+									serviceConnSlice := d.GetRawState().GetAttr("service_connectivity").AsValueSlice()
+									if len(serviceConnSlice) == 0 {
+										return false
+									}
+									dnsPrefixInState := serviceConnSlice[0].GetAttr("dns_prefix").AsString()
 									if dnsPrefix == dnsPrefixInState {
 										return true
 									}
@@ -2513,7 +2533,11 @@ func ResourceDBService() *schema.Resource {
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								sourceDatabaseId := d.Get(k)
 								if old == "" && new == sourceDatabaseId && !d.GetRawState().IsNull() {
-									clonedFromInfoNested := d.GetRawState().GetAttr("databases").AsValueSlice()[0].GetAttr("cloned_from_info").AsValueSlice()
+									databasesSlice := d.GetRawState().GetAttr("databases").AsValueSlice()
+									if len(databasesSlice) == 0 {
+										return true
+									}
+									clonedFromInfoNested := databasesSlice[0].GetAttr("cloned_from_info").AsValueSlice()
 									if len(clonedFromInfoNested) == 0 {
 										return true
 									}
@@ -2889,7 +2913,11 @@ func ResourceDBService() *schema.Resource {
 							return true
 						}
 					} else if old == "1" && new == "0" {
-						integrationsConfig := d.GetRawState().GetAttr("integrations_config").AsValueSlice()[0]
+						integrationsConfigSlice := d.GetRawState().GetAttr("integrations_config").AsValueSlice()
+						if len(integrationsConfigSlice) == 0 {
+							return false
+						}
+						integrationsConfig := integrationsConfigSlice[0]
 						integrations := integrationsConfig.GetAttr("integrations").AsValueSlice()
 						if len(integrations) == 0 {
 							return true
@@ -2923,7 +2951,11 @@ func ResourceDBService() *schema.Resource {
 							return true
 						}
 					} else if old == "1" && new == "0" {
-						tags := d.GetRawState().GetAttr("tags").AsValueSlice()[0].AsValueMap()
+						tagsSlice := d.GetRawState().GetAttr("tags").AsValueSlice()
+						if len(tagsSlice) == 0 {
+							return false
+						}
+						tags := tagsSlice[0].AsValueMap()
 						if len(tags) == 0 {
 							return true
 						}
@@ -3954,7 +3986,11 @@ func ResourceDBService() *schema.Resource {
 							return true
 						}
 					} else if old == "1" && new == "0" {
-						deletionConfigFromState := d.GetRawState().GetAttr("deletion_config").AsValueSlice()[0]
+						deletionConfigSlice := d.GetRawState().GetAttr("deletion_config").AsValueSlice()
+						if len(deletionConfigSlice) == 0 {
+							return false
+						}
+						deletionConfigFromState := deletionConfigSlice[0]
 						retainAvailabilityMachineIsNullInState := deletionConfigFromState.GetAttr("retain_availability_machine").False()
 						if retainAvailabilityMachineIsNullInState {
 							return true

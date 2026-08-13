@@ -225,7 +225,11 @@ func ResourceDBSnapshot() *schema.Resource {
 							return true
 						}
 					} else if old == "1" && new == "0" {
-						users := d.GetRawState().GetAttr("shared_with").AsValueSlice()[0].GetAttr("users").AsValueSlice()
+						sharedWithSlice := d.GetRawState().GetAttr("shared_with").AsValueSlice()
+						if len(sharedWithSlice) == 0 {
+							return false
+						}
+						users := sharedWithSlice[0].GetAttr("users").AsValueSlice()
 						if len(users) == 0 {
 							return true
 						}
