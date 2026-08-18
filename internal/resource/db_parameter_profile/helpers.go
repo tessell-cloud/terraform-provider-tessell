@@ -4,6 +4,8 @@ import (
 	//"fmt"
 	//"time"
 
+	"sort"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"terraform-provider-tessell/internal/model"
@@ -47,7 +49,23 @@ func setResourceData(d *schema.ResourceData, databaseParameterProfileResponse *m
 		return err
 	}
 
-	if err := d.Set("maturity_status", databaseParameterProfileResponse.MaturityStatus); err != nil {
+	// Map API response values (PUBLISHED, UNPUBLISHED, DRAFT) back to the
+	// action verbs accepted by the schema (publish, unpublish, draft) so that
+	// state stays consistent with what the user wrote in HCL and no drift occurs.
+	maturityActionMap := map[string]string{
+		"PUBLISHED":   "publish",
+		"UNPUBLISHED": "unpublish",
+		"DRAFT":       "draft",
+	}
+	maturityVal := ""
+	if databaseParameterProfileResponse.MaturityStatus != nil {
+		if mapped, ok := maturityActionMap[*databaseParameterProfileResponse.MaturityStatus]; ok {
+			maturityVal = mapped
+		} else {
+			maturityVal = *databaseParameterProfileResponse.MaturityStatus
+		}
+	}
+	if err := d.Set("maturity_status", maturityVal); err != nil {
 		return err
 	}
 
@@ -55,7 +73,7 @@ func setResourceData(d *schema.ResourceData, databaseParameterProfileResponse *m
 		return err
 	}
 
-	if err := d.Set("parameters", parseDatabaseProfileParameterTypeListWithResData(databaseParameterProfileResponse.Parameters, d)); err != nil {
+	if err := d.Set("parameters", parseDatabaseProfileParameterTypeListWithResData(databaseParameterProfileResponse.Parameters)); err != nil {
 		return err
 	}
 
@@ -140,17 +158,35 @@ func parseDatabaseParameterEngineInfoOracle(databaseParameterEngineInfo_oracle *
 	return parsedDatabaseParameterEngineInfo_oracle
 }
 
-func parseDatabaseProfileParameterTypeListWithResData(parameters *[]model.DatabaseProfileParameterType, d *schema.ResourceData) []interface{} {
+func parseDatabaseProfileParameterTypeListWithResData(parameters *[]model.DatabaseProfileParameterType) []interface{} {
 	if parameters == nil {
 		return nil
 	}
-	databaseProfileParameterTypeList := make([]interface{}, 0)
 
-	if parameters != nil {
-		databaseProfileParameterTypeList = make([]interface{}, len(*parameters))
-		for i, databaseProfileParameterTypeItem := range *parameters {
-			databaseProfileParameterTypeList[i] = parseDatabaseProfileParameterType(&databaseProfileParameterTypeItem)
+	// Store ALL parameters from the API so that:
+	// 1. State accurately reflects reality
+	// 2. terraform import captures the full profile
+	// 3. terraform state show displays all params
+	//
+	// Sort by name for a stable TypeList ordering — this prevents phantom diffs
+	// when the API returns parameters in different orders across reads.
+	// CustomizeDiff handles suppressing drift for non-config params.
+	sorted := make([]model.DatabaseProfileParameterType, len(*parameters))
+	copy(sorted, *parameters)
+	sort.Slice(sorted, func(i, j int) bool {
+		nameI, nameJ := "", ""
+		if sorted[i].Name != nil {
+			nameI = *sorted[i].Name
 		}
+		if sorted[j].Name != nil {
+			nameJ = *sorted[j].Name
+		}
+		return nameI < nameJ
+	})
+
+	databaseProfileParameterTypeList := make([]interface{}, len(sorted))
+	for i, param := range sorted {
+		databaseProfileParameterTypeList[i] = parseDatabaseProfileParameterType(&param)
 	}
 
 	return databaseProfileParameterTypeList
