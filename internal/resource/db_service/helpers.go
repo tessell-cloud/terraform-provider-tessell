@@ -2,8 +2,8 @@ package db_service
 
 import (
 	//"fmt"
-	"sort"
 	//"time"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -1396,6 +1396,10 @@ func parseTessellServiceInstanceDTO(instances *model.TessellServiceInstanceDTO) 
 	var parameterProfile *model.ParameterProfile
 	if instances.ParameterProfile != parameterProfile {
 		parsedInstances["parameter_profile"] = []interface{}{parseParameterProfile(instances.ParameterProfile)}
+		// Also set the flat parameter_profile_id so Terraform state reflects what was applied
+		if instances.ParameterProfile.Id != nil {
+			parsedInstances["parameter_profile_id"] = *instances.ParameterProfile.Id
+		}
 	}
 
 	var optionProfile *model.OptionProfile
@@ -1658,9 +1662,6 @@ func parsePrivateLinkInfo(privateLinkInfo *model.PrivateLinkInfo) interface{} {
 	parsedPrivateLinkInfo["status"] = privateLinkInfo.Status
 	parsedPrivateLinkInfo["endpoint_service_name"] = privateLinkInfo.EndpointServiceName
 	parsedPrivateLinkInfo["private_link_service_alias"] = privateLinkInfo.PrivateLinkServiceAlias
-	// Sort service_principals and client_azure_subscription_ids so that state is
-	// deterministic regardless of the order the API returns them in. This prevents
-	// perpetual plan drift caused by non-deterministic API response ordering.
 	if sp := privateLinkInfo.ServicePrincipals; sp != nil {
 		sorted := make([]string, len(*sp))
 		copy(sorted, *sp)
@@ -2179,6 +2180,69 @@ func getNewTFInstances(d *schema.ResourceData, remoteInstances *[]model.TessellS
 	return &newInstances
 }
 
+// getInstanceParameterProfileChanges detects changes in parameter_profile_id for existing instances
+// and returns a list of update requests for instances whose profile needs to be changed
+func getInstanceParameterProfileChanges(d *schema.ResourceData, remoteInstances *[]model.TessellServiceInstanceDTO) *[]model.DBServiceInstanceParameterProfileUpdateRequest {
+	if remoteInstances == nil {
+		return nil
+	}
+
+	// Build a map of remote instance name to instance ID and current parameter profile ID
+	remoteInstanceMap := make(map[string]struct {
+		id                 string
+		parameterProfileId string
+	})
+	for _, ri := range *remoteInstances {
+		if ri.Name != nil && ri.Id != nil {
+			profileId := ""
+			if ri.ParameterProfile != nil && ri.ParameterProfile.Id != nil {
+				profileId = *ri.ParameterProfile.Id
+			}
+			remoteInstanceMap[*ri.Name] = struct {
+				id                 string
+				parameterProfileId string
+			}{
+				id:                 *ri.Id,
+				parameterProfileId: profileId,
+			}
+		}
+	}
+
+	// Parse terraform instance input and check for parameter profile changes
+	instances := d.Get("instances").([]interface{})
+	var changes []model.DBServiceInstanceParameterProfileUpdateRequest
+
+	for _, inst := range instances {
+		instData := inst.(map[string]interface{})
+		instanceName := instData["name"].(string)
+		newProfileId := ""
+		if val, ok := instData["parameter_profile_id"]; ok && val != nil {
+			newProfileId = val.(string)
+		}
+
+		// Skip if no parameter_profile_id is specified in config (user not managing this field)
+		if newProfileId == "" {
+			continue
+		}
+
+		// Check if this instance exists remotely
+		if remoteInst, found := remoteInstanceMap[instanceName]; found {
+			// Only create an update request if the profile ID is different
+			if newProfileId != remoteInst.parameterProfileId {
+				changes = append(changes, model.DBServiceInstanceParameterProfileUpdateRequest{
+					InstanceId:         helper.GetStringPointer(remoteInst.id),
+					ParameterProfileId: helper.GetStringPointer(newProfileId),
+				})
+			}
+		}
+	}
+
+	if len(changes) == 0 {
+		return nil
+	}
+	return &changes
+}
+
 func formPayloadForAddTessellServiceInstances(d *schema.ResourceData, tfInstancePayload *model.AddDBServiceInstancePayloadV2) *model.AddDBServiceInstancesPayload {
 	// Find the precheck ID from the instances list by matching instance name
 	var precheckId *string
@@ -2446,12 +2510,13 @@ func formAddDBServiceInstancePayloadList(tfInstancePayload *model.AddDBServiceIn
 		return nil
 	}
 	newInstance := model.AddDBServiceInstancePayload{
-		Name:             tfInstancePayload.Name,
-		Role:             tfInstancePayload.Role,
-		AvailabilityZone: tfInstancePayload.AvailabilityZone,
-		ComputeId:        tfInstancePayload.ComputeId,
-		StorageConfig:    tfInstancePayload.StorageConfig,
-		PrivateSubnet:    tfInstancePayload.PrivateSubnet,
+		Name:               tfInstancePayload.Name,
+		Role:               tfInstancePayload.Role,
+		AvailabilityZone:   tfInstancePayload.AvailabilityZone,
+		ComputeId:          tfInstancePayload.ComputeId,
+		ParameterProfileId: tfInstancePayload.ParameterProfileId,
+		StorageConfig:      tfInstancePayload.StorageConfig,
+		PrivateSubnet:      tfInstancePayload.PrivateSubnet,
 	}
 
 	if tfInstancePayload.PrivateSubnet != nil {
@@ -2812,15 +2877,19 @@ func formProvisionComputePayload(provisionComputePayloadRaw interface{}) *model.
 	provisionComputePayloadData := provisionComputePayloadRaw.(map[string]interface{})
 
 	provisionComputePayloadFormed := model.ProvisionComputePayload{
-		Name:                 helper.GetStringPointer(provisionComputePayloadData["name"]),
-		InstanceGroupName:    helper.GetStringPointer(provisionComputePayloadData["instance_group_name"]),
-		Region:               helper.GetStringPointer(provisionComputePayloadData["region"]),
-		AvailabilityZone:     helper.GetStringPointer(provisionComputePayloadData["availability_zone"]),
-		Role:                 helper.GetStringPointer(provisionComputePayloadData["role"]),
-		VPC:                  helper.GetStringPointer(provisionComputePayloadData["vpc"]),
-		PrivateSubnet:        helper.GetStringPointer(provisionComputePayloadData["private_subnet"]),
-		ComputeType:          helper.GetStringPointer(provisionComputePayloadData["compute_type"]),
-		ComputeId:            helper.GetStringPointer(provisionComputePayloadData["compute_id"]),
+		Name:              helper.GetStringPointer(provisionComputePayloadData["name"]),
+		InstanceGroupName: helper.GetStringPointer(provisionComputePayloadData["instance_group_name"]),
+		Region:            helper.GetStringPointer(provisionComputePayloadData["region"]),
+		AvailabilityZone:  helper.GetStringPointer(provisionComputePayloadData["availability_zone"]),
+		Role:              helper.GetStringPointer(provisionComputePayloadData["role"]),
+		VPC:               helper.GetStringPointer(provisionComputePayloadData["vpc"]),
+		PrivateSubnet:     helper.GetStringPointer(provisionComputePayloadData["private_subnet"]),
+		ComputeType:       helper.GetStringPointer(provisionComputePayloadData["compute_type"]),
+		ComputeId:         helper.GetStringPointer(provisionComputePayloadData["compute_id"]),
+		// ParameterProfileId is intentionally not sent during provision.
+		// The API does not support setting parameter_profile_id at instance level during service creation.
+		// If specified in config, it will be applied via the update path (PATCH /services/{id}/parameter-profiles)
+		// after the service reaches READY state — same pattern as is_hpc at service level.
 		Timezone:             helper.GetStringPointer(provisionComputePayloadData["timezone"]),
 		ComputeConfig:        formComputeConfigPayload(provisionComputePayloadData["compute_config"]),
 		StorageConfig:        formStorageConfigPayload(provisionComputePayloadData["storage_config"]),
@@ -2862,6 +2931,7 @@ func formAddDBServiceInstancePayloadV2(addDBServiceInstancePayloadV2Raw interfac
 		PrivateSubnet:        helper.GetStringPointer(addDBServiceInstancePayloadV2Data["private_subnet"]),
 		ComputeType:          helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_type"]),
 		ComputeId:            helper.GetStringPointer(addDBServiceInstancePayloadV2Data["compute_id"]),
+		ParameterProfileId:   helper.GetStringPointer(addDBServiceInstancePayloadV2Data["parameter_profile_id"]),
 		EnablePerfInsights:   helper.GetBoolPointer(addDBServiceInstancePayloadV2Data["enable_perf_insights"]),
 		AwsInfraConfig:       formAwsInfraConfig(addDBServiceInstancePayloadV2Data["aws_infra_config"]),
 		GcpInfraConfig:       formGcpInfraConfig(addDBServiceInstancePayloadV2Data["gcp_infra_config"]),

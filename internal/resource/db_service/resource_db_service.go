@@ -3129,6 +3129,17 @@ func ResourceDBService() *schema.Resource {
 							Description: "",
 							Optional:    true,
 						},
+						"parameter_profile_id": {
+							Type:        schema.TypeString,
+							Description: "Parameter profile ID for this instance. Only applicable for RR/DR instances - HA instances use the service-level parameter profile.",
+							Optional:    true,
+							Computed:    true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								// Suppress diff if the new value is empty (user not managing this field)
+								// This prevents drift when profile was set via UI
+								return new == ""
+							},
+						},
 						"parameter_profile": {
 							Type:        schema.TypeList,
 							Description: "",
@@ -4210,6 +4221,21 @@ func ResourceDBService() *schema.Resource {
 				Description: "Id of the parent AvailabilityMachine, required when creating a clone",
 				Optional:    true,
 			},
+			"parameter_profile_update_strategy": {
+				Type:        schema.TypeString,
+				Description: "Apply strategy for parameter profile updates on instances: IMMEDIATELY, MAINTENANCE_WINDOW, CUSTOM_DATE_TIME, DO_NOT_APPLY. If not provided, the API will handle defaults.",
+				Optional:    true,
+			},
+			"parameter_profile_update_time": {
+				Type:        schema.TypeString,
+				Description: "Timestamp for parameter profile update when strategy is CUSTOM_DATE_TIME (e.g. 2026-05-07T07:00:00.000Z)",
+				Optional:    true,
+			},
+			"parameter_profile_update_maintenance_window_id": {
+				Type:        schema.TypeString,
+				Description: "Maintenance window ID to use when parameter_profile_update_strategy is MAINTENANCE_WINDOW. Required when strategy is MAINTENANCE_WINDOW.",
+				Optional:    true,
+			},
 			"private_link_info": {
 				Type:        schema.TypeList,
 				Description: "Service-level shorthand for configuring private link on the primary instance. When set, the configuration is applied exclusively to the primary instance — standby and read replica instances are never affected. Removing this block is a no-op: the backend private link configuration is preserved. Not supported during service creation; must be added in a subsequent apply after the service has been created. In Terraform state, this value mirrors the primary instance's private_link_info and does not cause drift.",
@@ -4303,8 +4329,29 @@ func ResourceDBService() *schema.Resource {
 				}
 				return nil
 			}),
+			// Block parameter_profile_id on instances during service creation
+			customdiff.ValidateChange("instances", func(ctx context.Context, oldInstances, newInstances, meta interface{}) error {
+				instances := newInstances.([]interface{})
+				for _, instanceRaw := range instances {
+					instance := instanceRaw.(map[string]interface{})
+					if val, ok := instance["parameter_profile_id"]; ok && val != nil && val.(string) != "" {
+						// Only block on new resource creation, not on updates
+						if oldInstances == nil || len(oldInstances.([]interface{})) == 0 {
+							return fmt.Errorf("parameter_profile_id cannot be set on instances during service creation. Create the service first, then set parameter_profile_id")
+						}
+					}
+				}
+				return nil
+			}),
 			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
-				return validatePrivateLinkMismatchRaw(d.GetRawConfig())
+				strategy, _ := d.GetOk("parameter_profile_update_strategy")
+				if strategy == "MAINTENANCE_WINDOW" {
+					mwId, _ := d.GetOk("parameter_profile_update_maintenance_window_id")
+					if mwId == nil || mwId.(string) == "" {
+						return fmt.Errorf("'parameter_profile_update_maintenance_window_id' is required when parameter_profile_update_strategy is MAINTENANCE_WINDOW")
+					}
+				}
+				return nil
 			},
 			customdiff.ValidateChange("maintenance_window", func(ctx context.Context, old, new, meta interface{}) error {
 				windows := new.([]interface{})
@@ -4338,6 +4385,9 @@ func ResourceDBService() *schema.Resource {
 				}
 				return nil
 			}),
+			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+				return validatePrivateLinkMismatchRaw(d.GetRawConfig())
+			},
 		),
 	}
 }
@@ -4485,7 +4535,7 @@ func handlePrivateLinkUpdates(client *apiClient.Client, d *schema.ResourceData, 
 				}
 			}
 		} else {
-			// UPDATE: Private link already exists and principals have changed
+			// UPDATE: Both exist, update the private link
 			privateLinkId := *apiInstance.PrivateLinkInfo.Id
 			payload := formPrivateLinkPayload(newPrivateLinkInfoRaw)
 			if payload != nil {
@@ -4803,6 +4853,60 @@ func resourceDBServiceUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			// poll for instance removal
 			for _, instanceId := range *deleteInstancePayload.InstanceIds {
 				if err := client.DBServicePollForInstanceDeletion(d.Get("id").(string), instanceId, d.Get("timeout").(int), 30); err != nil {
+					return diag.FromErr(err)
+				}
+			}
+		}
+
+	}
+
+	// Update Instance Parameter Profiles
+	// Triggered when instances change (parameter_profile_id drift) OR when apply config fields change
+	if d.HasChanges("instances") || d.HasChanges("parameter_profile_update_strategy") || d.HasChanges("parameter_profile_update_time") {
+		tessellServiceResponse, _, err := client.GetTessellService(id, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		parameterProfileChanges := getInstanceParameterProfileChanges(d, tessellServiceResponse.Instances)
+		if parameterProfileChanges != nil && len(*parameterProfileChanges) > 0 {
+			updatePayload := &model.DBServiceParameterProfileUpdateRequest{
+				InstanceParameterProfileConfig: parameterProfileChanges,
+			}
+
+			// Build applyConfig from user-provided fields; if not provided, let the API handle defaults
+			if v, ok := d.GetOk("parameter_profile_update_strategy"); ok {
+				strategy := v.(string)
+				applyConfig := &model.ApplyConfig{
+					Strategy: &strategy,
+				}
+				// MAINTENANCE_WINDOW requires maintenanceWindowId — use the user-provided field.
+				// Fall back to auto-resolve from the service's upcoming maintenance window if available.
+				if strategy == "MAINTENANCE_WINDOW" {
+					if mwId, ok := d.GetOk("parameter_profile_update_maintenance_window_id"); ok && mwId.(string) != "" {
+						mwIdStr := mwId.(string)
+						applyConfig.MaintenanceWindowId = &mwIdStr
+					} else if tessellServiceResponse.UpdatesInfo != nil &&
+						tessellServiceResponse.UpdatesInfo.UpcomingMaintenanceWindow != nil &&
+						tessellServiceResponse.UpdatesInfo.UpcomingMaintenanceWindow.MaintenanceWindowId != nil {
+						applyConfig.MaintenanceWindowId = tessellServiceResponse.UpdatesInfo.UpcomingMaintenanceWindow.MaintenanceWindowId
+					}
+				}
+				if t, tOk := d.GetOk("parameter_profile_update_time"); tOk {
+					time := t.(string)
+					applyConfig.Time = &time
+				}
+				updatePayload.ApplyConfig = applyConfig
+			}
+
+			taskSummary, _, err := client.UpdateDBServiceParameterProfiles(id, updatePayload)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			// Only poll when the API returns an immediate task (e.g. IMMEDIATELY strategy).
+			// For MAINTENANCE_WINDOW / DO_NOT_APPLY the operation is scheduled for later
+			// and no task ID is returned — skip polling in that case.
+			if taskSummary != nil && taskSummary.TaskId != nil {
+				if err := client.DBServicePollForUpdateInProgress(d.Get("id").(string), *taskSummary.TaskId, d.Get("timeout").(int), 30); err != nil {
 					return diag.FromErr(err)
 				}
 			}

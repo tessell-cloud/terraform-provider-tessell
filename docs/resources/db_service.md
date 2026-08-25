@@ -411,6 +411,9 @@ resource "tessell_db_service" "example" {
 - `instances` (Block List) Instances associated with this DB Service (see [below for nested schema](#nestedblock--instances))
 - `integrations_config` (Block List, Max: 1) Integrations to be enabled for the DB Service (see [below for nested schema](#nestedblock--integrations_config))
 - `maintenance_window` (Block List, Max: 1) This field details the DB Service maintenance related details. (see [below for nested schema](#nestedblock--maintenance_window))
+- `parameter_profile_update_maintenance_window_id` (String) Maintenance window ID to use when `parameter_profile_update_strategy` is MAINTENANCE_WINDOW. Required when strategy is MAINTENANCE_WINDOW.
+- `parameter_profile_update_strategy` (String) Apply strategy for parameter profile updates on instances: IMMEDIATELY, MAINTENANCE_WINDOW, CUSTOM_DATE_TIME, DO_NOT_APPLY. If not provided, the API will handle defaults.
+- `parameter_profile_update_time` (String) Timestamp for parameter profile update when strategy is CUSTOM_DATE_TIME (e.g. 2026-05-07T07:00:00.000Z).
 - `parent_availability_machine_id` (String) Id of the parent AvailabilityMachine, required when creating a clone
 - `pitr` (String) PITR Timestamp, using which the clone is to be created
 - `private_link_info` (Block List, Max: 1) Service-level shorthand for configuring private link on the primary instance. When set, the configuration is applied exclusively to the primary instance — standby and read replica instances are never affected. Removing this block is a no-op: the backend private link configuration is preserved. Not supported during service creation; must be added in a subsequent apply after the service has been created. In Terraform state, this value mirrors the primary instance's private_link_info and does not cause drift. (see [below for nested schema](#nestedblock--private_link_info))
@@ -2285,7 +2288,6 @@ Read-Only:
 - `duration` (Number) Duration in minutes
 - `maintenance_window_id` (String) Unique identifier of the maintenance window
 - `time` (String) Time in HH:mm format
-
 ## Import
 
 DB Services can be imported using the service `id` (Tessell generated UUID), e.g.

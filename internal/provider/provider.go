@@ -8,6 +8,7 @@ import (
 	"terraform-provider-tessell/internal/resource/dataflix"
 	"terraform-provider-tessell/internal/resource/dataflix_catalog"
 	"terraform-provider-tessell/internal/resource/db_backup"
+	"terraform-provider-tessell/internal/resource/db_option_profile"
 	"terraform-provider-tessell/internal/resource/db_parameter_profile"
 	"terraform-provider-tessell/internal/resource/db_service"
 	"terraform-provider-tessell/internal/resource/db_service_delete_schedule"
@@ -61,6 +62,7 @@ func New(terraformVersion string) func() *schema.Provider {
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
+				"tessell_db_option_profiles":             db_option_profile.DataSourceDBOptionProfiles(),
 				"tessell_db_backups":                     db_backup.DataSourceDBBackups(),
 				"tessell_db_service":                     db_service.DataSourceDBService(),
 				"tessell_db_services":                    db_service.DataSourceDBServices(),
@@ -81,6 +83,7 @@ func New(terraformVersion string) func() *schema.Provider {
 				"tessell_db_service_start_stop_schedule": db_service_start_stop_schedule.ResourceDBServiceStartStopSchedule(),
 				"tessell_db_service_delete_schedule":     db_service_delete_schedule.ResourceDBServiceDeleteSchedule(),
 				"tessell_db_snapshot":                    db_snapshot.ResourceDBSnapshot(),
+				"tessell_parameter_profile":              db_parameter_profile.ResourceDBParameterProfile(),
 			},
 		}
 
